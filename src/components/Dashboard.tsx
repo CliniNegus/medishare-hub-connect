@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +27,6 @@ import ClusterMap from './ClusterMap';
 import BookingModal from './BookingModal';
 import InvestorWallet from './InvestorWallet';
 
-// Sample data for demonstration
 const equipmentData: EquipmentProps[] = [
   {
     id: '1',
@@ -95,7 +93,7 @@ const equipmentData: EquipmentProps[] = [
   }
 ];
 
-const clusterNodes = [
+const clusterNodes: ClusterNode[] = [
   { id: '1', name: 'Central Hospital', lat: 37.7749, lng: -122.4194, equipmentCount: 12, type: 'hospital' },
   { id: '2', name: 'St. Mary\'s Clinic', lat: 37.7833, lng: -122.4167, equipmentCount: 5, type: 'clinic' },
   { id: '3', name: 'Downtown Medical', lat: 37.7694, lng: -122.4862, equipmentCount: 8, type: 'hospital' },
@@ -103,7 +101,13 @@ const clusterNodes = [
   { id: '5', name: 'Community Health', lat: 37.7739, lng: -122.4312, equipmentCount: 3, type: 'clinic' },
 ];
 
-const recentTransactions = [
+const recentTransactions: {
+  id: string;
+  date: string;
+  description: string;
+  amount: number;
+  type: 'deposit' | 'withdrawal' | 'return';
+}[] = [
   { id: '1', date: 'Apr 10, 2025', description: 'Investment Return - MRI Scanner', amount: 240, type: 'return' },
   { id: '2', date: 'Apr 07, 2025', description: 'Deposit to Investment Pool', amount: 5000, type: 'deposit' },
   { id: '3', date: 'Apr 05, 2025', description: 'Equipment Purchase - Ultrasound', amount: 1200, type: 'withdrawal' },
