@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
 
-interface ClusterNode {
+export interface ClusterNode {
   id: string;
   name: string;
   lat: number;

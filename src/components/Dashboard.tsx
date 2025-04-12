@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,6 +27,9 @@ import EquipmentCard, { EquipmentProps } from './EquipmentCard';
 import ClusterMap from './ClusterMap';
 import BookingModal from './BookingModal';
 import InvestorWallet from './InvestorWallet';
+
+// Import the ClusterNode interface from ClusterMap.tsx
+import type { ClusterNode } from './ClusterMap';
 
 const equipmentData: EquipmentProps[] = [
   {
