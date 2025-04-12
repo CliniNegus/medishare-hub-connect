@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Bell, Settings, UserCircle, Package, ShoppingCart, Home } from "lucide-react";
+import { Bell, Settings, UserCircle, Package, ShoppingCart, Home, Calculator } from "lucide-react";
 import UserRoleSelector from './UserRoleSelector';
 
 const Header = () => {
@@ -32,6 +32,10 @@ const Header = () => {
           <Link to="/orders" className={`flex items-center text-sm font-medium ${isActive('/orders') ? 'text-medical-primary' : 'text-gray-600 hover:text-medical-primary'}`}>
             <ShoppingCart className="h-4 w-4 mr-2" />
             Orders
+          </Link>
+          <Link to="/financing" className={`flex items-center text-sm font-medium ${isActive('/financing') ? 'text-medical-primary' : 'text-gray-600 hover:text-medical-primary'}`}>
+            <Calculator className="h-4 w-4 mr-2" />
+            Financing
           </Link>
         </nav>
         

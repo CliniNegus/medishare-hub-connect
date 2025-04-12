@@ -12,7 +12,9 @@ import {
   StethoscopeIcon,
   HeartPulse,
   Clock,
-  Plus
+  Plus,
+  Calculator,
+  Wallet
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -27,6 +29,7 @@ import EquipmentCard, { EquipmentProps } from './EquipmentCard';
 import ClusterMap from './ClusterMap';
 import BookingModal from './BookingModal';
 import InvestorWallet from './InvestorWallet';
+import { Link } from 'react-router-dom';
 
 // Import the ClusterNode interface from ClusterMap.tsx
 import type { ClusterNode } from './ClusterMap';
@@ -230,6 +233,26 @@ const Dashboard = () => {
                     </div>
                   </CardContent>
                 </Card>
+              </div>
+              
+              {/* Financing Options Section */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+                <h2 className="text-lg font-medium mb-2 text-blue-800">Equipment Financing Options</h2>
+                <p className="text-sm text-blue-700 mb-3">
+                  Need new equipment? Explore financing options or check your investor wallet.
+                </p>
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                  <Link to="/financing" className="flex-1">
+                    <Button variant="default" className="w-full bg-blue-600 hover:bg-blue-700">
+                      <Calculator className="h-4 w-4 mr-2" />
+                      Financing Calculator
+                    </Button>
+                  </Link>
+                  <Button variant="outline" className="flex-1 border-blue-300">
+                    <Wallet className="h-4 w-4 mr-2" />
+                    Investor Wallet
+                  </Button>
+                </div>
               </div>
               
               {/* Equipment Cards */}
