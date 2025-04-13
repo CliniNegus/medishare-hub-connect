@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Bell, Settings, UserCircle, Package, ShoppingCart, Home, Calculator } from "lucide-react";
+import { Bell, Settings, UserCircle, Package, ShoppingCart, Home, Calculator, LayoutDashboard } from "lucide-react";
 import UserRoleSelector from './UserRoleSelector';
 
 const Header = () => {
@@ -16,12 +16,14 @@ const Header = () => {
     <header className="bg-white border-b border-gray-200 py-4">
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-md medical-gradient"></div>
-          <h1 className="text-xl font-bold text-medical-primary">CliniBuilds</h1>
+          <Link to="/" className="flex items-center">
+            <div className="h-8 w-8 rounded-md bg-gradient-to-r from-blue-500 to-purple-600"></div>
+            <h1 className="text-xl font-bold text-medical-primary ml-2">CliniBuilds</h1>
+          </Link>
         </div>
         
         <nav className="hidden md:flex space-x-6">
-          <Link to="/" className={`flex items-center text-sm font-medium ${isActive('/') ? 'text-medical-primary' : 'text-gray-600 hover:text-medical-primary'}`}>
+          <Link to="/dashboard" className={`flex items-center text-sm font-medium ${isActive('/dashboard') ? 'text-medical-primary' : 'text-gray-600 hover:text-medical-primary'}`}>
             <Home className="h-4 w-4 mr-2" />
             Dashboard
           </Link>
@@ -36,6 +38,10 @@ const Header = () => {
           <Link to="/financing" className={`flex items-center text-sm font-medium ${isActive('/financing') ? 'text-medical-primary' : 'text-gray-600 hover:text-medical-primary'}`}>
             <Calculator className="h-4 w-4 mr-2" />
             Financing
+          </Link>
+          <Link to="/admin" className={`flex items-center text-sm font-medium ${isActive('/admin') ? 'text-medical-primary' : 'text-gray-600 hover:text-medical-primary'}`}>
+            <LayoutDashboard className="h-4 w-4 mr-2" />
+            Admin
           </Link>
         </nav>
         
