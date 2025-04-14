@@ -16,6 +16,7 @@ import LandingPage from "./pages/LandingPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import Auth from "./pages/Auth";
 import LeaseManagement from "./pages/LeaseManagement";
+import EquipmentTracking from "./pages/EquipmentTracking";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 // Create a client
@@ -56,6 +57,11 @@ function App() {
                 <Route path="/leases" element={
                   <ProtectedRoute>
                     <LeaseManagement />
+                  </ProtectedRoute>
+                } />
+                <Route path="/tracking" element={
+                  <ProtectedRoute>
+                    <EquipmentTracking />
                   </ProtectedRoute>
                 } />
                 <Route path="/admin" element={
