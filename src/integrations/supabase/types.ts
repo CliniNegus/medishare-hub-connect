@@ -9,7 +9,201 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      equipment: {
+        Row: {
+          category: string | null
+          condition: string | null
+          created_at: string
+          description: string | null
+          id: string
+          lease_rate: number | null
+          name: string
+          owner_id: string | null
+          price: number | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          condition?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          lease_rate?: number | null
+          name: string
+          owner_id?: string | null
+          price?: number | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          condition?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          lease_rate?: number | null
+          name?: string
+          owner_id?: string | null
+          price?: number | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leases: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          equipment_id: string | null
+          hospital_id: string | null
+          id: string
+          investor_id: string | null
+          monthly_payment: number | null
+          start_date: string | null
+          status: string | null
+          total_value: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          equipment_id?: string | null
+          hospital_id?: string | null
+          id?: string
+          investor_id?: string | null
+          monthly_payment?: number | null
+          start_date?: string | null
+          status?: string | null
+          total_value?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          equipment_id?: string | null
+          hospital_id?: string | null
+          id?: string
+          investor_id?: string | null
+          monthly_payment?: number | null
+          start_date?: string | null
+          status?: string | null
+          total_value?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leases_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leases_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leases_investor_id_fkey"
+            columns: ["investor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      maintenance: {
+        Row: {
+          completed_date: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          equipment_id: string | null
+          id: string
+          scheduled_date: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          completed_date?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          equipment_id?: string | null
+          id?: string
+          scheduled_date?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          completed_date?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          equipment_id?: string | null
+          id?: string
+          scheduled_date?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          organization: string | null
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          organization?: string | null
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          organization?: string | null
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
