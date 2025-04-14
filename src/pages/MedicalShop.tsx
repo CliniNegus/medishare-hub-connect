@@ -14,12 +14,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import PaymentOptionsDialog from '@/components/PaymentOptionsDialog';
 
 const MedicalShop = () => {
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("all");
-  const [productType, setProductType] = useState("purchase");
+  const [productType, setProductType] = useState("all");
 
   // Sample product data
   const products = [
@@ -141,36 +142,53 @@ const MedicalShop = () => {
   const getActionButton = (product: any) => {
     if (product.type === "purchase") {
       return (
-        <Button 
-          variant="default" 
-          className="bg-red-600 hover:bg-red-700"
-          onClick={() => addToCart(product)}
-          disabled={!product.inStock}
+        <PaymentOptionsDialog
+          productType="purchase"
+          productName={product.name}
+          price={product.price}
         >
-          Add to Cart
-        </Button>
+          <Button 
+            variant="default" 
+            className="bg-red-600 hover:bg-red-700"
+            disabled={!product.inStock}
+          >
+            Buy Now
+          </Button>
+        </PaymentOptionsDialog>
       );
     } else if (product.type === "lease") {
       return (
-        <Button 
-          variant="outline" 
-          className="border-red-300 text-red-600 hover:bg-red-50"
-          onClick={() => window.location.href = '/leases'}
+        <PaymentOptionsDialog
+          productType="lease"
+          productName={product.name}
+          price={product.price}
+          leaseRate={product.leaseRate}
         >
-          <ClipboardList className="h-4 w-4 mr-2" />
-          Lease Details
-        </Button>
+          <Button 
+            variant="outline" 
+            className="border-red-300 text-red-600 hover:bg-red-50"
+          >
+            <ClipboardList className="h-4 w-4 mr-2" />
+            Lease Options
+          </Button>
+        </PaymentOptionsDialog>
       );
     } else if (product.type === "finance") {
       return (
-        <Button 
-          variant="outline" 
-          className="border-red-300 text-red-600 hover:bg-red-50"
-          onClick={() => window.location.href = '/financing'}
+        <PaymentOptionsDialog
+          productType="finance"
+          productName={product.name}
+          price={product.price}
+          monthlyPayment={product.monthlyPayment}
         >
-          <Calculator className="h-4 w-4 mr-2" />
-          Financing Options
-        </Button>
+          <Button 
+            variant="outline" 
+            className="border-red-300 text-red-600 hover:bg-red-50"
+          >
+            <Calculator className="h-4 w-4 mr-2" />
+            Financing Options
+          </Button>
+        </PaymentOptionsDialog>
       );
     }
   };

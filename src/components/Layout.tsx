@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -9,11 +9,25 @@ import {
   FileText,
   Settings,
   Signal,
-  LogOut
+  LogOut,
+  Trash2
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/contexts/UserRoleContext";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -24,6 +38,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { role } = useUserRole();
+  const { toast } = useToast();
+  const [isDeleting, setIsDeleting] = useState(false);
   
   // Define menu items based on user role
   const getMenuItems = () => {
@@ -62,6 +78,46 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
   
   const menuItems = getMenuItems();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+    toast({
+      title: "Signed out successfully",
+      description: "You have been logged out of your account",
+    });
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    
+    try {
+      setIsDeleting(true);
+      
+      // Delete the user account from Supabase Auth
+      const { error } = await supabase.auth.admin.deleteUser(user.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Account deleted",
+        description: "Your account has been successfully deleted",
+      });
+      
+      // Sign out and redirect to auth page
+      await signOut();
+      navigate('/auth');
+    } catch (error: any) {
+      console.error('Error deleting account:', error);
+      toast({
+        title: "Error deleting account",
+        description: error.message || "There was a problem deleting your account. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
   
   if (!user) {
     return <>{children}</>;
@@ -108,14 +164,46 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <span className="ml-3">Admin</span>
             </Button>
           )}
+          
           <Button
             variant="outline"
             className="w-full justify-start text-gray-300 hover:text-white border-gray-700 hover:bg-gray-800 mt-2"
-            onClick={signOut}
+            onClick={handleSignOut}
           >
             <LogOut className="h-5 w-5" />
             <span className="ml-3">Sign Out</span>
           </Button>
+          
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-red-400 hover:text-red-300 border-gray-700 hover:bg-gray-800 mt-2"
+              >
+                <Trash2 className="h-5 w-5" />
+                <span className="ml-3">Delete Account</span>
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="bg-white">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete your account
+                  and remove your data from our servers.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="border-gray-300">Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  className="bg-red-600 text-white hover:bg-red-700" 
+                  onClick={handleDeleteAccount}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? "Deleting..." : "Delete Account"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
       

@@ -1,19 +1,75 @@
 
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Bell, Settings, UserCircle, Package, ShoppingCart, Home, Calculator, LayoutDashboard } from "lucide-react";
+import { Bell, Settings, UserCircle, Package, ShoppingCart, Home, Calculator, LayoutDashboard, LogOut, Trash2 } from "lucide-react";
 import UserRoleSelector from './UserRoleSelector';
 import { useUserRole } from '@/contexts/UserRoleContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from "@/components/ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { supabase } from "@/integrations/supabase/client";
 
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { role } = useUserRole();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
+  const [isDeleting, setIsDeleting] = useState(false);
   
   const isActive = (path: string) => {
     return location.pathname === path;
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+    toast({
+      title: "Signed out successfully",
+      description: "You have been logged out of your account",
+    });
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    
+    try {
+      setIsDeleting(true);
+      
+      // Delete the user account from Supabase Auth
+      const { error } = await supabase.auth.admin.deleteUser(user.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Account deleted",
+        description: "Your account has been successfully deleted",
+      });
+      
+      // Sign out and redirect to auth page
+      await signOut();
+      navigate('/auth');
+    } catch (error: any) {
+      console.error('Error deleting account:', error);
+      toast({
+        title: "Error deleting account",
+        description: error.message || "There was a problem deleting your account. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -59,6 +115,11 @@ const Header = () => {
               Admin
             </Link>
           )}
+          
+          <Link to="/shop" className={`flex items-center text-sm font-medium ${isActive('/shop') ? 'text-red-600' : 'text-gray-600 hover:text-red-600'}`}>
+            <ShoppingCart className="h-4 w-4 mr-2" />
+            Shop
+          </Link>
         </nav>
         
         {user && <UserRoleSelector />}
@@ -76,10 +137,53 @@ const Header = () => {
           )}
           
           {user ? (
-            <Button variant="outline" className="flex items-center space-x-2">
-              <UserCircle className="h-5 w-5" />
-              <span>{role}</span>
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" className="flex items-center space-x-2">
+                <UserCircle className="h-5 w-5" />
+                <span>{role}</span>
+              </Button>
+              
+              <div className="relative group">
+                <Button variant="ghost" className="text-red-600">
+                  <LogOut className="h-5 w-5" />
+                </Button>
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
+                  <button
+                    onClick={handleSignOut}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Sign Out
+                  </button>
+                  
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                        Delete Account
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="bg-white">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete your account
+                          and remove your data from our servers.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className="border-gray-300">Cancel</AlertDialogCancel>
+                        <AlertDialogAction 
+                          className="bg-red-600 text-white hover:bg-red-700" 
+                          onClick={handleDeleteAccount}
+                          disabled={isDeleting}
+                        >
+                          {isDeleting ? "Deleting..." : "Delete Account"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </div>
+            </div>
           ) : (
             <Link to="/auth">
               <Button className="bg-red-600 hover:bg-red-700">
