@@ -2,24 +2,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Info } from "lucide-react";
+import SignInForm from '@/components/auth/SignInForm';
+import SignUpForm from '@/components/auth/SignUpForm';
+import EmailConfirmationAlert from '@/components/auth/EmailConfirmationAlert';
+import ErrorAlert from '@/components/auth/ErrorAlert';
 
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [fullName, setFullName] = useState('');
-  const [organization, setOrganization] = useState('');
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isEmailNotConfirmed, setIsEmailNotConfirmed] = useState(false);
 
   // Check if user is already logged in
   useEffect(() => {
@@ -33,93 +29,34 @@ const Auth = () => {
     checkSession();
   }, [navigate]);
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
-    setIsEmailNotConfirmed(false);
-    
-    try {
-      setLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        if (error.message.includes('Email not confirmed')) {
-          setIsEmailNotConfirmed(true);
-        } else {
-          setErrorMessage(error.message);
-        }
-        throw error;
-      }
-      
-      toast({
-        title: "Login successful",
-        description: "Welcome back!",
-      });
-      
-      navigate('/dashboard');
-    } catch (error: any) {
-      if (!isEmailNotConfirmed) {
-        toast({
-          title: "Login failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setLoading(false);
-    }
+  const handleSignInSuccess = () => {
+    navigate('/dashboard');
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSignUpSuccess = () => {
+    // Reset the form state, user should get confirmation message
+    setUnconfirmedEmail(null);
     setErrorMessage(null);
-    
-    try {
-      setLoading(true);
-      
-      // Sign up the user
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            organization: organization,
-          },
-        },
-      });
+  };
 
-      if (signUpError) {
-        setErrorMessage(signUpError.message);
-        throw signUpError;
-      }
-      
-      toast({
-        title: "Account created",
-        description: "Please check your email to confirm your account.",
-      });
-    } catch (error: any) {
-      if (!isEmailNotConfirmed) {
-        toast({
-          title: "Registration failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setLoading(false);
-    }
+  const handleEmailNotConfirmed = (email: string) => {
+    setUnconfirmedEmail(email);
+    setErrorMessage(null);
+  };
+
+  const handleError = (message: string) => {
+    setErrorMessage(message);
+    setUnconfirmedEmail(null);
   };
 
   const resendConfirmationEmail = async () => {
+    if (!unconfirmedEmail) return;
+    
     try {
       setLoading(true);
       const { error } = await supabase.auth.resend({
         type: 'signup',
-        email: email,
+        email: unconfirmedEmail,
       });
 
       if (error) {
@@ -152,34 +89,16 @@ const Auth = () => {
           </CardDescription>
         </CardHeader>
         
-        {isEmailNotConfirmed && (
-          <Alert className="mx-6 mb-4 bg-red-50 border-red-500">
-            <Info className="h-4 w-4 text-red-500" />
-            <AlertTitle className="text-red-500">Email not confirmed</AlertTitle>
-            <AlertDescription className="text-red-700">
-              Please check your email and click the confirmation link to activate your account.
-              <div className="mt-2">
-                <Button 
-                  variant="outline" 
-                  onClick={resendConfirmationEmail} 
-                  disabled={loading}
-                  className="border-red-500 text-red-500 hover:bg-red-50 hover:text-red-700"
-                >
-                  Resend confirmation email
-                </Button>
-              </div>
-            </AlertDescription>
-          </Alert>
+        {unconfirmedEmail && (
+          <EmailConfirmationAlert 
+            email={unconfirmedEmail}
+            onResendConfirmation={resendConfirmationEmail}
+            loading={loading}
+          />
         )}
 
-        {errorMessage && !isEmailNotConfirmed && (
-          <Alert className="mx-6 mb-4 bg-red-50 border-red-500">
-            <Info className="h-4 w-4 text-red-500" />
-            <AlertTitle className="text-red-500">Error</AlertTitle>
-            <AlertDescription className="text-red-700">
-              {errorMessage}
-            </AlertDescription>
-          </Alert>
+        {errorMessage && !unconfirmedEmail && (
+          <ErrorAlert message={errorMessage} />
         )}
         
         <Tabs defaultValue="signin" className="w-full">
@@ -189,87 +108,18 @@ const Auth = () => {
           </TabsList>
           
           <TabsContent value="signin">
-            <form onSubmit={handleSignIn}>
-              <CardContent className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button type="submit" className="w-full bg-red-600 hover:bg-red-700" disabled={loading}>
-                  {loading ? "Signing in..." : "Sign In"}
-                </Button>
-              </CardFooter>
-            </form>
+            <SignInForm 
+              onSuccess={handleSignInSuccess}
+              onEmailNotConfirmed={handleEmailNotConfirmed}
+              onError={handleError}
+            />
           </TabsContent>
           
           <TabsContent value="signup">
-            <form onSubmit={handleSignUp}>
-              <CardContent className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Input
-                    id="email-signup"
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Input
-                    id="full-name"
-                    type="text"
-                    placeholder="Full Name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Input
-                    id="organization"
-                    type="text"
-                    placeholder="Organization (Hospital, Manufacturer, etc.)"
-                    value={organization}
-                    onChange={(e) => setOrganization(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Input
-                    id="password-signup"
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button type="submit" className="w-full bg-red-600 hover:bg-red-700" disabled={loading}>
-                  {loading ? "Creating account..." : "Sign Up"}
-                </Button>
-              </CardFooter>
-            </form>
+            <SignUpForm 
+              onSuccess={handleSignUpSuccess}
+              onError={handleError}
+            />
           </TabsContent>
         </Tabs>
       </Card>
