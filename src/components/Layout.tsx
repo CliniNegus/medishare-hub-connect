@@ -20,7 +20,7 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   
   const menuItems = [
     { icon: <LayoutDashboard className="h-5 w-5" />, label: 'Dashboard', path: '/dashboard' },
@@ -38,10 +38,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className="hidden md:flex w-64 flex-col bg-white border-r">
-        <div className="p-4 border-b">
-          <h1 className="text-xl font-bold text-primary">MediShare</h1>
-          <p className="text-xs text-gray-500 mt-1">Equipment Management Platform</p>
+      <div className="hidden md:flex w-64 flex-col bg-black text-white border-r border-gray-800">
+        <div className="p-4 border-b border-gray-800">
+          <h1 className="text-xl font-bold text-red-500">MediShare</h1>
+          <p className="text-xs text-gray-400 mt-1">Equipment Management Platform</p>
         </div>
         
         <div className="flex-1 overflow-y-auto p-4">
@@ -50,7 +50,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Button
                 key={item.path}
                 variant={location.pathname === item.path ? "default" : "ghost"}
-                className="w-full justify-start"
+                className={`w-full justify-start ${
+                  location.pathname === item.path 
+                    ? "bg-red-600 text-white hover:bg-red-700" 
+                    : "text-gray-300 hover:text-white hover:bg-gray-800"
+                }`}
                 onClick={() => navigate(item.path)}
               >
                 {item.icon}
@@ -60,14 +64,22 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </nav>
         </div>
         
-        <div className="p-4 border-t">
+        <div className="p-4 border-t border-gray-800">
           <Button
             variant="outline"
-            className="w-full justify-start"
+            className="w-full justify-start text-gray-300 hover:text-white border-gray-700 hover:bg-gray-800"
             onClick={() => navigate('/admin')}
           >
             <Settings className="h-5 w-5" />
             <span className="ml-3">Admin</span>
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full justify-start text-gray-300 hover:text-white border-gray-700 hover:bg-gray-800 mt-2"
+            onClick={signOut}
+          >
+            <Settings className="h-5 w-5" />
+            <span className="ml-3">Sign Out</span>
           </Button>
         </div>
       </div>

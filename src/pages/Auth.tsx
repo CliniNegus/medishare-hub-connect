@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -16,9 +18,25 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [fullName, setFullName] = useState('');
   const [organization, setOrganization] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isEmailNotConfirmed, setIsEmailNotConfirmed] = useState(false);
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        navigate('/dashboard');
+      }
+    };
+    
+    checkSession();
+  }, [navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
+    setIsEmailNotConfirmed(false);
     
     try {
       setLoading(true);
@@ -27,7 +45,14 @@ const Auth = () => {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('Email not confirmed')) {
+          setIsEmailNotConfirmed(true);
+        } else {
+          setErrorMessage(error.message);
+        }
+        throw error;
+      }
       
       toast({
         title: "Login successful",
@@ -36,11 +61,13 @@ const Auth = () => {
       
       navigate('/dashboard');
     } catch (error: any) {
-      toast({
-        title: "Login failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      if (!isEmailNotConfirmed) {
+        toast({
+          title: "Login failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -48,6 +75,7 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
     
     try {
       setLoading(true);
@@ -64,15 +92,48 @@ const Auth = () => {
         },
       });
 
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        setErrorMessage(signUpError.message);
+        throw signUpError;
+      }
       
       toast({
         title: "Account created",
         description: "Please check your email to confirm your account.",
       });
     } catch (error: any) {
+      if (!isEmailNotConfirmed) {
+        toast({
+          title: "Registration failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resendConfirmationEmail = async () => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+      });
+
+      if (error) {
+        setErrorMessage(error.message);
+        throw error;
+      }
+
       toast({
-        title: "Registration failed",
+        title: "Confirmation email sent",
+        description: "Please check your inbox for the confirmation link.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Failed to resend confirmation email",
         description: error.message,
         variant: "destructive",
       });
@@ -90,6 +151,36 @@ const Auth = () => {
             Sign in to access the platform
           </CardDescription>
         </CardHeader>
+        
+        {isEmailNotConfirmed && (
+          <Alert className="mx-6 mb-4 bg-red-50 border-red-500">
+            <Info className="h-4 w-4 text-red-500" />
+            <AlertTitle className="text-red-500">Email not confirmed</AlertTitle>
+            <AlertDescription className="text-red-700">
+              Please check your email and click the confirmation link to activate your account.
+              <div className="mt-2">
+                <Button 
+                  variant="outline" 
+                  onClick={resendConfirmationEmail} 
+                  disabled={loading}
+                  className="border-red-500 text-red-500 hover:bg-red-50 hover:text-red-700"
+                >
+                  Resend confirmation email
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {errorMessage && !isEmailNotConfirmed && (
+          <Alert className="mx-6 mb-4 bg-red-50 border-red-500">
+            <Info className="h-4 w-4 text-red-500" />
+            <AlertTitle className="text-red-500">Error</AlertTitle>
+            <AlertDescription className="text-red-700">
+              {errorMessage}
+            </AlertDescription>
+          </Alert>
+        )}
         
         <Tabs defaultValue="signin" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
@@ -122,7 +213,7 @@ const Auth = () => {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full bg-red-600 hover:bg-red-700" disabled={loading}>
                   {loading ? "Signing in..." : "Sign In"}
                 </Button>
               </CardFooter>
@@ -174,7 +265,7 @@ const Auth = () => {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full bg-red-600 hover:bg-red-700" disabled={loading}>
                   {loading ? "Creating account..." : "Sign Up"}
                 </Button>
               </CardFooter>
