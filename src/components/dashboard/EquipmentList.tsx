@@ -14,7 +14,7 @@ const EquipmentList: React.FC<EquipmentListProps> = ({ equipmentData, onBookEqui
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-medium">Available Equipment</h2>
-        <Badge variant="outline" className="flex items-center">
+        <Badge variant="outline" className="flex items-center border-red-300 text-red-700">
           <Clock className="h-3 w-3 mr-1" />
           Updated 5m ago
         </Badge>

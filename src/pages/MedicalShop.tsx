@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, ShoppingCart } from 'lucide-react';
+import { Search, Filter, ShoppingCart, ClipboardList, Calculator } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -13,11 +13,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const MedicalShop = () => {
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("all");
+  const [productType, setProductType] = useState("purchase");
 
   // Sample product data
   const products = [
@@ -29,7 +31,8 @@ const MedicalShop = () => {
       manufacturer: "MediProtect", 
       image: "/placeholder.svg", 
       description: "High-quality surgical masks with 3-layer protection.",
-      inStock: true 
+      inStock: true,
+      type: "purchase" // Available to purchase
     },
     { 
       id: 2, 
@@ -39,7 +42,8 @@ const MedicalShop = () => {
       manufacturer: "SafeTouch", 
       image: "/placeholder.svg", 
       description: "Powder-free nitrile examination gloves, suitable for medical procedures.",
-      inStock: true 
+      inStock: true,
+      type: "purchase" // Available to purchase
     },
     { 
       id: 3, 
@@ -49,7 +53,8 @@ const MedicalShop = () => {
       manufacturer: "MediProtect", 
       image: "/placeholder.svg", 
       description: "Disposable surgical gowns with fluid resistance.",
-      inStock: false 
+      inStock: false,
+      type: "purchase" // Available to purchase
     },
     { 
       id: 4, 
@@ -59,47 +64,56 @@ const MedicalShop = () => {
       manufacturer: "TempScan", 
       image: "/placeholder.svg", 
       description: "Fast-reading digital thermometer with LCD display.",
-      inStock: true 
+      inStock: true,
+      type: "purchase" // Available to purchase
     },
     { 
       id: 5, 
-      name: "Disposable Syringes (25-pack)", 
-      category: "Instruments", 
-      price: 15.99, 
-      manufacturer: "MediSupply", 
+      name: "MRI Machine - Standard Model", 
+      category: "Imaging", 
+      price: 789000, 
+      manufacturer: "MediTech", 
       image: "/placeholder.svg", 
-      description: "Sterile disposable syringes for medication administration.",
-      inStock: true 
+      description: "Standard MRI machine for diagnostic imaging.",
+      inStock: true,
+      type: "lease", // Available for lease
+      leaseRate: 15000 // Monthly lease rate
     },
     { 
       id: 6, 
-      name: "Absorbent Gauze Pads (100-pack)", 
-      category: "Wound Care", 
-      price: 19.99, 
-      manufacturer: "WoundCare", 
+      name: "CT Scanner - Advanced", 
+      category: "Imaging", 
+      price: 450000, 
+      manufacturer: "ImagingPro", 
       image: "/placeholder.svg", 
-      description: "Sterile absorbent gauze pads for wound dressing.",
-      inStock: true 
+      description: "Advanced CT scanner with high-resolution imaging capabilities.",
+      inStock: true,
+      type: "finance", // Available for financing
+      monthlyPayment: 12500 // Estimated monthly payment with financing
     },
     { 
       id: 7, 
-      name: "IV Administration Sets (10-pack)", 
-      category: "Infusion", 
-      price: 39.99, 
-      manufacturer: "FluidFlow", 
+      name: "Ultrasound Machine", 
+      category: "Imaging", 
+      price: 85000, 
+      manufacturer: "SonoView", 
       image: "/placeholder.svg", 
-      description: "Sterile IV administration sets for fluid therapy.",
-      inStock: true 
+      description: "Portable ultrasound machine with high-quality imaging.",
+      inStock: true,
+      type: "lease", // Available for lease
+      leaseRate: 2500 // Monthly lease rate
     },
     { 
       id: 8, 
-      name: "Pulse Oximeter", 
-      category: "Diagnostic", 
-      price: 49.99, 
-      manufacturer: "VitalCheck", 
+      name: "Anesthesia Workstation", 
+      category: "Surgical", 
+      price: 125000, 
+      manufacturer: "SurgicalTech", 
       image: "/placeholder.svg", 
-      description: "Fingertip pulse oximeter for measuring oxygen saturation.",
-      inStock: true 
+      description: "Complete anesthesia workstation for surgical procedures.",
+      inStock: true,
+      type: "finance", // Available for financing
+      monthlyPayment: 3750 // Estimated monthly payment with financing
     }
   ];
 
@@ -118,10 +132,60 @@ const MedicalShop = () => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           product.manufacturer.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = category === "all" || product.category === category;
-    return matchesSearch && matchesCategory;
+    const matchesType = productType === "all" || product.type === productType;
+    return matchesSearch && matchesCategory && matchesType;
   });
 
   const uniqueCategories = ["all", ...new Set(products.map(product => product.category))];
+
+  const getActionButton = (product: any) => {
+    if (product.type === "purchase") {
+      return (
+        <Button 
+          variant="default" 
+          className="bg-red-600 hover:bg-red-700"
+          onClick={() => addToCart(product)}
+          disabled={!product.inStock}
+        >
+          Add to Cart
+        </Button>
+      );
+    } else if (product.type === "lease") {
+      return (
+        <Button 
+          variant="outline" 
+          className="border-red-300 text-red-600 hover:bg-red-50"
+          onClick={() => window.location.href = '/leases'}
+        >
+          <ClipboardList className="h-4 w-4 mr-2" />
+          Lease Details
+        </Button>
+      );
+    } else if (product.type === "finance") {
+      return (
+        <Button 
+          variant="outline" 
+          className="border-red-300 text-red-600 hover:bg-red-50"
+          onClick={() => window.location.href = '/financing'}
+        >
+          <Calculator className="h-4 w-4 mr-2" />
+          Financing Options
+        </Button>
+      );
+    }
+  };
+
+  const getTypeIcon = (type: string) => {
+    if (type === "purchase") return "";
+    if (type === "lease") return <ClipboardList className="h-4 w-4 mr-1" />;
+    if (type === "finance") return <Calculator className="h-4 w-4 mr-1" />;
+  };
+
+  const formatPrice = (price: number) => {
+    return price >= 1000 ? 
+      `$${(price/1000).toFixed(0)}K` : 
+      `$${price.toFixed(2)}`;
+  };
 
   return (
     <Layout>
@@ -129,12 +193,30 @@ const MedicalShop = () => {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold">Medical Supplies Shop</h1>
           <div className="relative">
-            <Button variant="outline" className="flex items-center gap-2">
-              <ShoppingCart className="h-5 w-5" />
+            <Button variant="outline" className="flex items-center gap-2 border-red-300">
+              <ShoppingCart className="h-5 w-5 text-red-600" />
               <span>Cart ({cartItems.reduce((acc, item) => acc + item.quantity, 0)})</span>
             </Button>
           </div>
         </div>
+
+        {/* Product Type Tabs */}
+        <Tabs defaultValue="all" value={productType} onValueChange={setProductType} className="mb-6">
+          <TabsList className="bg-gray-100">
+            <TabsTrigger value="all" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
+              All Items
+            </TabsTrigger>
+            <TabsTrigger value="purchase" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
+              Purchase
+            </TabsTrigger>
+            <TabsTrigger value="lease" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
+              Lease
+            </TabsTrigger>
+            <TabsTrigger value="finance" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
+              Finance
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         {/* Search and Filters */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -160,8 +242,8 @@ const MedicalShop = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Button variant="outline" size="icon">
-              <Filter className="h-4 w-4" />
+            <Button variant="outline" size="icon" className="border-red-300">
+              <Filter className="h-4 w-4 text-red-600" />
             </Button>
           </div>
         </div>
@@ -169,7 +251,7 @@ const MedicalShop = () => {
         {/* Products Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredProducts.map(product => (
-            <Card key={product.id} className="overflow-hidden">
+            <Card key={product.id} className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
               <div className="aspect-square bg-gray-100 relative">
                 <img 
                   src={product.image} 
@@ -181,27 +263,41 @@ const MedicalShop = () => {
                     <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
                   </div>
                 )}
+                {product.type !== "purchase" && (
+                  <Badge 
+                    className={`absolute top-2 right-2 ${
+                      product.type === "lease" ? "bg-amber-100 text-amber-800 border-amber-300" : 
+                      "bg-purple-100 text-purple-800 border-purple-300"
+                    }`}
+                  >
+                    {getTypeIcon(product.type)}
+                    {product.type === "lease" ? "Available for Lease" : "Financing Available"}
+                  </Badge>
+                )}
               </div>
               <CardHeader className="p-4 pb-0">
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-lg">{product.name}</CardTitle>
-                  <Badge variant="outline">{product.category}</Badge>
+                  <Badge variant="outline" className="border-red-300 text-red-600">{product.category}</Badge>
                 </div>
                 <p className="text-sm text-gray-500">{product.manufacturer}</p>
               </CardHeader>
               <CardContent className="p-4">
                 <p className="text-sm">{product.description}</p>
+                {product.type === "lease" && (
+                  <p className="text-sm font-medium text-amber-700 mt-2">
+                    Lease Rate: ${product.leaseRate}/month
+                  </p>
+                )}
+                {product.type === "finance" && (
+                  <p className="text-sm font-medium text-purple-700 mt-2">
+                    Est. Payment: ${product.monthlyPayment}/month
+                  </p>
+                )}
               </CardContent>
               <CardFooter className="p-4 pt-0 flex items-center justify-between">
-                <span className="font-bold">${product.price.toFixed(2)}</span>
-                <Button 
-                  variant="default" 
-                  className="bg-red-600 hover:bg-red-700"
-                  onClick={() => addToCart(product)}
-                  disabled={!product.inStock}
-                >
-                  Add to Cart
-                </Button>
+                <span className="font-bold">{formatPrice(product.price)}</span>
+                {getActionButton(product)}
               </CardFooter>
             </Card>
           ))}
