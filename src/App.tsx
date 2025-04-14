@@ -14,6 +14,7 @@ import FinancingCalculator from "./pages/FinancingCalculator";
 import LandingPage from "./pages/LandingPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import Auth from "./pages/Auth";
+import LeaseManagement from "./pages/LeaseManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,11 @@ const App = () => (
               <Route path="/financing" element={
                 <ProtectedRoute>
                   <FinancingCalculator />
+                </ProtectedRoute>
+              } />
+              <Route path="/leases" element={
+                <ProtectedRoute>
+                  <LeaseManagement />
                 </ProtectedRoute>
               } />
               <Route path="/admin" element={
