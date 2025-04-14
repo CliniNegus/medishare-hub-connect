@@ -125,7 +125,7 @@ const IoTUsageTracker: React.FC<IoTUsageTrackerProps> = ({ equipmentId, pricePer
               <BarChart className="h-4 w-4 mr-1" /> Usage Data
             </h4>
             <div className="h-36">
-              {usageData.length > 0 && <UsageChart data={usageData} />}
+              {usageData.length > 0 && <UsageChart data={usageData} title="Device Usage" />}
             </div>
           </div>
           

@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { UserRole } from '@/contexts/UserRoleContext';
 
 interface SignUpFormProps {
   onSuccess: () => void;
   onError: (message: string) => void;
+  metadata?: { role: UserRole };
 }
 
-const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError }) => {
+const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata }) => {
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
@@ -33,6 +35,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError }) => {
           data: {
             full_name: fullName,
             organization: organization,
+            role: metadata?.role || 'hospital', // Default to hospital if not specified
           },
         },
       });
