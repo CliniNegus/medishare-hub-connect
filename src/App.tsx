@@ -19,6 +19,7 @@ import LeaseManagement from "./pages/LeaseManagement";
 import EquipmentTracking from "./pages/EquipmentTracking";
 import MedicalShop from "./pages/MedicalShop";
 import ProtectedRoute from "./components/ProtectedRoute";
+import RoleDashboard from "./components/RoleDashboard";
 import HospitalRegistrationForm from "./components/HospitalRegistrationForm";
 
 // Create a client
@@ -37,47 +38,76 @@ function App() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/register/hospital" element={<HospitalRegistrationForm />} />
+
+                {/* Dashboard - accessible by all authenticated users but content differs by role */}
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
                     <Index />
                   </ProtectedRoute>
                 } />
+
+                {/* Hospital specific routes */}
                 <Route path="/inventory" element={
                   <ProtectedRoute>
-                    <Inventory />
+                    <RoleDashboard allowedRoles={['hospital', 'admin']}>
+                      <Inventory />
+                    </RoleDashboard>
                   </ProtectedRoute>
                 } />
+
+                {/* Orders - accessible to hospitals and manufacturers */}
                 <Route path="/orders" element={
                   <ProtectedRoute>
-                    <Orders />
+                    <RoleDashboard allowedRoles={['hospital', 'manufacturer', 'admin']}>
+                      <Orders />
+                    </RoleDashboard>
                   </ProtectedRoute>
                 } />
+
+                {/* Financing - accessible to hospitals and investors */}
                 <Route path="/financing" element={
                   <ProtectedRoute>
-                    <FinancingCalculator />
+                    <RoleDashboard allowedRoles={['hospital', 'investor', 'admin']}>
+                      <FinancingCalculator />
+                    </RoleDashboard>
                   </ProtectedRoute>
                 } />
+
+                {/* Leases - accessible to hospitals, investors and manufacturers */}
                 <Route path="/leases" element={
                   <ProtectedRoute>
-                    <LeaseManagement />
+                    <RoleDashboard allowedRoles={['hospital', 'manufacturer', 'investor', 'admin']}>
+                      <LeaseManagement />
+                    </RoleDashboard>
                   </ProtectedRoute>
                 } />
+
+                {/* Equipment tracking - for manufacturers primarily */}
                 <Route path="/tracking" element={
                   <ProtectedRoute>
-                    <EquipmentTracking />
+                    <RoleDashboard allowedRoles={['manufacturer', 'admin']}>
+                      <EquipmentTracking />
+                    </RoleDashboard>
                   </ProtectedRoute>
                 } />
+
+                {/* Admin dashboard - admin only */}
                 <Route path="/admin" element={
-                  <ProtectedRoute requireAdmin>
-                    <AdminDashboard />
+                  <ProtectedRoute>
+                    <RoleDashboard allowedRoles={['admin']}>
+                      <AdminDashboard />
+                    </RoleDashboard>
                   </ProtectedRoute>
                 } />
+
+                {/* Shop - accessible to all authenticated users */}
                 <Route path="/shop" element={
                   <ProtectedRoute>
                     <MedicalShop />
                   </ProtectedRoute>
                 } />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
+                {/* Catch-all route */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

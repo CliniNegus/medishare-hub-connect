@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Hospital, Factory, PiggyBank, ArrowRight } from 'lucide-react';
+import { Hospital, Factory, PiggyBank, ArrowRight, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useUserRole } from '@/contexts/UserRoleContext';
@@ -14,7 +14,7 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16 md:py-24">
         <div className="text-center mb-16">
@@ -121,7 +121,8 @@ const LandingPage = () => {
         
         {/* Admin Login Link */}
         <div className="text-center mt-12">
-          <Link to="/auth" className="text-red-600 hover:text-red-800 underline">
+          <Link to="/auth" className="text-red-600 hover:text-red-800 underline flex items-center justify-center">
+            <Users className="h-4 w-4 mr-2" />
             Admin Login
           </Link>
         </div>

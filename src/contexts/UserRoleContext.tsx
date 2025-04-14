@@ -8,6 +8,7 @@ interface UserRoleContextType {
   role: UserRole;
   setRole: (role: UserRole) => void;
   updateUserRole: (newRole: UserRole) => Promise<void>;
+  isRoleAuthorized: (allowedRoles: UserRole[]) => boolean;
 }
 
 const UserRoleContext = createContext<UserRoleContextType | undefined>(undefined);
@@ -49,8 +50,13 @@ export const UserRoleProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Function to check if the current role is authorized
+  const isRoleAuthorized = (allowedRoles: UserRole[]): boolean => {
+    return allowedRoles.includes(role);
+  };
+
   return (
-    <UserRoleContext.Provider value={{ role, setRole, updateUserRole }}>
+    <UserRoleContext.Provider value={{ role, setRole, updateUserRole, isRoleAuthorized }}>
       {children}
     </UserRoleContext.Provider>
   );

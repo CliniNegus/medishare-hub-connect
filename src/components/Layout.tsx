@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/contexts/UserRoleContext";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -22,16 +23,45 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const { role } = useUserRole();
   
-  const menuItems = [
-    { icon: <LayoutDashboard className="h-5 w-5" />, label: 'Dashboard', path: '/dashboard' },
-    { icon: <Package className="h-5 w-5" />, label: 'Inventory', path: '/inventory' },
-    { icon: <ShoppingCart className="h-5 w-5" />, label: 'Orders', path: '/orders' },
-    { icon: <FileText className="h-5 w-5" />, label: 'Leases', path: '/leases' },
-    { icon: <Signal className="h-5 w-5" />, label: 'Tracking', path: '/tracking' },
-    { icon: <Calculator className="h-5 w-5" />, label: 'Financing', path: '/financing' },
-    { icon: <ShoppingCart className="h-5 w-5" />, label: 'Shop', path: '/shop' },
-  ];
+  // Define menu items based on user role
+  const getMenuItems = () => {
+    const baseItems = [
+      { icon: <LayoutDashboard className="h-5 w-5" />, label: 'Dashboard', path: '/dashboard' },
+      { icon: <ShoppingCart className="h-5 w-5" />, label: 'Shop', path: '/shop' },
+    ];
+    
+    const roleSpecificItems = {
+      hospital: [
+        { icon: <Package className="h-5 w-5" />, label: 'Inventory', path: '/inventory' },
+        { icon: <ShoppingCart className="h-5 w-5" />, label: 'Orders', path: '/orders' },
+        { icon: <FileText className="h-5 w-5" />, label: 'Leases', path: '/leases' },
+        { icon: <Calculator className="h-5 w-5" />, label: 'Financing', path: '/financing' },
+      ],
+      manufacturer: [
+        { icon: <Package className="h-5 w-5" />, label: 'Products', path: '/inventory' },
+        { icon: <ShoppingCart className="h-5 w-5" />, label: 'Orders', path: '/orders' },
+        { icon: <Signal className="h-5 w-5" />, label: 'Tracking', path: '/tracking' },
+        { icon: <FileText className="h-5 w-5" />, label: 'Leases', path: '/leases' },
+      ],
+      investor: [
+        { icon: <Calculator className="h-5 w-5" />, label: 'Financing', path: '/financing' },
+        { icon: <FileText className="h-5 w-5" />, label: 'Leases', path: '/leases' },
+      ],
+      admin: [
+        { icon: <Package className="h-5 w-5" />, label: 'Inventory', path: '/inventory' },
+        { icon: <ShoppingCart className="h-5 w-5" />, label: 'Orders', path: '/orders' },
+        { icon: <FileText className="h-5 w-5" />, label: 'Leases', path: '/leases' },
+        { icon: <Calculator className="h-5 w-5" />, label: 'Financing', path: '/financing' },
+        { icon: <Signal className="h-5 w-5" />, label: 'Tracking', path: '/tracking' },
+      ],
+    };
+    
+    return [...baseItems, ...(roleSpecificItems[role] || [])];
+  };
+  
+  const menuItems = getMenuItems();
   
   if (!user) {
     return <>{children}</>;
@@ -44,6 +74,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="p-4 border-b border-gray-800">
           <h1 className="text-xl font-bold text-red-500">MediShare</h1>
           <p className="text-xs text-gray-400 mt-1">Equipment Management Platform</p>
+          {role && <div className="text-xs font-semibold mt-1 py-1 px-2 bg-red-600 rounded-md">{role.toUpperCase()}</div>}
         </div>
         
         <div className="flex-1 overflow-y-auto p-4">
@@ -67,14 +98,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
         
         <div className="p-4 border-t border-gray-800">
-          <Button
-            variant="outline"
-            className="w-full justify-start text-gray-300 hover:text-white border-gray-700 hover:bg-gray-800"
-            onClick={() => navigate('/admin')}
-          >
-            <Settings className="h-5 w-5" />
-            <span className="ml-3">Admin</span>
-          </Button>
+          {role === 'admin' && (
+            <Button
+              variant="outline"
+              className="w-full justify-start text-gray-300 hover:text-white border-gray-700 hover:bg-gray-800"
+              onClick={() => navigate('/admin')}
+            >
+              <Settings className="h-5 w-5" />
+              <span className="ml-3">Admin</span>
+            </Button>
+          )}
           <Button
             variant="outline"
             className="w-full justify-start text-gray-300 hover:text-white border-gray-700 hover:bg-gray-800 mt-2"
