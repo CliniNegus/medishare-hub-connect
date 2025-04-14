@@ -19,7 +19,8 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CalendarIcon, Clock } from "lucide-react";
+import { CalendarIcon, Clock, MapPin } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -27,6 +28,9 @@ interface BookingModalProps {
   pricePerUse: number;
   onClose: () => void;
   onConfirm: (date: Date, duration: number, notes: string) => void;
+  location?: string;
+  cluster?: string;
+  availability?: string;
 }
 
 const BookingModal: React.FC<BookingModalProps> = ({
@@ -34,7 +38,10 @@ const BookingModal: React.FC<BookingModalProps> = ({
   equipmentName,
   pricePerUse,
   onClose,
-  onConfirm
+  onConfirm,
+  location = "Not specified",
+  cluster = "Not specified",
+  availability = "Available now"
 }) => {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [duration, setDuration] = useState<number>(1);
@@ -58,6 +65,21 @@ const BookingModal: React.FC<BookingModalProps> = ({
         </DialogHeader>
         
         <div className="grid gap-4 py-4">
+          {/* Equipment Location Information */}
+          <div className="rounded-md bg-gray-50 p-3 border border-gray-200">
+            <div className="flex items-start gap-2">
+              <MapPin className="h-4 w-4 mt-0.5 text-red-500" />
+              <div>
+                <h4 className="font-medium text-sm">Equipment Location</h4>
+                <p className="text-xs text-gray-600">Located at <span className="font-medium">{location}</span></p>
+                <p className="text-xs text-gray-600">Part of <Badge variant="outline" className="text-xs">{cluster}</Badge> cluster</p>
+                <p className="text-xs mt-1">
+                  <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 hover:bg-green-100">{availability}</Badge>
+                </p>
+              </div>
+            </div>
+          </div>
+        
           <div className="space-y-2">
             <Label htmlFor="booking-date">Booking Date</Label>
             <div className="flex items-center">
@@ -142,6 +164,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
           <Button 
             onClick={handleConfirm} 
             disabled={!date}
+            className="bg-red-600 hover:bg-red-700"
           >
             Confirm Booking
           </Button>

@@ -8,7 +8,8 @@ import {
   Calculator, 
   FileText,
   Settings,
-  Signal
+  Signal,
+  LogOut
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,6 +30,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     { icon: <FileText className="h-5 w-5" />, label: 'Leases', path: '/leases' },
     { icon: <Signal className="h-5 w-5" />, label: 'Tracking', path: '/tracking' },
     { icon: <Calculator className="h-5 w-5" />, label: 'Financing', path: '/financing' },
+    { icon: <ShoppingCart className="h-5 w-5" />, label: 'Shop', path: '/shop' },
   ];
   
   if (!user) {
@@ -78,7 +80,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             className="w-full justify-start text-gray-300 hover:text-white border-gray-700 hover:bg-gray-800 mt-2"
             onClick={signOut}
           >
-            <Settings className="h-5 w-5" />
+            <LogOut className="h-5 w-5" />
             <span className="ml-3">Sign Out</span>
           </Button>
         </div>

@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, Package, Bell, Calendar, Settings, 
-  FileText, BarChart2, Clock, DollarSign
+  FileText, BarChart2, Clock, DollarSign, LogOut
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -15,10 +15,10 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-64 bg-gray-900 text-white h-screen fixed">
+    <div className="w-64 bg-black text-white h-screen fixed">
       <div className="p-4 border-b border-gray-800">
         <div className="flex items-center">
-          <div className="h-8 w-8 rounded-md bg-gradient-to-r from-blue-500 to-purple-600 mr-2"></div>
+          <div className="h-8 w-8 rounded-md bg-red-600 mr-2"></div>
           <h1 className="text-xl font-bold">Admin Panel</h1>
         </div>
       </div>
@@ -27,7 +27,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
           <li>
             <button
               onClick={() => setActiveTab('overview')}
-              className={`w-full flex items-center p-2 rounded-md ${activeTab === 'overview' ? 'bg-gray-800' : 'hover:bg-gray-800'}`}
+              className={`w-full flex items-center p-2 rounded-md ${activeTab === 'overview' ? 'bg-red-600' : 'hover:bg-gray-800'}`}
             >
               <BarChart2 className="h-5 w-5 mr-3" />
               Dashboard
@@ -36,7 +36,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
           <li>
             <button
               onClick={() => setActiveTab('equipment')}
-              className={`w-full flex items-center p-2 rounded-md ${activeTab === 'equipment' ? 'bg-gray-800' : 'hover:bg-gray-800'}`}
+              className={`w-full flex items-center p-2 rounded-md ${activeTab === 'equipment' ? 'bg-red-600' : 'hover:bg-gray-800'}`}
             >
               <Package className="h-5 w-5 mr-3" />
               Equipment
@@ -45,7 +45,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
           <li>
             <button
               onClick={() => setActiveTab('users')}
-              className={`w-full flex items-center p-2 rounded-md ${activeTab === 'users' ? 'bg-gray-800' : 'hover:bg-gray-800'}`}
+              className={`w-full flex items-center p-2 rounded-md ${activeTab === 'users' ? 'bg-red-600' : 'hover:bg-gray-800'}`}
             >
               <Users className="h-5 w-5 mr-3" />
               Users
@@ -54,7 +54,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
           <li>
             <button
               onClick={() => setActiveTab('maintenance')}
-              className={`w-full flex items-center p-2 rounded-md ${activeTab === 'maintenance' ? 'bg-gray-800' : 'hover:bg-gray-800'}`}
+              className={`w-full flex items-center p-2 rounded-md ${activeTab === 'maintenance' ? 'bg-red-600' : 'hover:bg-gray-800'}`}
             >
               <Clock className="h-5 w-5 mr-3" />
               Maintenance
@@ -63,10 +63,19 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
           <li>
             <button
               onClick={() => setActiveTab('finance')}
-              className={`w-full flex items-center p-2 rounded-md ${activeTab === 'finance' ? 'bg-gray-800' : 'hover:bg-gray-800'}`}
+              className={`w-full flex items-center p-2 rounded-md ${activeTab === 'finance' ? 'bg-red-600' : 'hover:bg-gray-800'}`}
             >
               <DollarSign className="h-5 w-5 mr-3" />
               Finance
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => setActiveTab('shop')}
+              className={`w-full flex items-center p-2 rounded-md ${activeTab === 'shop' ? 'bg-red-600' : 'hover:bg-gray-800'}`}
+            >
+              <Package className="h-5 w-5 mr-3" />
+              Medical Shop
             </button>
           </li>
         </ul>
@@ -75,7 +84,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
             <li>
               <button
                 onClick={() => setActiveTab('settings')}
-                className={`w-full flex items-center p-2 rounded-md ${activeTab === 'settings' ? 'bg-gray-800' : 'hover:bg-gray-800'}`}
+                className={`w-full flex items-center p-2 rounded-md ${activeTab === 'settings' ? 'bg-red-600' : 'hover:bg-gray-800'}`}
               >
                 <Settings className="h-5 w-5 mr-3" />
                 Settings
@@ -83,11 +92,20 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
             </li>
             <li>
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/dashboard')}
                 className="w-full flex items-center p-2 rounded-md hover:bg-gray-800"
               >
                 <FileText className="h-5 w-5 mr-3" />
-                Back to Home
+                Back to Dashboard
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => navigate('/')}
+                className="w-full flex items-center p-2 rounded-md hover:bg-gray-800"
+              >
+                <LogOut className="h-5 w-5 mr-3" />
+                Sign Out
               </button>
             </li>
           </ul>

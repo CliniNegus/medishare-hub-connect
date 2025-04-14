@@ -17,7 +17,9 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Auth from "./pages/Auth";
 import LeaseManagement from "./pages/LeaseManagement";
 import EquipmentTracking from "./pages/EquipmentTracking";
+import MedicalShop from "./pages/MedicalShop";
 import ProtectedRoute from "./components/ProtectedRoute";
+import HospitalRegistrationForm from "./components/HospitalRegistrationForm";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -34,6 +36,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/register/hospital" element={<HospitalRegistrationForm />} />
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
                     <Index />
@@ -67,6 +70,11 @@ function App() {
                 <Route path="/admin" element={
                   <ProtectedRoute requireAdmin>
                     <AdminDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/shop" element={
+                  <ProtectedRoute>
+                    <MedicalShop />
                   </ProtectedRoute>
                 } />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
