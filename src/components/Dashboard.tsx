@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import HospitalDashboard from './HospitalDashboard';
 import ManufacturerDashboard from './ManufacturerDashboard';
 import InvestorDashboard from './InvestorDashboard';
-import AdminDashboard from './AdminDashboard';
+import AdminDashboard from '@/pages/AdminDashboard';
 
 const Dashboard = () => {
   const { role } = useUserRole();
