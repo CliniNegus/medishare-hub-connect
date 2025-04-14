@@ -2,7 +2,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { UserRole } from '@/contexts/UserRoleContext';
+import { UserRole, useUserRole } from '@/contexts/UserRoleContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -16,6 +16,7 @@ const ProtectedRoute = ({
   allowedRoles 
 }: ProtectedRouteProps) => {
   const { user, profile, loading } = useAuth();
+  const { isRoleAuthorized } = useUserRole();
 
   if (loading) {
     // You could show a loading spinner here
@@ -32,7 +33,7 @@ const ProtectedRoute = ({
   }
 
   // Check allowed roles if specified
-  if (allowedRoles && profile?.role && !allowedRoles.includes(profile.role as UserRole)) {
+  if (allowedRoles && !isRoleAuthorized(allowedRoles)) {
     return <Navigate to="/dashboard" replace />;
   }
 

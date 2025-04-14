@@ -9,13 +9,14 @@ interface UserRoleContextType {
   setRole: (role: UserRole) => void;
   updateUserRole: (newRole: UserRole) => Promise<void>;
   isRoleAuthorized: (allowedRoles: UserRole[]) => boolean;
+  isUserRegisteredAs: (role: UserRole) => boolean;
 }
 
 const UserRoleContext = createContext<UserRoleContextType | undefined>(undefined);
 
 export const UserRoleProvider = ({ children }: { children: ReactNode }) => {
   const [role, setRole] = useState<UserRole>('hospital');
-  const { profile, user, refreshProfile } = useAuth();
+  const { profile, user, refreshProfile, updateProfileRole } = useAuth();
   
   // Set role from profile when it loads
   useEffect(() => {
@@ -24,26 +25,20 @@ export const UserRoleProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [profile]);
 
+  // Function to check if the user is registered with a specific role
+  const isUserRegisteredAs = (checkRole: UserRole): boolean => {
+    return profile?.role === checkRole;
+  };
+
   // Function to update user role in database
   const updateUserRole = async (newRole: UserRole) => {
     if (!user) return;
     
     try {
-      const { supabase } = await import('@/integrations/supabase/client');
-      
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role: newRole })
-        .eq('id', user.id);
-        
-      if (error) throw error;
+      await updateProfileRole(newRole);
       
       // Update local state
       setRole(newRole);
-      
-      // Refresh profile to get updated data
-      await refreshProfile();
-      
     } catch (error) {
       console.error('Error updating user role:', error);
       throw error;
@@ -52,11 +47,24 @@ export const UserRoleProvider = ({ children }: { children: ReactNode }) => {
 
   // Function to check if the current role is authorized
   const isRoleAuthorized = (allowedRoles: UserRole[]): boolean => {
-    return allowedRoles.includes(role);
+    // If user is registered as admin, allow access to everything
+    if (profile?.role === 'admin') {
+      return true;
+    }
+    
+    // Check if the user's registered role is in allowed roles
+    // This ensures users can only access what their registered role allows
+    return profile?.role && allowedRoles.includes(profile.role as UserRole);
   };
 
   return (
-    <UserRoleContext.Provider value={{ role, setRole, updateUserRole, isRoleAuthorized }}>
+    <UserRoleContext.Provider value={{ 
+      role, 
+      setRole, 
+      updateUserRole, 
+      isRoleAuthorized,
+      isUserRegisteredAs
+    }}>
       {children}
     </UserRoleContext.Provider>
   );

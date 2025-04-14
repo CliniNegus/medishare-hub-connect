@@ -11,6 +11,7 @@ interface AuthContextType {
   loading: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  updateProfileRole: (role: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,6 +32,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (event === 'SIGNED_OUT') {
           setProfile(null);
+        } else if (event === 'SIGNED_IN' && newSession?.user) {
+          fetchProfile(newSession.user.id);
         }
       }
     );
@@ -76,6 +79,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await fetchProfile(user.id);
   };
 
+  const updateProfileRole = async (role: string) => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role })
+        .eq('id', user.id);
+        
+      if (error) throw error;
+      
+      // Refresh profile to get updated data
+      await refreshProfile();
+      
+      toast({
+        title: "Role updated",
+        description: `Your account role has been updated to ${role}.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error updating role",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
@@ -97,7 +127,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, profile, loading, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ 
+      session, 
+      user, 
+      profile, 
+      loading, 
+      signOut, 
+      refreshProfile,
+      updateProfileRole
+    }}>
       {children}
     </AuthContext.Provider>
   );

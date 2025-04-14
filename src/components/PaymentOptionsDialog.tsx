@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Calculator, Calendar, CreditCard, DollarSign } from "lucide-react";
+import { Calculator, Calendar, CreditCard, DollarSign, Clock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 interface PaymentOptionsDialogProps {
@@ -18,6 +18,7 @@ interface PaymentOptionsDialogProps {
   productName: string;
   price: number;
   leaseRate?: number;
+  pricePerUse?: number;
   monthlyPayment?: number;
   children: React.ReactNode;
 }
@@ -27,6 +28,7 @@ const PaymentOptionsDialog: React.FC<PaymentOptionsDialogProps> = ({
   productName,
   price,
   leaseRate,
+  pricePerUse,
   monthlyPayment,
   children
 }) => {
@@ -76,6 +78,16 @@ const PaymentOptionsDialog: React.FC<PaymentOptionsDialogProps> = ({
               </div>
             )}
             
+            {productType === 'lease' && pricePerUse && (
+              <div className="flex justify-between items-center p-3 rounded-md border border-gray-200">
+                <div className="flex items-center">
+                  <Clock className="h-5 w-5 text-red-600 mr-2" />
+                  <span>Pay Per Use</span>
+                </div>
+                <span className="font-semibold">${pricePerUse.toLocaleString()}/use</span>
+              </div>
+            )}
+            
             {productType === 'finance' && monthlyPayment && (
               <div className="flex justify-between items-center p-3 rounded-md border border-gray-200">
                 <div className="flex items-center">
@@ -114,6 +126,14 @@ const PaymentOptionsDialog: React.FC<PaymentOptionsDialogProps> = ({
           
           {productType === 'lease' && (
             <div className="grid grid-cols-1 gap-2">
+              <Button 
+                variant="outline" 
+                className="justify-start border-gray-300 hover:bg-gray-50"
+                onClick={() => handlePaymentOption('Pay Per Use')}
+              >
+                <Clock className="h-4 w-4 mr-2 text-red-600" />
+                Pay Per Use (${pricePerUse}/use)
+              </Button>
               <Button 
                 variant="outline" 
                 className="justify-start border-gray-300 hover:bg-gray-50"

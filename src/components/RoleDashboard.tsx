@@ -19,7 +19,7 @@ const RoleDashboard: React.FC<RoleDashboardProps> = ({
   redirectTo = '/' 
 }) => {
   const { role, isRoleAuthorized } = useUserRole();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   if (!user) {
     return <Navigate to="/auth" replace />;
@@ -32,7 +32,7 @@ const RoleDashboard: React.FC<RoleDashboardProps> = ({
           <Alert className="border-red-600 bg-red-50">
             <AlertTitle className="text-red-800">Access Denied</AlertTitle>
             <AlertDescription className="text-red-800">
-              Your account type ({role}) doesn't have permission to access this dashboard.
+              Your account type ({profile?.role || 'unknown'}) doesn't have permission to access this dashboard.
             </AlertDescription>
           </Alert>
           <div className="mt-6 text-center">

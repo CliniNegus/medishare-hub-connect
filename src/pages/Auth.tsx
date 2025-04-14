@@ -9,6 +9,8 @@ import SignInForm from '@/components/auth/SignInForm';
 import SignUpForm from '@/components/auth/SignUpForm';
 import EmailConfirmationAlert from '@/components/auth/EmailConfirmationAlert';
 import ErrorAlert from '@/components/auth/ErrorAlert';
+import { Hospital, Factory, PiggyBank, ShieldAlert } from "lucide-react";
+import { UserRole } from '@/contexts/UserRoleContext';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -16,6 +18,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<UserRole>('hospital');
 
   // Check if user is already logged in
   useEffect(() => {
@@ -79,6 +82,20 @@ const Auth = () => {
     }
   };
 
+  const roleIcons = {
+    hospital: <Hospital className="h-8 w-8 mb-2 text-red-600" />,
+    manufacturer: <Factory className="h-8 w-8 mb-2 text-red-600" />,
+    investor: <PiggyBank className="h-8 w-8 mb-2 text-red-600" />,
+    admin: <ShieldAlert className="h-8 w-8 mb-2 text-red-600" />
+  };
+
+  const roleDescriptions = {
+    hospital: 'For healthcare facilities needing equipment',
+    manufacturer: 'For equipment suppliers and manufacturers',
+    investor: 'For financing medical equipment',
+    admin: 'For platform administrators'
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-md">
@@ -116,9 +133,33 @@ const Auth = () => {
           </TabsContent>
           
           <TabsContent value="signup">
+            <div className="mb-4">
+              <h3 className="text-sm font-medium mb-2">Select Account Type</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {['hospital', 'manufacturer', 'investor'].map((role) => (
+                  <div 
+                    key={role}
+                    onClick={() => setSelectedRole(role as UserRole)}
+                    className={`flex flex-col items-center justify-center p-2 rounded-md cursor-pointer ${
+                      selectedRole === role 
+                        ? 'bg-red-50 border-2 border-red-600' 
+                        : 'bg-white border border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    {roleIcons[role as UserRole]}
+                    <span className="text-sm font-medium">{role.charAt(0).toUpperCase() + role.slice(1)}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                {roleDescriptions[selectedRole]}
+              </p>
+            </div>
+            
             <SignUpForm 
               onSuccess={handleSignUpSuccess}
               onError={handleError}
+              metadata={{ role: selectedRole }}
             />
           </TabsContent>
         </Tabs>

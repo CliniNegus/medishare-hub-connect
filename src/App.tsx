@@ -91,9 +91,9 @@ function App() {
                   </ProtectedRoute>
                 } />
 
-                {/* Admin dashboard - admin only */}
+                {/* Admin dashboard - strictly admin only */}
                 <Route path="/admin" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requireAdmin={true}>
                     <RoleDashboard allowedRoles={['admin']}>
                       <AdminDashboard />
                     </RoleDashboard>
