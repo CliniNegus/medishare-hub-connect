@@ -10,7 +10,7 @@ import { useToast } from "@/components/ui/use-toast";
 interface CreateAdminParams {
   admin_email: string;
   admin_password: string;
-  full_name?: string;
+  full_name?: string | null;
 }
 
 const CreateAdminUserForm = () => {
@@ -30,11 +30,11 @@ const CreateAdminUserForm = () => {
       const params: CreateAdminParams = {
         admin_email: email,
         admin_password: password,
-        full_name: fullName
+        full_name: fullName || null
       };
       
-      // Call the function to create an admin user with the proper type assertion
-      const { data, error } = await supabase.rpc('create_admin_user', params as any);
+      // Call the function to create an admin user with proper typing
+      const { data, error } = await supabase.rpc('create_admin_user', params);
 
       if (error) {
         throw error;
@@ -87,7 +87,6 @@ const CreateAdminUserForm = () => {
               placeholder="Full Name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              required
             />
           </div>
           <div className="space-y-2">
