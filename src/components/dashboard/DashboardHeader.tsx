@@ -6,7 +6,10 @@ import {
   BarChart, 
   Calendar, 
   Plus,
-  StethoscopeIcon
+  StethoscopeIcon,
+  HeartPulse,
+  CreditCard,
+  ShoppingCart
 } from "lucide-react";
 
 interface DashboardHeaderProps {
@@ -17,7 +20,7 @@ interface DashboardHeaderProps {
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({ activeTab, setActiveTab }) => {
   return (
     <div className="flex justify-between items-center mb-4">
-      <TabsList>
+      <TabsList className="w-full">
         <TabsTrigger 
           value="equipment" 
           className="text-sm"
@@ -37,6 +40,33 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ activeTab, setActiveT
           Bookings
         </TabsTrigger>
         <TabsTrigger 
+          value="therapy" 
+          className="text-sm"
+          onClick={() => setActiveTab('therapy')}
+          data-state={activeTab === 'therapy' ? 'active' : ''}
+        >
+          <HeartPulse className="h-4 w-4 mr-2" />
+          Therapy as a Service
+        </TabsTrigger>
+        <TabsTrigger 
+          value="financing" 
+          className="text-sm"
+          onClick={() => setActiveTab('financing')}
+          data-state={activeTab === 'financing' ? 'active' : ''}
+        >
+          <CreditCard className="h-4 w-4 mr-2" />
+          Financing
+        </TabsTrigger>
+        <TabsTrigger 
+          value="shop" 
+          className="text-sm"
+          onClick={() => setActiveTab('shop')}
+          data-state={activeTab === 'shop' ? 'active' : ''}
+        >
+          <ShoppingCart className="h-4 w-4 mr-2" />
+          Shop
+        </TabsTrigger>
+        <TabsTrigger 
           value="analytics" 
           className="text-sm"
           onClick={() => setActiveTab('analytics')}
@@ -47,7 +77,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ activeTab, setActiveT
         </TabsTrigger>
       </TabsList>
       
-      <Button>
+      <Button className="ml-4 flex-shrink-0">
         <Plus className="h-4 w-4 mr-2" />
         Add Equipment
       </Button>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,9 +6,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { 
   Package, CircleDollarSign, Activity, MapPin, Plus, 
   FileSpreadsheet, BarChart2, Factory, AlertCircle, 
-  Calendar, Truck, CheckCircle
+  Calendar, Truck, CheckCircle, ShoppingCart, Tag, 
+  FileText, Filter
 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Define type for leased products
 interface LeasedProduct {
@@ -40,6 +41,16 @@ interface PaymentReceived {
   amount: number;
   status: 'paid' | 'pending' | 'overdue';
   equipment: string;
+}
+
+// Define type for shop products
+interface ShopProduct {
+  id: string;
+  name: string;
+  type: 'disposable' | 'lease' | 'financing';
+  price: number;
+  stock: number;
+  status: 'active' | 'inactive';
 }
 
 const ManufacturerDashboard = () => {
@@ -170,6 +181,57 @@ const ManufacturerDashboard = () => {
     }
   ];
 
+  const shopProducts: ShopProduct[] = [
+    {
+      id: 'SHOP-001',
+      name: 'Surgical Gloves (Box of 100)',
+      type: 'disposable',
+      price: 24.99,
+      stock: 150,
+      status: 'active'
+    },
+    {
+      id: 'SHOP-002',
+      name: 'Patient Monitors',
+      type: 'lease',
+      price: 599.99,
+      stock: 12,
+      status: 'active'
+    },
+    {
+      id: 'SHOP-003',
+      name: 'MRI Scanner Pro',
+      type: 'financing',
+      price: 450000,
+      stock: 3,
+      status: 'active'
+    },
+    {
+      id: 'SHOP-004',
+      name: 'Surgical Masks (Box of 50)',
+      type: 'disposable',
+      price: 19.99,
+      stock: 200,
+      status: 'active'
+    },
+    {
+      id: 'SHOP-005',
+      name: 'Ultrasound Machine',
+      type: 'lease',
+      price: 28000,
+      stock: 8,
+      status: 'active'
+    },
+    {
+      id: 'SHOP-006',
+      name: 'CT Scanner',
+      type: 'financing',
+      price: 320000,
+      stock: 2,
+      status: 'active'
+    }
+  ];
+
   const stats = {
     totalEquipment: 72,
     activeLease: 56,
@@ -179,13 +241,24 @@ const ManufacturerDashboard = () => {
   };
 
   const [activeTab, setActiveTab] = useState('products');
+  const [shopFilter, setShopFilter] = useState<'all' | 'disposable' | 'lease' | 'financing'>('all');
+  
+  const { profile, user } = useAuth();
+
+  const filteredShopProducts = shopFilter === 'all' 
+    ? shopProducts 
+    : shopProducts.filter(product => product.type === shopFilter);
 
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Manufacturer Dashboard</h1>
-          <p className="text-gray-600">Manage your equipment and leases</p>
+          {profile && (
+            <p className="text-gray-600">
+              {profile.full_name || user?.email} {profile.organization && `• ${profile.organization}`}
+            </p>
+          )}
         </div>
         <Dialog>
           <DialogTrigger asChild>
@@ -277,6 +350,10 @@ const ManufacturerDashboard = () => {
           <TabsTrigger value="clusters" className="text-sm">
             <MapPin className="h-4 w-4 mr-2" />
             Clusters
+          </TabsTrigger>
+          <TabsTrigger value="shop" className="text-sm">
+            <ShoppingCart className="h-4 w-4 mr-2" />
+            Shop Management
           </TabsTrigger>
           <TabsTrigger value="payments" className="text-sm">
             <CircleDollarSign className="h-4 w-4 mr-2" />
@@ -386,6 +463,103 @@ const ManufacturerDashboard = () => {
                       <div className="flex space-x-2">
                         <Button variant="outline" size="sm">Details</Button>
                         <Button variant="outline" size="sm">Manage</Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="shop" className="space-y-4">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold">Shop Products Management</h2>
+              <div className="flex space-x-2">
+                <Button variant="outline" size="sm">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Export Catalog
+                </Button>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Product
+                </Button>
+              </div>
+            </div>
+            
+            <div className="mb-6 flex items-center">
+              <div className="text-sm font-medium mr-4">Filter by type:</div>
+              <div className="flex space-x-2">
+                <Button 
+                  variant={shopFilter === 'all' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setShopFilter('all')}
+                >
+                  All
+                </Button>
+                <Button 
+                  variant={shopFilter === 'disposable' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setShopFilter('disposable')}
+                >
+                  Disposables
+                </Button>
+                <Button 
+                  variant={shopFilter === 'lease' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setShopFilter('lease')}
+                >
+                  Lease Equipment
+                </Button>
+                <Button 
+                  variant={shopFilter === 'financing' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setShopFilter('financing')}
+                >
+                  Financing Options
+                </Button>
+              </div>
+            </div>
+            
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Product Name</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Stock</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredShopProducts.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell className="font-medium">{product.id}</TableCell>
+                    <TableCell>{product.name}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium
+                        ${product.type === 'disposable' ? 'bg-blue-100 text-blue-800' : 
+                          product.type === 'lease' ? 'bg-purple-100 text-purple-800' : 
+                          'bg-green-100 text-green-800'}`}>
+                        {product.type.charAt(0).toUpperCase() + product.type.slice(1)}
+                      </span>
+                    </TableCell>
+                    <TableCell>${product.price.toLocaleString()}</TableCell>
+                    <TableCell>{product.stock}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium
+                        ${product.status === 'active' ? 'bg-green-100 text-green-800' : 
+                          'bg-red-100 text-red-800'}`}>
+                        {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button variant="outline" size="sm">Edit</Button>
+                        <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50">Remove</Button>
                       </div>
                     </TableCell>
                   </TableRow>

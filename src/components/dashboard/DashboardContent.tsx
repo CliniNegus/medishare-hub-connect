@@ -7,7 +7,6 @@ import FinancingSection from './FinancingSection';
 import EquipmentList from './EquipmentList';
 import { EquipmentProps } from '../EquipmentCard';
 import ClusterMap from '../ClusterMap';
-import InvestorWallet from '../InvestorWallet';
 import { ClusterNode } from '../ClusterMap';
 
 interface DashboardContentProps {
@@ -84,20 +83,12 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
         />
       </div>
       
-      {/* Right Column - Map and Wallet */}
+      {/* Right Column - Map only */}
       <div className="space-y-6">
         <ClusterMap 
           nodes={clusterNodes} 
           selectedNodeId={selectedClusterNode}
           onSelectNode={setSelectedClusterNode}
-        />
-        
-        <InvestorWallet 
-          balance={25000}
-          totalInvested={85000}
-          returns={12650}
-          returnsPercentage={14.9}
-          recentTransactions={recentTransactions}
         />
       </div>
     </div>
