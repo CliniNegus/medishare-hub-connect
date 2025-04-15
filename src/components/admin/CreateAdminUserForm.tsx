@@ -13,12 +13,6 @@ interface CreateAdminParams {
   full_name?: string | null;
 }
 
-// Define the return type of the RPC call
-type RpcResponse = {
-  data: string | null;
-  error: Error | null;
-}
-
 const CreateAdminUserForm = () => {
   const { toast } = useToast();
   const [email, setEmail] = useState('');
@@ -40,7 +34,8 @@ const CreateAdminUserForm = () => {
       };
       
       // Call the function to create an admin user with proper typing
-      const { data, error } = await supabase.rpc<string>('create_admin_user', params);
+      // Specify both the return type (string) and the params type (CreateAdminParams)
+      const { data, error } = await supabase.rpc<string, CreateAdminParams>('create_admin_user', params);
 
       if (error) {
         throw error;
