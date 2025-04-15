@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 
+// Correctly define the parameter types for the create_admin_user RPC call
 interface CreateAdminParams {
   admin_email: string;
   admin_password: string;
