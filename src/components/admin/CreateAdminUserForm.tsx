@@ -23,7 +23,7 @@ const CreateAdminUserForm = () => {
       const { data, error } = await supabase.rpc('create_admin_user', {
         admin_email: email,
         admin_password: password
-      });
+      } as any);
 
       if (error) {
         throw error;
