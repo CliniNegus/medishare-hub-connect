@@ -21,6 +21,7 @@ export const UserRoleProvider = ({ children }: { children: ReactNode }) => {
   // Set role from profile when it loads
   useEffect(() => {
     if (profile?.role) {
+      // Make sure we set the role in state to match the user's profile role
       setRole(profile.role as UserRole);
     }
   }, [profile]);

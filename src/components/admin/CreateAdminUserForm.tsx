@@ -6,6 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 
+interface CreateAdminParams {
+  admin_email: string;
+  admin_password: string;
+  full_name?: string;
+}
+
 const CreateAdminUserForm = () => {
   const { toast } = useToast();
   const [email, setEmail] = useState('');
@@ -19,11 +25,15 @@ const CreateAdminUserForm = () => {
     try {
       setLoading(true);
       
-      // Call the function to create an admin user
-      const { data, error } = await supabase.rpc('create_admin_user', {
+      // Define params with correct type
+      const params: CreateAdminParams = {
         admin_email: email,
-        admin_password: password
-      } as any);
+        admin_password: password,
+        full_name: fullName
+      };
+      
+      // Call the function to create an admin user
+      const { data, error } = await supabase.rpc('create_admin_user', params);
 
       if (error) {
         throw error;

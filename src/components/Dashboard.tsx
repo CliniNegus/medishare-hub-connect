@@ -12,8 +12,8 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
-  const { role, isUserRegisteredAs } = useUserRole();
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
+  const { role, setRole, isUserRegisteredAs } = useUserRole();
   const navigate = useNavigate();
 
   // Check if user is authenticated and has a profile role set
@@ -22,18 +22,30 @@ const Dashboard = () => {
       navigate('/auth');
       return;
     }
-  }, [user, navigate]);
+    
+    // Make sure profile is loaded and role is set correctly
+    if (user && profile && profile.role) {
+      setRole(profile.role as any);
+    }
+  }, [user, profile, navigate, setRole]);
+
+  // Refresh profile when dashboard loads to ensure we have the latest data
+  useEffect(() => {
+    if (user) {
+      refreshProfile();
+    }
+  }, [refreshProfile, user]);
 
   // If user doesn't have a profile role or tries to access a dashboard they're not registered for
-  if (profile && !isUserRegisteredAs(role as any)) {
+  if (profile && !isUserRegisteredAs(profile.role as any)) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
         <div className="w-full max-w-md p-6">
           <Alert className="border-red-600 bg-red-50">
             <AlertTitle className="text-red-800">Access Restricted</AlertTitle>
             <AlertDescription className="text-red-800">
-              You are registered as a {profile.role}, but trying to access the {role} dashboard.
-              Please switch to your registered role's dashboard.
+              You are registered as a {profile.role}, but trying to access a different dashboard.
+              Please use your registered role's dashboard.
             </AlertDescription>
           </Alert>
           <div className="mt-6 text-center">
@@ -49,7 +61,12 @@ const Dashboard = () => {
   }
 
   // Render appropriate dashboard based on user's registered role
-  switch (profile?.role) {
+  if (!profile) {
+    return <div className="h-screen flex items-center justify-center">Loading profile...</div>;
+  }
+
+  // Render the dashboard based on the profile's role
+  switch (profile.role) {
     case 'manufacturer':
       return <ManufacturerDashboard />;
     case 'investor':
