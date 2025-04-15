@@ -33,9 +33,9 @@ const CreateAdminUserForm = () => {
         full_name: fullName || null
       };
       
-      // Call the function to create an admin user with proper typing
-      // Specify both the return type (string) and the params type (CreateAdminParams)
-      const { data, error } = await supabase.rpc<string, CreateAdminParams>('create_admin_user', params);
+      // Call the function to create an admin user
+      // The @supabase/supabase-js client expects different type parameters
+      const { data, error } = await supabase.rpc('create_admin_user', params);
 
       if (error) {
         throw error;
