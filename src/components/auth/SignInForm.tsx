@@ -5,14 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { Link } from 'react-router-dom';
 
 interface SignInFormProps {
   onSuccess: () => void;
   onEmailNotConfirmed: (email: string) => void;
   onError: (message: string) => void;
+  onForgotPassword: () => void;
 }
 
-const SignInForm: React.FC<SignInFormProps> = ({ onSuccess, onEmailNotConfirmed, onError }) => {
+const SignInForm: React.FC<SignInFormProps> = ({ 
+  onSuccess, 
+  onEmailNotConfirmed, 
+  onError,
+  onForgotPassword 
+}) => {
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -78,6 +85,16 @@ const SignInForm: React.FC<SignInFormProps> = ({ onSuccess, onEmailNotConfirmed,
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          <div className="text-right">
+            <Button 
+              variant="link" 
+              type="button" 
+              onClick={onForgotPassword}
+              className="text-xs text-red-600 p-0 h-auto font-normal"
+            >
+              Forgot password?
+            </Button>
+          </div>
         </div>
       </CardContent>
       <CardFooter>

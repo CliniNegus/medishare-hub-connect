@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import SignInForm from '@/components/auth/SignInForm';
 import SignUpForm from '@/components/auth/SignUpForm';
+import PasswordResetForm from '@/components/auth/PasswordResetForm';
 import EmailConfirmationAlert from '@/components/auth/EmailConfirmationAlert';
 import ErrorAlert from '@/components/auth/ErrorAlert';
 import { Hospital, Factory, PiggyBank, ShieldAlert } from "lucide-react";
@@ -19,6 +20,8 @@ const Auth = () => {
   const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState<UserRole>('hospital');
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
+  const [activeTab, setActiveTab] = useState('signin');
 
   // Check if user is already logged in
   useEffect(() => {
@@ -50,6 +53,20 @@ const Auth = () => {
   const handleError = (message: string) => {
     setErrorMessage(message);
     setUnconfirmedEmail(null);
+  };
+
+  const handleForgotPassword = () => {
+    setShowPasswordReset(true);
+    setActiveTab('passwordReset');
+  };
+
+  const handleResetSuccess = () => {
+    setShowPasswordReset(false);
+    setActiveTab('signin');
+    toast({
+      title: "Password Reset Email Sent",
+      description: "Please check your email for further instructions.",
+    });
   };
 
   const resendConfirmationEmail = async () => {
@@ -118,7 +135,7 @@ const Auth = () => {
           <ErrorAlert message={errorMessage} />
         )}
         
-        <Tabs defaultValue="signin" className="w-full">
+        <Tabs defaultValue="signin" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="signin">Sign In</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -129,6 +146,7 @@ const Auth = () => {
               onSuccess={handleSignInSuccess}
               onEmailNotConfirmed={handleEmailNotConfirmed}
               onError={handleError}
+              onForgotPassword={handleForgotPassword}
             />
           </TabsContent>
           
@@ -162,6 +180,15 @@ const Auth = () => {
               metadata={{ role: selectedRole }}
             />
           </TabsContent>
+          
+          {showPasswordReset && (
+            <TabsContent value="passwordReset">
+              <PasswordResetForm 
+                onSuccess={handleResetSuccess}
+                onError={handleError}
+              />
+            </TabsContent>
+          )}
         </Tabs>
       </Card>
     </div>
