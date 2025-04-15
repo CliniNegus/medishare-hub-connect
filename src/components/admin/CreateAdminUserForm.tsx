@@ -34,7 +34,7 @@ const CreateAdminUserForm = () => {
       };
       
       // Call the function to create an admin user
-      // The @supabase/supabase-js client expects different type parameters
+      // Don't specify type parameters and let TypeScript infer them
       const { data, error } = await supabase.rpc('create_admin_user', params);
 
       if (error) {
