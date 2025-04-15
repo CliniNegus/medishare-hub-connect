@@ -33,8 +33,8 @@ const CreateAdminUserForm = () => {
         full_name: fullName
       };
       
-      // Call the function to create an admin user
-      const { data, error } = await supabase.rpc('create_admin_user', params);
+      // Call the function to create an admin user with the proper type assertion
+      const { data, error } = await supabase.rpc('create_admin_user', params as any);
 
       if (error) {
         throw error;
