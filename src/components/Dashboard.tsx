@@ -6,7 +6,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import HospitalDashboard from './HospitalDashboard';
 import ManufacturerDashboard from './ManufacturerDashboard';
 import InvestorDashboard from './InvestorDashboard';
-import AdminDashboard from '@/pages/AdminDashboard';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -26,6 +25,12 @@ const Dashboard = () => {
     // Make sure profile is loaded and role is set correctly
     if (user && profile && profile.role) {
       setRole(profile.role as any);
+      
+      // Redirect admin users to the admin dashboard
+      if (profile.role === 'admin') {
+        navigate('/admin');
+        return;
+      }
     }
   }, [user, profile, navigate, setRole]);
 
@@ -71,8 +76,6 @@ const Dashboard = () => {
       return <ManufacturerDashboard />;
     case 'investor':
       return <InvestorDashboard />;
-    case 'admin':
-      return <AdminDashboard />;
     case 'hospital':
     default:
       return <HospitalDashboard />;

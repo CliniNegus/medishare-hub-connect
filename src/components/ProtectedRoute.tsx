@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserRole, useUserRole } from '@/contexts/UserRoleContext';
 
@@ -17,6 +17,7 @@ const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const { user, profile, loading } = useAuth();
   const { isRoleAuthorized } = useUserRole();
+  const location = useLocation();
 
   if (loading) {
     // You could show a loading spinner here
@@ -25,6 +26,12 @@ const ProtectedRoute = ({
 
   if (!user) {
     return <Navigate to="/auth" replace />;
+  }
+
+  // Automatic redirection to admin dashboard for admin users
+  // Only redirect if they're not already trying to access the admin route
+  if (profile?.role === 'admin' && !requireAdmin && location.pathname !== '/admin') {
+    return <Navigate to="/admin" replace />;
   }
 
   // Check admin role if required
