@@ -2,11 +2,12 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Bell, Settings, UserCircle, Package, ShoppingCart, Home, Calculator, LayoutDashboard, LogOut, Trash2 } from "lucide-react";
+import { Bell, Settings, UserCircle, Package, ShoppingCart, Home, Calculator, LayoutDashboard, LogOut, Trash2, UserCog } from "lucide-react";
 import UserRoleSelector from './UserRoleSelector';
 import { useUserRole } from '@/contexts/UserRoleContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from "@/components/ui/use-toast";
+import ChangeAccountTypeModal from './ChangeAccountTypeModal';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +28,7 @@ const Header = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [accountTypeModalOpen, setAccountTypeModalOpen] = useState(false);
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -149,16 +151,32 @@ const Header = () => {
                 </Button>
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
                   <button
+                    onClick={() => setAccountTypeModalOpen(true)}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <div className="flex items-center">
+                      <UserCog className="h-4 w-4 mr-2 text-gray-500" />
+                      Change Account Type
+                    </div>
+                  </button>
+                  
+                  <button
                     onClick={handleSignOut}
                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    Sign Out
+                    <div className="flex items-center">
+                      <LogOut className="h-4 w-4 mr-2 text-gray-500" />
+                      Sign Out
+                    </div>
                   </button>
                   
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <button className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                        Delete Account
+                        <div className="flex items-center">
+                          <Trash2 className="h-4 w-4 mr-2 text-red-500" />
+                          Delete Account
+                        </div>
                       </button>
                     </AlertDialogTrigger>
                     <AlertDialogContent className="bg-white">
@@ -193,6 +211,12 @@ const Header = () => {
           )}
         </div>
       </div>
+      
+      {/* Account Type Change Modal */}
+      <ChangeAccountTypeModal 
+        open={accountTypeModalOpen} 
+        onOpenChange={setAccountTypeModalOpen} 
+      />
     </header>
   );
 };

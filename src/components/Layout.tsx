@@ -10,11 +10,13 @@ import {
   Settings,
   Signal,
   LogOut,
-  Trash2
+  Trash2,
+  UserCog
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/contexts/UserRoleContext";
+import ChangeAccountTypeModal from './ChangeAccountTypeModal';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,6 +42,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { role } = useUserRole();
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [accountTypeModalOpen, setAccountTypeModalOpen] = useState(false);
   
   // Define menu items based on user role
   const getMenuItems = () => {
@@ -168,6 +171,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Button
             variant="outline"
             className="w-full justify-start text-gray-300 hover:text-white border-gray-700 hover:bg-gray-800 mt-2"
+            onClick={() => setAccountTypeModalOpen(true)}
+          >
+            <UserCog className="h-5 w-5" />
+            <span className="ml-3">Change Account Type</span>
+          </Button>
+          
+          <Button
+            variant="outline"
+            className="w-full justify-start text-gray-300 hover:text-white border-gray-700 hover:bg-gray-800 mt-2"
             onClick={handleSignOut}
           >
             <LogOut className="h-5 w-5" />
@@ -213,6 +225,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           {children}
         </main>
       </div>
+      
+      {/* Account Type Change Modal */}
+      <ChangeAccountTypeModal 
+        open={accountTypeModalOpen} 
+        onOpenChange={setAccountTypeModalOpen} 
+      />
     </div>
   );
 };

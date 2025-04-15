@@ -6,6 +6,7 @@ export type UserRole = 'hospital' | 'manufacturer' | 'investor' | 'admin';
 
 interface UserRoleContextType {
   role: UserRole;
+  profile: any;
   setRole: (role: UserRole) => void;
   updateUserRole: (newRole: UserRole) => Promise<void>;
   isRoleAuthorized: (allowedRoles: UserRole[]) => boolean;
@@ -61,6 +62,7 @@ export const UserRoleProvider = ({ children }: { children: ReactNode }) => {
   return (
     <UserRoleContext.Provider value={{ 
       role, 
+      profile,
       setRole, 
       updateUserRole, 
       isRoleAuthorized,
