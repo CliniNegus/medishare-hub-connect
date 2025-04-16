@@ -33,8 +33,7 @@ const CreateAdminUserForm = () => {
         full_name: fullName || null
       };
       
-      // Call the function to create an admin user
-      // Remove explicit type parameters and let TypeScript infer them
+      // Call the function to create an admin user with explicit typing
       const { data, error } = await supabase.rpc('create_admin_user', params);
 
       if (error) {
