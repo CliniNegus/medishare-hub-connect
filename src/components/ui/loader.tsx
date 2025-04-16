@@ -22,8 +22,8 @@ export function Loader({
           "h-6 w-6 border-2": size === "md",
           "h-8 w-8 border-3": size === "lg",
           "border-gray-300 border-t-transparent": variant === "default",
-          "border-primary border-t-transparent": variant === "primary",
-          "border-secondary border-t-transparent": variant === "secondary",
+          "border-red-600 border-t-transparent": variant === "primary",
+          "border-black border-t-transparent": variant === "secondary",
         },
         className
       )}
