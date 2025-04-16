@@ -7,21 +7,39 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { ShieldAlert } from "lucide-react";
+import { ShieldAlert, Lock } from "lucide-react";
 import CreateAdminUserForm from '@/components/admin/CreateAdminUserForm';
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Form, FormField, FormItem, FormControl } from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+// Define the validation schema for login
+const loginFormSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+type LoginFormValues = z.infer<typeof loginFormSchema>;
 
 const AdminAuth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('signin');
 
-  const handleAdminLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Initialize the form
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginFormSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const handleAdminLogin = async (values: LoginFormValues) => {
     setError(null);
     
     try {
@@ -29,8 +47,8 @@ const AdminAuth = () => {
       
       // First, sign in the user
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password
+        email: values.email,
+        password: values.password
       });
 
       if (signInError) {
@@ -113,35 +131,64 @@ const AdminAuth = () => {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
-              <form onSubmit={handleAdminLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Admin Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
+              
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleAdminLogin)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem className="space-y-2">
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              id="email"
+                              type="email"
+                              placeholder="Admin Email"
+                              className="pl-10"
+                              {...field}
+                            />
+                            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                              <Lock className="h-4 w-4 text-gray-400" />
+                            </div>
+                          </div>
+                        </FormControl>
+                      </FormItem>
+                    )}
                   />
-                </div>
-                <div className="space-y-2">
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
+                  
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem className="space-y-2">
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              id="password"
+                              type="password"
+                              placeholder="Password"
+                              className="pl-10"
+                              {...field}
+                            />
+                            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                              <Lock className="h-4 w-4 text-gray-400" />
+                            </div>
+                          </div>
+                        </FormControl>
+                      </FormItem>
+                    )}
                   />
-                </div>
-                <Button 
-                  type="submit" 
-                  className="w-full bg-red-600 hover:bg-red-700" 
-                  disabled={loading}
-                >
-                  {loading ? "Signing in..." : "Sign In as Admin"}
-                </Button>
-              </form>
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-red-600 hover:bg-red-700 text-white" 
+                    disabled={loading}
+                  >
+                    {loading ? "Signing in..." : "Sign In as Admin"}
+                  </Button>
+                </form>
+              </Form>
             </CardContent>
           </TabsContent>
           
