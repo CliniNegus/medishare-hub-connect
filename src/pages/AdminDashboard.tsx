@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
@@ -10,6 +9,8 @@ import UserManagement from '@/components/admin/UserManagement';
 import MaintenanceManagement from '@/components/admin/MaintenanceManagement';
 import FinancialManagement from '@/components/admin/FinancialManagement';
 import SettingsPanel from '@/components/admin/SettingsPanel';
+import AdminResetTool from '@/components/admin/AdminResetTool';
+import CreateAdminUserForm from '@/components/admin/CreateAdminUserForm';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -21,7 +22,8 @@ import {
   Map, 
   BrainCircuit,
   ListFilter,
-  Settings
+  Settings,
+  AlertTriangle
 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
@@ -151,7 +153,13 @@ const AdminDashboard = () => {
           )}
 
           {activeTab === 'users' && (
-            <UserManagement stats={stats} />
+            <div className="space-y-6">
+              <UserManagement stats={stats} />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                <CreateAdminUserForm />
+                <AdminResetTool />
+              </div>
+            </div>
           )}
 
           {activeTab === 'maintenance' && (
