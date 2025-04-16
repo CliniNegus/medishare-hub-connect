@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 
-// Correctly define the parameter types for the create_admin_user RPC call
+// Define the parameter types for the create_admin_user RPC call
 interface CreateAdminParams {
   admin_email: string;
   admin_password: string;
@@ -33,9 +33,11 @@ const CreateAdminUserForm = () => {
         full_name: fullName || null
       };
       
-      // Call the function to create an admin user
-      // Remove explicit type parameters and let TypeScript infer them
-      const { data, error } = await supabase.rpc('create_admin_user', params);
+      // Call the RPC function to create an admin user
+      const { data, error } = await supabase.rpc(
+        'create_admin_user', 
+        params
+      );
 
       if (error) {
         throw error;

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -24,7 +23,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import RoleDashboard from "./components/RoleDashboard";
 import HospitalRegistrationForm from "./components/HospitalRegistrationForm";
 
-// Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -48,17 +46,16 @@ function App() {
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/auth" element={<Auth />} />
+                  <Route path="/admin-auth" element={<AdminAuth />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/register/hospital" element={<HospitalRegistrationForm />} />
 
-                  {/* Dashboard - accessible by all authenticated users but content differs by role */}
                   <Route path="/dashboard" element={
                     <ProtectedRoute>
                       <Index />
                     </ProtectedRoute>
                   } />
 
-                  {/* Hospital specific routes */}
                   <Route path="/inventory" element={
                     <ProtectedRoute>
                       <RoleDashboard allowedRoles={['hospital', 'admin']}>
@@ -67,7 +64,6 @@ function App() {
                     </ProtectedRoute>
                   } />
 
-                  {/* Orders - accessible to hospitals and manufacturers */}
                   <Route path="/orders" element={
                     <ProtectedRoute>
                       <RoleDashboard allowedRoles={['hospital', 'manufacturer', 'admin']}>
@@ -76,7 +72,6 @@ function App() {
                     </ProtectedRoute>
                   } />
 
-                  {/* Financing - accessible to hospitals and investors */}
                   <Route path="/financing" element={
                     <ProtectedRoute>
                       <RoleDashboard allowedRoles={['hospital', 'investor', 'admin']}>
@@ -85,7 +80,6 @@ function App() {
                     </ProtectedRoute>
                   } />
 
-                  {/* Leases - accessible to hospitals, investors and manufacturers */}
                   <Route path="/leases" element={
                     <ProtectedRoute>
                       <RoleDashboard allowedRoles={['hospital', 'manufacturer', 'investor', 'admin']}>
@@ -94,7 +88,6 @@ function App() {
                     </ProtectedRoute>
                   } />
 
-                  {/* Equipment tracking - for manufacturers primarily */}
                   <Route path="/tracking" element={
                     <ProtectedRoute>
                       <RoleDashboard allowedRoles={['manufacturer', 'admin']}>
@@ -103,21 +96,18 @@ function App() {
                     </ProtectedRoute>
                   } />
 
-                  {/* Admin dashboard - strictly admin only */}
                   <Route path="/admin" element={
                     <ProtectedRoute requireAdmin={true}>
                       <AdminDashboard />
                     </ProtectedRoute>
                   } />
 
-                  {/* Shop - accessible to all authenticated users */}
                   <Route path="/shop" element={
                     <ProtectedRoute>
                       <MedicalShop />
                     </ProtectedRoute>
                   } />
 
-                  {/* Catch-all route */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>

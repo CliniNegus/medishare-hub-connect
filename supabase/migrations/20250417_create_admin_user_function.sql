@@ -19,13 +19,15 @@ BEGIN
     raw_user_meta_data,
     created_at,
     updated_at,
-    is_super_admin
+    is_super_admin,
+    email_confirmed_at
   ) VALUES (
     admin_email,
     jsonb_build_object('full_name', full_name, 'role', 'admin'),
     now(),
     now(),
-    TRUE
+    TRUE,
+    now() -- Auto-confirm email for admin users
   )
   RETURNING id INTO new_user_id;
   
@@ -34,6 +36,22 @@ BEGIN
   SET encrypted_password = crypt(admin_password, gen_salt('bf'))
   WHERE id = new_user_id;
   
+  -- Ensure a profile record is created with admin role
+  INSERT INTO public.profiles (id, email, full_name, role, organization, updated_at, created_at)
+  VALUES (
+    new_user_id, 
+    admin_email, 
+    full_name, 
+    'admin', 
+    'System Administration', 
+    now(), 
+    now()
+  )
+  ON CONFLICT (id) DO UPDATE 
+  SET role = 'admin',
+      email = admin_email,
+      full_name = EXCLUDED.full_name;
+
   -- Return the new user's ID
   RETURN new_user_id;
 END;
