@@ -1,0 +1,118 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    
+    --primary: 0 73% 41%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 0 0% 13%;
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    
+    --accent: 0 73% 41%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 73% 41%;
+    
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary hover:bg-primary/90 text-white;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary hover:bg-secondary/90 text-white;
+  }
+  
+  .btn-outline {
+    @apply border border-border bg-background hover:bg-muted;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+  
+  .section-title {
+    @apply text-2xl font-bold text-foreground mb-4;
+  }
+  
+  .form-control {
+    @apply space-y-2;
+  }
+  
+  .sidebar-link {
+    @apply flex items-center py-2 px-4 rounded-md hover:bg-primary/10 transition-colors;
+  }
+  
+  .sidebar-link.active {
+    @apply bg-primary/10 text-primary;
+  }
+  
+  .status-dot {
+    @apply h-2.5 w-2.5 rounded-full inline-block mr-2;
+  }
+  
+  .status-dot.success {
+    @apply bg-green-500;
+  }
+  
+  .status-dot.warning {
+    @apply bg-yellow-500;
+  }
+  
+  .status-dot.error {
+    @apply bg-red-500;
+  }
+  
+  .status-dot.neutral {
+    @apply bg-gray-500;
+  }
+  
+  .animate-fade-in {
+    @apply animate-[fade-in_0.3s_ease-out];
+  }
+  
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
