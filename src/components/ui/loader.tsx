@@ -43,6 +43,6 @@ export function LoadingScreen() {
   );
 }
 
-export function ButtonLoader({ className }: { className?: string }) {
-  return <Loader size="sm" variant="secondary" className={cn("mr-2", className)} />;
+export function ButtonLoader({ className, variant = "secondary" }: { className?: string; variant?: "default" | "primary" | "secondary" }) {
+  return <Loader size="sm" variant={variant} className={cn("mr-2", className)} />;
 }
