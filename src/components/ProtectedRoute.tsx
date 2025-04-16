@@ -22,14 +22,14 @@ const ProtectedRoute = ({
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Only redirect if we have loaded the user profile and confirmed they are an admin
-    if (!loading && user && profile?.role === 'admin' && !location.pathname.startsWith('/admin')) {
+    // If user is logged in and has admin role but is not on admin route yet
+    if (user && profile?.role === 'admin' && !location.pathname.startsWith('/admin')) {
       // But not if they're explicitly trying to access a non-admin page
       if (!requireAdmin && !location.pathname.startsWith('/dashboard')) {
         navigate('/admin');
       }
     }
-  }, [user, profile, location.pathname, navigate, requireAdmin, loading]);
+  }, [user, profile, location.pathname, navigate, requireAdmin]);
 
   if (loading) {
     return <LoadingScreen />;

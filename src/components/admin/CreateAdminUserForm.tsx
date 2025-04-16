@@ -36,7 +36,7 @@ const CreateAdminUserForm = () => {
         full_name: fullName || null
       };
       
-      // Fix the RPC call with proper type annotation
+      // Call the RPC function without specifying the generic type parameters
       const { data, error } = await supabase.rpc('create_admin_user', params);
 
       if (error) {
@@ -133,7 +133,7 @@ const CreateAdminUserForm = () => {
           </div>
           <Button 
             type="submit" 
-            className="w-full bg-red-600 hover:bg-red-700" 
+            className="w-full bg-primary hover:bg-primary/90" 
             disabled={loading}
           >
             {loading ? (

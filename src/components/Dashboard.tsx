@@ -38,19 +38,16 @@ const Dashboard = () => {
         if (profile && profile.role) {
           setRole(profile.role as any);
           
-          // Redirect admin users to the admin dashboard immediately
+          // Redirect admin users to the admin dashboard
           if (profile.role === 'admin') {
-            navigate('/admin', { replace: true });
+            navigate('/admin');
             return;
           }
         }
       } catch (error) {
         console.error("Error initializing dashboard:", error);
       } finally {
-        // Ensure loading state is turned off after a minimum time to avoid flicker
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 300);
+        setIsLoading(false);
       }
     };
     
@@ -76,12 +73,12 @@ const Dashboard = () => {
           </Alert>
           <div className="flex flex-col gap-4">
             <Link to="/">
-              <Button className="w-full bg-red-600 hover:bg-red-700">
+              <Button className="w-full bg-primary hover:bg-primary/90">
                 Back to Home
               </Button>
             </Link>
             <Link to={`/dashboard?role=${profile.role}`}>
-              <Button variant="outline" className="w-full border-red-600 text-red-600 hover:bg-red-50">
+              <Button variant="outline" className="w-full">
                 Go to {profile.role} Dashboard
               </Button>
             </Link>

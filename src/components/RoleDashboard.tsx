@@ -19,16 +19,7 @@ const RoleDashboard: React.FC<RoleDashboardProps> = ({
   redirectTo = '/' 
 }) => {
   const { role, isRoleAuthorized } = useUserRole();
-  const { user, profile, loading } = useAuth();
-
-  // Show loading indicator while auth state is being determined
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-red-600 border-t-transparent"></div>
-      </div>
-    );
-  }
+  const { user, profile } = useAuth();
 
   if (!user) {
     return <Navigate to="/auth" replace />;
