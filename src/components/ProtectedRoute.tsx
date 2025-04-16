@@ -1,9 +1,8 @@
 
-import React, { useEffect } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserRole, useUserRole } from '@/contexts/UserRoleContext';
-import { LoadingScreen } from '@/components/ui/loader';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -19,24 +18,20 @@ const ProtectedRoute = ({
   const { user, profile, loading } = useAuth();
   const { isRoleAuthorized } = useUserRole();
   const location = useLocation();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // If user is logged in and has admin role but is not on admin route yet
-    if (user && profile?.role === 'admin' && !location.pathname.startsWith('/admin')) {
-      // But not if they're explicitly trying to access a non-admin page
-      if (!requireAdmin && !location.pathname.startsWith('/dashboard')) {
-        navigate('/admin');
-      }
-    }
-  }, [user, profile, location.pathname, navigate, requireAdmin]);
 
   if (loading) {
-    return <LoadingScreen />;
+    // You could show a loading spinner here
+    return <div className="h-screen flex items-center justify-center">Loading...</div>;
   }
 
   if (!user) {
-    return <Navigate to="/auth" state={{ from: location }} replace />;
+    return <Navigate to="/auth" replace />;
+  }
+
+  // Automatic redirection to admin dashboard for admin users
+  // Only redirect if they're not already trying to access the admin route
+  if (profile?.role === 'admin' && !requireAdmin && location.pathname !== '/admin') {
+    return <Navigate to="/admin" replace />;
   }
 
   // Check admin role if required

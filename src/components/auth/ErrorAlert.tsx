@@ -1,31 +1,20 @@
 
 import React from 'react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { X, Info } from "lucide-react";
+import { Info } from "lucide-react";
 
 interface ErrorAlertProps {
   message: string;
-  onDismiss?: () => void;
-  className?: string;
 }
 
-const ErrorAlert: React.FC<ErrorAlertProps> = ({ message, onDismiss, className }) => {
+const ErrorAlert: React.FC<ErrorAlertProps> = ({ message }) => {
   return (
-    <Alert className={`bg-red-50 border-red-500 relative ${className || ''}`}>
+    <Alert className="mx-6 mb-4 bg-red-50 border-red-500">
       <Info className="h-4 w-4 text-red-500" />
       <AlertTitle className="text-red-500">Error</AlertTitle>
       <AlertDescription className="text-red-700">
         {message}
       </AlertDescription>
-      {onDismiss && (
-        <button 
-          onClick={onDismiss}
-          className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-          aria-label="Dismiss"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      )}
     </Alert>
   );
 };

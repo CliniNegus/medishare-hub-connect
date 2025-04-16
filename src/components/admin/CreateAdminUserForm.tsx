@@ -5,10 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { Eye, EyeOff } from "lucide-react";
-import { ButtonLoader } from "@/components/ui/loader";
 
-// Define the parameter types for the create_admin_user RPC call
+// Correctly define the parameter types for the create_admin_user RPC call
 interface CreateAdminParams {
   admin_email: string;
   admin_password: string;
@@ -21,7 +19,6 @@ const CreateAdminUserForm = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleCreateAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +33,8 @@ const CreateAdminUserForm = () => {
         full_name: fullName || null
       };
       
-      // Remove type parameters completely to let TypeScript infer the types
+      // Call the function to create an admin user
+      // Remove explicit type parameters and let TypeScript infer them
       const { data, error } = await supabase.rpc('create_admin_user', params);
 
       if (error) {
@@ -63,86 +61,48 @@ const CreateAdminUserForm = () => {
     }
   };
 
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
-
   return (
-    <Card className="shadow-md border-border">
-      <CardHeader className="bg-secondary/5 border-b border-border">
-        <CardTitle className="text-xl text-red-600">Create Admin User</CardTitle>
+    <Card>
+      <CardHeader>
+        <CardTitle>Create Admin User</CardTitle>
         <CardDescription>
-          Create a new user with administrative privileges
+          Create a new user with admin privileges
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-6">
+      <CardContent>
         <form onSubmit={handleCreateAdmin} className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="admin-email" className="text-sm font-medium">
-              Email Address
-            </label>
             <Input
               id="admin-email"
               type="email"
-              placeholder="admin@example.com"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="border-gray-300"
               required
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="admin-full-name" className="text-sm font-medium">
-              Full Name
-            </label>
             <Input
               id="admin-full-name"
               type="text"
-              placeholder="John Doe"
+              placeholder="Full Name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="border-gray-300"
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="admin-password" className="text-sm font-medium">
-              Password
-            </label>
-            <div className="relative">
-              <Input
-                id="admin-password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Minimum 8 characters"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="border-gray-300 pr-10"
-                required
-                minLength={8}
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400"
-                onClick={toggleShowPassword}
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Password must be at least 8 characters long
-            </p>
+            <Input
+              id="admin-password"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+            />
           </div>
-          <Button 
-            type="submit" 
-            className="w-full bg-red-600 hover:bg-red-700 text-white" 
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <ButtonLoader /> Creating...
-              </>
-            ) : (
-              "Create Admin User"
-            )}
+          <Button type="submit" className="bg-red-600 hover:bg-red-700" disabled={loading}>
+            {loading ? "Creating..." : "Create Admin User"}
           </Button>
         </form>
       </CardContent>

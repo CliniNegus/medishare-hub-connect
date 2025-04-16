@@ -27,24 +27,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
-        console.log("Auth state changed:", event);
         setSession(newSession);
         setUser(newSession?.user ?? null);
         
         if (event === 'SIGNED_OUT') {
           setProfile(null);
-        } else if (newSession?.user) {
-          // Use setTimeout to avoid potential recursive issues with Supabase auth state change
-          setTimeout(() => {
-            fetchProfile(newSession.user.id);
-          }, 0);
+        } else if (event === 'SIGNED_IN' && newSession?.user) {
+          fetchProfile(newSession.user.id);
         }
       }
     );
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      console.log("Existing session:", currentSession?.user?.id);
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
@@ -62,7 +57,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchProfile = async (userId: string) => {
     try {
-      console.log("Fetching profile for user:", userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -74,7 +68,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
-      console.log("Profile fetched:", data);
       setProfile(data);
     } catch (error) {
       console.error('Error in fetchProfile:', error);

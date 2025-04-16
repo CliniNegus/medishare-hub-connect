@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { UserRole } from '@/contexts/UserRoleContext';
-import { ButtonLoader } from '@/components/ui/loader';
 
 interface SignUpFormProps {
   onSuccess: () => void;
@@ -27,8 +26,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
     
     try {
       setLoading(true);
-      
-      console.log("Signing up with role:", metadata?.role);
       
       // Sign up the user
       const { error: signUpError } = await supabase.auth.signUp({
@@ -111,13 +108,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
       </CardContent>
       <CardFooter>
         <Button type="submit" className="w-full bg-red-600 hover:bg-red-700" disabled={loading}>
-          {loading ? (
-            <>
-              <ButtonLoader /> Creating account...
-            </>
-          ) : (
-            "Sign Up"
-          )}
+          {loading ? "Creating account..." : "Sign Up"}
         </Button>
       </CardFooter>
     </form>

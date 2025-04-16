@@ -24,7 +24,6 @@ export const UserRoleProvider = ({ children }: { children: ReactNode }) => {
     if (profile?.role) {
       // Make sure we set the role in state to match the user's profile role
       setRole(profile.role as UserRole);
-      console.log("Setting user role from profile:", profile.role);
     }
   }, [profile]);
 

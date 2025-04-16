@@ -1,177 +1,196 @@
 
-import React, { useState } from 'react';
-import { Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/components/ui/use-toast";
 import SignInForm from '@/components/auth/SignInForm';
 import SignUpForm from '@/components/auth/SignUpForm';
+import PasswordResetForm from '@/components/auth/PasswordResetForm';
 import EmailConfirmationAlert from '@/components/auth/EmailConfirmationAlert';
 import ErrorAlert from '@/components/auth/ErrorAlert';
-import PasswordResetForm from '@/components/auth/PasswordResetForm';
-import { useUserRole, UserRole } from '@/contexts/UserRoleContext';
-import { Hospital, Factory, PiggyBank } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Hospital, Factory, PiggyBank, ShieldAlert } from "lucide-react";
+import { UserRole } from '@/contexts/UserRoleContext';
 
 const Auth = () => {
-  const { user, loading } = useAuth();
-  const { role } = useUserRole();
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || '/dashboard';
-  
-  const [activeTab, setActiveTab] = useState<string>("sign-in");
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [emailForConfirmation, setEmailForConfirmation] = useState<string | null>(null);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<UserRole>('hospital');
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
+  const [activeTab, setActiveTab] = useState('signin');
 
-  // If user is already authenticated, redirect to dashboard
-  if (user && !loading) {
-    return <Navigate to={from} />;
-  }
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        navigate('/dashboard');
+      }
+    };
+    
+    checkSession();
+  }, [navigate]);
 
   const handleSignInSuccess = () => {
-    navigate(from);
+    navigate('/dashboard');
   };
 
   const handleSignUpSuccess = () => {
-    setActiveTab("sign-in");
+    // Reset the form state, user should get confirmation message
+    setUnconfirmedEmail(null);
+    setErrorMessage(null);
+  };
+
+  const handleEmailNotConfirmed = (email: string) => {
+    setUnconfirmedEmail(email);
+    setErrorMessage(null);
   };
 
   const handleError = (message: string) => {
     setErrorMessage(message);
+    setUnconfirmedEmail(null);
   };
 
-  const handleEmailNotConfirmed = (email: string) => {
-    setEmailForConfirmation(email);
+  const handleForgotPassword = () => {
+    setShowPasswordReset(true);
+    setActiveTab('passwordReset');
   };
 
-  const handleDismissError = () => {
-    setErrorMessage(null);
+  const handleResetSuccess = () => {
+    setShowPasswordReset(false);
+    setActiveTab('signin');
+    toast({
+      title: "Password Reset Email Sent",
+      description: "Please check your email for further instructions.",
+    });
   };
 
-  const handleDismissEmailConfirmation = () => {
-    setEmailForConfirmation(null);
-  };
+  const resendConfirmationEmail = async () => {
+    if (!unconfirmedEmail) return;
+    
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: unconfirmedEmail,
+      });
 
-  const handleShowForgotPassword = () => {
-    setShowForgotPassword(true);
-  };
+      if (error) {
+        setErrorMessage(error.message);
+        throw error;
+      }
 
-  const handleBackToSignIn = () => {
-    setShowForgotPassword(false);
-  };
-
-  const getRoleIconByName = (roleName: UserRole) => {
-    switch (roleName) {
-      case 'hospital':
-        return <Hospital className="h-5 w-5 text-blue-500" />;
-      case 'manufacturer':
-        return <Factory className="h-5 w-5 text-green-500" />;
-      case 'investor':
-        return <PiggyBank className="h-5 w-5 text-purple-500" />;
-      default:
-        return null;
+      toast({
+        title: "Confirmation email sent",
+        description: "Please check your inbox for the confirmation link.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Failed to resend confirmation email",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
+  const roleIcons = {
+    hospital: <Hospital className="h-8 w-8 mb-2 text-red-600" />,
+    manufacturer: <Factory className="h-8 w-8 mb-2 text-red-600" />,
+    investor: <PiggyBank className="h-8 w-8 mb-2 text-red-600" />,
+    admin: <ShieldAlert className="h-8 w-8 mb-2 text-red-600" />
+  };
+
+  const roleDescriptions = {
+    hospital: 'For healthcare facilities needing equipment',
+    manufacturer: 'For equipment suppliers and manufacturers',
+    investor: 'For financing medical equipment',
+    admin: 'For platform administrators'
+  };
+
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 p-4">
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-center mb-6"
-      >
-        <div className="inline-flex items-center mb-2">
-          <div className="h-8 w-8 rounded-md bg-gradient-to-r from-red-600 to-black mr-2"></div>
-          <h1 className="text-2xl font-bold">CliniBuilds</h1>
-        </div>
-        <p className="text-gray-600">Medical Equipment Sharing Platform</p>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="w-full max-w-md"
-      >
-        {errorMessage && (
-          <ErrorAlert message={errorMessage} onDismiss={handleDismissError} className="mb-4" />
-        )}
-
-        {emailForConfirmation && (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl">Medical Equipment Sharing</CardTitle>
+          <CardDescription>
+            Sign in to access the platform
+          </CardDescription>
+        </CardHeader>
+        
+        {unconfirmedEmail && (
           <EmailConfirmationAlert 
-            email={emailForConfirmation} 
-            onDismiss={handleDismissEmailConfirmation} 
-            className="mb-4" 
+            email={unconfirmedEmail}
+            onResendConfirmation={resendConfirmationEmail}
+            loading={loading}
           />
         )}
 
-        <Card className="shadow-lg border-gray-200">
-          <CardHeader className="pb-4 pt-6 text-center bg-white rounded-t-lg">
-            {showForgotPassword ? (
-              <>
-                <CardTitle className="text-xl">Reset Your Password</CardTitle>
-                <CardDescription>
-                  Enter your email and we'll send you a link to reset your password
-                </CardDescription>
-              </>
-            ) : (
-              <>
-                <CardTitle className="text-xl">
-                  {activeTab === "sign-in" ? "Welcome Back" : "Create an Account"}
-                </CardTitle>
-                <CardDescription>
-                  {activeTab === "sign-in" 
-                    ? "Sign in to access your account" 
-                    : "Sign up to get started with CliniBuilds"}
-                </CardDescription>
-              </>
-            )}
-          </CardHeader>
+        {errorMessage && !unconfirmedEmail && (
+          <ErrorAlert message={errorMessage} />
+        )}
+        
+        <Tabs defaultValue="signin" value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="signin">Sign In</TabsTrigger>
+            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+          </TabsList>
           
-          {!showForgotPassword ? (
-            <Tabs defaultValue="sign-in" value={activeTab} onValueChange={setActiveTab}>
-              <div className="px-6">
-                <TabsList className="grid grid-cols-2 w-full">
-                  <TabsTrigger value="sign-in" className="rounded-l-md">Sign In</TabsTrigger>
-                  <TabsTrigger value="sign-up" className="rounded-r-md">Sign Up</TabsTrigger>
-                </TabsList>
-              </div>
-              <TabsContent value="sign-in">
-                <SignInForm
-                  onSuccess={handleSignInSuccess}
-                  onError={handleError}
-                  onEmailNotConfirmed={handleEmailNotConfirmed}
-                  onForgotPassword={handleShowForgotPassword}
-                />
-              </TabsContent>
-              <TabsContent value="sign-up">
-                <SignUpForm
-                  onSuccess={handleSignUpSuccess}
-                  onError={handleError}
-                  metadata={{ role }}
-                />
-              </TabsContent>
-            </Tabs>
-          ) : (
-            <PasswordResetForm onBackToSignIn={handleBackToSignIn} />
-          )}
+          <TabsContent value="signin">
+            <SignInForm 
+              onSuccess={handleSignInSuccess}
+              onEmailNotConfirmed={handleEmailNotConfirmed}
+              onError={handleError}
+              onForgotPassword={handleForgotPassword}
+            />
+          </TabsContent>
           
-          {role && !showForgotPassword && (
-            <div className="p-4 border-t text-sm text-center">
-              <div className="flex items-center justify-center text-gray-600">
-                <span>Signing up as:</span>
-                <span className="flex items-center ml-2 font-medium">
-                  {getRoleIconByName(role)}
-                  <span className="ml-1 capitalize">{role}</span>
-                </span>
+          <TabsContent value="signup">
+            <div className="mb-4">
+              <h3 className="text-sm font-medium mb-2">Select Account Type</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {['hospital', 'manufacturer', 'investor'].map((role) => (
+                  <div 
+                    key={role}
+                    onClick={() => setSelectedRole(role as UserRole)}
+                    className={`flex flex-col items-center justify-center p-2 rounded-md cursor-pointer ${
+                      selectedRole === role 
+                        ? 'bg-red-50 border-2 border-red-600' 
+                        : 'bg-white border border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    {roleIcons[role as UserRole]}
+                    <span className="text-sm font-medium">{role.charAt(0).toUpperCase() + role.slice(1)}</span>
+                  </div>
+                ))}
               </div>
+              <p className="text-xs text-gray-500 mt-2">
+                {roleDescriptions[selectedRole]}
+              </p>
             </div>
+            
+            <SignUpForm 
+              onSuccess={handleSignUpSuccess}
+              onError={handleError}
+              metadata={{ role: selectedRole }}
+            />
+          </TabsContent>
+          
+          {showPasswordReset && (
+            <TabsContent value="passwordReset">
+              <PasswordResetForm 
+                onSuccess={handleResetSuccess}
+                onError={handleError}
+              />
+            </TabsContent>
           )}
-        </Card>
-      </motion.div>
+        </Tabs>
+      </Card>
     </div>
   );
 };

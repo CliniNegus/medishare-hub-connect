@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   DropdownMenu,
@@ -55,17 +54,8 @@ const UserRoleSelector = () => {
     if (!profile.role) {
       try {
         await updateUserRole(newRole);
-        toast({
-          title: "Role Updated",
-          description: `Your role has been set to ${roleLabels[newRole]}.`,
-        });
       } catch (error) {
         console.error("Failed to update user role:", error);
-        toast({
-          title: "Update Failed",
-          description: "Failed to update your role. Please try again.",
-          variant: "destructive"
-        });
       }
     } else {
       setRole(newRole);
@@ -81,23 +71,18 @@ const UserRoleSelector = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="outline" 
-          className="flex items-center space-x-2 bg-white/90 hover:bg-white border border-gray-200 shadow-sm"
-        >
-          <span className="flex items-center">
-            {roleIcons[role]}
-            <span>{roleLabels[role]} View</span>
-          </span>
-          <ChevronDown className="h-4 w-4 ml-2 opacity-70" />
+        <Button variant="outline" className="flex items-center space-x-2">
+          {roleIcons[role]}
+          <span>{roleLabels[role]} View</span>
+          <ChevronDown className="h-4 w-4 ml-2" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="center" className="w-40 bg-white border border-gray-200 shadow-lg">
+      <DropdownMenuContent align="center" className="w-40">
         {availableRoles.map((availableRole) => (
           <DropdownMenuItem 
             key={availableRole}
             onClick={() => handleRoleChange(availableRole)} 
-            className="cursor-pointer hover:bg-gray-50"
+            className="cursor-pointer"
           >
             {roleIcons[availableRole]}
             <span>{roleLabels[availableRole]}</span>
