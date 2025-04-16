@@ -21,6 +21,7 @@ import ResetPassword from "./pages/ResetPassword";
 import LeaseManagement from "./pages/LeaseManagement";
 import EquipmentTracking from "./pages/EquipmentTracking";
 import MedicalShop from "./pages/MedicalShop";
+import ProductManagement from "./pages/ProductManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RoleDashboard from "./components/RoleDashboard";
 import HospitalRegistrationForm from "./components/HospitalRegistrationForm";
@@ -94,6 +95,14 @@ function App() {
                     <ProtectedRoute>
                       <RoleDashboard allowedRoles={['manufacturer', 'admin']}>
                         <EquipmentTracking />
+                      </RoleDashboard>
+                    </ProtectedRoute>
+                  } />
+
+                  <Route path="/products" element={
+                    <ProtectedRoute>
+                      <RoleDashboard allowedRoles={['manufacturer', 'admin']}>
+                        <ProductManagement />
                       </RoleDashboard>
                     </ProtectedRoute>
                   } />

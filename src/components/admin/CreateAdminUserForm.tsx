@@ -64,7 +64,20 @@ const CreateAdminUserForm = () => {
       
       console.log("Admin user created with ID:", data);
       
-      setSuccess(`Admin user created successfully. ID: ${data}`);
+      // After successful creation, attempt to sign in with the created credentials
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password
+      });
+      
+      if (signInError) {
+        console.error("Admin created but sign-in failed:", signInError);
+        setSuccess(`Admin user created successfully. ID: ${data}. Please sign in manually.`);
+      } else {
+        // Redirect to admin dashboard on successful sign in
+        window.location.href = '/admin';
+        return;
+      }
       
       toast({
         title: "Admin user created",
