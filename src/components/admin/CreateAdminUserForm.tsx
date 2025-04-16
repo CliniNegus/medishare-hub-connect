@@ -47,37 +47,47 @@ const CreateAdminUserForm = () => {
         fullName: values.fullName
       });
 
-      // Call the Supabase RPC function to create an admin user
-      const { data, error: rpcError } = await supabase.rpc(
-        'create_admin_user',
-        {
-          admin_email: values.email,
-          admin_password: values.password,
-          full_name: values.fullName || null
-        }
-      );
-
-      if (rpcError) {
-        console.error("Error creating admin user via RPC:", rpcError);
-        throw new Error(`Failed to create admin user: ${rpcError.message}`);
-      }
-      
-      console.log("Admin user created with ID:", data);
-      
-      // After successful creation, attempt to sign in with the created credentials
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      // First create the user through auth API
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email: values.email,
-        password: values.password
+        password: values.password,
+        email_confirm: true,
+        user_metadata: {
+          full_name: values.fullName || null,
+          role: 'admin'
+        }
       });
-      
-      if (signInError) {
-        console.error("Admin created but sign-in failed:", signInError);
-        setSuccess(`Admin user created successfully. ID: ${data}. Please sign in manually.`);
-      } else {
-        // Redirect to admin dashboard on successful sign in
-        window.location.href = '/admin';
-        return;
+
+      if (authError) {
+        console.error("Error creating admin user via Auth API:", authError);
+        throw new Error(`Failed to create admin user: ${authError.message}`);
       }
+
+      if (!authData.user) {
+        throw new Error("Failed to create admin user: No user data returned");
+      }
+
+      console.log("Admin user created with Auth API, ID:", authData.user.id);
+
+      // Now ensure the user has admin role in profiles
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: authData.user.id,
+          email: values.email,
+          full_name: values.fullName || null,
+          role: 'admin',
+          organization: 'System Administration',
+          updated_at: new Date().toISOString(),
+          created_at: new Date().toISOString()
+        });
+
+      if (profileError) {
+        console.error("Error updating admin profile:", profileError);
+        throw new Error(`Admin user created but profile update failed: ${profileError.message}`);
+      }
+      
+      setSuccess(`Admin user ${values.email} created successfully!`);
       
       toast({
         title: "Admin user created",
@@ -115,7 +125,7 @@ const CreateAdminUserForm = () => {
         )}
         
         {success && (
-          <Alert className="mb-4 bg-green-100 border-green-600 text-green-800">
+          <Alert className="mb-4 bg-red-100 border-red-600 text-red-800">
             <AlertDescription>{success}</AlertDescription>
           </Alert>
         )}
