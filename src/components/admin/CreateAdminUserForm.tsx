@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // Define the parameter types for the create_admin_user RPC call
 interface CreateAdminParams {
@@ -19,9 +20,13 @@ const CreateAdminUserForm = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const handleCreateAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setSuccess(null);
     
     try {
       setLoading(true);
@@ -33,6 +38,11 @@ const CreateAdminUserForm = () => {
         full_name: fullName || null
       };
       
+      console.log("Creating admin user with params:", {
+        email: params.admin_email,
+        fullName: params.full_name
+      });
+      
       // Call the RPC function to create an admin user
       const { data, error } = await supabase.rpc(
         'create_admin_user', 
@@ -40,8 +50,12 @@ const CreateAdminUserForm = () => {
       );
 
       if (error) {
+        console.error("Error creating admin user:", error);
         throw error;
       }
+      
+      console.log("Admin user created successfully:", data);
+      setSuccess(`Admin user created with ID: ${data}`);
       
       toast({
         title: "Admin user created",
@@ -53,6 +67,8 @@ const CreateAdminUserForm = () => {
       setPassword('');
       setFullName('');
     } catch (error: any) {
+      console.error("Failed to create admin user:", error);
+      setError(error.message);
       toast({
         title: "Failed to create admin user",
         description: error.message,
@@ -64,14 +80,26 @@ const CreateAdminUserForm = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border-0 shadow-none">
+      <CardHeader className="px-0 pt-0">
         <CardTitle>Create Admin User</CardTitle>
         <CardDescription>
           Create a new user with admin privileges
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-0 pb-0">
+        {error && (
+          <Alert variant="destructive" className="mb-4 bg-red-100 border-red-600 text-red-800">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        
+        {success && (
+          <Alert className="mb-4 bg-green-100 border-green-600 text-green-800">
+            <AlertDescription>{success}</AlertDescription>
+          </Alert>
+        )}
+        
         <form onSubmit={handleCreateAdmin} className="space-y-4">
           <div className="space-y-2">
             <Input

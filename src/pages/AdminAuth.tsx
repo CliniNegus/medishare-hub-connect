@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { ShieldAlert } from "lucide-react";
 import CreateAdminUserForm from '@/components/admin/CreateAdminUserForm';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const AdminAuth = () => {
   const navigate = useNavigate();
@@ -16,22 +17,32 @@ const AdminAuth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('signin');
 
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
     try {
       setLoading(true);
       
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // First, sign in the user
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
-      if (error) {
-        throw error;
+      if (signInError) {
+        console.error("Sign in error:", signInError);
+        throw signInError;
       }
+      
+      if (!data.user) {
+        throw new Error('No user returned from authentication');
+      }
+      
+      console.log("User signed in:", data.user.id);
       
       // Check if user is an admin
       const { data: profileData, error: profileError } = await supabase
@@ -40,14 +51,20 @@ const AdminAuth = () => {
         .eq('id', data.user.id)
         .single();
       
+      console.log("Profile data:", profileData, "Profile error:", profileError);
+      
       if (profileError) {
+        // Sign out if there was an error checking the role
+        await supabase.auth.signOut();
         throw profileError;
       }
       
-      if (profileData.role !== 'admin') {
+      console.log("User role:", profileData?.role);
+      
+      if (profileData?.role !== 'admin') {
         // Sign out if not an admin
         await supabase.auth.signOut();
-        throw new Error('You do not have admin privileges');
+        throw new Error('You do not have administrator privileges');
       }
       
       toast({
@@ -58,6 +75,8 @@ const AdminAuth = () => {
       // Redirect to admin dashboard
       navigate('/admin');
     } catch (error: any) {
+      console.error("Admin login error:", error);
+      setError(error.message);
       toast({
         title: "Login failed",
         description: error.message,
@@ -89,6 +108,11 @@ const AdminAuth = () => {
           
           <TabsContent value="signin">
             <CardContent>
+              {error && (
+                <Alert variant="destructive" className="mb-4 bg-red-100 border-red-600 text-red-800">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
               <form onSubmit={handleAdminLogin} className="space-y-4">
                 <div className="space-y-2">
                   <Input
