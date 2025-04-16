@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -15,6 +16,7 @@ import FinancingCalculator from "./pages/FinancingCalculator";
 import LandingPage from "./pages/LandingPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import Auth from "./pages/Auth";
+import AdminAuth from "./pages/AdminAuth";
 import ResetPassword from "./pages/ResetPassword";
 import LeaseManagement from "./pages/LeaseManagement";
 import EquipmentTracking from "./pages/EquipmentTracking";
