@@ -44,6 +44,7 @@ const AdminAuth = () => {
     
     try {
       setLoading(true);
+      console.log("Attempting to sign in user:", values.email);
       
       // First, sign in the user
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
@@ -72,17 +73,26 @@ const AdminAuth = () => {
       console.log("Profile data:", profileData, "Profile error:", profileError);
       
       if (profileError) {
-        // Sign out if there was an error checking the role
+        // If there's a profile error but not a "not found" error
+        if (profileError.code !== 'PGRST116') {
+          console.error("Profile fetch error:", profileError);
+          await supabase.auth.signOut();
+          throw profileError;
+        }
+        
+        // If profile not found, the user doesn't have proper setup
+        console.error("Profile not found for user");
         await supabase.auth.signOut();
-        throw profileError;
+        throw new Error('User profile not found. Please contact an administrator.');
       }
       
       console.log("User role:", profileData?.role);
       
       if (profileData?.role !== 'admin') {
         // Sign out if not an admin
+        console.log("User is not an admin. Role:", profileData?.role);
         await supabase.auth.signOut();
-        throw new Error('You do not have administrator privileges');
+        throw new Error('You do not have administrator privileges.');
       }
       
       toast({

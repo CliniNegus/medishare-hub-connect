@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Form, FormField, FormItem, FormControl } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormControl, FormLabel, FormMessage } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -46,46 +46,25 @@ const CreateAdminUserForm = () => {
         email: values.email,
         fullName: values.fullName
       });
-      
-      // First, sign up the user through the auth API
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: values.email,
-        password: values.password,
-        options: {
-          data: {
-            full_name: values.fullName || null,
-            role: 'admin',
-          },
-        },
-      });
 
-      if (signUpError) {
-        console.error("Error signing up admin user:", signUpError);
-        throw signUpError;
+      // Call the Supabase RPC function to create an admin user
+      const { data, error: rpcError } = await supabase.rpc(
+        'create_admin_user',
+        {
+          admin_email: values.email,
+          admin_password: values.password,
+          full_name: values.fullName || null
+        }
+      );
+
+      if (rpcError) {
+        console.error("Error creating admin user via RPC:", rpcError);
+        throw new Error(`Failed to create admin user: ${rpcError.message}`);
       }
       
-      if (!signUpData.user?.id) {
-        throw new Error("Failed to create user account");
-      }
+      console.log("Admin user created with ID:", data);
       
-      console.log("Admin user created with ID:", signUpData.user.id);
-      
-      // Now update the user's profile to ensure they have admin role
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ 
-          role: 'admin',
-          organization: 'System Administration',
-          full_name: values.fullName || null,
-        })
-        .eq('id', signUpData.user.id);
-        
-      if (profileError) {
-        console.error("Error updating admin profile:", profileError);
-        throw profileError;
-      }
-      
-      setSuccess(`Admin user created with ID: ${signUpData.user.id}`);
+      setSuccess(`Admin user created successfully. ID: ${data}`);
       
       toast({
         title: "Admin user created",
@@ -133,8 +112,9 @@ const CreateAdminUserForm = () => {
             <FormField
               control={form.control}
               name="email"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem className="space-y-2">
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
                       id="admin-email"
@@ -143,6 +123,7 @@ const CreateAdminUserForm = () => {
                       {...field}
                     />
                   </FormControl>
+                  {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
                 </FormItem>
               )}
             />
@@ -150,8 +131,9 @@ const CreateAdminUserForm = () => {
             <FormField
               control={form.control}
               name="fullName"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem className="space-y-2">
+                  <FormLabel>Full Name</FormLabel>
                   <FormControl>
                     <Input
                       id="admin-full-name"
@@ -160,6 +142,7 @@ const CreateAdminUserForm = () => {
                       {...field}
                     />
                   </FormControl>
+                  {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
                 </FormItem>
               )}
             />
@@ -167,16 +150,18 @@ const CreateAdminUserForm = () => {
             <FormField
               control={form.control}
               name="password"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem className="space-y-2">
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
                     <Input
                       id="admin-password"
                       type="password"
-                      placeholder="Password"
+                      placeholder="Password (min. 8 characters)"
                       {...field}
                     />
                   </FormControl>
+                  {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
                 </FormItem>
               )}
             />
