@@ -36,8 +36,8 @@ const CreateAdminUserForm = () => {
         full_name: fullName || null
       };
       
-      // Call the RPC function without specifying the generic type parameters
-      const { data, error } = await supabase.rpc('create_admin_user', params);
+      // Call the RPC function with the params object
+      const { data, error } = await supabase.rpc<string>('create_admin_user', params);
 
       if (error) {
         throw error;
