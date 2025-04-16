@@ -36,8 +36,8 @@ const CreateAdminUserForm = () => {
         full_name: fullName || null
       };
       
-      // Call the RPC function with the params object
-      const { data, error } = await supabase.rpc<string>('create_admin_user', params);
+      // Call the RPC function with both type parameters
+      const { data, error } = await supabase.rpc<string, CreateAdminParams>('create_admin_user', params);
 
       if (error) {
         throw error;
@@ -133,7 +133,7 @@ const CreateAdminUserForm = () => {
           </div>
           <Button 
             type="submit" 
-            className="w-full bg-primary hover:bg-primary/90" 
+            className="w-full bg-red-600 hover:bg-red-700" 
             disabled={loading}
           >
             {loading ? (
