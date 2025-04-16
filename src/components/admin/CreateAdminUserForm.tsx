@@ -36,7 +36,7 @@ const CreateAdminUserForm = () => {
       // Call the RPC function to create an admin user
       const { data, error } = await supabase.rpc(
         'create_admin_user', 
-        params
+        params as any // Type assertion to bypass the TypeScript error
       );
 
       if (error) {
