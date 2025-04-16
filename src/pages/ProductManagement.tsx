@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -22,7 +21,6 @@ import * as z from "zod";
 import ProtectedRoute from '@/components/ProtectedRoute';
 import RoleDashboard from '@/components/RoleDashboard';
 
-// Define the product schema
 const productSchema = z.object({
   name: z.string().min(2, "Product name must be at least 2 characters"),
   description: z.string().min(10, "Description must be at least 10 characters"),
@@ -59,12 +57,10 @@ const ProductManagement = () => {
     },
   });
   
-  // Fetch products on component mount
   useEffect(() => {
     fetchProducts();
   }, []);
   
-  // Update form when editing a product
   useEffect(() => {
     if (editingProduct) {
       form.reset({
@@ -84,7 +80,6 @@ const ProductManagement = () => {
       setLoading(true);
       let query = supabase.from('equipment').select('*');
       
-      // If manufacturer, only show their products
       if (role === 'manufacturer' && user) {
         query = query.eq('owner_id', user.id);
       }
@@ -110,11 +105,9 @@ const ProductManagement = () => {
     try {
       setLoading(true);
       
-      // Calculate default lease rate if not provided (e.g., 5% of price per month)
       const leaseRate = values.lease_rate || Math.round(values.price * 0.05);
       
       if (editingProduct) {
-        // Update existing product
         const { error } = await supabase
           .from('equipment')
           .update({
@@ -125,7 +118,7 @@ const ProductManagement = () => {
             lease_rate: leaseRate,
             condition: values.condition,
             specs: values.specs,
-            updated_at: new Date(),
+            updated_at: new Date().toISOString(),
           })
           .eq('id', editingProduct.id);
           
@@ -136,7 +129,6 @@ const ProductManagement = () => {
           description: `${values.name} has been updated successfully`,
         });
       } else {
-        // Create new product
         const { error } = await supabase
           .from('equipment')
           .insert({
@@ -159,7 +151,6 @@ const ProductManagement = () => {
         });
       }
       
-      // Reset form and refresh product list
       form.reset();
       setEditingProduct(null);
       setActiveTab("list");
@@ -221,7 +212,6 @@ const ProductManagement = () => {
     const price = form.getValues("price");
     if (!price) return;
     
-    // Default calculation: 5% of price per month
     const suggestedLeaseRate = Math.round(price * 0.05);
     form.setValue("lease_rate", suggestedLeaseRate);
   };
