@@ -37,7 +37,7 @@ const RoleDashboard: React.FC<RoleDashboardProps> = ({
           </Alert>
           <div className="mt-6 text-center">
             <Link to={redirectTo}>
-              <Button className="bg-red-600 hover:bg-red-700">
+              <Button className="bg-red-600 hover:bg-red-700 text-white">
                 Back to Home
               </Button>
             </Link>

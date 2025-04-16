@@ -34,15 +34,15 @@ export function Loader({
 
 export function LoadingScreen() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm z-50">
       <div className="text-center">
         <Loader size="lg" variant="primary" className="mx-auto" />
-        <p className="mt-4 text-foreground/80">Loading...</p>
+        <p className="mt-4 text-gray-800">Loading...</p>
       </div>
     </div>
   );
 }
 
 export function ButtonLoader({ className }: { className?: string }) {
-  return <Loader size="sm" className={cn("mr-2", className)} />;
+  return <Loader size="sm" variant="secondary" className={cn("mr-2", className)} />;
 }

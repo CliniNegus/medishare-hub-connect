@@ -36,8 +36,8 @@ const CreateAdminUserForm = () => {
         full_name: fullName || null
       };
       
-      // Call the function without explicit type parameters, let TypeScript infer it
-      const { data, error } = await supabase.rpc('create_admin_user', params);
+      // Explicitly specify both type parameters: return type and params type
+      const { data, error } = await supabase.rpc<string, CreateAdminParams>('create_admin_user', params);
 
       if (error) {
         throw error;
@@ -70,7 +70,7 @@ const CreateAdminUserForm = () => {
   return (
     <Card className="shadow-md border-border">
       <CardHeader className="bg-secondary/5 border-b border-border">
-        <CardTitle className="text-xl text-primary">Create Admin User</CardTitle>
+        <CardTitle className="text-xl text-red-600">Create Admin User</CardTitle>
         <CardDescription>
           Create a new user with administrative privileges
         </CardDescription>
@@ -87,7 +87,7 @@ const CreateAdminUserForm = () => {
               placeholder="admin@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="border-border"
+              className="border-gray-300"
               required
             />
           </div>
@@ -101,7 +101,7 @@ const CreateAdminUserForm = () => {
               placeholder="John Doe"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="border-border"
+              className="border-gray-300"
             />
           </div>
           <div className="space-y-2">
@@ -115,7 +115,7 @@ const CreateAdminUserForm = () => {
                 placeholder="Minimum 8 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="border-border pr-10"
+                className="border-gray-300 pr-10"
                 required
                 minLength={8}
               />
@@ -133,12 +133,12 @@ const CreateAdminUserForm = () => {
           </div>
           <Button 
             type="submit" 
-            className="w-full bg-primary hover:bg-primary/90" 
+            className="w-full bg-red-600 hover:bg-red-700 text-white" 
             disabled={loading}
           >
             {loading ? (
               <>
-                <ButtonLoader /> Creating...
+                <ButtonLoader variant="primary" /> Creating...
               </>
             ) : (
               "Create Admin User"
