@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -59,14 +60,24 @@ const ProductManagement = () => {
       
       const leaseRate = values.lease_rate || Math.round(values.price * 0.05);
       
+      const productData = {
+        name: values.name,
+        description: values.description,
+        category: values.category,
+        price: values.price,
+        lease_rate: leaseRate,
+        condition: values.condition,
+        specs: values.specs,
+        owner_id: user?.id,
+        status: 'Available',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      
       if (editingProduct) {
         const { error } = await supabase
           .from('equipment')
-          .update({
-            ...values,
-            lease_rate: leaseRate,
-            updated_at: new Date().toISOString(),
-          })
+          .update(productData)
           .eq('id', editingProduct.id);
           
         if (error) throw error;
@@ -78,12 +89,7 @@ const ProductManagement = () => {
       } else {
         const { error } = await supabase
           .from('equipment')
-          .insert({
-            ...values,
-            lease_rate: leaseRate,
-            owner_id: user?.id,
-            status: 'Available',
-          });
+          .insert(productData);
           
         if (error) throw error;
         
