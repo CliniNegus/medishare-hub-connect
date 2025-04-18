@@ -7,7 +7,7 @@ const LandingPage: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-black">
       <h1 className="text-4xl font-bold text-white mb-4">
-        Welcome to MediShare Hub Connect
+        Welcome to CliniBuilds
       </h1>
       <p className="text-lg text-gray-300 mb-8">
         Connecting hospitals, manufacturers, and investors for efficient medical equipment sharing.
