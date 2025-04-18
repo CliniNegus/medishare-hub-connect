@@ -4,6 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+// Add TypeScript declaration for the Google Maps global namespace
+declare global {
+  interface Window {
+    google: typeof google;
+    initMap: () => void;
+  }
+}
+
 interface Hospital {
   id: string;
   name: string;
@@ -45,8 +53,11 @@ const HospitalMap = () => {
   useEffect(() => {
     if (!mapRef.current || !hospitals.length) return;
 
-    const initMap = () => {
-      const mapInstance = new google.maps.Map(mapRef.current!, {
+    // Define the initMap function globally so Google Maps can call it
+    window.initMap = () => {
+      if (!mapRef.current) return;
+      
+      const mapInstance = new google.maps.Map(mapRef.current, {
         center: { lat: -1.2921, lng: 36.8219 }, // Nairobi center
         zoom: 12,
         styles: [
@@ -106,14 +117,18 @@ const HospitalMap = () => {
     // Load Google Maps script if not already loaded
     if (!window.google) {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_MAPS_API_KEY}&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_MAPS_API_KEY}&callback=initMap&libraries=places`;
       script.async = true;
       script.defer = true;
-      script.onload = initMap;
       document.head.appendChild(script);
     } else {
-      initMap();
+      window.initMap();
     }
+
+    // Cleanup
+    return () => {
+      window.initMap = () => {}; // Clean up the global function
+    };
   }, [hospitals]);
 
   return (

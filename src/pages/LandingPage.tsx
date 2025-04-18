@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
+import { MapPin } from "lucide-react";
 
 const LandingPage: React.FC = () => {
   return (
@@ -25,6 +26,7 @@ const LandingPage: React.FC = () => {
         </Button>
         <Button asChild variant="outline" className="text-white border-red-600 hover:bg-red-700 hover:text-white">
           <Link to="/hospitals">
+            <MapPin className="h-4 w-4 mr-2" />
             View Hospitals
           </Link>
         </Button>
