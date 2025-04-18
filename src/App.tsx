@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -24,7 +25,6 @@ import ProductManagement from "./pages/ProductManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RoleDashboard from "./components/RoleDashboard";
 import HospitalRegistrationForm from "./components/HospitalRegistrationForm";
-import HospitalLocations from "./pages/HospitalLocations";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,11 +52,6 @@ function App() {
                   <Route path="/admin-auth" element={<AdminAuth />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/register/hospital" element={<HospitalRegistrationForm />} />
-                  <Route path="/hospitals" element={
-                    <ProtectedRoute>
-                      <HospitalLocations />
-                    </ProtectedRoute>
-                  } />
 
                   <Route path="/dashboard" element={
                     <ProtectedRoute>
