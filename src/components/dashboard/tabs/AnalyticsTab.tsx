@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { BarChart, PieChart, Activity, Users, Package, RefreshCw, Share2, Download } from "lucide-react";
+import { BarChart, PieChart, Activity, Users, Package, RefreshCw, Share2, Download, CheckCircle, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
