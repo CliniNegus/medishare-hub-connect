@@ -59,6 +59,83 @@ export type Database = {
           },
         ]
       }
+      hospital_clusters: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          region: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          region: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          region?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      hospitals: {
+        Row: {
+          address: string
+          cluster_id: string | null
+          created_at: string | null
+          id: string
+          latitude: number
+          longitude: number
+          name: string
+          phone: string | null
+          updated_at: string | null
+          website: string | null
+          working_hours: string | null
+        }
+        Insert: {
+          address: string
+          cluster_id?: string | null
+          created_at?: string | null
+          id?: string
+          latitude: number
+          longitude: number
+          name: string
+          phone?: string | null
+          updated_at?: string | null
+          website?: string | null
+          working_hours?: string | null
+        }
+        Update: {
+          address?: string
+          cluster_id?: string | null
+          created_at?: string | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          name?: string
+          phone?: string | null
+          updated_at?: string | null
+          website?: string | null
+          working_hours?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hospitals_cluster_id_fkey"
+            columns: ["cluster_id"]
+            isOneToOne: false
+            referencedRelation: "hospital_clusters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leases: {
         Row: {
           created_at: string
