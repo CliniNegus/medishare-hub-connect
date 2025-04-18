@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BarChart, Calendar } from "lucide-react";
 import EquipmentSearch from './EquipmentSearch';
@@ -8,6 +7,7 @@ import EquipmentList from './EquipmentList';
 import { EquipmentProps } from '../EquipmentCard';
 import ClusterMap from '../ClusterMap';
 import { ClusterNode } from '../ClusterMap';
+import HospitalLocations from '@/pages/HospitalLocations';
 
 interface DashboardContentProps {
   activeTab: string;
@@ -38,6 +38,10 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   onBookEquipment,
   recentTransactions
 }) => {
+  if (activeTab === 'hospitals') {
+    return <HospitalLocations />;
+  }
+
   if (activeTab === 'bookings') {
     return (
       <div className="h-64 flex items-center justify-center text-gray-500">

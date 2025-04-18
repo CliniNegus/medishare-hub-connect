@@ -52,11 +52,6 @@ function App() {
                   <Route path="/admin-auth" element={<AdminAuth />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/register/hospital" element={<HospitalRegistrationForm />} />
-                  <Route path="/hospitals" element={
-                    <ProtectedRoute>
-                      <HospitalLocations />
-                    </ProtectedRoute>
-                  } />
 
                   <Route path="/dashboard" element={
                     <ProtectedRoute>

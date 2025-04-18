@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,8 @@ import {
   StethoscopeIcon,
   HeartPulse,
   CreditCard,
-  ShoppingCart
+  ShoppingCart,
+  MapPin
 } from "lucide-react";
 
 interface DashboardHeaderProps {
@@ -30,6 +30,17 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ activeTab, setActiveT
           <StethoscopeIcon className="h-4 w-4 mr-2" />
           Equipment
         </TabsTrigger>
+        
+        <TabsTrigger 
+          value="hospitals" 
+          className="text-sm"
+          onClick={() => setActiveTab('hospitals')}
+          data-state={activeTab === 'hospitals' ? 'active' : ''}
+        >
+          <MapPin className="h-4 w-4 mr-2" />
+          Hospital Locations
+        </TabsTrigger>
+
         <TabsTrigger 
           value="bookings" 
           className="text-sm"
