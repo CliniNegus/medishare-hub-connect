@@ -23,6 +23,11 @@ const LandingPage: React.FC = () => {
             Go to Dashboard
           </Link>
         </Button>
+        <Button asChild variant="outline" className="text-white border-red-600 hover:bg-red-700 hover:text-white">
+          <Link to="/hospitals">
+            View Hospitals
+          </Link>
+        </Button>
       </div>
 
       <div className="text-center mt-8">
