@@ -36,9 +36,9 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
   onBook
 }) => {
   const statusColors = {
-    'available': 'bg-green-500',
-    'in-use': 'bg-orange-500',
-    'maintenance': 'bg-red-500'
+    'available': 'bg-red-500',
+    'in-use': 'bg-black',
+    'maintenance': 'bg-red-700'
   };
 
   const statusLabels = {

@@ -1,230 +1,184 @@
 
-import React, { useState } from 'react';
-import { Calendar, Users, Clock, AlertCircle, Filter, CheckCircle } from "lucide-react";
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calendar, Users, FileText, Clock } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-// Mock data - in a real implementation, this would come from your database
-const bookings = [
-  { 
-    id: 'BK001', 
-    equipment: 'MRI Scanner X5', 
-    hospital: 'City General Hospital',
-    startDate: '2025-04-20', 
-    endDate: '2025-07-20',
-    status: 'active',
-    paymentStatus: 'current',
-    users: ['Dr. Smith', 'Dr. Johnson']
-  },
-  { 
-    id: 'BK002', 
-    equipment: 'CT Scanner Pro', 
-    hospital: 'Memorial Medical Center',
-    startDate: '2025-04-15', 
-    endDate: '2025-10-15',
-    status: 'active',
-    paymentStatus: 'current',
-    users: ['Dr. Williams', 'Dr. Davis', 'Dr. Miller']
-  },
-  { 
-    id: 'BK003', 
-    equipment: 'Ultrasound Machine', 
-    hospital: 'County Clinic',
-    startDate: '2025-04-10', 
-    endDate: '2025-05-10',
-    status: 'pending',
-    paymentStatus: 'awaiting',
-    users: ['Dr. Brown']
-  },
-  { 
-    id: 'BK004', 
-    equipment: 'X-Ray System', 
-    hospital: 'University Hospital',
-    startDate: '2025-03-25', 
-    endDate: '2025-06-25',
-    status: 'completed',
-    paymentStatus: 'paid',
-    users: ['Dr. Taylor', 'Dr. Anderson']
-  }
-];
-
 const BookingsTab: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('active');
-  
-  const filteredBookings = bookings.filter(booking => {
-    if (activeTab === 'all') return true;
-    return booking.status === activeTab;
-  });
+  // Mock data for bookings
+  const upcomingBookings = [
+    { id: 1, equipment: "MRI Scanner", date: "2025-04-22", time: "09:00 AM", duration: 2, requestedBy: "Dr. Smith" },
+    { id: 2, equipment: "CT Scanner", date: "2025-04-23", time: "11:30 AM", duration: 1, requestedBy: "Dr. Johnson" },
+    { id: 3, equipment: "Ultrasound Machine", date: "2025-04-24", time: "02:00 PM", duration: 1.5, requestedBy: "Dr. Williams" }
+  ];
+
+  // Mock data for multi-user access
+  const userAccess = [
+    { name: "Dr. Sarah Smith", role: "Physician", accessLevel: "Full" },
+    { name: "John Richards", role: "Biomedical Technician", accessLevel: "Maintenance" },
+    { name: "Lisa Johnson", role: "Administrator", accessLevel: "Booking" },
+    { name: "Mark Williams", role: "Department Head", accessLevel: "Full" }
+  ];
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="lg:col-span-2 space-y-6">
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Active Bookings</CardTitle>
+          <CardHeader>
+            <CardTitle className="flex items-center text-red-600">
+              <Calendar className="h-5 w-5 mr-2" />
+              Upcoming Equipment Bookings
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {bookings.filter(b => b.status === 'active').length}
-            </div>
-            <p className="text-xs text-gray-500">Currently in use</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Pending Bookings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {bookings.filter(b => b.status === 'pending').length}
-            </div>
-            <p className="text-xs text-gray-500">Awaiting approval</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Completed Bookings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {bookings.filter(b => b.status === 'completed').length}
-            </div>
-            <p className="text-xs text-gray-500">Historical usage</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Total Users</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {[...new Set(bookings.flatMap(b => b.users))].length}
-            </div>
-            <p className="text-xs text-gray-500">Across all bookings</p>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex justify-between items-center">
-            <CardTitle>Equipment Bookings</CardTitle>
-            <Button variant="outline" size="sm" className="text-red-600 border-red-600 hover:bg-red-50">
-              <Calendar className="h-4 w-4 mr-2" />
-              New Booking
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="active" value={activeTab} onValueChange={setActiveTab} className="mb-4">
-            <TabsList>
-              <TabsTrigger value="all">All Bookings</TabsTrigger>
-              <TabsTrigger value="active">Active</TabsTrigger>
-              <TabsTrigger value="pending">Pending</TabsTrigger>
-              <TabsTrigger value="completed">Completed</TabsTrigger>
-            </TabsList>
-          </Tabs>
-          
-          <div className="flex justify-between items-center mb-4">
-            <div className="text-sm text-gray-500">
-              Showing {filteredBookings.length} bookings
-            </div>
-            <Button variant="ghost" size="sm" className="text-gray-500">
-              <Filter className="h-4 w-4 mr-2" />
-              Filter
-            </Button>
-          </div>
-          
-          <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
                   <TableHead>Equipment</TableHead>
-                  <TableHead>Hospital</TableHead>
-                  <TableHead>Period</TableHead>
-                  <TableHead>Users</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Time</TableHead>
+                  <TableHead>Duration</TableHead>
+                  <TableHead>Requested By</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredBookings.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
-                      <Calendar className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                      <p>No bookings found</p>
+                {upcomingBookings.map(booking => (
+                  <TableRow key={booking.id}>
+                    <TableCell className="font-medium">{booking.equipment}</TableCell>
+                    <TableCell>{booking.date}</TableCell>
+                    <TableCell>{booking.time}</TableCell>
+                    <TableCell>{booking.duration} hr{booking.duration !== 1 ? 's' : ''}</TableCell>
+                    <TableCell>{booking.requestedBy}</TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button variant="outline" size="sm" className="border-red-200 text-red-600 hover:bg-red-50">
+                          <FileText className="h-3 w-3 mr-1" />
+                          Details
+                        </Button>
+                        <Button size="sm" className="bg-red-600 hover:bg-red-700">
+                          <Clock className="h-3 w-3 mr-1" />
+                          Reschedule
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
-                ) : (
-                  filteredBookings.map(booking => (
-                    <TableRow key={booking.id}>
-                      <TableCell className="font-medium">{booking.id}</TableCell>
-                      <TableCell>{booking.equipment}</TableCell>
-                      <TableCell>{booking.hospital}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <Clock className="h-4 w-4 mr-1 text-gray-400" />
-                          <span>
-                            {booking.startDate} to {booking.endDate}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <Users className="h-4 w-4 mr-1 text-gray-400" />
-                          <span>{booking.users.length} users</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          {booking.status === 'active' && (
-                            <Badge className="bg-green-500">Active</Badge>
-                          )}
-                          {booking.status === 'pending' && (
-                            <Badge className="bg-yellow-500">Pending</Badge>
-                          )}
-                          {booking.status === 'completed' && (
-                            <Badge className="bg-gray-500">Completed</Badge>
-                          )}
-                          
-                          {booking.paymentStatus === 'current' && (
-                            <Badge className="ml-2 bg-green-100 text-green-800">Paid</Badge>
-                          )}
-                          {booking.paymentStatus === 'awaiting' && (
-                            <Badge className="ml-2 bg-yellow-100 text-yellow-800">Awaiting</Badge>
-                          )}
-                          {booking.paymentStatus === 'paid' && (
-                            <Badge className="ml-2 bg-blue-100 text-blue-800">Completed</Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button variant="outline" size="sm">View</Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            disabled={booking.status === 'completed'}
-                          >
-                            Manage
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
+                ))}
               </TableBody>
             </Table>
-          </div>
-        </CardContent>
-      </Card>
+            <div className="flex justify-end mt-4">
+              <Button className="bg-red-600 hover:bg-red-700">
+                Book New Equipment
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center text-red-600">
+              <Users className="h-5 w-5 mr-2" />
+              Multi-User Access Management
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4 text-sm text-gray-600">
+              Configure access levels and permissions for various staff members who need to interact with medical equipment.
+            </p>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Access Level</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {userAccess.map((user, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="font-medium">{user.name}</TableCell>
+                    <TableCell>{user.role}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        user.accessLevel === 'Full' ? 'bg-green-100 text-green-800' : 
+                        user.accessLevel === 'Maintenance' ? 'bg-blue-100 text-blue-800' : 
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {user.accessLevel}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <Button variant="outline" size="sm" className="border-red-200 text-red-600 hover:bg-red-50">
+                        Modify Access
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <div className="flex justify-end mt-4">
+              <Button className="bg-red-600 hover:bg-red-700">
+                Add New User
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="space-y-6">
+        <Card className="bg-red-50 border-red-200">
+          <CardHeader>
+            <CardTitle className="text-red-800">Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button className="w-full bg-red-600 hover:bg-red-700">
+              <Calendar className="h-4 w-4 mr-2" />
+              Book Equipment
+            </Button>
+            <Button className="w-full bg-red-600 hover:bg-red-700">
+              <Clock className="h-4 w-4 mr-2" />
+              View Schedule
+            </Button>
+            <Button className="w-full bg-red-600 hover:bg-red-700">
+              <FileText className="h-4 w-4 mr-2" />
+              Generate Report
+            </Button>
+            <Button variant="outline" className="w-full border-red-300 text-red-600 hover:bg-red-100">
+              <Users className="h-4 w-4 mr-2" />
+              Manage Users
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm text-red-600">Hospital Cluster Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div>
+                <h4 className="text-sm font-medium">Your Cluster:</h4>
+                <p className="text-sm">Northwest Medical Network</p>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium">Member Hospitals:</h4>
+                <ul className="text-sm list-disc list-inside">
+                  <li>City General Hospital</li>
+                  <li>Memorial Medical Center</li>
+                  <li>University Health System</li>
+                  <li>County Hospital</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium">Shared Equipment Available:</h4>
+                <p className="text-sm">24 units across your cluster</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

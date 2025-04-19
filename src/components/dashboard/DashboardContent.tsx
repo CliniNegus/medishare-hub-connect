@@ -5,6 +5,9 @@ import { ClusterNode } from '../ClusterMap';
 import EquipmentTab from './tabs/EquipmentTab';
 import BookingsTab from './tabs/BookingsTab';
 import AnalyticsTab from './tabs/AnalyticsTab';
+import TherapyTab from './tabs/TherapyTab';
+import FinancingTab from './tabs/FinancingTab';
+import ShopTab from './tabs/ShopTab';
 import HospitalLocations from '@/pages/HospitalLocations';
 
 interface DashboardContentProps {
@@ -45,6 +48,15 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
       
     case 'analytics':
       return <AnalyticsTab />;
+      
+    case 'therapy':
+      return <TherapyTab />;
+      
+    case 'financing':
+      return <FinancingTab />;
+      
+    case 'shop':
+      return <ShopTab />;
       
     case 'equipment':
     default:
