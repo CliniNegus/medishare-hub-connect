@@ -1,16 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MessageCircle, Send, User } from 'lucide-react';
-import { createCacheKey, fetchWithCache } from '@/utils/api';
+import { MessageCircle, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
 
 interface Message {
@@ -37,6 +34,89 @@ interface Contact {
   lastMessageTime?: string;
 }
 
+// Mock data for contacts and messages
+const mockContacts: Contact[] = [
+  {
+    id: 'contact-1',
+    full_name: 'Jane Smith',
+    email: 'jane@hospital.com',
+    role: 'Hospital Admin',
+    organization: 'General Hospital',
+    unreadCount: 2,
+    lastMessage: 'When will the shipment arrive?',
+    lastMessageTime: new Date().toISOString()
+  },
+  {
+    id: 'contact-2',
+    full_name: 'John Doe',
+    email: 'john@manufacturer.com',
+    role: 'Manufacturer Rep',
+    organization: 'Medical Devices Inc',
+    unreadCount: 0,
+    lastMessage: 'The order has been processed.',
+    lastMessageTime: new Date(Date.now() - 3600000).toISOString()
+  }
+];
+
+const mockMessages: Record<string, Message[]> = {
+  'contact-1': [
+    {
+      id: 'msg1',
+      sender_id: 'user-id',
+      recipient_id: 'contact-1',
+      content: 'Hello, do you have any questions about the equipment?',
+      read: true,
+      created_at: new Date(Date.now() - 7200000).toISOString()
+    },
+    {
+      id: 'msg2',
+      sender_id: 'contact-1',
+      recipient_id: 'user-id',
+      content: 'Yes, when will the shipment arrive?',
+      read: false,
+      created_at: new Date().toISOString(),
+      sender: {
+        full_name: 'Jane Smith',
+        email: 'jane@hospital.com'
+      }
+    }
+  ],
+  'contact-2': [
+    {
+      id: 'msg3',
+      sender_id: 'contact-2',
+      recipient_id: 'user-id',
+      content: 'I have a question about your order.',
+      read: true,
+      created_at: new Date(Date.now() - 86400000).toISOString(),
+      sender: {
+        full_name: 'John Doe',
+        email: 'john@manufacturer.com'
+      }
+    },
+    {
+      id: 'msg4',
+      sender_id: 'user-id',
+      recipient_id: 'contact-2',
+      content: 'What do you need to know?',
+      read: true,
+      created_at: new Date(Date.now() - 82800000).toISOString()
+    },
+    {
+      id: 'msg5',
+      sender_id: 'contact-2',
+      recipient_id: 'user-id',
+      content: 'The order has been processed.',
+      read: true,
+      created_at: new Date(Date.now() - 3600000).toISOString(),
+      sender: {
+        full_name: 'John Doe',
+        email: 'john@manufacturer.com'
+      }
+    }
+  ]
+};
+
 const MessagingSystem = () => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
@@ -50,40 +130,7 @@ const MessagingSystem = () => {
   useEffect(() => {
     if (!user) return;
     fetchContacts();
-
-    // Set up realtime subscription for new messages
-    const channel = supabase
-      .channel('messages_updates')
-      .on('postgres_changes', 
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `recipient_id=eq.${user.id}`
-        }, 
-        (payload) => {
-          // Update contacts with new message counts
-          fetchContacts();
-          
-          // If the message is from the currently selected contact, add it to the conversation
-          if (selectedContact && payload.new.sender_id === selectedContact.id) {
-            setMessages(prev => [...prev, payload.new as Message]);
-            markMessagesAsRead(selectedContact.id);
-          } else {
-            // Otherwise, show a notification
-            toast({
-              title: 'New message',
-              description: `You have a new message from ${payload.new.sender?.full_name || 'a contact'}`,
-            });
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user, selectedContact]);
+  }, [user]);
 
   const fetchContacts = async () => {
     if (!user) return;
@@ -91,72 +138,8 @@ const MessagingSystem = () => {
     try {
       setLoading(true);
       
-      // Fetch all users the current user has exchanged messages with
-      const { data: messageData, error: messageError } = await supabase
-        .from('messages')
-        .select(`
-          sender_id,
-          recipient_id,
-          content,
-          created_at,
-          read
-        `)
-        .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`);
-      
-      if (messageError) throw messageError;
-      
-      // Get unique user IDs from messages
-      const userIds = new Set<string>();
-      messageData?.forEach(msg => {
-        if (msg.sender_id !== user.id) userIds.add(msg.sender_id);
-        if (msg.recipient_id !== user.id) userIds.add(msg.recipient_id);
-      });
-      
-      // Fetch profile data for these users
-      if (userIds.size > 0) {
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .in('id', Array.from(userIds));
-        
-        if (profileError) throw profileError;
-        
-        // Create contact list with unread message counts
-        const contactList: Contact[] = profileData?.map(profile => {
-          const unreadMessages = messageData?.filter(
-            msg => msg.sender_id === profile.id && 
-                  msg.recipient_id === user.id && 
-                  !msg.read
-          ) || [];
-          
-          const lastMsg = messageData
-            ?.filter(msg => 
-              (msg.sender_id === profile.id && msg.recipient_id === user.id) || 
-              (msg.sender_id === user.id && msg.recipient_id === profile.id)
-            )
-            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
-          
-          return {
-            id: profile.id,
-            full_name: profile.full_name,
-            email: profile.email,
-            role: profile.role,
-            organization: profile.organization,
-            unreadCount: unreadMessages.length,
-            lastMessage: lastMsg?.content,
-            lastMessageTime: lastMsg?.created_at
-          };
-        }) || [];
-        
-        // Sort contacts by last message time
-        contactList.sort((a, b) => {
-          if (!a.lastMessageTime) return 1;
-          if (!b.lastMessageTime) return -1;
-          return new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime();
-        });
-        
-        setContacts(contactList);
-      }
+      // Use mock data instead of database queries
+      setContacts(mockContacts);
       
       setLoading(false);
     } catch (error) {
@@ -176,34 +159,23 @@ const MessagingSystem = () => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
-        .from('messages')
-        .select(`
-          *,
-          sender:sender_id(
-            full_name,
-            email
-          )
-        `)
-        .or(`and(sender_id.eq.${user.id},recipient_id.eq.${contactId}),and(sender_id.eq.${contactId},recipient_id.eq.${user.id})`)
-        .order('created_at', { ascending: true });
+      // Use mock data
+      setMessages(mockMessages[contactId] || []);
       
-      if (error) throw error;
-      
-      setMessages(data || []);
       setLoading(false);
       
-      // Mark all messages as read
-      markMessagesAsRead(contactId);
-      
-      // Update contact list to reflect read messages
-      setContacts(prev => 
-        prev.map(contact => 
-          contact.id === contactId 
-            ? { ...contact, unreadCount: 0 } 
-            : contact
-        )
-      );
+      // Mark messages as read (in a real app, would update DB)
+      if (mockMessages[contactId]) {
+        // In a real implementation, this would update the database
+        // Update contact list to reflect read messages
+        setContacts(prev => 
+          prev.map(contact => 
+            contact.id === contactId 
+              ? { ...contact, unreadCount: 0 } 
+              : contact
+          )
+        );
+      }
     } catch (error) {
       console.error('Error fetching messages:', error);
       toast({
@@ -215,53 +187,24 @@ const MessagingSystem = () => {
     }
   };
 
-  const markMessagesAsRead = async (senderId: string) => {
-    if (!user) return;
-    
-    try {
-      const { error } = await supabase
-        .from('messages')
-        .update({ read: true })
-        .eq('sender_id', senderId)
-        .eq('recipient_id', user.id)
-        .eq('read', false);
-      
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error marking messages as read:', error);
-    }
-  };
-
   const sendMessage = async () => {
     if (!user || !selectedContact || !newMessage.trim()) return;
     
     try {
       setSendingMessage(true);
       
-      const { data, error } = await supabase
-        .from('messages')
-        .insert({
-          sender_id: user.id,
-          recipient_id: selectedContact.id,
-          content: newMessage.trim(),
-          read: false
-        })
-        .select();
-      
-      if (error) throw error;
-      
-      // Add sent message to conversation
-      const sentMessage = {
-        ...data[0],
-        sender: {
-          full_name: profile?.full_name,
-          email: profile?.email || user.email || ''
-        }
+      // Create a new message object
+      const newMessageObj: Message = {
+        id: `msg-${Date.now()}`,
+        sender_id: user.id,
+        recipient_id: selectedContact.id,
+        content: newMessage.trim(),
+        read: false,
+        created_at: new Date().toISOString()
       };
       
-      setMessages(prev => [...prev, sentMessage]);
-      setNewMessage('');
-      setSendingMessage(false);
+      // Add to local messages
+      setMessages(prev => [...prev, newMessageObj]);
       
       // Update contact with new last message
       setContacts(prev => 
@@ -275,6 +218,29 @@ const MessagingSystem = () => {
             : contact
         )
       );
+      
+      setNewMessage('');
+      setSendingMessage(false);
+      
+      // Simulate a response after a short delay
+      if (selectedContact.id === 'contact-1') {
+        setTimeout(() => {
+          const responseMessage: Message = {
+            id: `msg-${Date.now() + 1}`,
+            sender_id: selectedContact.id,
+            recipient_id: user.id,
+            content: 'Thanks for the update!',
+            read: false,
+            created_at: new Date().toISOString(),
+            sender: {
+              full_name: selectedContact.full_name,
+              email: selectedContact.email
+            }
+          };
+          
+          setMessages(prev => [...prev, responseMessage]);
+        }, 3000);
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       toast({

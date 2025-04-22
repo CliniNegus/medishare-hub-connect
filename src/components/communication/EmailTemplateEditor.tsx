@@ -378,7 +378,11 @@ const EmailTemplateEditor = () => {
                   className="mt-2"
                   onClick={() => {
                     resetForm();
-                    document.querySelector('[data-value="editor"]')?.click();
+                    // Fix: don't use click() directly on Element
+                    const editorTab = document.querySelector('[data-value="editor"]');
+                    if (editorTab instanceof HTMLElement) {
+                      editorTab.click();
+                    }
                   }}
                 >
                   Create Your First Template
@@ -445,25 +449,25 @@ const Badge = ({
   className?: string,
   children: React.ReactNode
 } & React.HTMLAttributes<HTMLDivElement>) => {
-  const getVariantClasses = () => {
-    switch (variant) {
-      case "secondary":
-        return "bg-gray-100 text-gray-800";
-      case "destructive":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-800 text-white";
-    }
-  };
-  
   return (
     <div 
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getVariantClasses()} ${className}`}
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getVariantClasses(variant)} ${className}`}
       {...props}
     >
       {children}
     </div>
   );
+};
+
+const getVariantClasses = (variant: "default" | "secondary" | "destructive") => {
+  switch (variant) {
+    case "secondary":
+      return "bg-gray-100 text-gray-800";
+    case "destructive":
+      return "bg-red-100 text-red-800";
+    default:
+      return "bg-gray-800 text-white";
+  }
 };
 
 export default EmailTemplateEditor;
