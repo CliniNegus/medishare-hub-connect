@@ -1,97 +1,45 @@
+
 import React from 'react';
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { 
-  BarChart, 
-  Calendar, 
-  Plus,
-  StethoscopeIcon,
-  HeartPulse,
-  CreditCard,
-  ShoppingCart,
-  MapPin
-} from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DashboardHeaderProps {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
+  title: string;
+  subtitle?: string;
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
-const DashboardHeader: React.FC<DashboardHeaderProps> = ({ activeTab, setActiveTab }) => {
-  return (
-    <div className="flex justify-between items-center mb-4">
-      <TabsList className="w-full">
-        <TabsTrigger 
-          value="equipment" 
-          className="text-sm"
-          onClick={() => setActiveTab('equipment')}
-          data-state={activeTab === 'equipment' ? 'active' : ''}
-        >
-          <StethoscopeIcon className="h-4 w-4 mr-2" />
-          Equipment
-        </TabsTrigger>
-        
-        <TabsTrigger 
-          value="hospitals" 
-          className="text-sm"
-          onClick={() => setActiveTab('hospitals')}
-          data-state={activeTab === 'hospitals' ? 'active' : ''}
-        >
-          <MapPin className="h-4 w-4 mr-2" />
-          Hospital Locations
-        </TabsTrigger>
+const DashboardHeader: React.FC<DashboardHeaderProps> = ({
+  title,
+  subtitle,
+  actionLabel,
+  onAction
+}) => {
+  const { toast } = useToast();
+  const isMobile = useIsMobile();
 
-        <TabsTrigger 
-          value="bookings" 
-          className="text-sm"
-          onClick={() => setActiveTab('bookings')}
-          data-state={activeTab === 'bookings' ? 'active' : ''}
-        >
-          <Calendar className="h-4 w-4 mr-2" />
-          Bookings
-        </TabsTrigger>
-        <TabsTrigger 
-          value="therapy" 
-          className="text-sm"
-          onClick={() => setActiveTab('therapy')}
-          data-state={activeTab === 'therapy' ? 'active' : ''}
-        >
-          <HeartPulse className="h-4 w-4 mr-2" />
-          Therapy as a Service
-        </TabsTrigger>
-        <TabsTrigger 
-          value="financing" 
-          className="text-sm"
-          onClick={() => setActiveTab('financing')}
-          data-state={activeTab === 'financing' ? 'active' : ''}
-        >
-          <CreditCard className="h-4 w-4 mr-2" />
-          Financing
-        </TabsTrigger>
-        <TabsTrigger 
-          value="shop" 
-          className="text-sm"
-          onClick={() => setActiveTab('shop')}
-          data-state={activeTab === 'shop' ? 'active' : ''}
-        >
-          <ShoppingCart className="h-4 w-4 mr-2" />
-          Shop
-        </TabsTrigger>
-        <TabsTrigger 
-          value="analytics" 
-          className="text-sm"
-          onClick={() => setActiveTab('analytics')}
-          data-state={activeTab === 'analytics' ? 'active' : ''}
-        >
-          <BarChart className="h-4 w-4 mr-2" />
-          Analytics
-        </TabsTrigger>
-      </TabsList>
+  return (
+    <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} justify-between items-${isMobile ? 'start' : 'center'} mb-6`}>
+      <div>
+        <h1 className="text-2xl font-bold">{title}</h1>
+        {subtitle && <p className="text-gray-500 dark:text-gray-400">{subtitle}</p>}
+      </div>
       
-      <Button className="ml-4 flex-shrink-0">
-        <Plus className="h-4 w-4 mr-2" />
-        Add Equipment
-      </Button>
+      <div className={`flex items-center space-x-2 ${isMobile ? 'mt-4' : ''}`}>
+        <ThemeToggle />
+        
+        {actionLabel && onAction && (
+          <Button 
+            onClick={onAction}
+            className="bg-red-600 hover:bg-red-700 text-white"
+          >
+            {actionLabel}
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

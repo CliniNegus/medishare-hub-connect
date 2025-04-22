@@ -11,7 +11,8 @@ import {
   Signal,
   LogOut,
   Trash2,
-  UserCog
+  UserCog,
+  Shield
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -30,6 +31,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -41,8 +43,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, signOut } = useAuth();
   const { role } = useUserRole();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [isDeleting, setIsDeleting] = useState(false);
   const [accountTypeModalOpen, setAccountTypeModalOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // Define menu items based on user role
   const getMenuItems = () => {
@@ -128,8 +132,135 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="hidden md:flex w-64 flex-col bg-black text-white border-r border-gray-800">
+      {/* Mobile Header */}
+      {isMobile && (
+        <div className="fixed top-0 left-0 right-0 bg-black text-white z-30 px-4 py-3 flex justify-between items-center border-b border-gray-800">
+          <h1 className="text-xl font-bold text-red-500">MediShare</h1>
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+            className="p-2 text-white"
+          >
+            {mobileMenuOpen ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
+        </div>
+      )}
+
+      {/* Mobile Menu */}
+      {isMobile && mobileMenuOpen && (
+        <div className="fixed inset-0 bg-black text-white z-20 pt-16 px-4 pb-4 flex flex-col">
+          <nav className="flex-1 overflow-y-auto space-y-2 pt-4">
+            {menuItems.map((item) => (
+              <Button
+                key={item.path}
+                variant={location.pathname === item.path ? "default" : "ghost"}
+                className={`w-full justify-start ${
+                  location.pathname === item.path 
+                    ? "bg-red-600 text-white hover:bg-red-700" 
+                    : "text-gray-300 hover:text-white hover:bg-gray-800"
+                }`}
+                onClick={() => {
+                  navigate(item.path);
+                  setMobileMenuOpen(false);
+                }}
+              >
+                {item.icon}
+                <span className="ml-3">{item.label}</span>
+              </Button>
+            ))}
+          </nav>
+          
+          <div className="border-t border-gray-800 pt-4 space-y-2">
+            <Button
+              variant="outline"
+              className="w-full justify-start text-gray-300 hover:text-white border-gray-700 hover:bg-gray-800"
+              onClick={() => {
+                navigate('/security-settings');
+                setMobileMenuOpen(false);
+              }}
+            >
+              <Shield className="h-5 w-5" />
+              <span className="ml-3">Security</span>
+            </Button>
+            
+            {role === 'admin' && (
+              <Button
+                variant="outline"
+                className="w-full justify-start text-gray-300 hover:text-white border-gray-700 hover:bg-gray-800"
+                onClick={() => {
+                  navigate('/admin');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <Settings className="h-5 w-5" />
+                <span className="ml-3">Admin</span>
+              </Button>
+            )}
+            
+            <Button
+              variant="outline"
+              className="w-full justify-start text-gray-300 hover:text-white border-gray-700 hover:bg-gray-800"
+              onClick={() => {
+                setAccountTypeModalOpen(true);
+                setMobileMenuOpen(false);
+              }}
+            >
+              <UserCog className="h-5 w-5" />
+              <span className="ml-3">Change Account Type</span>
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="w-full justify-start text-gray-300 hover:text-white border-gray-700 hover:bg-gray-800"
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-5 w-5" />
+              <span className="ml-3">Sign Out</span>
+            </Button>
+            
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-red-400 hover:text-red-300 border-gray-700 hover:bg-gray-800"
+                >
+                  <Trash2 className="h-5 w-5" />
+                  <span className="ml-3">Delete Account</span>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="bg-white">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your account
+                    and remove your data from our servers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="border-gray-300">Cancel</AlertDialogCancel>
+                  <AlertDialogAction 
+                    className="bg-red-600 text-white hover:bg-red-700" 
+                    onClick={handleDeleteAccount}
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? "Deleting..." : "Delete Account"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Sidebar */}
+      <div className={`${isMobile ? 'hidden' : 'flex'} w-64 flex-col bg-black text-white border-r border-gray-800`}>
         <div className="p-4 border-b border-gray-800">
           <h1 className="text-xl font-bold text-red-500">MediShare</h1>
           <p className="text-xs text-gray-400 mt-1">Equipment Management Platform</p>
@@ -157,10 +288,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
         
         <div className="p-4 border-t border-gray-800">
+          <Button
+            variant="outline"
+            className="w-full justify-start text-gray-300 hover:text-white border-gray-700 hover:bg-gray-800 mb-2"
+            onClick={() => navigate('/security-settings')}
+          >
+            <Shield className="h-5 w-5" />
+            <span className="ml-3">Security</span>
+          </Button>
+          
           {role === 'admin' && (
             <Button
               variant="outline"
-              className="w-full justify-start text-gray-300 hover:text-white border-gray-700 hover:bg-gray-800"
+              className="w-full justify-start text-gray-300 hover:text-white border-gray-700 hover:bg-gray-800 mt-2"
               onClick={() => navigate('/admin')}
             >
               <Settings className="h-5 w-5" />
@@ -221,7 +361,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <main className="flex-1 overflow-y-auto bg-gray-50">
+        <main className={`flex-1 overflow-y-auto bg-gray-50 ${isMobile ? 'pt-16' : ''}`}>
           {children}
         </main>
       </div>

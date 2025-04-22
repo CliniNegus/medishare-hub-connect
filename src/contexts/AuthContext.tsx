@@ -12,6 +12,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   updateProfileRole: (role: string) => Promise<void>;
+  setSessionTimeout: (minutes: number) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,7 +22,74 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionTimeoutId, setSessionTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [sessionTimeoutMinutes, setSessionTimeoutMinutes] = useState<number>(30); // Default 30 minutes
+  const [lastActivity, setLastActivity] = useState<number>(Date.now());
   const { toast } = useToast();
+
+  // Function to reset the activity timer
+  const resetActivityTimer = () => {
+    setLastActivity(Date.now());
+  };
+
+  // Setup session timeout
+  useEffect(() => {
+    if (!user) return;
+
+    // Clear any existing timeout
+    if (sessionTimeoutId) {
+      clearTimeout(sessionTimeoutId);
+    }
+
+    // Convert minutes to milliseconds
+    const timeoutMs = sessionTimeoutMinutes * 60 * 1000;
+
+    // Start new timeout
+    const id = setTimeout(() => {
+      const now = Date.now();
+      const inactiveTime = now - lastActivity;
+
+      // If user has been inactive for longer than the timeout, sign them out
+      if (inactiveTime >= timeoutMs) {
+        toast({
+          title: "Session expired",
+          description: "You've been signed out due to inactivity",
+        });
+        signOut();
+      }
+    }, timeoutMs);
+
+    setSessionTimeoutId(id);
+
+    // Cleanup on unmount
+    return () => {
+      if (sessionTimeoutId) {
+        clearTimeout(sessionTimeoutId);
+      }
+    };
+  }, [user, sessionTimeoutMinutes, lastActivity]);
+
+  // Setup activity listeners
+  useEffect(() => {
+    if (!user) return;
+
+    // Track user activity
+    const activityEvents = ['mousedown', 'keydown', 'touchstart', 'click'];
+    
+    const handleActivity = () => {
+      resetActivityTimer();
+    };
+
+    activityEvents.forEach(event => {
+      window.addEventListener(event, handleActivity);
+    });
+
+    return () => {
+      activityEvents.forEach(event => {
+        window.removeEventListener(event, handleActivity);
+      });
+    };
+  }, [user]);
 
   useEffect(() => {
     // Set up auth state listener first
@@ -106,12 +174,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const setSessionTimeout = (minutes: number) => {
+    setSessionTimeoutMinutes(minutes);
+    resetActivityTimer();
+  };
+
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
       setSession(null);
       setUser(null);
       setProfile(null);
+      
+      if (sessionTimeoutId) {
+        clearTimeout(sessionTimeoutId);
+        setSessionTimeoutId(null);
+      }
       
       toast({
         title: "Signed out",
@@ -134,7 +212,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       loading, 
       signOut, 
       refreshProfile,
-      updateProfileRole
+      updateProfileRole,
+      setSessionTimeout
     }}>
       {children}
     </AuthContext.Provider>
