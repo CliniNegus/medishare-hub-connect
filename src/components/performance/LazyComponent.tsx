@@ -14,7 +14,7 @@ interface LazyComponentProps {
  * A wrapper component that lazily loads another component
  * only when it is visible in the viewport or after a specified delay
  */
-const LazyComponent = ({
+export const LazyComponent = ({
   component: Component,
   fallback = <div className="min-h-[100px] w-full animate-pulse bg-gray-100"></div>,
   threshold = 0.1,
@@ -101,4 +101,5 @@ export function createLazyComponent(
   );
 }
 
+// Also provide a default export for backward compatibility
 export default LazyComponent;
