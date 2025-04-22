@@ -13,8 +13,8 @@ import {
 const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-gray-50 to-white py-16 border-b">
+      {/* Hero Section - Updated to be lighter */}
+      <div className="relative bg-white py-16 border-b">
         <div className="container mx-auto px-6 text-center">
           <h1 className="text-5xl font-bold mb-8 text-gray-900">
             CliniBuilds
@@ -35,7 +35,7 @@ const LandingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Features Section */}
+      {/* Features Section - Updated to use slide version */}
       <div className="py-16 bg-white">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">Platform Features</h2>
@@ -118,17 +118,17 @@ const LandingPage: React.FC = () => {
       </div>
 
       {/* Call to Action with lighter theme */}
-      <div className="py-16 bg-gradient-to-r from-red-500 to-red-600">
+      <div className="py-16 bg-gray-50 border-t border-gray-100">
         <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-6 text-white">Ready to Transform Your Medical Equipment Management?</h2>
-          <p className="text-xl mb-8 max-w-3xl mx-auto text-white/90">
+          <h2 className="text-3xl font-bold mb-6 text-gray-900">Ready to Transform Your Medical Equipment Management?</h2>
+          <p className="text-xl mb-8 max-w-3xl mx-auto text-gray-600">
             Join hospitals, manufacturers, and investors already benefiting from our platform.
           </p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <Button asChild size="lg" className="bg-white text-red-600 hover:bg-gray-100">
+            <Button asChild size="lg" className="bg-red-600 hover:bg-red-700 text-white">
               <Link to="/auth">Sign Up Now</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-red-600/50">
+            <Button asChild variant="outline" size="lg" className="border-red-600 text-red-600 hover:bg-red-50">
               <Link to="/dashboard">Explore Dashboard</Link>
             </Button>
           </div>

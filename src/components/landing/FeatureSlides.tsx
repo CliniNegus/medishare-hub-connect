@@ -13,7 +13,9 @@ import {
   TrendingUp, 
   Users,
   ChartBar,
-  ChartLine
+  Wallet,
+  Database,
+  Activity
 } from "lucide-react";
 
 interface FeatureSlide {
@@ -23,6 +25,7 @@ interface FeatureSlide {
     icon: React.ReactNode;
     title: string;
     description: string;
+    imageSrc?: string; // Optional image source
   }[];
 }
 
@@ -37,14 +40,19 @@ const featureSlides: FeatureSlide[] = [
         description: "Share equipment within hospital clusters"
       },
       {
-        icon: <ChartBar className="h-8 w-8 text-red-500" />,
-        title: "Usage Analytics",
-        description: "Track equipment utilization and efficiency"
+        icon: <Database className="h-8 w-8 text-red-500" />,
+        title: "Free Inventory Management",
+        description: "Manage your equipment inventory with no additional costs"
       },
       {
-        icon: <Users className="h-8 w-8 text-red-500" />,
-        title: "Staff Management",
-        description: "Coordinate staff access and training"
+        icon: <Wallet className="h-8 w-8 text-red-500" />,
+        title: "Access to Financing",
+        description: "Connect with investors for equipment financing"
+      },
+      {
+        icon: <Activity className="h-8 w-8 text-red-500" />,
+        title: "Therapy as a Service",
+        description: "Access advanced equipment on a pay-per-use basis"
       }
     ]
   },
@@ -58,14 +66,14 @@ const featureSlides: FeatureSlide[] = [
         description: "Connect directly with healthcare providers"
       },
       {
-        icon: <ChartLine className="h-8 w-8 text-red-500" />,
-        title: "Market Analytics",
-        description: "Access real-time market demand data"
+        icon: <Activity className="h-8 w-8 text-red-500" />,
+        title: "Real-time Monitoring",
+        description: "Track and monitor equipment using IoT technology"
       },
       {
         icon: <TrendingUp className="h-8 w-8 text-red-500" />,
-        title: "Performance Tracking",
-        description: "Monitor equipment performance metrics"
+        title: "Lease Management",
+        description: "Manage equipment leasing with real-time updates"
       }
     ]
   },
@@ -93,6 +101,12 @@ const featureSlides: FeatureSlide[] = [
 ];
 
 const FeatureSlides: React.FC = () => {
+  // Function to handle custom image upload (placeholder for now)
+  const handleImageUpload = (slideIndex: number, featureIndex: number) => {
+    console.log(`Upload image for slide ${slideIndex}, feature ${featureIndex}`);
+    // In a real implementation, this would trigger a file upload dialog
+  };
+
   return (
     <div className="w-full max-w-6xl mx-auto px-4">
       <Carousel className="relative">
@@ -108,7 +122,40 @@ const FeatureSlides: React.FC = () => {
                       key={featureIndex} 
                       className="bg-gray-50 p-6 rounded-lg border border-gray-100 hover:shadow-md transition-all"
                     >
-                      <div className="mb-4">{feature.icon}</div>
+                      <div className="mb-4 relative">
+                        {feature.imageSrc ? (
+                          <div className="mb-4 relative">
+                            <img 
+                              src={feature.imageSrc} 
+                              alt={feature.title} 
+                              className="w-full h-40 object-cover rounded-md mb-2"
+                            />
+                            <button 
+                              onClick={() => handleImageUpload(index, featureIndex)}
+                              className="absolute bottom-2 right-2 bg-white p-1 rounded-full shadow-md"
+                              title="Replace image"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="mb-4 relative">
+                            {feature.icon}
+                            <button 
+                              onClick={() => handleImageUpload(index, featureIndex)}
+                              className="absolute top-0 right-0 bg-white p-1 rounded-full shadow-md"
+                              title="Add image"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                              </svg>
+                            </button>
+                          </div>
+                        )}
+                      </div>
                       <h4 className="text-lg font-semibold text-gray-800 mb-2">{feature.title}</h4>
                       <p className="text-gray-600 text-sm">{feature.description}</p>
                     </div>
