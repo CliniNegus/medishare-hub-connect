@@ -64,7 +64,11 @@ const HospitalDashboard = () => {
       </div>
       
       <Tabs defaultValue="equipment" value={activeTab} className="w-full">
-        <DashboardHeader activeTab={activeTab} setActiveTab={setActiveTab} />
+        <DashboardHeader 
+          title="Hospital Equipment Dashboard" 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+        />
         
         <TabsContent value="equipment" className="mt-0">
           <EquipmentTabContent
@@ -114,7 +118,6 @@ const HospitalDashboard = () => {
         </TabsContent>
       </Tabs>
       
-      {/* Booking Modal */}
       {selectedEquipment && (
         <BookingModal 
           isOpen={bookingModalOpen}
@@ -125,7 +128,6 @@ const HospitalDashboard = () => {
         />
       )}
       
-      {/* Account Type Change Modal */}
       <ChangeAccountTypeModal 
         open={accountTypeModalOpen}
         onOpenChange={setAccountTypeModalOpen}
