@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -27,6 +28,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import RoleDashboard from "./components/RoleDashboard";
 import HospitalRegistrationForm from "./components/HospitalRegistrationForm";
 import HospitalLocations from "./pages/HospitalLocations";
+import SystemManagement from "./pages/SystemManagement";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -125,6 +127,14 @@ function App() {
                       <MedicalShop />
                     </ProtectedRoute>
                   } />
+                  
+                  <Route path="/system" element={
+                    <ProtectedRoute>
+                      <RoleDashboard allowedRoles={['admin', 'hospital', 'manufacturer', 'investor']}>
+                        <SystemManagement />
+                      </RoleDashboard>
+                    </ProtectedRoute>
+                  } />
 
                   <Route path="*" element={<NotFound />} />
                 </Routes>
@@ -138,3 +148,4 @@ function App() {
 }
 
 export default App;
+
