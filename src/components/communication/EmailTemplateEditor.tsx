@@ -10,7 +10,6 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Mail, Plus, Save, Trash, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 interface Template {
   id: string;
@@ -21,6 +20,28 @@ interface Template {
   created_at: string;
   updated_at: string;
 }
+
+// Mock data for email templates
+const mockTemplates: Template[] = [
+  {
+    id: '1',
+    name: 'Welcome Email',
+    subject: 'Welcome to Our Platform!',
+    body: 'Hello {name},\n\nWelcome to our platform. We are excited to have you on board!\n\nBest regards,\n{organization}',
+    type: 'welcome',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: '2',
+    name: 'Password Reset',
+    subject: 'Password Reset Request',
+    body: 'Hello {name},\n\nWe received a request to reset your password. Click the link below to reset it:\n\n{link}\n\nIf you did not request this, please ignore this email.\n\nBest regards,\n{organization}',
+    type: 'notification',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  }
+];
 
 const EmailTemplateEditor = () => {
   const { user, profile } = useAuth();
@@ -47,14 +68,9 @@ const EmailTemplateEditor = () => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
-        .from('email_templates')
-        .select('*')
-        .order('updated_at', { ascending: false });
+      // Use mock data instead of Supabase query
+      setTemplates(mockTemplates);
       
-      if (error) throw error;
-      
-      setTemplates(data || []);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching email templates:', error);
@@ -80,24 +96,24 @@ const EmailTemplateEditor = () => {
     try {
       setSavingTemplate(true);
       
-      const { data, error } = await supabase
-        .from('email_templates')
-        .insert({
-          name: templateName,
-          subject: templateSubject,
-          body: templateBody,
-          type: templateType,
-        })
-        .select();
+      const newTemplate: Template = {
+        id: `temp-${Date.now()}`,
+        name: templateName,
+        subject: templateSubject,
+        body: templateBody,
+        type: templateType,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
       
-      if (error) throw error;
+      // Add new template to state
+      setTemplates(prev => [newTemplate, ...prev]);
       
       toast({
         title: 'Success',
         description: 'Email template created successfully',
       });
       
-      setTemplates(prev => [data[0], ...prev]);
       resetForm();
       setSavingTemplate(false);
     } catch (error) {
@@ -124,30 +140,27 @@ const EmailTemplateEditor = () => {
     try {
       setSavingTemplate(true);
       
-      const { data, error } = await supabase
-        .from('email_templates')
-        .update({
-          name: templateName,
-          subject: templateSubject,
-          body: templateBody,
-          type: templateType,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', selectedTemplate.id)
-        .select();
+      const updatedTemplate: Template = {
+        ...selectedTemplate,
+        name: templateName,
+        subject: templateSubject,
+        body: templateBody,
+        type: templateType,
+        updated_at: new Date().toISOString(),
+      };
       
-      if (error) throw error;
+      // Update templates state
+      setTemplates(prev => 
+        prev.map(template => 
+          template.id === selectedTemplate.id ? updatedTemplate : template
+        )
+      );
       
       toast({
         title: 'Success',
         description: 'Email template updated successfully',
       });
       
-      setTemplates(prev => 
-        prev.map(template => 
-          template.id === selectedTemplate.id ? data[0] : template
-        )
-      );
       resetForm();
       setSavingTemplate(false);
     } catch (error) {
@@ -165,19 +178,13 @@ const EmailTemplateEditor = () => {
     if (!user) return;
     
     try {
-      const { error } = await supabase
-        .from('email_templates')
-        .delete()
-        .eq('id', templateId);
-      
-      if (error) throw error;
+      // Remove template from state
+      setTemplates(prev => prev.filter(template => template.id !== templateId));
       
       toast({
         title: 'Success',
         description: 'Email template deleted successfully',
       });
-      
-      setTemplates(prev => prev.filter(template => template.id !== templateId));
       
       if (selectedTemplate?.id === templateId) {
         resetForm();
@@ -219,21 +226,9 @@ const EmailTemplateEditor = () => {
     }
     
     try {
-      // This would connect to a Supabase Edge Function that handles email sending
-      const { data, error } = await supabase.functions.invoke('send-test-email', {
-        body: {
-          email: user.email,
-          subject: templateSubject,
-          body: templateBody,
-          templateName: templateName || 'Test Template',
-        },
-      });
-      
-      if (error) throw error;
-      
       toast({
-        title: 'Success',
-        description: 'Test email sent successfully',
+        title: 'Info',
+        description: 'Test email functionality is currently unavailable in demo mode',
       });
     } catch (error) {
       console.error('Error sending test email:', error);

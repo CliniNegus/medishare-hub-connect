@@ -5,11 +5,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageCircle, ChevronUp, Send, X, User, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 
 interface SupportMessage {
@@ -21,6 +19,28 @@ interface SupportMessage {
   is_from_user: boolean;
   created_at: string;
 }
+
+// Mock data for support messages
+const mockSupportMessages: SupportMessage[] = [
+  {
+    id: '1',
+    user_id: '123',
+    user_email: 'user@example.com',
+    user_name: 'John Doe',
+    message: 'Hello, I need help with my order',
+    is_from_user: true,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '2',
+    user_id: '123',
+    user_email: 'user@example.com',
+    user_name: 'Support Team',
+    message: 'Hi John, how can I help you today?',
+    is_from_user: false,
+    created_at: new Date().toISOString()
+  }
+];
 
 const ChatSupport = () => {
   const { user, profile } = useAuth();
@@ -61,15 +81,9 @@ const ChatSupport = () => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
-        .from('support_messages')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: true });
+      // Use mock data instead of Supabase query
+      setMessages(mockSupportMessages);
       
-      if (error) throw error;
-      
-      setMessages(data || []);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching support messages:', error);
@@ -97,28 +111,24 @@ const ChatSupport = () => {
     try {
       setSending(true);
       
-      const newMessage = {
+      const newMessage: SupportMessage = {
+        id: `temp-${Date.now()}`,
         user_id: user?.id || null,
         user_email: user?.email || email,
         user_name: profile?.full_name || name,
         message: message.trim(),
         is_from_user: true,
+        created_at: new Date().toISOString(),
       };
       
-      const { data, error } = await supabase
-        .from('support_messages')
-        .insert(newMessage)
-        .select();
-      
-      if (error) throw error;
-      
-      setMessages(prev => [...prev, data[0]]);
+      // Add new message to state
+      setMessages(prev => [...prev, newMessage]);
       setMessage('');
       
       // Simulate support team response
       setTimeout(() => {
-        const supportResponse = {
-          id: `temp-${Date.now()}`,
+        const supportResponse: SupportMessage = {
+          id: `temp-${Date.now() + 1}`,
           user_id: user?.id || null,
           user_email: user?.email || email,
           user_name: 'Support Team',
