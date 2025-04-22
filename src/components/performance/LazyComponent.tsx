@@ -14,18 +14,18 @@ interface LazyComponentProps {
  * A wrapper component that lazily loads another component
  * only when it is visible in the viewport or after a specified delay
  */
-export const LazyComponent = ({
+export function LazyComponent({
   component: Component,
   fallback = <div className="min-h-[100px] w-full animate-pulse bg-gray-100"></div>,
   threshold = 0.1,
   onVisibilityChange,
   loadAfterMs,
   props = {},
-}: LazyComponentProps) => {
+}: LazyComponentProps) {
   const [isInView, setIsInView] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(false);
   const componentRef = React.useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     // Create intersection observer to detect when component is in viewport
     const observer = new IntersectionObserver(
@@ -33,13 +33,12 @@ export const LazyComponent = ({
         const [entry] = entries;
         const isVisible = entry.isIntersecting;
         setIsInView(isVisible);
-        
+
         if (isVisible) {
           setShouldLoad(true);
           if (onVisibilityChange) {
             onVisibilityChange(true);
           }
-          
           // Disconnect observer once component is in view and loading
           observer.disconnect();
         }
@@ -50,11 +49,11 @@ export const LazyComponent = ({
         threshold,
       }
     );
-    
+
     if (componentRef.current) {
       observer.observe(componentRef.current);
     }
-    
+
     // If loadAfterMs is specified, load the component after that time regardless of visibility
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
     if (loadAfterMs !== undefined) {
@@ -62,7 +61,7 @@ export const LazyComponent = ({
         setShouldLoad(true);
       }, loadAfterMs);
     }
-    
+
     return () => {
       observer.disconnect();
       if (timeoutId) {
@@ -70,7 +69,7 @@ export const LazyComponent = ({
       }
     };
   }, [threshold, onVisibilityChange, loadAfterMs]);
-  
+
   return (
     <div ref={componentRef}>
       {shouldLoad ? (
@@ -82,7 +81,7 @@ export const LazyComponent = ({
       )}
     </div>
   );
-};
+}
 
 /**
  * Factory function to create a lazy loaded component
@@ -92,14 +91,15 @@ export function createLazyComponent(
   importFn: () => Promise<{ default: React.ComponentType<any> }>,
   options?: Omit<LazyComponentProps, 'component'>
 ) {
-  const LazyComponent = lazy(importFn);
-  
+  const LazyComponentInternal = lazy(importFn);
+
   return (props: Record<string, any>) => (
     <Suspense fallback={options?.fallback || <div className="min-h-[100px] w-full animate-pulse bg-gray-100"></div>}>
-      <LazyComponent {...props} />
+      <LazyComponentInternal {...props} />
     </Suspense>
   );
 }
 
 // Also provide a default export for backward compatibility
 export default LazyComponent;
+
