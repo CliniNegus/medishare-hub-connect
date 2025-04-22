@@ -1,297 +1,222 @@
 
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { Bell, Settings, UserCircle, Package, ShoppingCart, Home, Calculator, LayoutDashboard, LogOut, Trash2, UserCog } from "lucide-react";
+import UserRoleSelector from './UserRoleSelector';
 import { useUserRole } from '@/contexts/UserRoleContext';
-import DarkModeToggle from './ui/dark-mode-toggle';
-import { Bell, Clock } from 'lucide-react';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { useSessionTimeout } from '@/hooks/useSessionTimeout';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from "@/components/ui/use-toast";
+import ChangeAccountTypeModal from './ChangeAccountTypeModal';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { supabase } from "@/integrations/supabase/client";
 
 const Header = () => {
   const location = useLocation();
-  const { user, profile, signOut } = useAuth();
+  const navigate = useNavigate();
   const { role } = useUserRole();
+  const { user, signOut } = useAuth();
   const { toast } = useToast();
-  const [notifications, setNotifications] = useState<number>(0);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [accountTypeModalOpen, setAccountTypeModalOpen] = useState(false);
   
-  // Session timeout hooks
-  const { resetSession, timeRemaining, formattedTimeRemaining, isWarning } = useSessionTimeout({
-    timeoutMinutes: 30,
-    warningMinutes: 5,
-    onTimeout: () => {
-      toast({
-        title: "Session Expired",
-        description: "You have been logged out due to inactivity.",
-        variant: "destructive"
-      });
-    },
-    onWarning: () => {
-      // This is already handled by the hook
-    }
-  });
-
-  // Simulate notifications
-  useEffect(() => {
-    if (user) {
-      // Simulate receiving notifications
-      const randomCount = Math.floor(Math.random() * 5) + 1;
-      setNotifications(randomCount);
-      
-      // Simulate new notification after some time
-      const timer = setTimeout(() => {
-        setNotifications(prev => prev + 1);
-        
-        toast({
-          title: "New Notification",
-          description: "You have a new message or update.",
-        });
-      }, 60000); // 1 minute
-      
-      return () => clearTimeout(timer);
-    }
-  }, [user]);
-
   const isActive = (path: string) => {
     return location.pathname === path;
   };
 
-  return (
-    <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex">
-            <Link to="/" className="flex-shrink-0 flex items-center">
-              <span className="text-xl font-bold text-red-600 dark:text-red-500">MediShare</span>
-            </Link>
-            <nav className="hidden sm:ml-6 sm:flex space-x-4">
-              {user && (
-                <>
-                  <Link
-                    to="/dashboard"
-                    className={`inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md ${
-                      isActive('/dashboard')
-                        ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white'
-                    }`}
-                  >
-                    Dashboard
-                  </Link>
-                  {(role === 'admin' || role === 'hospital') && (
-                    <Link
-                      to="/inventory"
-                      className={`inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md ${
-                        isActive('/inventory')
-                          ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-                          : 'text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white'
-                      }`}
-                    >
-                      Inventory
-                    </Link>
-                  )}
-                  <Link
-                    to="/orders"
-                    className={`inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md ${
-                      isActive('/orders')
-                        ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white'
-                    }`}
-                  >
-                    Orders
-                  </Link>
-                  {(role === 'admin' || role === 'investor' || role === 'hospital') && (
-                    <Link
-                      to="/financing"
-                      className={`inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md ${
-                        isActive('/financing')
-                          ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-                          : 'text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white'
-                      }`}
-                    >
-                      Financing
-                    </Link>
-                  )}
-                </>
-              )}
-            </nav>
-          </div>
-          <div className="flex items-center">
-            {/* Dark Mode Toggle */}
-            <DarkModeToggle className="mr-2" />
-            
-            {/* Session Timeout Indicator */}
-            {user && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className={`hidden sm:flex items-center mx-2 px-2 py-1 rounded-md ${
-                      isWarning ? 'bg-red-100 dark:bg-red-900' : 'bg-gray-100 dark:bg-gray-800'
-                    }`}>
-                      <Clock className={`h-4 w-4 mr-1 ${
-                        isWarning ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'
-                      }`} />
-                      <span className={`text-xs font-mono ${
-                        isWarning ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-300'
-                      }`}>
-                        {formattedTimeRemaining}
-                      </span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Session timeout - click to reset</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
-            
-            {/* Notifications */}
-            {user && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="relative p-1 mr-2 rounded-full text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-500">
-                      <Bell className="h-6 w-6" />
-                      {notifications > 0 && (
-                        <Badge className="absolute -top-1 -right-1 flex items-center justify-center h-5 w-5 text-xs bg-red-600 text-white rounded-full">
-                          {notifications}
-                        </Badge>
-                      )}
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>You have {notifications} notifications</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
-            
-            {user ? (
-              <div className="ml-3 relative">
-                <div>
-                  <button
-                    type="button"
-                    className="max-w-xs bg-white dark:bg-gray-900 flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-red-400"
-                    id="user-menu"
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  >
-                    <span className="sr-only">Open user menu</span>
-                    <div className="h-8 w-8 rounded-full bg-red-600 dark:bg-red-700 flex items-center justify-center text-white">
-                      {profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : user.email?.charAt(0).toUpperCase()}
-                    </div>
-                  </button>
-                </div>
-                {isMenuOpen && (
-                  <div
-                    className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
-                    role="menu"
-                    aria-orientation="vertical"
-                    aria-labelledby="user-menu"
-                  >
-                    <div className="block px-4 py-2 text-xs text-gray-500 dark:text-gray-400">
-                      {profile?.full_name || user.email}
-                    </div>
-                    <div className="border-t border-gray-100 dark:border-gray-700"></div>
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      role="menuitem"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Your Profile
-                    </Link>
-                    <Link
-                      to="/settings"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      role="menuitem"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Settings
-                    </Link>
-                    <button
-                      className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      role="menuitem"
-                      onClick={() => {
-                        signOut();
-                        setIsMenuOpen(false);
-                      }}
-                    >
-                      Sign out
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex-shrink-0">
-                <Link to="/auth">
-                  <Button className="relative inline-flex items-center bg-red-600 hover:bg-red-700 text-white">
-                    Sign in
-                  </Button>
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+    toast({
+      title: "Signed out successfully",
+      description: "You have been logged out of your account",
+    });
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    
+    try {
+      setIsDeleting(true);
       
-      {/* Mobile menu */}
-      <div className="sm:hidden">
-        <div className="pt-2 pb-3 space-y-1">
+      // Delete the user account from Supabase Auth
+      const { error } = await supabase.auth.admin.deleteUser(user.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Account deleted",
+        description: "Your account has been successfully deleted",
+      });
+      
+      // Sign out and redirect to auth page
+      await signOut();
+      navigate('/auth');
+    } catch (error: any) {
+      console.error('Error deleting account:', error);
+      toast({
+        title: "Error deleting account",
+        description: error.message || "There was a problem deleting your account. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  return (
+    <header className="bg-white border-b border-gray-200 py-4">
+      <div className="container mx-auto flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center">
+            <div className="h-8 w-8 rounded-md bg-gradient-to-r from-red-600 to-black"></div>
+            <h1 className="text-xl font-bold ml-2">CliniBuilds</h1>
+          </Link>
+        </div>
+        
+        <nav className="hidden md:flex space-x-6">
+          <Link to="/dashboard" className={`flex items-center text-sm font-medium ${isActive('/dashboard') ? 'text-red-600' : 'text-gray-600 hover:text-red-600'}`}>
+            <Home className="h-4 w-4 mr-2" />
+            Dashboard
+          </Link>
+          
+          {(role === 'hospital' || role === 'admin' || role === 'manufacturer') && (
+            <Link to="/inventory" className={`flex items-center text-sm font-medium ${isActive('/inventory') ? 'text-red-600' : 'text-gray-600 hover:text-red-600'}`}>
+              <Package className="h-4 w-4 mr-2" />
+              Inventory
+            </Link>
+          )}
+          
+          {(role === 'hospital' || role === 'admin' || role === 'manufacturer') && (
+            <Link to="/orders" className={`flex items-center text-sm font-medium ${isActive('/orders') ? 'text-red-600' : 'text-gray-600 hover:text-red-600'}`}>
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              Orders
+            </Link>
+          )}
+          
+          {(role === 'hospital' || role === 'admin' || role === 'investor') && (
+            <Link to="/financing" className={`flex items-center text-sm font-medium ${isActive('/financing') ? 'text-red-600' : 'text-gray-600 hover:text-red-600'}`}>
+              <Calculator className="h-4 w-4 mr-2" />
+              Financing
+            </Link>
+          )}
+          
+          {role === 'admin' && (
+            <Link to="/admin" className={`flex items-center text-sm font-medium ${isActive('/admin') ? 'text-red-600' : 'text-gray-600 hover:text-red-600'}`}>
+              <LayoutDashboard className="h-4 w-4 mr-2" />
+              Admin
+            </Link>
+          )}
+          
+          <Link to="/shop" className={`flex items-center text-sm font-medium ${isActive('/shop') ? 'text-red-600' : 'text-gray-600 hover:text-red-600'}`}>
+            <ShoppingCart className="h-4 w-4 mr-2" />
+            Shop
+          </Link>
+        </nav>
+        
+        {user && <UserRoleSelector />}
+        
+        <div className="flex items-center space-x-4">
           {user && (
             <>
-              <Link
-                to="/dashboard"
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
-                  isActive('/dashboard')
-                    ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white'
-                }`}
-              >
-                Dashboard
-              </Link>
-              {(role === 'admin' || role === 'hospital') && (
-                <Link
-                  to="/inventory"
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${
-                    isActive('/inventory')
-                      ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white'
-                  }`}
-                >
-                  Inventory
-                </Link>
-              )}
-              <Link
-                to="/orders"
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
-                  isActive('/orders')
-                    ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white'
-                }`}
-              >
-                Orders
-              </Link>
-              {(role === 'admin' || role === 'investor' || role === 'hospital') && (
-                <Link
-                  to="/financing"
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${
-                    isActive('/financing')
-                      ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white'
-                  }`}
-                >
-                  Financing
-                </Link>
-              )}
+              <Button variant="ghost" size="icon">
+                <Bell className="h-5 w-5 text-gray-600" />
+              </Button>
+              <Button variant="ghost" size="icon">
+                <Settings className="h-5 w-5 text-gray-600" />
+              </Button>
             </>
+          )}
+          
+          {user ? (
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" className="flex items-center space-x-2">
+                <UserCircle className="h-5 w-5" />
+                <span>{role}</span>
+              </Button>
+              
+              <div className="relative group">
+                <Button variant="ghost" className="text-red-600">
+                  <LogOut className="h-5 w-5" />
+                </Button>
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
+                  <button
+                    onClick={() => setAccountTypeModalOpen(true)}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <div className="flex items-center">
+                      <UserCog className="h-4 w-4 mr-2 text-gray-500" />
+                      Change Account Type
+                    </div>
+                  </button>
+                  
+                  <button
+                    onClick={handleSignOut}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <div className="flex items-center">
+                      <LogOut className="h-4 w-4 mr-2 text-gray-500" />
+                      Sign Out
+                    </div>
+                  </button>
+                  
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                        <div className="flex items-center">
+                          <Trash2 className="h-4 w-4 mr-2 text-red-500" />
+                          Delete Account
+                        </div>
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="bg-white">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete your account
+                          and remove your data from our servers.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className="border-gray-300">Cancel</AlertDialogCancel>
+                        <AlertDialogAction 
+                          className="bg-red-600 text-white hover:bg-red-700" 
+                          onClick={handleDeleteAccount}
+                          disabled={isDeleting}
+                        >
+                          {isDeleting ? "Deleting..." : "Delete Account"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <Link to="/auth">
+              <Button className="bg-red-600 hover:bg-red-700">
+                Login / Register
+              </Button>
+            </Link>
           )}
         </div>
       </div>
+      
+      {/* Account Type Change Modal */}
+      <ChangeAccountTypeModal 
+        open={accountTypeModalOpen} 
+        onOpenChange={setAccountTypeModalOpen} 
+      />
     </header>
   );
 };
