@@ -4,19 +4,24 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Dispatch, SetStateAction } from 'react';
 
 interface DashboardHeaderProps {
   title: string;
   subtitle?: string;
   actionLabel?: string;
   onAction?: () => void;
+  activeTab?: string;
+  setActiveTab?: Dispatch<SetStateAction<string>>;
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   title,
   subtitle,
   actionLabel,
-  onAction
+  onAction,
+  activeTab,
+  setActiveTab
 }) => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
