@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import BlockchainWallet from '@/components/wallet/BlockchainWallet';
+import BlockchainWalletWidget from '@/components/wallet/BlockchainWalletWidget';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -162,7 +163,7 @@ const AdminDashboard = () => {
               <AdminStatsCards stats={stats} />
               <QuickActions />
               <div className="mt-6">
-                <BlockchainWallet {...blockchainWalletData} />
+                <BlockchainWalletWidget {...blockchainWalletData} />
               </div>
               <DataTabs 
                 recentEquipment={recentEquipment}

@@ -1,173 +1,140 @@
+import React, { useState } from 'react';
+import ImageUploadWidget from '@/components/widgets/ImageUploadWidget';
 
-import React from 'react';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { 
-  Hospital, 
-  Factory, 
-  TrendingUp, 
-  Users,
-  ChartBar,
-  Wallet,
-  Database,
-  Activity
-} from "lucide-react";
-
-interface FeatureSlide {
-  title: string;
-  description: string;
-  features: {
-    icon: React.ReactNode;
-    title: string;
-    description: string;
-    imageSrc?: string; // Optional image source
-  }[];
-}
-
-const featureSlides: FeatureSlide[] = [
+const featureSlidesConfig = [
   {
-    title: "For Hospitals",
-    description: "Streamline your medical equipment management",
+    user: 'hospital',
+    title: 'For Hospitals',
     features: [
       {
-        icon: <Hospital className="h-8 w-8 text-red-500" />,
-        title: "Equipment Sharing",
-        description: "Share equipment within hospital clusters"
+        id: 'inventory',
+        title: 'Free Inventory & Equipment Management',
+        description: 'Comprehensive system to manage your medical inventory and equipment with zero hidden costs.',
+        defaultImage: 'photo-1488590528505-98d2b5aba04b', // turned on gray laptop computer
       },
       {
-        icon: <Database className="h-8 w-8 text-red-500" />,
-        title: "Free Inventory Management",
-        description: "Manage your equipment inventory with no additional costs"
+        id: 'wallet',
+        title: 'Access Investors & Financing',
+        description: 'Secure wallet integration provides direct access to financing partners and investors on the platform.',
+        defaultImage: 'photo-1581091226825-a6a2a5aee158', // woman using computer
       },
       {
-        icon: <Wallet className="h-8 w-8 text-red-500" />,
-        title: "Access to Financing",
-        description: "Connect with investors for equipment financing"
+        id: 'therapy',
+        title: 'Therapy-as-a-Service (Pay Per Use)',
+        description: 'Unlock cutting-edge therapy devices on a pay-per-use basis, eliminating massive upfront costs.',
+        defaultImage: 'photo-1518770660439-4636190af475', // macro black circuit board
       },
-      {
-        icon: <Activity className="h-8 w-8 text-red-500" />,
-        title: "Therapy as a Service",
-        description: "Access advanced equipment on a pay-per-use basis"
-      }
     ]
   },
   {
-    title: "For Manufacturers",
-    description: "Expand your market reach and improve distribution",
+    user: 'manufacturer',
+    title: 'For Manufacturers',
     features: [
       {
-        icon: <Factory className="h-8 w-8 text-red-500" />,
-        title: "Direct Distribution",
-        description: "Connect directly with healthcare providers"
+        id: 'track',
+        title: 'Track, Lease & Monitor Equipment (IoT)',
+        description: 'Lease, track and monitor your equipment in real-time using integrated IoT solutions for maximum ROI.',
+        defaultImage: 'photo-1519389950473-47ba0277781c', // people w/ laptops
       },
       {
-        icon: <Activity className="h-8 w-8 text-red-500" />,
-        title: "Real-time Monitoring",
-        description: "Track and monitor equipment using IoT technology"
+        id: 'lease',
+        title: 'Boost Leasing & Sales Reach',
+        description: 'Expand your distribution, leasing medical equipment to a nationwide network of hospitals.',
+        defaultImage: 'photo-1605810230434-7631ac76ec81', // business group video screens
       },
       {
-        icon: <TrendingUp className="h-8 w-8 text-red-500" />,
-        title: "Lease Management",
-        description: "Manage equipment leasing with real-time updates"
-      }
+        id: 'analytics',
+        title: 'Automated Compliance & Analytics',
+        description: 'Get automated analytics and compliance documentation for all your equipment transactions.',
+        defaultImage: 'photo-1498050108023-c5249f4df085', // MacBook w/ code
+      },
     ]
   },
   {
-    title: "For Investors",
-    description: "Make informed healthcare investment decisions",
+    user: 'investor',
+    title: 'For Investors',
     features: [
       {
-        icon: <TrendingUp className="h-8 w-8 text-red-500" />,
-        title: "ROI Analytics",
-        description: "Track investment performance in real-time"
+        id: 'revenue',
+        title: 'Access Medical Equipment ROI',
+        description: 'Invest directly into high-probability medical leasing and diversify your healthcare portfolio.',
+        defaultImage: 'photo-1461749280684-dccba630e2f6', // monitor Java
       },
       {
-        icon: <Hospital className="h-8 w-8 text-red-500" />,
-        title: "Portfolio Management",
-        description: "Manage healthcare equipment investments"
+        id: 'wallet',
+        title: 'Blockchain Wallet & Transactions',
+        description: 'Blockchain-encrypted wallet for secure investments, approvals, withdrawals and audits.',
+        defaultImage: 'photo-1518877593221-1f28583780b4', // whale
       },
       {
-        icon: <Users className="h-8 w-8 text-red-500" />,
-        title: "Network Access",
-        description: "Connect with healthcare providers"
-      }
+        id: 'insights',
+        title: 'Real-Time Portfolio Insights',
+        description: 'Get granular metrics and insights on your capital deployment in the healthcare sector.',
+        defaultImage: 'photo-1526374965328-7f61d4dc18c5', // Matrix code
+      },
     ]
   }
 ];
 
-const FeatureSlides: React.FC = () => {
-  // Function to handle custom image upload (placeholder for now)
-  const handleImageUpload = (slideIndex: number, featureIndex: number) => {
-    console.log(`Upload image for slide ${slideIndex}, feature ${featureIndex}`);
-    // In a real implementation, this would trigger a file upload dialog
+type UserType = 'hospital' | 'manufacturer' | 'investor';
+
+const getTabColor = (user: UserType, active: boolean) =>
+  active
+    ? 'bg-white text-black border-b-2 border-red-600'
+    : 'bg-gray-100 text-gray-500';
+
+const FeatureSlides = () => {
+  const [activeUser, setActiveUser] = useState<UserType>('hospital');
+  const [customImages, setCustomImages] = useState<Record<string, string>>({});
+
+  const slides = featureSlidesConfig.find(s => s.user === activeUser)!;
+
+  const handleImageChange = (featureId: string, newImage: string) => {
+    setCustomImages((current) => ({
+      ...current,
+      [activeUser + '-' + featureId]: newImage,
+    }));
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4">
-      <Carousel className="relative">
-        <CarouselContent>
-          {featureSlides.map((slide, index) => (
-            <CarouselItem key={index} className="md:basis-full">
-              <div className="bg-white rounded-xl p-8 shadow-lg">
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">{slide.title}</h3>
-                <p className="text-gray-600 mb-8">{slide.description}</p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {slide.features.map((feature, featureIndex) => (
-                    <div 
-                      key={featureIndex} 
-                      className="bg-gray-50 p-6 rounded-lg border border-gray-100 hover:shadow-md transition-all"
-                    >
-                      <div className="mb-4 relative">
-                        {feature.imageSrc ? (
-                          <div className="mb-4 relative">
-                            <img 
-                              src={feature.imageSrc} 
-                              alt={feature.title} 
-                              className="w-full h-40 object-cover rounded-md mb-2"
-                            />
-                            <button 
-                              onClick={() => handleImageUpload(index, featureIndex)}
-                              className="absolute bottom-2 right-2 bg-white p-1 rounded-full shadow-md"
-                              title="Replace image"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                              </svg>
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="mb-4 relative">
-                            {feature.icon}
-                            <button 
-                              onClick={() => handleImageUpload(index, featureIndex)}
-                              className="absolute top-0 right-0 bg-white p-1 rounded-full shadow-md"
-                              title="Add image"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                              </svg>
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                      <h4 className="text-lg font-semibold text-gray-800 mb-2">{feature.title}</h4>
-                      <p className="text-gray-600 text-sm">{feature.description}</p>
-                    </div>
-                  ))}
-                </div>
+    <div>
+      <div className="flex justify-center mb-8">
+        {featureSlidesConfig.map(s => (
+          <button
+            key={s.user}
+            onClick={() => setActiveUser(s.user as UserType)}
+            className={`px-6 py-2 rounded-t-lg font-semibold transition-all focus:outline-none ${getTabColor(s.user as UserType, s.user === activeUser)}`}
+          >
+            {s.title}
+          </button>
+        ))}
+      </div>
+      <div className="grid md:grid-cols-3 gap-6">
+        {slides.features.map(feature => (
+          <div key={feature.id} className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 relative">
+            <div className="rounded-md overflow-hidden mb-4 flex items-center justify-center h-40 bg-gray-50">
+              <img
+                src={
+                  customImages[activeUser + '-' + feature.id]
+                    ? customImages[activeUser + '-' + feature.id]
+                    : `https://images.unsplash.com/${feature.defaultImage}?auto=format&fit=cover&w=500&q=80`
+                }
+                alt={feature.title}
+                className="object-cover w-full h-full"
+              />
+              <div className="absolute top-2 right-2">
+                {/* Image Upload Widget */}
+                <ImageUploadWidget
+                  onImageChange={(imgUrl) => handleImageChange(feature.id, imgUrl)}
+                  defaultImage={`https://images.unsplash.com/${feature.defaultImage}?auto=format&fit=cover&w=500&q=80`}
+                />
               </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious className="absolute left-0 bg-white" />
-        <CarouselNext className="absolute right-0 bg-white" />
-      </Carousel>
+            </div>
+            <h3 className="text-xl font-bold mb-2 text-black">{feature.title}</h3>
+            <p className="text-gray-700">{feature.description}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
