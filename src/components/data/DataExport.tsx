@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -253,6 +252,13 @@ const DataExport = () => {
     );
   };
 
+  const selectCreateTab = () => {
+    const createTab = document.querySelector('[data-value="create"]');
+    if (createTab && createTab instanceof HTMLElement) {
+      createTab.click();
+    }
+  };
+
   if (!user) {
     return (
       <Card className="w-full">
@@ -428,7 +434,7 @@ const DataExport = () => {
                 <Button
                   variant="outline"
                   className="mt-2"
-                  onClick={() => document.querySelector('[data-value="create"]')?.click()}
+                  onClick={selectCreateTab}
                 >
                   Create Your First Export
                 </Button>
@@ -490,7 +496,6 @@ const DataExport = () => {
   );
 };
 
-// Create Textarea component locally since it wasn't imported
 const Textarea = ({
   className,
   ...props

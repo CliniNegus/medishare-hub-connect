@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -189,6 +188,13 @@ const DataBackupSystem = () => {
     }, 2000);
   };
 
+  const selectBackupTab = () => {
+    const backupTab = document.querySelector('[data-value="backup"]');
+    if (backupTab && backupTab instanceof HTMLElement) {
+      backupTab.click();
+    }
+  };
+
   if (!user) {
     return (
       <Card className="w-full">
@@ -315,7 +321,7 @@ const DataBackupSystem = () => {
                 <Button
                   variant="outline"
                   className="mt-2"
-                  onClick={() => document.querySelector('[data-value="backup"]')?.click()}
+                  onClick={selectBackupTab}
                 >
                   Create Your First Backup
                 </Button>
