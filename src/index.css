@@ -5,44 +5,48 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
-
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
+    --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 201 76% 39%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 188 69% 57%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 147 74% 78%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 72.2% 50.6%;
+    --primary-foreground: 0 85.7% 97.3%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 72.2% 50.6%;
     --radius: 0.5rem;
+  }
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 201 76% 39%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 5.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 5.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 62.8% 40.6%;
+    --primary-foreground: 0 85.7% 97.3%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 62.8% 40.6%;
   }
 }
 
@@ -50,30 +54,127 @@
   * {
     @apply border-border;
   }
-
+  
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Custom styles for enhanced mobile responsiveness */
+  @media (max-width: 640px) {
+    .responsive-grid {
+      @apply grid-cols-1;
+    }
+    
+    .responsive-padding {
+      @apply px-2 py-1;
+    }
+    
+    .hide-on-mobile {
+      @apply hidden;
+    }
+  }
+  
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .responsive-grid {
+      @apply grid-cols-2;
+    }
+    
+    .responsive-padding {
+      @apply px-4 py-2;
+    }
+  }
+  
+  @media (min-width: 1025px) {
+    .responsive-grid {
+      @apply grid-cols-3;
+    }
+    
+    .responsive-padding {
+      @apply px-6 py-3;
+    }
   }
 }
 
-@layer components {
-  .status-available {
-    @apply bg-green-500 rounded-full h-3 w-3;
+/* Enhanced loading states */
+.loading-skeleton {
+  @apply animate-pulse bg-gray-200 dark:bg-gray-700 rounded;
+}
+
+.loading-shimmer {
+  @apply relative overflow-hidden;
+}
+
+.loading-shimmer::after {
+  @apply absolute inset-0;
+  content: '';
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Enhanced error states */
+.error-shake {
+  animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
   }
   
-  .status-in-use {
-    @apply bg-orange-500 rounded-full h-3 w-3;
-  }
-  
-  .status-maintenance {
-    @apply bg-red-500 rounded-full h-3 w-3;
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
   }
 
-  .card-hover {
-    @apply transition-all duration-200 hover:shadow-md hover:-translate-y-1;
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
   }
 
-  .medical-gradient {
-    @apply bg-gradient-to-r from-medical-primary to-medical-secondary;
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
+/* Interactive tooltip styles */
+.tooltip-interactive {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+.tooltip-interactive:hover {
+  @apply scale-105;
+}
+
+/* Onboarding guide styles */
+.guide-highlight {
+  @apply relative z-10;
+}
+
+.guide-highlight::after {
+  @apply absolute inset-0 rounded-md;
+  content: '';
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.5);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
   }
 }

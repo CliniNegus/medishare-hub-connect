@@ -1,8 +1,8 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface AuthContextType {
   session: Session | null;
@@ -12,6 +12,10 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   updateProfileRole: (role: string) => Promise<void>;
+  setupTwoFactor: () => Promise<boolean>;
+  verifyTwoFactor: (code: string) => Promise<boolean>;
+  isTwoFactorEnabled: boolean;
+  checkingTwoFactor: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,6 +25,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isTwoFactorEnabled, setIsTwoFactorEnabled] = useState(false);
+  const [checkingTwoFactor, setCheckingTwoFactor] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -32,8 +38,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (event === 'SIGNED_OUT') {
           setProfile(null);
+          setIsTwoFactorEnabled(false);
         } else if (event === 'SIGNED_IN' && newSession?.user) {
-          fetchProfile(newSession.user.id);
+          // Use setTimeout to prevent potential deadlocks with Supabase auth
+          setTimeout(() => {
+            fetchProfile(newSession.user.id);
+            checkTwoFactorStatus(newSession.user.id);
+          }, 0);
         }
       }
     );
@@ -45,6 +56,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (currentSession?.user) {
         fetchProfile(currentSession.user.id);
+        checkTwoFactorStatus(currentSession.user.id);
       }
       
       setLoading(false);
@@ -71,6 +83,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setProfile(data);
     } catch (error) {
       console.error('Error in fetchProfile:', error);
+    }
+  };
+
+  const checkTwoFactorStatus = async (userId: string) => {
+    setCheckingTwoFactor(true);
+    try {
+      const { data, error } = await supabase
+        .from('user_mfa')
+        .select('enabled')
+        .eq('user_id', userId)
+        .maybeSingle();
+      
+      if (error) throw error;
+      
+      setIsTwoFactorEnabled(data?.enabled || false);
+    } catch (error) {
+      console.error('Error checking 2FA status:', error);
+      setIsTwoFactorEnabled(false);
+    } finally {
+      setCheckingTwoFactor(false);
     }
   };
 
@@ -105,6 +137,44 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
     }
   };
+  
+  const setupTwoFactor = async (): Promise<boolean> => {
+    if (!user) return false;
+    
+    try {
+      // In a real implementation, this would generate a secret and QR code
+      // For demo purposes, we're simulating success
+      return true;
+    } catch (error) {
+      console.error('Error setting up 2FA:', error);
+      return false;
+    }
+  };
+  
+  const verifyTwoFactor = async (code: string): Promise<boolean> => {
+    if (!user || !code) return false;
+    
+    try {
+      // In a real implementation, this would verify the code
+      // For demo purposes, we'll simulate success and save to the database
+      
+      const { error } = await supabase
+        .from('user_mfa')
+        .upsert({
+          user_id: user.id,
+          enabled: true,
+          created_at: new Date().toISOString(),
+        });
+      
+      if (error) throw error;
+      
+      setIsTwoFactorEnabled(true);
+      return true;
+    } catch (error) {
+      console.error('Error verifying 2FA:', error);
+      return false;
+    }
+  };
 
   const signOut = async () => {
     try {
@@ -112,6 +182,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(null);
       setUser(null);
       setProfile(null);
+      setIsTwoFactorEnabled(false);
       
       toast({
         title: "Signed out",
@@ -134,7 +205,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       loading, 
       signOut, 
       refreshProfile,
-      updateProfileRole
+      updateProfileRole,
+      setupTwoFactor,
+      verifyTwoFactor,
+      isTwoFactorEnabled,
+      checkingTwoFactor
     }}>
       {children}
     </AuthContext.Provider>
