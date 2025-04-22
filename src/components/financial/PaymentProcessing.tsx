@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CreditCard, Check, Calendar, Lock, DollarSign, User, ClipboardCheck } from "lucide-react";
+import { CreditCard, Check, Calendar, Lock, DollarSign, User, ClipboardCheck, FileText } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { EquipmentProps } from '../EquipmentCard';
 
