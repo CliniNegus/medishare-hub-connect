@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
@@ -24,12 +23,12 @@ import {
   Settings
 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import BlockchainWallet from '@/components/wallet/BlockchainWallet';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedCluster, setSelectedCluster] = useState('all');
 
-  // Sample data
   const stats = {
     hospitals: 28,
     manufacturers: 12,
@@ -118,26 +117,53 @@ const AdminDashboard = () => {
     ? predictedEquipmentNeeds 
     : predictedEquipmentNeeds.filter(pred => pred.cluster === clusters.find(c => c.id === selectedCluster)?.name);
 
+  const blockchainWalletData = {
+    balance: 850000,
+    pendingApprovals: 5,
+    securityLevel: 'maximum' as const,
+    recentTransactions: [
+      {
+        id: 'ADM001',
+        date: '2025-04-22',
+        description: 'Equipment Fund Release',
+        amount: 125000,
+        type: 'withdrawal' as const,
+        hash: '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b'
+      },
+      {
+        id: 'ADM002',
+        date: '2025-04-21',
+        description: 'Hospital Cluster Investment',
+        amount: 250000,
+        type: 'approved' as const,
+        hash: '0x8f2d15e8a1b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2'
+      },
+      {
+        id: 'ADM003',
+        date: '2025-04-20',
+        description: 'Equipment Financing Request',
+        amount: 180000,
+        type: 'pending' as const,
+        hash: '0x3f4e5d6c7b8a9f0e1d2c3b4a5d6e7f8c9b0a1d2e3f4c5b6a7d8e9f0c1b2a3d4'
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
-        {/* Sidebar */}
         <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        {/* Main content */}
         <div className="ml-64 flex-1 p-6">
           <AdminHeader />
 
-          {/* Dashboard Content */}
           {activeTab === 'overview' && (
             <div>
-              {/* Stats Cards */}
               <AdminStatsCards stats={stats} />
-
-              {/* Quick Actions */}
               <QuickActions />
-
-              {/* Tabs for different data views */}
+              <div className="mt-6">
+                <BlockchainWallet {...blockchainWalletData} />
+              </div>
               <DataTabs 
                 recentEquipment={recentEquipment}
                 maintenanceSchedule={maintenanceSchedule}
@@ -179,7 +205,6 @@ const AdminDashboard = () => {
             </div>
           )}
           
-          {/* AI Predictive Analytics */}
           {activeTab === 'analytics' && (
             <div className="space-y-6">
               <div className="flex justify-between items-center">
@@ -193,7 +218,6 @@ const AdminDashboard = () => {
                 </Button>
               </div>
               
-              {/* Analytics Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -229,7 +253,6 @@ const AdminDashboard = () => {
                 </Card>
               </div>
               
-              {/* Predictive Results */}
               <Card className="mt-6">
                 <CardHeader>
                   <div className="flex justify-between items-center">
@@ -304,7 +327,6 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
               
-              {/* AI Integration Panel */}
               <Card className="mt-6 border-red-200 bg-red-50">
                 <CardHeader>
                   <div className="flex items-center">
