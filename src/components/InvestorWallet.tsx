@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { PiggyBank, TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react";
-import BlockchainWalletWidget from './wallet/BlockchainWalletWidget';
+import BlockchainWallet from './wallet/BlockchainWallet';
 
 interface InvestorWalletProps {
   balance: number;
@@ -147,7 +148,7 @@ const InvestorWallet: React.FC<InvestorWalletProps> = ({
         </CardContent>
       </Card>
       
-      <BlockchainWalletWidget {...blockchainWalletData} />
+      <BlockchainWallet {...blockchainWalletData} />
     </div>
   );
 };
