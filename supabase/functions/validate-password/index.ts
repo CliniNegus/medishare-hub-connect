@@ -1,6 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createHash } from "https://deno.land/std@0.168.0/hash/mod.ts"
+// Fix: Update import path for createHash
+import { createHash } from "https://deno.land/std@0.168.0/crypto/mod.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,7 +21,7 @@ serve(async (req) => {
     }
 
     // Generate SHA-1 hash of the password
-    const hash = createHash('sha1')
+    const hash = createHash("sha1")
     hash.update(password)
     const sha1Hash = hash.toString().toUpperCase()
     const prefix = sha1Hash.slice(0, 5)
