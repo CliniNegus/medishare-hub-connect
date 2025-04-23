@@ -2,7 +2,7 @@
 project_id = "bqgipoqlxizdpryguzac"
 
 [auth]
-otp_expiry = 300 # 5 minutes in seconds
+otp_expiry = 180 # 3 minutes in seconds
 
 [functions.validate-password]
 verify_jwt = false

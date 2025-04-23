@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { UserRole } from '@/contexts/UserRoleContext';
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface SignUpFormProps {
   onSuccess: () => void;
@@ -19,39 +22,67 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
   const [organization, setOrganization] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [passwordValidationMessage, setPasswordValidationMessage] = useState<string | null>(null);
 
   const validatePassword = async (password: string) => {
     try {
+      setPasswordValidationMessage(null);
+      
+      // Basic password strength checks
+      if (password.length < 8) {
+        setPasswordValidationMessage("Password must be at least 8 characters long");
+        return false;
+      }
+      
+      if (!/[A-Z]/.test(password)) {
+        setPasswordValidationMessage("Password must contain at least one uppercase letter");
+        return false;
+      }
+      
+      if (!/[a-z]/.test(password)) {
+        setPasswordValidationMessage("Password must contain at least one lowercase letter");
+        return false;
+      }
+      
+      if (!/[0-9]/.test(password)) {
+        setPasswordValidationMessage("Password must contain at least one number");
+        return false;
+      }
+      
+      if (!/[^A-Za-z0-9]/.test(password)) {
+        setPasswordValidationMessage("Password must contain at least one special character");
+        return false;
+      }
+      
+      // Check if password has been leaked using our edge function
       const { data, error } = await supabase.functions.invoke('validate-password', {
         body: { password }
-      })
+      });
 
-      if (error) throw error
+      if (error) throw error;
+      
       if (data.isCompromised) {
-        throw new Error('This password has been compromised in data breaches. Please choose a different password.')
+        setPasswordValidationMessage(`This password has been found in ${data.breachCount.toLocaleString()} data breaches. Please choose a different password.`);
+        return false;
       }
 
-      return true
+      return true;
     } catch (error: any) {
-      toast({
-        title: "Password Validation Error",
-        description: error.message,
-        variant: "destructive"
-      })
-      return false
+      setPasswordValidationMessage(error.message || "Error validating password");
+      return false;
     }
-  }
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      // Validate password against HaveIBeenPwned
-      const isPasswordValid = await validatePassword(password)
+      // Validate password against HaveIBeenPwned and basic strength requirements
+      const isPasswordValid = await validatePassword(password);
       if (!isPasswordValid) {
-        setLoading(false)
-        return
+        setLoading(false);
+        return;
       }
 
       // Sign up the user
@@ -86,6 +117,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle password change to clear error message when user starts typing
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+    if (passwordValidationMessage) {
+      setPasswordValidationMessage(null);
     }
   };
 
@@ -128,9 +167,19 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
             type="password"
             placeholder="Password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handlePasswordChange}
             required
+            className={passwordValidationMessage ? "border-red-500" : ""}
           />
+          {passwordValidationMessage && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{passwordValidationMessage}</AlertDescription>
+            </Alert>
+          )}
+          <p className="text-xs text-gray-500">
+            Password must be at least 8 characters and include uppercase, lowercase, numbers, and special characters.
+          </p>
         </div>
       </CardContent>
       <CardFooter>
