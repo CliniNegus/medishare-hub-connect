@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,7 @@ import {
 const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section - Updated to be lighter */}
+      {/* Hero Section */}
       <div className="relative bg-white py-16 border-b">
         <div className="container mx-auto px-6 text-center">
           <h1 className="text-5xl font-bold mb-8 text-gray-900">
@@ -26,10 +25,10 @@ const LandingPage: React.FC = () => {
           </p>
           <div className="flex justify-center space-x-6">
             <Button asChild size="lg" className="bg-red-600 hover:bg-red-700 text-white">
-              <Link to="/auth">Get Started</Link>
+              <Link to="/shop/public">Browse Medical Supplies</Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="border-red-600 text-red-600 hover:bg-red-50">
-              <Link to="/dashboard">View Dashboard</Link>
+              <Link to="/auth">Sign In</Link>
             </Button>
           </div>
         </div>
