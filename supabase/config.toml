@@ -1,6 +1,12 @@
 
 project_id = "bqgipoqlxizdpryguzac"
 
+[auth]
+otp_expiry = 300 # 5 minutes in seconds
+
+[functions.validate-password]
+verify_jwt = false
+
 [functions.handle-payment]
 verify_jwt = true
 

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -21,12 +20,40 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const validatePassword = async (password: string) => {
     try {
-      setLoading(true);
-      
+      const { data, error } = await supabase.functions.invoke('validate-password', {
+        body: { password }
+      })
+
+      if (error) throw error
+      if (data.isCompromised) {
+        throw new Error('This password has been compromised in data breaches. Please choose a different password.')
+      }
+
+      return true
+    } catch (error: any) {
+      toast({
+        title: "Password Validation Error",
+        description: error.message,
+        variant: "destructive"
+      })
+      return false
+    }
+  }
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+
+    try {
+      // Validate password against HaveIBeenPwned
+      const isPasswordValid = await validatePassword(password)
+      if (!isPasswordValid) {
+        setLoading(false)
+        return
+      }
+
       // Sign up the user
       const { error: signUpError } = await supabase.auth.signUp({
         email,
