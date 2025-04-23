@@ -281,6 +281,45 @@ export type Database = {
         }
         Relationships: []
       }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          metadata: Json | null
+          paystack_reference: string | null
+          reference: string
+          status: Database["public"]["Enums"]["payment_status"] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          metadata?: Json | null
+          paystack_reference?: string | null
+          reference: string
+          status?: Database["public"]["Enums"]["payment_status"] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          metadata?: Json | null
+          paystack_reference?: string | null
+          reference?: string
+          status?: Database["public"]["Enums"]["payment_status"] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_mfa: {
         Row: {
           created_at: string
@@ -323,7 +362,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      payment_status: "pending" | "success" | "failed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -438,6 +477,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      payment_status: ["pending", "success", "failed"],
+    },
   },
 } as const
