@@ -23,7 +23,7 @@ const TrendingProducts = ({ products }: TrendingProductsProps) => {
   const trendingProducts = products.filter(product => product.popular);
 
   return (
-    <Card>
+    <Card className="border-red-100">
       <CardHeader>
         <CardTitle className="flex items-center">
           <TrendingUp className="h-5 w-5 mr-2 text-red-600" />

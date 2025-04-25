@@ -22,7 +22,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   return (
-    <Card key={product.id} className="border border-gray-200">
+    <Card key={product.id} className="border border-gray-200 hover:border-red-300 transition-colors">
       <div className="relative h-40 bg-gray-100 flex items-center justify-center">
         <img 
           src={product.image} 
@@ -41,7 +41,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <CardContent className="p-4">
         <h3 className="font-medium text-sm mb-1">{product.name}</h3>
         <div className="flex items-center mb-2">
-          <Badge variant="outline" className="text-xs">
+          <Badge variant="outline" className="text-xs border-red-200 text-red-700">
             {product.category}
           </Badge>
           <div className="flex items-center ml-2">
@@ -53,7 +53,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <div className="font-bold text-red-600">${product.price}</div>
           <Button 
             size="sm" 
-            className="bg-red-600 hover:bg-red-700"
+            className="bg-red-600 hover:bg-red-700 text-white"
             disabled={!product.inStock}
           >
             <ShoppingCart className="h-3 w-3" />

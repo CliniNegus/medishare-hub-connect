@@ -25,15 +25,15 @@ const ShopFeatures = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
       {features.map((feature, index) => (
-        <Card key={index} className="bg-red-50 border-red-200">
+        <Card key={index} className="bg-black bg-opacity-5 border-gray-200">
           <CardContent className="p-6">
             <div className="flex items-center mb-3">
-              <div className="bg-red-100 p-3 rounded-full mr-4">
-                <feature.icon className="h-6 w-6 text-red-600" />
+              <div className="bg-red-600 p-3 rounded-full mr-4">
+                <feature.icon className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="font-medium text-red-800">{feature.title}</h3>
-                <p className="text-sm text-red-700">{feature.description}</p>
+                <h3 className="font-medium text-black">{feature.title}</h3>
+                <p className="text-sm text-gray-700">{feature.description}</p>
               </div>
             </div>
           </CardContent>

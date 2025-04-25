@@ -15,39 +15,57 @@ export type Database = {
           condition: string | null
           created_at: string
           description: string | null
+          downtime_hours: number | null
           id: string
           lease_rate: number | null
           name: string
           owner_id: string | null
+          payment_status: string | null
           price: number | null
+          remote_control_enabled: boolean | null
+          revenue_generated: number | null
+          shop_id: string | null
           status: string | null
           updated_at: string
+          usage_hours: number | null
         }
         Insert: {
           category?: string | null
           condition?: string | null
           created_at?: string
           description?: string | null
+          downtime_hours?: number | null
           id?: string
           lease_rate?: number | null
           name: string
           owner_id?: string | null
+          payment_status?: string | null
           price?: number | null
+          remote_control_enabled?: boolean | null
+          revenue_generated?: number | null
+          shop_id?: string | null
           status?: string | null
           updated_at?: string
+          usage_hours?: number | null
         }
         Update: {
           category?: string | null
           condition?: string | null
           created_at?: string
           description?: string | null
+          downtime_hours?: number | null
           id?: string
           lease_rate?: number | null
           name?: string
           owner_id?: string | null
+          payment_status?: string | null
           price?: number | null
+          remote_control_enabled?: boolean | null
+          revenue_generated?: number | null
+          shop_id?: string | null
           status?: string | null
           updated_at?: string
+          usage_hours?: number | null
         }
         Relationships: [
           {
@@ -55,6 +73,57 @@ export type Database = {
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "manufacturer_shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment_analytics: {
+        Row: {
+          created_at: string | null
+          date_recorded: string | null
+          downtime_hours: number | null
+          equipment_id: string
+          id: string
+          last_location: string | null
+          revenue_generated: number | null
+          updated_at: string | null
+          usage_hours: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          date_recorded?: string | null
+          downtime_hours?: number | null
+          equipment_id: string
+          id?: string
+          last_location?: string | null
+          revenue_generated?: number | null
+          updated_at?: string | null
+          usage_hours?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          date_recorded?: string | null
+          downtime_hours?: number | null
+          equipment_id?: string
+          id?: string
+          last_location?: string | null
+          revenue_generated?: number | null
+          updated_at?: string | null
+          usage_hours?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_analytics_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
             referencedColumns: ["id"]
           },
         ]
@@ -247,6 +316,94 @@ export type Database = {
             columns: ["equipment_id"]
             isOneToOne: false
             referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      manufacturer_payouts: {
+        Row: {
+          amount: number
+          blockchain_tx_hash: string | null
+          created_at: string | null
+          currency: string | null
+          id: string
+          manufacturer_id: string
+          payout_date: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          blockchain_tx_hash?: string | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          manufacturer_id: string
+          payout_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          blockchain_tx_hash?: string | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          manufacturer_id?: string
+          payout_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manufacturer_payouts_manufacturer_id_fkey"
+            columns: ["manufacturer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      manufacturer_shops: {
+        Row: {
+          country: string
+          created_at: string | null
+          description: string | null
+          id: string
+          logo_url: string | null
+          manufacturer_id: string
+          name: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          country: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          manufacturer_id: string
+          name: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          country?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          manufacturer_id?: string
+          name?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manufacturer_shops_manufacturer_id_fkey"
+            columns: ["manufacturer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

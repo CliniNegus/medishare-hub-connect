@@ -132,7 +132,7 @@ const IoTUsageTracker: React.FC<IoTUsageTrackerProps> = ({ equipmentId, pricePer
           {/* Pay-Per-Use Billing Information */}
           <div className="mt-4 bg-gray-50 p-3 rounded-md">
             <h4 className="text-sm font-medium mb-2 flex items-center">
-              <DollarSign className="h-4 w-4 mr-1 text-green-600" /> Pay-Per-Use Billing
+              <DollarSign className="h-4 w-4 mr-1 text-red-600" /> Pay-Per-Use Billing
             </h4>
             
             <div className="grid grid-cols-2 gap-2">
@@ -147,7 +147,7 @@ const IoTUsageTracker: React.FC<IoTUsageTrackerProps> = ({ equipmentId, pricePer
               <div className="flex flex-col">
                 <span className="text-xs text-gray-500">Cost Per Use</span>
                 <div className="flex items-center">
-                  <DollarSign className="h-3 w-3 mr-1 text-green-600" />
+                  <DollarSign className="h-3 w-3 mr-1 text-red-600" />
                   <span className="text-sm font-medium">${pricePerUse.toFixed(2)}</span>
                 </div>
               </div>

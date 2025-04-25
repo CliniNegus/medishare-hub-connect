@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,10 +8,12 @@ import {
   Package, CircleDollarSign, Activity, MapPin, Plus, 
   FileSpreadsheet, BarChart2, Factory, AlertCircle, 
   Calendar, Truck, CheckCircle, ShoppingCart, Tag, 
-  FileText, Filter
+  FileText, Filter, Store
 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 // Define type for leased products
 interface LeasedProduct {
@@ -51,6 +54,15 @@ interface ShopProduct {
   price: number;
   stock: number;
   status: 'active' | 'inactive';
+}
+
+// Define type for virtual shop
+interface VirtualShop {
+  id: string;
+  name: string;
+  country: string;
+  equipment_count: number;
+  revenue_generated: number;
 }
 
 const ManufacturerDashboard = () => {
@@ -240,10 +252,75 @@ const ManufacturerDashboard = () => {
     monthlyRevenue: 124500
   };
 
+  const [virtualShops, setVirtualShops] = useState<VirtualShop[]>([]);
+  const [loadingShops, setLoadingShops] = useState(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { profile, user } = useAuth();
   const [activeTab, setActiveTab] = useState('products');
   const [shopFilter, setShopFilter] = useState<'all' | 'disposable' | 'lease' | 'financing'>('all');
+
+  useEffect(() => {
+    if (user) {
+      fetchVirtualShops();
+    }
+  }, [user]);
   
-  const { profile, user } = useAuth();
+  const fetchVirtualShops = async () => {
+    if (!user) return;
+    
+    try {
+      setLoadingShops(true);
+      
+      // Get shops
+      const { data: shopsData, error: shopsError } = await supabase
+        .from('manufacturer_shops')
+        .select('*')
+        .eq('manufacturer_id', user.id)
+        .limit(3);
+      
+      if (shopsError) throw shopsError;
+      
+      if (shopsData) {
+        // For each shop, count equipment and calculate revenue
+        const shopsWithStats = await Promise.all(
+          shopsData.map(async (shop) => {
+            const { count: equipmentCount } = await supabase
+              .from('equipment')
+              .select('*', { count: 'exact', head: true })
+              .eq('shop_id', shop.id);
+            
+            const { data: revenueData } = await supabase
+              .from('equipment')
+              .select('revenue_generated')
+              .eq('shop_id', shop.id);
+            
+            const revenueGenerated = revenueData?.reduce((sum, item) => 
+              sum + (parseFloat(item.revenue_generated || 0)), 0) || 0;
+            
+            return {
+              id: shop.id,
+              name: shop.name,
+              country: shop.country,
+              equipment_count: equipmentCount || 0,
+              revenue_generated: revenueGenerated
+            };
+          })
+        );
+        
+        setVirtualShops(shopsWithStats);
+      }
+    } catch (error: any) {
+      console.error('Error fetching virtual shops:', error.message);
+      toast({
+        variant: "destructive",
+        title: "Error fetching shops",
+        description: error.message,
+      });
+    } finally {
+      setLoadingShops(false);
+    }
+  };
 
   const filteredShopProducts = shopFilter === 'all' 
     ? shopProducts 
@@ -260,30 +337,40 @@ const ManufacturerDashboard = () => {
             </p>
           )}
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Product
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Medical Equipment</DialogTitle>
-              <DialogDescription>
-                Enter the details for new equipment to be added to your inventory.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="py-4">
-              <p className="text-sm text-gray-500 mb-4">
-                Form fields would go here in a real implementation.
-              </p>
-            </div>
-            <DialogFooter>
-              <Button type="submit">Add Equipment</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <div className="flex space-x-3">
+          <Button 
+            variant="outline"
+            className="border-red-600 text-red-600 hover:bg-red-50"
+            onClick={() => navigate("/virtual-shops")}
+          >
+            <Store className="mr-2 h-4 w-4" />
+            Manage Virtual Shops
+          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="bg-red-600 hover:bg-red-700">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Product
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Medical Equipment</DialogTitle>
+                <DialogDescription>
+                  Enter the details for new equipment to be added to your inventory.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <p className="text-sm text-gray-500 mb-4">
+                  Form fields would go here in a real implementation.
+                </p>
+              </div>
+              <DialogFooter>
+                <Button type="submit" className="bg-red-600 hover:bg-red-700">Add Equipment</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Statistics Cards */}
@@ -291,7 +378,7 @@ const ManufacturerDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Total Equipment</CardTitle>
-            <Package className="h-4 w-4 text-gray-500" />
+            <Package className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalEquipment}</div>
@@ -301,17 +388,17 @@ const ManufacturerDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Active Leases</CardTitle>
-            <CheckCircle className="h-4 w-4 text-gray-500" />
+            <CheckCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.activeLease}</div>
-            <p className="text-xs text-gray-500">Across {clusterLocations.length} clusters</p>
+            <p className="text-xs text-gray-500">Across multiple clusters</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Maintenance</CardTitle>
-            <AlertCircle className="h-4 w-4 text-gray-500" />
+            <AlertCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.maintenance}</div>
@@ -321,7 +408,7 @@ const ManufacturerDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Available</CardTitle>
-            <Truck className="h-4 w-4 text-gray-500" />
+            <Truck className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.available}</div>
@@ -331,7 +418,7 @@ const ManufacturerDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
-            <CircleDollarSign className="h-4 w-4 text-gray-500" />
+            <CircleDollarSign className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${(stats.monthlyRevenue / 1000).toFixed(0)}k</div>
@@ -339,6 +426,82 @@ const ManufacturerDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Virtual Shops Section */}
+      <Card className="mb-8 border-red-100">
+        <CardHeader className="pb-3">
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="text-lg flex items-center">
+                <Store className="h-5 w-5 mr-2 text-red-600" />
+                Virtual Shops
+              </CardTitle>
+              <CardDescription>
+                Manage your equipment across different countries
+              </CardDescription>
+            </div>
+            <Button 
+              onClick={() => navigate('/virtual-shops')}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              View All Shops
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {loadingShops ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+            </div>
+          ) : virtualShops.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {virtualShops.map(shop => (
+                <Card key={shop.id} className="border border-gray-200">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-md">{shop.name}</CardTitle>
+                    <CardDescription>{shop.country}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="flex justify-between items-center mb-2 mt-2">
+                      <div>
+                        <p className="text-sm text-gray-500">Equipment</p>
+                        <p className="font-semibold">{shop.equipment_count}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-500">Revenue</p>
+                        <p className="font-semibold text-red-600">
+                          ${shop.revenue_generated.toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      className="w-full mt-2 border-red-200 text-red-600 hover:bg-red-50"
+                      onClick={() => navigate(`/products?shop=${shop.id}`)}
+                    >
+                      <Package className="h-4 w-4 mr-2" />
+                      Manage Equipment
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Store className="h-12 w-12 mx-auto text-gray-300 mb-3" />
+              <h3 className="text-lg font-medium mb-2">No Virtual Shops Yet</h3>
+              <p className="text-gray-500 mb-4">Create your first virtual shop to start managing your equipment globally</p>
+              <Button 
+                onClick={() => navigate('/virtual-shops')}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create First Shop
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Tabs for different views */}
       <Tabs defaultValue="products" className="space-y-4" onValueChange={setActiveTab} value={activeTab}>

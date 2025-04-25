@@ -17,13 +17,13 @@ const ShopSearch = ({ categories, onSearchChange, onCategoryChange }: ShopSearch
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input 
           placeholder="Search products..." 
-          className="pl-10"
+          className="pl-10 border-red-200 focus:border-red-500 focus:ring-red-500"
           onChange={(e) => onSearchChange(e.target.value)}
         />
       </div>
       <div className="flex gap-2">
         <select 
-          className="border rounded-md px-3 py-2 bg-white text-sm"
+          className="border border-red-200 rounded-md px-3 py-2 bg-white text-sm"
           onChange={(e) => onCategoryChange(e.target.value)}
         >
           <option value="">All Categories</option>
@@ -31,7 +31,7 @@ const ShopSearch = ({ categories, onSearchChange, onCategoryChange }: ShopSearch
             <option key={category.id} value={category.name}>{category.name}</option>
           ))}
         </select>
-        <Button variant="outline" size="icon">
+        <Button variant="outline" size="icon" className="border-red-200 text-red-600">
           <Filter className="h-4 w-4" />
         </Button>
       </div>
