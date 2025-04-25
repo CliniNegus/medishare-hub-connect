@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import ImageUpload from './ImageUpload';
 import { ProductFormValues, productSchema } from "@/types/product";
 
 interface ProductFormProps {
@@ -30,6 +31,12 @@ export const ProductForm = ({ onSubmit, initialValues, isLoading, isEditing, onC
       lease_rate: undefined,
       condition: 'New',
       specs: '',
+      image_url: '',
+      shareable: true,
+      manufacturer: '',
+      model: '',
+      year_manufactured: undefined,
+      serial_number: '',
       ...initialValues
     },
   });
@@ -55,6 +62,23 @@ export const ProductForm = ({ onSubmit, initialValues, isLoading, isEditing, onC
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="image_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Product Image</FormLabel>
+                  <FormControl>
+                    <ImageUpload
+                      onImageUploaded={field.onChange}
+                      currentImageUrl={field.value}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
@@ -96,6 +120,67 @@ export const ProductForm = ({ onSubmit, initialValues, isLoading, isEditing, onC
                         <SelectItem value="Other">Other</SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="manufacturer"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Manufacturer</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Siemens, GE Healthcare" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="model"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Model</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Acuson X300" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="year_manufactured"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Year Manufactured</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="e.g. 2023"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="serial_number"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Serial Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Equipment serial number" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -181,6 +266,27 @@ export const ProductForm = ({ onSubmit, initialValues, isLoading, isEditing, onC
                 />
               </div>
             </div>
+            
+            <FormField
+              control={form.control}
+              name="shareable"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Shareable Equipment</FormLabel>
+                    <FormDescription>
+                      Make this equipment visible to other hospitals in the network
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
             
             <FormField
               control={form.control}

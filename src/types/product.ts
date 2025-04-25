@@ -9,6 +9,12 @@ export const productSchema = z.object({
   lease_rate: z.coerce.number().positive("Lease rate must be a positive number").optional(),
   condition: z.string().min(2, "Condition must be at least 2 characters"),
   specs: z.string().optional(),
+  image_url: z.string().optional(),
+  shareable: z.boolean().default(true),
+  manufacturer: z.string().min(2, "Manufacturer must be at least 2 characters"),
+  model: z.string().min(2, "Model must be at least 2 characters"),
+  year_manufactured: z.number().min(1900).max(new Date().getFullYear() + 1).optional(),
+  serial_number: z.string().optional(),
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;
