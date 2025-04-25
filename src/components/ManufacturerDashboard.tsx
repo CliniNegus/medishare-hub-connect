@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -288,8 +287,10 @@ const ManufacturerDashboard = () => {
               .select('revenue_generated')
               .eq('shop_id', shop.id);
             
-            const revenueGenerated = revenueData?.reduce((sum, item) => 
-              sum + (parseFloat(item.revenue_generated || '0')), 0) || 0;
+            const revenueGenerated = revenueData?.reduce((sum, item) => {
+              const revenue = item.revenue_generated ? String(item.revenue_generated) : '0';
+              return sum + parseFloat(revenue);
+            }, 0) || 0;
             
             return {
               id: shop.id,

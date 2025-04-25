@@ -72,8 +72,10 @@ const VirtualShops = () => {
               .select('revenue_generated')
               .eq('shop_id', shop.id);
 
-            const revenueTotal = revenueData?.reduce((sum, item) => 
-              sum + (parseFloat(item.revenue_generated || '0')), 0) || 0;
+            const revenueTotal = revenueData?.reduce((sum, item) => {
+              const revenue = item.revenue_generated ? String(item.revenue_generated) : '0';
+              return sum + parseFloat(revenue);
+            }, 0) || 0;
 
             return {
               ...shop,
