@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from "@/components/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -429,7 +428,6 @@ const ShopCard = ({ shop, onRefresh }: ShopCardProps) => {
   );
 };
 
-// Needed Badge component for this page
 const Badge = ({ children, className, ...props }: any) => {
   return (
     <span 

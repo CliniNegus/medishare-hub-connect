@@ -15,7 +15,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
-// Define type for leased products
 interface LeasedProduct {
   id: string;
   name: string;
@@ -26,7 +25,6 @@ interface LeasedProduct {
   status: 'active' | 'maintenance' | 'expired';
 }
 
-// Define type for cluster locations
 interface ClusterLocation {
   id: string;
   name: string;
@@ -36,7 +34,6 @@ interface ClusterLocation {
   status: 'operational' | 'issue';
 }
 
-// Define type for payments received
 interface PaymentReceived {
   id: string;
   date: string;
@@ -46,7 +43,6 @@ interface PaymentReceived {
   equipment: string;
 }
 
-// Define type for shop products
 interface ShopProduct {
   id: string;
   name: string;
@@ -56,7 +52,6 @@ interface ShopProduct {
   status: 'active' | 'inactive';
 }
 
-// Define type for virtual shop
 interface VirtualShop {
   id: string;
   name: string;
@@ -66,7 +61,6 @@ interface VirtualShop {
 }
 
 const ManufacturerDashboard = () => {
-  // Sample data - this would come from an API in a real application
   const leasedProducts: LeasedProduct[] = [
     {
       id: 'PROD-001',
@@ -272,7 +266,6 @@ const ManufacturerDashboard = () => {
     try {
       setLoadingShops(true);
       
-      // Get shops
       const { data: shopsData, error: shopsError } = await supabase
         .from('manufacturer_shops')
         .select('*')
@@ -282,7 +275,6 @@ const ManufacturerDashboard = () => {
       if (shopsError) throw shopsError;
       
       if (shopsData) {
-        // For each shop, count equipment and calculate revenue
         const shopsWithStats = await Promise.all(
           shopsData.map(async (shop) => {
             const { count: equipmentCount } = await supabase
@@ -373,7 +365,6 @@ const ManufacturerDashboard = () => {
         </div>
       </div>
 
-      {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -427,7 +418,6 @@ const ManufacturerDashboard = () => {
         </Card>
       </div>
 
-      {/* Virtual Shops Section */}
       <Card className="mb-8 border-red-100">
         <CardHeader className="pb-3">
           <div className="flex justify-between items-center">
@@ -503,7 +493,6 @@ const ManufacturerDashboard = () => {
         </CardContent>
       </Card>
 
-      {/* Tabs for different views */}
       <Tabs defaultValue="products" className="space-y-4" onValueChange={setActiveTab} value={activeTab}>
         <TabsList>
           <TabsTrigger value="products" className="text-sm">
