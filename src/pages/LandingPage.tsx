@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,8 @@ import {
   Heart, 
   TrendingUp, 
   Users, 
-  Clock
+  Clock,
+  Store
 } from "lucide-react";
 
 const LandingPage: React.FC = () => {
@@ -15,7 +17,7 @@ const LandingPage: React.FC = () => {
       {/* Hero Section */}
       <div className="relative bg-white py-16 border-b">
         <div className="container mx-auto px-6 text-center">
-          <h1 className="text-5xl font-bold mb-8 text-gray-900">
+          <h1 className="text-5xl font-bold mb-8">
             CliniBuilds
             <span className="text-red-600"> Medical Equipment Platform</span>
           </h1>
@@ -34,10 +36,10 @@ const LandingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Features Section - Updated to use slide version */}
+      {/* Features Section */}
       <div className="py-16 bg-white">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">Platform Features</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Platform Features</h2>
           <FeatureSlides />
         </div>
       </div>
@@ -50,9 +52,10 @@ const LandingPage: React.FC = () => {
               <h2 className="text-3xl font-bold mb-6 text-gray-900">Benefits</h2>
               <ul className="space-y-4">
                 {[
+                  { icon: <Store className="h-6 w-6 text-red-500" />, text: "Manage virtual shops across multiple countries" },
                   { icon: <Clock className="h-6 w-6 text-red-500" />, text: "Reduce equipment acquisition time by up to 50%" },
                   { icon: <TrendingUp className="h-6 w-6 text-red-500" />, text: "Increase equipment utilization by 30-40%" },
-                  { icon: <Users className="h-6 w-6 text-red-500" />, text: "Serve more patients with the same equipment inventory" },
+                  { icon: <Users className="h-6 w-6 text-red-500" />, text: "Serve more patients with efficient equipment distribution" },
                   { icon: <Heart className="h-6 w-6 text-red-500" />, text: "Improve patient outcomes through better equipment access" }
                 ].map((benefit, index) => (
                   <li key={index} className="flex items-start">
@@ -62,20 +65,22 @@ const LandingPage: React.FC = () => {
                 ))}
               </ul>
             </div>
-            <div className="lg:w-1/2 bg-white p-8 rounded-lg shadow-lg">
-              <h3 className="text-2xl font-bold mb-4 text-gray-900">Impact Metrics</h3>
-              <div className="grid grid-cols-2 gap-6">
-                {[
-                  { value: "45%", label: "Cost Reduction" },
-                  { value: "60%", label: "Faster Deployment" },
-                  { value: "32%", label: "More Patients Served" },
-                  { value: "28%", label: "Maintenance Cost Reduction" }
-                ].map((stat, index) => (
-                  <div key={index} className="text-center p-4 bg-gray-50 rounded-lg">
-                    <div className="text-3xl font-bold text-red-500 mb-2">{stat.value}</div>
-                    <div className="text-sm text-gray-600">{stat.label}</div>
-                  </div>
-                ))}
+            <div className="lg:w-1/2">
+              <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-100">
+                <h3 className="text-2xl font-bold mb-4 text-gray-900">Impact Metrics</h3>
+                <div className="grid grid-cols-2 gap-6">
+                  {[
+                    { value: "45%", label: "Cost Reduction" },
+                    { value: "60%", label: "Faster Deployment" },
+                    { value: "32%", label: "More Patients Served" },
+                    { value: "28%", label: "Maintenance Cost Reduction" }
+                  ].map((stat, index) => (
+                    <div key={index} className="text-center p-4 bg-red-50 rounded-lg">
+                      <div className="text-3xl font-bold text-red-600 mb-2">{stat.value}</div>
+                      <div className="text-sm text-gray-600">{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -89,17 +94,17 @@ const LandingPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                quote: "CliniBuilds has transformed how we manage our equipment. We've reduced costs by 30% in just six months.",
+                quote: "The virtual shops feature has revolutionized how we manage and distribute medical equipment across different regions.",
                 author: "Dr. Sarah Johnson",
                 role: "Chief of Surgery, Memorial Hospital"
               },
               {
-                quote: "As a manufacturer, we've been able to reach more hospitals and increase our leasing revenue significantly.",
+                quote: "As a manufacturer, we've expanded our reach globally through virtual shops, significantly increasing our distribution network.",
                 author: "Michael Chen",
                 role: "CEO, MedTech Innovations"
               },
               {
-                quote: "The ROI on medical equipment investments has improved dramatically since we started using this platform.",
+                quote: "Managing equipment across multiple countries has never been easier. The platform streamlines everything.",
                 author: "Emma Williams",
                 role: "Investment Director, Healthcare Fund"
               }
@@ -121,7 +126,7 @@ const LandingPage: React.FC = () => {
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold mb-6 text-gray-900">Ready to Transform Your Medical Equipment Management?</h2>
           <p className="text-xl mb-8 max-w-3xl mx-auto text-gray-600">
-            Join hospitals, manufacturers, and investors already benefiting from our platform.
+            Join hospitals, manufacturers, and investors already benefiting from our virtual shops platform.
           </p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
             <Button asChild size="lg" className="bg-red-600 hover:bg-red-700 text-white">
