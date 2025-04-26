@@ -8,9 +8,10 @@ import { supabase } from "@/integrations/supabase/client";
 interface ImageUploadProps {
   onImageUploaded: (url: string) => void;
   currentImageUrl?: string;
+  id?: string;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImageUrl }) => {
+const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImageUrl, id }) => {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | undefined>(currentImageUrl);
   const { toast } = useToast();
@@ -103,6 +104,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImage
             </div>
           )}
           <input
+            id={id}
             type="file"
             className="hidden"
             accept="image/*"

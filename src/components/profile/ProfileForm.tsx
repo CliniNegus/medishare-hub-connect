@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from '@/contexts/UserRoleContext';
 import ImageUpload from '@/components/products/ImageUpload';
+import { Upload } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -78,7 +79,7 @@ const ProfileForm = () => {
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Profile Settings</CardTitle>
+        <CardTitle className="text-red-600">Profile Settings</CardTitle>
         <CardDescription>Update your profile information and organization details</CardDescription>
       </CardHeader>
       <CardContent>
@@ -88,10 +89,40 @@ const ProfileForm = () => {
               <label htmlFor="logo" className="block text-sm font-medium text-gray-700 mb-2">
                 Organization Logo
               </label>
-              <ImageUpload
-                onImageUploaded={handleLogoUpload}
-                currentImageUrl={formData.logo_url}
-              />
+              {formData.logo_url ? (
+                <div className="relative w-full h-48 border border-gray-300 rounded-lg overflow-hidden mb-2">
+                  <img 
+                    src={formData.logo_url} 
+                    alt="Organization logo" 
+                    className="w-full h-full object-contain"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="absolute top-2 right-2 bg-white"
+                    onClick={() => setFormData(prev => ({ ...prev, logo_url: '' }))}
+                  >
+                    Change
+                  </Button>
+                </div>
+              ) : (
+                <div 
+                  className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 mb-2"
+                  onClick={() => document.getElementById('logo-upload')?.click()}
+                >
+                  <Upload className="h-12 w-12 text-gray-400 mb-2" />
+                  <p className="text-sm text-gray-500">Click to upload your organization logo</p>
+                  <p className="text-xs text-gray-400 mt-1">PNG, JPG or WEBP (Max 5MB)</p>
+                </div>
+              )}
+              <div className="hidden">
+                <ImageUpload
+                  id="logo-upload"
+                  onImageUploaded={handleLogoUpload}
+                  currentImageUrl={formData.logo_url}
+                />
+              </div>
             </div>
 
             <div>
@@ -103,6 +134,7 @@ const ProfileForm = () => {
                 value={formData.full_name}
                 onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
                 placeholder="Enter your full name"
+                className="border-gray-300 focus:border-red-500 focus:ring-red-500"
               />
             </div>
 
@@ -115,11 +147,16 @@ const ProfileForm = () => {
                 value={formData.organization}
                 onChange={(e) => setFormData(prev => ({ ...prev, organization: e.target.value }))}
                 placeholder="Enter your organization name"
+                className="border-gray-300 focus:border-red-500 focus:ring-red-500"
               />
             </div>
 
             <div className="pt-4">
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button 
+                type="submit" 
+                className="w-full bg-red-600 hover:bg-red-700 text-white" 
+                disabled={loading}
+              >
                 {loading ? "Updating..." : "Update Profile"}
               </Button>
             </div>
