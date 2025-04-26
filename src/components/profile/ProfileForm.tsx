@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
@@ -38,6 +37,14 @@ const ProfileForm = () => {
   }, [profile]);
 
   const handleLogoUpload = (url: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to update your profile.",
+        variant: "destructive",
+      });
+      return;
+    }
     setFormData(prev => ({ ...prev, logo_url: url }));
   };
 
@@ -75,6 +82,17 @@ const ProfileForm = () => {
       setLoading(false);
     }
   };
+
+  if (!user) {
+    return (
+      <Card className="max-w-2xl mx-auto">
+        <CardHeader>
+          <CardTitle className="text-red-600">Authentication Required</CardTitle>
+          <CardDescription>Please sign in to access your profile settings.</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
   return (
     <Card className="max-w-2xl mx-auto">
