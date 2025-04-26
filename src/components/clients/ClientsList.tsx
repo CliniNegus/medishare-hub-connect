@@ -1,11 +1,18 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
+import { Upload, Plus, Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
-import { Search, Plus, Trash2, Edit3, ExternalLink } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Card,
   CardContent,
@@ -13,6 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import ClientsImportModal from './import/ClientsImportModal';
 
 interface Client {
   id: string;
@@ -20,8 +28,6 @@ interface Client {
   email: string | null;
   phone: string | null;
   address: string | null;
-  source: string | null;
-  external_id: string | null;
   created_at: string;
 }
 
@@ -30,25 +36,27 @@ const ClientsList = () => {
   const { toast } = useToast();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-
+  const [searchQuery, setSearchQuery] = useState('');
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  
   useEffect(() => {
-    if (user) {
-      fetchClients();
-    }
+    fetchClients();
   }, [user]);
 
   const fetchClients = async () => {
+    if (!user) return;
+    
     try {
       setLoading(true);
+      
       const { data, error } = await supabase
         .from('clients')
         .select('*')
-        .eq('organization_id', user?.id)
-        .order('name', { ascending: true });
+        .eq('organization_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
-
+      
       setClients(data || []);
     } catch (error: any) {
       toast({
@@ -61,121 +69,108 @@ const ClientsList = () => {
     }
   };
 
-  const deleteClient = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('clients')
-        .delete()
-        .eq('id', id)
-        .eq('organization_id', user?.id);
-
-      if (error) throw error;
-
-      setClients(clients.filter(client => client.id !== id));
-      
-      toast({
-        title: "Client deleted",
-        description: "The client has been deleted successfully.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error deleting client",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
   const filteredClients = clients.filter(client => 
-    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (client.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (client.phone?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (client.email && client.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (client.phone && client.phone.includes(searchQuery))
   );
 
   return (
     <Card className="w-full border-red-600">
       <CardHeader>
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle className="text-red-600">Clients</CardTitle>
-            <CardDescription>View and manage your clients</CardDescription>
-          </div>
-          <Button className="bg-red-600 hover:bg-red-700 text-white">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Client
-          </Button>
-        </div>
+        <CardTitle className="text-red-600">Clients</CardTitle>
+        <CardDescription>Manage your client relationships</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
             <Input
               placeholder="Search clients..."
-              className="pl-10 border-gray-300 focus:border-red-500 focus:ring-red-500"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-8"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          
-          {loading ? (
-            <div className="flex justify-center py-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
-            </div>
-          ) : filteredClients.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredClients.map((client) => (
-                    <tr key={client.id} className="hover:bg-gray-50">
-                      <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{client.name}</td>
-                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{client.email || '-'}</td>
-                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{client.phone || '-'}</td>
-                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {client.source === 'csv' ? 'CSV Import' : 
-                         client.source === 'zoho' ? 'Zoho Books' : 'Manual Entry'}
-                        {client.source === 'zoho' && client.external_id && (
-                          <ExternalLink className="inline-block ml-1 h-3 w-3 text-gray-400" />
-                        )}
-                      </td>
-                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div className="flex space-x-2">
-                          <Button variant="ghost" size="sm" className="text-gray-500 hover:text-red-600">
-                            <Edit3 className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-gray-500 hover:text-red-600"
-                            onClick={() => deleteClient(client.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="text-center py-6">
-              <h3 className="text-gray-500">No clients found</h3>
-              <p className="text-sm text-gray-400 mt-1">
-                {searchTerm ? "Try a different search term" : "Import or add clients to get started"}
-              </p>
-            </div>
-          )}
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button variant="outline" className="flex-1 sm:flex-none">
+              <Filter className="mr-2 h-4 w-4" />
+              Filter
+            </Button>
+            <Button onClick={() => setImportModalOpen(true)} className="flex-1 sm:flex-none">
+              <Upload className="mr-2 h-4 w-4" />
+              Import
+            </Button>
+            <Button variant="default" className="flex-1 sm:flex-none">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Client
+            </Button>
+          </div>
         </div>
+
+        <ClientsImportModal
+          open={importModalOpen}
+          onOpenChange={setImportModalOpen}
+          onImportComplete={fetchClients}
+        />
+
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+            <p className="mt-2 text-sm text-gray-500">Loading clients...</p>
+          </div>
+        ) : filteredClients.length === 0 ? (
+          <div className="text-center py-12 border rounded-md">
+            <h3 className="text-lg font-medium text-gray-900 mb-1">No clients found</h3>
+            {searchQuery ? (
+              <p className="text-sm text-gray-500 mb-4">No results match your search criteria.</p>
+            ) : (
+              <p className="text-sm text-gray-500 mb-4">Get started by adding your first client or importing from CSV.</p>
+            )}
+            {!searchQuery && (
+              <div className="flex justify-center gap-3">
+                <Button variant="outline" onClick={() => setImportModalOpen(true)}>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Import Clients
+                </Button>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Client
+                </Button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="border rounded-md overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Address</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredClients.map((client) => (
+                  <TableRow key={client.id}>
+                    <TableCell className="font-medium">{client.name}</TableCell>
+                    <TableCell>{client.email || '-'}</TableCell>
+                    <TableCell>{client.phone || '-'}</TableCell>
+                    <TableCell className="max-w-xs truncate">{client.address || '-'}</TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button variant="outline" size="sm">Edit</Button>
+                        <Button variant="outline" size="sm">View</Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
