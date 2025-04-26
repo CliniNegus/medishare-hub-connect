@@ -32,6 +32,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from '@/hooks/use-mobile';
+import HelpBar from '@/components/HelpBar';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -128,7 +129,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   }
   
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen">
       {isMobile && (
         <div className="fixed top-0 left-0 right-0 bg-black text-white z-30 px-4 py-3 flex justify-between items-center border-b border-gray-800">
           <h1 className="text-xl font-bold text-red-500">MediShare</h1>
@@ -363,6 +364,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         open={accountTypeModalOpen} 
         onOpenChange={setAccountTypeModalOpen} 
       />
+      
+      <HelpBar />
     </div>
   );
 };
