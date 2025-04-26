@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useUserRole } from '@/contexts/UserRoleContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,33 +14,36 @@ import {
   Settings,
   Store,
   Shield,
-  Menu,
   X,
   Activity,
   Users,
   User,
 } from 'lucide-react';
 
-const MobileNavigation = () => {
-  const [isOpen, setIsOpen] = useState(false);
+interface MobileNavigationProps {
+  mobileMenuOpen: boolean;
+  onClose: () => void;
+  onChangeAccountType?: () => void;
+}
+
+const MobileNavigation: React.FC<MobileNavigationProps> = ({ 
+  mobileMenuOpen, 
+  onClose,
+  onChangeAccountType 
+}) => {
   const { role } = useUserRole();
   const { user } = useAuth();
 
   if (!user) return null;
 
+  if (!mobileMenuOpen) return null;
+
   return (
     <div className="md:hidden">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="p-2 text-gray-700 rounded-md outline-none focus:border-gray-400 focus:border"
-      >
-        {isOpen ? <X /> : <Menu />}
-      </button>
-
-      {isOpen && (
+      {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 bg-white">
           <div className="flex justify-end p-4">
-            <button onClick={() => setIsOpen(false)} className="p-2">
+            <button onClick={onClose} className="p-2">
               <X />
             </button>
           </div>
@@ -49,7 +52,7 @@ const MobileNavigation = () => {
             <Link
               to="/dashboard"
               className="flex items-center w-full py-3 px-4 hover:bg-gray-100"
-              onClick={() => setIsOpen(false)}
+              onClick={onClose}
             >
               <Home className="mr-3 h-5 w-5" />
               <span>Dashboard</span>
@@ -59,7 +62,7 @@ const MobileNavigation = () => {
               <Link
                 to="/inventory"
                 className="flex items-center w-full py-3 px-4 hover:bg-gray-100"
-                onClick={() => setIsOpen(false)}
+                onClick={onClose}
               >
                 <Package className="mr-3 h-5 w-5" />
                 <span>Inventory</span>
@@ -70,7 +73,7 @@ const MobileNavigation = () => {
               <Link
                 to="/orders"
                 className="flex items-center w-full py-3 px-4 hover:bg-gray-100"
-                onClick={() => setIsOpen(false)}
+                onClick={onClose}
               >
                 <ShoppingBag className="mr-3 h-5 w-5" />
                 <span>Orders</span>
@@ -81,7 +84,7 @@ const MobileNavigation = () => {
               <Link
                 to="/financing"
                 className="flex items-center w-full py-3 px-4 hover:bg-gray-100"
-                onClick={() => setIsOpen(false)}
+                onClick={onClose}
               >
                 <DollarSign className="mr-3 h-5 w-5" />
                 <span>Financing</span>
@@ -92,7 +95,7 @@ const MobileNavigation = () => {
               <Link
                 to="/leases"
                 className="flex items-center w-full py-3 px-4 hover:bg-gray-100"
-                onClick={() => setIsOpen(false)}
+                onClick={onClose}
               >
                 <FileText className="mr-3 h-5 w-5" />
                 <span>Leases</span>
@@ -103,7 +106,7 @@ const MobileNavigation = () => {
               <Link
                 to="/hospital-locations"
                 className="flex items-center w-full py-3 px-4 hover:bg-gray-100"
-                onClick={() => setIsOpen(false)}
+                onClick={onClose}
               >
                 <Map className="mr-3 h-5 w-5" />
                 <span>Hospital Locations</span>
@@ -114,7 +117,7 @@ const MobileNavigation = () => {
               <Link
                 to="/tracking"
                 className="flex items-center w-full py-3 px-4 hover:bg-gray-100"
-                onClick={() => setIsOpen(false)}
+                onClick={onClose}
               >
                 <Activity className="mr-3 h-5 w-5" />
                 <span>Equipment Tracking</span>
@@ -125,7 +128,7 @@ const MobileNavigation = () => {
               <Link
                 to="/products"
                 className="flex items-center w-full py-3 px-4 hover:bg-gray-100"
-                onClick={() => setIsOpen(false)}
+                onClick={onClose}
               >
                 <Cpu className="mr-3 h-5 w-5" />
                 <span>Products</span>
@@ -136,7 +139,7 @@ const MobileNavigation = () => {
               <Link
                 to="/virtual-shops"
                 className="flex items-center w-full py-3 px-4 hover:bg-gray-100"
-                onClick={() => setIsOpen(false)}
+                onClick={onClose}
               >
                 <Store className="mr-3 h-5 w-5" />
                 <span>Virtual Shops</span>
@@ -147,7 +150,7 @@ const MobileNavigation = () => {
               <Link
                 to="/clients"
                 className="flex items-center w-full py-3 px-4 hover:bg-gray-100"
-                onClick={() => setIsOpen(false)}
+                onClick={onClose}
               >
                 <Users className="mr-3 h-5 w-5" />
                 <span>Clients</span>
@@ -157,7 +160,7 @@ const MobileNavigation = () => {
             <Link
               to="/shop"
               className="flex items-center w-full py-3 px-4 hover:bg-gray-100"
-              onClick={() => setIsOpen(false)}
+              onClick={onClose}
             >
               <ShoppingBag className="mr-3 h-5 w-5" />
               <span>Shop</span>
@@ -167,7 +170,7 @@ const MobileNavigation = () => {
               <Link
                 to="/system"
                 className="flex items-center w-full py-3 px-4 hover:bg-gray-100"
-                onClick={() => setIsOpen(false)}
+                onClick={onClose}
               >
                 <Settings className="mr-3 h-5 w-5" />
                 <span>System</span>
@@ -178,7 +181,7 @@ const MobileNavigation = () => {
               <Link
                 to="/admin"
                 className="flex items-center w-full py-3 px-4 hover:bg-gray-100"
-                onClick={() => setIsOpen(false)}
+                onClick={onClose}
               >
                 <Shield className="mr-3 h-5 w-5" />
                 <span>Admin</span>
@@ -188,7 +191,7 @@ const MobileNavigation = () => {
             <Link
               to="/profile"
               className="flex items-center w-full py-3 px-4 hover:bg-gray-100"
-              onClick={() => setIsOpen(false)}
+              onClick={onClose}
             >
               <User className="mr-3 h-5 w-5" />
               <span>Profile</span>

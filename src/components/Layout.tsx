@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import ChangeAccountTypeModal from './ChangeAccountTypeModal';
-import { Sidebar } from './navigation/Sidebar';
-import { MobileNavigation } from './navigation/MobileNavigation';
+import Sidebar from './navigation/Sidebar';
+import MobileNavigation from './navigation/MobileNavigation';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { HelpBar } from './help/HelpBar';
 

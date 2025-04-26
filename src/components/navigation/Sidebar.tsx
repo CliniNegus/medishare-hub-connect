@@ -19,7 +19,11 @@ import {
   User,
 } from 'lucide-react';
 
-const Sidebar = () => {
+interface SidebarProps {
+  onChangeAccountType?: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onChangeAccountType }) => {
   const location = useLocation();
   const { role } = useUserRole();
   const { user } = useAuth();
