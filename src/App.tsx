@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -30,6 +29,7 @@ import HospitalRegistrationForm from "./components/HospitalRegistrationForm";
 import HospitalLocations from "./pages/HospitalLocations";
 import SystemManagement from "./pages/SystemManagement";
 import VirtualShops from "./pages/VirtualShops";
+import ProfileManagement from "./pages/ProfileManagement";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -144,6 +144,12 @@ function App() {
                       <RoleDashboard allowedRoles={['admin', 'hospital', 'manufacturer', 'investor']}>
                         <SystemManagement />
                       </RoleDashboard>
+                    </ProtectedRoute>
+                  } />
+
+                  <Route path="/profile" element={
+                    <ProtectedRoute>
+                      <ProfileManagement />
                     </ProtectedRoute>
                   } />
 

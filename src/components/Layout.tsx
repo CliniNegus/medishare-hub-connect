@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
@@ -12,7 +11,8 @@ import {
   LogOut,
   Trash2,
   UserCog,
-  Shield
+  Shield,
+  UserCircle
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -48,11 +48,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [accountTypeModalOpen, setAccountTypeModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
-  // Define menu items based on user role
   const getMenuItems = () => {
     const baseItems = [
       { icon: <LayoutDashboard className="h-5 w-5" />, label: 'Dashboard', path: '/dashboard' },
-      { icon: <ShoppingCart className="h-5 w-5" />, label: 'Shop', path: '/shop' },
+      { icon: <UserCircle className="h-5 w-5" />, label: 'Profile', path: '/profile' },
     ];
     
     const roleSpecificItems = {
@@ -101,7 +100,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     try {
       setIsDeleting(true);
       
-      // Delete the user account from Supabase Auth
       const { error } = await supabase.auth.admin.deleteUser(user.id);
       
       if (error) throw error;
@@ -111,7 +109,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         description: "Your account has been successfully deleted",
       });
       
-      // Sign out and redirect to auth page
       await signOut();
       navigate('/auth');
     } catch (error: any) {
@@ -132,7 +129,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Mobile Header */}
       {isMobile && (
         <div className="fixed top-0 left-0 right-0 bg-black text-white z-30 px-4 py-3 flex justify-between items-center border-b border-gray-800">
           <h1 className="text-xl font-bold text-red-500">MediShare</h1>
@@ -153,7 +149,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       )}
 
-      {/* Mobile Menu */}
       {isMobile && mobileMenuOpen && (
         <div className="fixed inset-0 bg-black text-white z-20 pt-16 px-4 pb-4 flex flex-col">
           <nav className="flex-1 overflow-y-auto space-y-2 pt-4">
@@ -259,7 +254,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       )}
 
-      {/* Desktop Sidebar */}
       <div className={`${isMobile ? 'hidden' : 'flex'} w-64 flex-col bg-black text-white border-r border-gray-800`}>
         <div className="p-4 border-b border-gray-800">
           <h1 className="text-xl font-bold text-red-500">MediShare</h1>
@@ -359,14 +353,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </div>
       
-      {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <main className={`flex-1 overflow-y-auto bg-gray-50 ${isMobile ? 'pt-16' : ''}`}>
           {children}
         </main>
       </div>
       
-      {/* Account Type Change Modal */}
       <ChangeAccountTypeModal 
         open={accountTypeModalOpen} 
         onOpenChange={setAccountTypeModalOpen} 
@@ -375,5 +367,4 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   );
 };
 
-// Add default export
 export default Layout;
