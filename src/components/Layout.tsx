@@ -32,6 +32,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from '@/hooks/use-mobile';
+import { HelpBar } from './help/HelpBar';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -363,6 +364,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         open={accountTypeModalOpen} 
         onOpenChange={setAccountTypeModalOpen} 
       />
+      
+      {user && <HelpBar />}
     </div>
   );
 };

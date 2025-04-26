@@ -438,6 +438,48 @@ export type Database = {
         }
         Relationships: []
       }
+      support_requests: {
+        Row: {
+          admin_id: string | null
+          admin_response: string | null
+          created_at: string
+          id: string
+          message: string
+          priority: string | null
+          resolved_at: string | null
+          status: string | null
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_id?: string | null
+          admin_response?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          priority?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_id?: string | null
+          admin_response?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          priority?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
