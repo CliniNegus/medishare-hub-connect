@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
@@ -15,6 +16,12 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
+        // New badge variants for CliniBuilds
+        success: "border-transparent bg-green-100 text-green-800",
+        warning: "border-transparent bg-amber-100 text-amber-800",
+        info: "border-transparent bg-blue-100 text-blue-800",
+        "red-outline": "bg-white border-red-300 text-red-600",
+        "dark-outline": "bg-white border-gray-300 text-gray-700",
       },
     },
     defaultVariants: {

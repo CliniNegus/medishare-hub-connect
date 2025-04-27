@@ -19,6 +19,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Poppins', 'sans-serif'],
+        heading: ['Poppins', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -53,6 +57,12 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Custom CliniBuilds colors for direct access
+        clinibuilds: {
+          red: "#E02020",
+          white: "#FFFFFF",
+          dark: "#333333",
+        }
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -73,6 +83,13 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      boxShadow: {
+        'card': '0 2px 10px rgba(0, 0, 0, 0.08)',
+      },
+      spacing: {
+        'standard': '1rem',  // 16px
+        'large': '1.5rem',   // 24px
+      }
     },
   },
   plugins: [require("tailwindcss-animate")],
