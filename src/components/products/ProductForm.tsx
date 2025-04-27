@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,6 +11,7 @@ import { PricingSection } from './form/PricingSection';
 import { ShareableSwitch } from './form/ShareableSwitch';
 import ImageUpload from './ImageUpload';
 import { ProductFormValues, productSchema } from "@/types/product";
+import { WebsiteProductImport } from './WebsiteProductImport';
 
 interface ProductFormProps {
   onSubmit: (values: ProductFormValues) => Promise<void>;
@@ -49,6 +49,10 @@ export const ProductForm = ({ onSubmit, initialValues, isLoading, isEditing, onC
     form.setValue("lease_rate", suggestedLeaseRate);
   };
 
+  const handleWebsiteImport = (productData: any) => {
+    form.reset(productData);
+  };
+
   return (
     <Card className="border-red-600">
       <CardHeader>
@@ -61,6 +65,10 @@ export const ProductForm = ({ onSubmit, initialValues, isLoading, isEditing, onC
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {!isEditing && (
+          <WebsiteProductImport onProductExtracted={handleWebsiteImport} />
+        )}
+        
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField

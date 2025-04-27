@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -22,7 +21,7 @@ const LandingPage: React.FC = () => {
             <OptimizedImage
               src="https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/Clinibuilds%20Logo.jpg"
               alt="CliniBuilds Logo"
-              height={70}
+              height={40}
               className="object-contain"
             />
             <h1 className="text-5xl font-bold text-[#333333]">
