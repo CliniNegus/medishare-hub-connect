@@ -1,5 +1,5 @@
 
-import { LazyImageLoader } from './performance/LazyImageLoader';
+import LazyImageLoader from './performance/LazyImageLoader';
 
 interface OptimizedImageProps {
   src: string;
