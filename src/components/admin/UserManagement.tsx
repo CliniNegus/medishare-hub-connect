@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import AddUserModal from './AddUserModal';
 
 interface Stats {
   hospitals: number;
@@ -19,11 +20,22 @@ interface Stats {
 }
 
 const UserManagement = ({ stats }: { stats: Stats }) => {
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleUserAdded = () => {
+    // Increment trigger to refresh the user list
+    setRefreshTrigger(prev => prev + 1);
+  };
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold">User Management</h2>
-        <Button>
+        <Button 
+          onClick={() => setIsAddUserModalOpen(true)}
+          className="bg-[#E02020] hover:bg-[#E02020]/90 text-white"
+        >
           <PlusCircle className="h-4 w-4 mr-2" />
           Add New User
         </Button>
@@ -114,6 +126,13 @@ const UserManagement = ({ stats }: { stats: Stats }) => {
           </TableRow>
         </TableBody>
       </Table>
+
+      {/* Add User Modal */}
+      <AddUserModal
+        open={isAddUserModalOpen}
+        onOpenChange={setIsAddUserModalOpen}
+        onUserAdded={handleUserAdded}
+      />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -16,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import AddProductModal from './AddProductModal';
 
 interface Equipment {
   id: string;
@@ -30,11 +31,22 @@ interface EquipmentManagementProps {
 }
 
 const EquipmentManagement = ({ recentEquipment }: EquipmentManagementProps) => {
+  const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleProductAdded = () => {
+    // Increment trigger to refresh the equipment list
+    setRefreshTrigger(prev => prev + 1);
+  };
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold">Equipment Management</h2>
-        <Button>
+        <Button 
+          onClick={() => setIsAddProductModalOpen(true)}
+          className="bg-[#E02020] hover:bg-[#E02020]/90 text-white"
+        >
           <PlusCircle className="h-4 w-4 mr-2" />
           Add New Equipment
         </Button>
@@ -103,14 +115,22 @@ const EquipmentManagement = ({ recentEquipment }: EquipmentManagementProps) => {
               <TableCell>{item.location}</TableCell>
               <TableCell>
                 <div className="flex space-x-2">
-                  <Button variant="outline" size="sm">Edit</Button>
-                  <Button variant="outline" size="sm">View</Button>
+                  <Button variant="outline" size="sm" className="border-[#E02020] text-[#E02020] hover:bg-red-50">Edit</Button>
+                  <Button variant="outline" size="sm" className="border-gray-300 hover:bg-gray-50">View</Button>
                 </div>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+
+      {/* Add Product Modal */}
+      <AddProductModal
+        open={isAddProductModalOpen}
+        onOpenChange={setIsAddProductModalOpen}
+        isAdmin={true}
+        onProductAdded={handleProductAdded}
+      />
     </div>
   );
 };

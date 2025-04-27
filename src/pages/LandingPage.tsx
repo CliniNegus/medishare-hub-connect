@@ -21,7 +21,7 @@ const LandingPage: React.FC = () => {
             <OptimizedImage
               src="https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/Clinibuilds%20Logo.jpg"
               alt="CliniBuilds Logo"
-              height={40}
+              height={75}
               className="object-contain"
             />
             <h1 className="text-5xl font-bold text-[#333333]">
