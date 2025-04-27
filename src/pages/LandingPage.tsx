@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import FeatureSlides from '@/components/landing/FeatureSlides';
+import OptimizedImage from '@/components/OptimizedImage';
 import { 
   Heart, 
   TrendingUp, 
@@ -17,10 +18,18 @@ const LandingPage: React.FC = () => {
       {/* Hero Section */}
       <div className="relative bg-white py-16 border-b">
         <div className="container mx-auto px-6 text-center">
-          <h1 className="text-5xl font-bold mb-8">
-            CliniBuilds
-            <span className="text-red-600"> Medical Equipment Platform</span>
-          </h1>
+          <div className="flex items-center justify-center gap-4 mb-8">
+            <OptimizedImage
+              src="https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/2.png"
+              alt="CliniBuilds Logo"
+              height={70}
+              className="object-contain"
+            />
+            <h1 className="text-5xl font-bold">
+              CliniBuilds
+              <span className="text-red-600"> Medical Equipment Platform</span>
+            </h1>
+          </div>
           <p className="text-xl mb-10 max-w-3xl mx-auto text-gray-600">
             Connecting hospitals, manufacturers, and investors for efficient medical equipment sharing, 
             reducing costs and improving healthcare outcomes.
