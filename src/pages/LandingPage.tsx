@@ -14,9 +14,9 @@ import {
 
 const LandingPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <div className="relative bg-black py-16 border-b border-red-800">
+      <div className="relative bg-white py-16 border-b border-gray-100">
         <div className="container mx-auto px-6 text-center">
           <div className="flex items-center justify-center gap-4 mb-8">
             <OptimizedImage
@@ -25,20 +25,20 @@ const LandingPage: React.FC = () => {
               height={70}
               className="object-contain"
             />
-            <h1 className="text-5xl font-bold text-white">
+            <h1 className="text-5xl font-bold text-[#333333]">
               CliniBuilds
-              <span className="text-red-600"> Medical Equipment Platform</span>
+              <span className="text-[#E02020]"> Medical Equipment Platform</span>
             </h1>
           </div>
-          <p className="text-xl mb-10 max-w-3xl mx-auto text-gray-300">
+          <p className="text-xl mb-10 max-w-3xl mx-auto text-[#333333]">
             Connecting hospitals, manufacturers, and investors for efficient medical equipment sharing, 
             reducing costs and improving healthcare outcomes.
           </p>
           <div className="flex justify-center space-x-6">
-            <Button asChild size="lg" className="bg-red-600 hover:bg-red-700 text-white">
+            <Button asChild size="lg" className="bg-[#E02020] hover:bg-[#E02020]/90 text-white font-semibold">
               <Link to="/shop/public">Browse Medical Supplies</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="border-red-600 text-red-600 hover:bg-red-900 hover:text-white">
+            <Button asChild variant="outline" size="lg" className="border-[#333333] text-[#333333] hover:bg-gray-50 font-semibold">
               <Link to="/auth">Sign In</Link>
             </Button>
           </div>
@@ -46,37 +46,37 @@ const LandingPage: React.FC = () => {
       </div>
 
       {/* Features Section */}
-      <div className="py-16 bg-black">
+      <div className="py-16 bg-white">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-12 text-white">Platform Features</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 text-[#333333]">Platform Features</h2>
           <FeatureSlides />
         </div>
       </div>
 
-      {/* Benefits Section with darker theme */}
-      <div className="py-16 bg-gray-900">
+      {/* Benefits Section */}
+      <div className="py-16 bg-gray-50">
         <div className="container mx-auto px-6">
           <div className="flex flex-col lg:flex-row items-center">
             <div className="lg:w-1/2 mb-10 lg:mb-0">
-              <h2 className="text-3xl font-bold mb-6 text-white">Benefits</h2>
+              <h2 className="text-3xl font-bold mb-6 text-[#333333]">Benefits</h2>
               <ul className="space-y-4">
                 {[
-                  { icon: <Store className="h-6 w-6 text-red-500" />, text: "Manage virtual shops across multiple countries" },
-                  { icon: <Clock className="h-6 w-6 text-red-500" />, text: "Reduce equipment acquisition time by up to 50%" },
-                  { icon: <TrendingUp className="h-6 w-6 text-red-500" />, text: "Increase equipment utilization by 30-40%" },
-                  { icon: <Users className="h-6 w-6 text-red-500" />, text: "Serve more patients with efficient equipment distribution" },
-                  { icon: <Heart className="h-6 w-6 text-red-500" />, text: "Improve patient outcomes through better equipment access" }
+                  { icon: <Store className="h-6 w-6 text-[#E02020]" />, text: "Manage virtual shops across multiple countries" },
+                  { icon: <Clock className="h-6 w-6 text-[#E02020]" />, text: "Reduce equipment acquisition time by up to 50%" },
+                  { icon: <TrendingUp className="h-6 w-6 text-[#E02020]" />, text: "Increase equipment utilization by 30-40%" },
+                  { icon: <Users className="h-6 w-6 text-[#E02020]" />, text: "Serve more patients with efficient equipment distribution" },
+                  { icon: <Heart className="h-6 w-6 text-[#E02020]" />, text: "Improve patient outcomes through better equipment access" }
                 ].map((benefit, index) => (
                   <li key={index} className="flex items-start">
                     <span className="mr-4 mt-1">{benefit.icon}</span>
-                    <span className="text-gray-300">{benefit.text}</span>
+                    <span className="text-[#333333]">{benefit.text}</span>
                   </li>
                 ))}
               </ul>
             </div>
             <div className="lg:w-1/2">
-              <div className="bg-black p-8 rounded-lg shadow-sm border border-red-900">
-                <h3 className="text-2xl font-bold mb-4 text-white">Impact Metrics</h3>
+              <div className="bg-white p-8 rounded-lg shadow-md">
+                <h3 className="text-2xl font-bold mb-4 text-[#333333]">Impact Metrics</h3>
                 <div className="grid grid-cols-2 gap-6">
                   {[
                     { value: "45%", label: "Cost Reduction" },
@@ -84,9 +84,9 @@ const LandingPage: React.FC = () => {
                     { value: "32%", label: "More Patients Served" },
                     { value: "28%", label: "Maintenance Cost Reduction" }
                   ].map((stat, index) => (
-                    <div key={index} className="text-center p-4 bg-red-900/30 rounded-lg">
-                      <div className="text-3xl font-bold text-red-500 mb-2">{stat.value}</div>
-                      <div className="text-sm text-gray-300">{stat.label}</div>
+                    <div key={index} className="text-center p-4 bg-gray-50 rounded-lg">
+                      <div className="text-3xl font-bold text-[#E02020] mb-2">{stat.value}</div>
+                      <div className="text-sm text-[#333333]">{stat.label}</div>
                     </div>
                   ))}
                 </div>
@@ -96,10 +96,10 @@ const LandingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Testimonials with darker theme */}
-      <div className="py-16 bg-black">
+      {/* Testimonials */}
+      <div className="py-16 bg-white">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-12 text-white">What Our Users Say</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 text-[#333333]">What Our Users Say</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
@@ -118,11 +118,11 @@ const LandingPage: React.FC = () => {
                 role: "Investment Director, Healthcare Fund"
               }
             ].map((testimonial, index) => (
-              <div key={index} className="bg-gray-900 p-6 rounded-lg shadow-sm border border-red-900">
-                <p className="italic mb-4 text-gray-300">"{testimonial.quote}"</p>
+              <div key={index} className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
+                <p className="italic mb-4 text-[#333333]">"{testimonial.quote}"</p>
                 <div>
-                  <p className="font-semibold text-white">{testimonial.author}</p>
-                  <p className="text-sm text-red-500">{testimonial.role}</p>
+                  <p className="font-semibold text-[#333333]">{testimonial.author}</p>
+                  <p className="text-sm text-[#E02020]">{testimonial.role}</p>
                 </div>
               </div>
             ))}
@@ -130,40 +130,40 @@ const LandingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Call to Action with darker theme */}
-      <div className="py-16 bg-gray-900 border-t border-red-900">
+      {/* Call to Action */}
+      <div className="py-16 bg-gray-50 border-t border-gray-100">
         <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-6 text-white">Ready to Transform Your Medical Equipment Management?</h2>
-          <p className="text-xl mb-8 max-w-3xl mx-auto text-gray-300">
+          <h2 className="text-3xl font-bold mb-6 text-[#333333]">Ready to Transform Your Medical Equipment Management?</h2>
+          <p className="text-xl mb-8 max-w-3xl mx-auto text-[#333333]">
             Join hospitals, manufacturers, and investors already benefiting from our virtual shops platform.
           </p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <Button asChild size="lg" className="bg-red-600 hover:bg-red-700 text-white">
+            <Button asChild size="lg" className="bg-[#E02020] hover:bg-[#E02020]/90 text-white font-semibold">
               <Link to="/auth">Sign Up Now</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="border-red-600 text-red-600 hover:bg-red-900 hover:text-white">
+            <Button asChild variant="outline" size="lg" className="border-[#333333] text-[#333333] hover:bg-gray-50 font-semibold">
               <Link to="/dashboard">Explore Dashboard</Link>
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Footer with darker theme */}
-      <footer className="py-10 bg-black border-t border-red-900">
+      {/* Footer */}
+      <footer className="py-10 bg-white border-t border-gray-100">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-6 md:mb-0">
-              <h2 className="text-2xl font-bold text-red-600">CliniBuilds</h2>
-              <p className="text-gray-300">Medical Equipment Management Platform</p>
+              <h2 className="text-2xl font-bold text-[#E02020]">CliniBuilds</h2>
+              <p className="text-[#333333]">Medical Equipment Management Platform</p>
             </div>
             <div className="flex space-x-6">
-              <Link to="/auth" className="text-gray-300 hover:text-red-500">Sign In</Link>
-              <Link to="/admin-auth" className="text-gray-300 hover:text-red-500">Admin</Link>
-              <a href="#" className="text-gray-300 hover:text-red-500">Privacy Policy</a>
-              <a href="#" className="text-gray-300 hover:text-red-500">Terms of Service</a>
+              <Link to="/auth" className="text-[#333333] hover:text-[#E02020]">Sign In</Link>
+              <Link to="/admin-auth" className="text-[#333333] hover:text-[#E02020]">Admin</Link>
+              <a href="#" className="text-[#333333] hover:text-[#E02020]">Privacy Policy</a>
+              <a href="#" className="text-[#333333] hover:text-[#E02020]">Terms of Service</a>
             </div>
           </div>
-          <div className="mt-8 text-center text-gray-400 text-sm">
+          <div className="mt-8 text-center text-sm text-[#333333]">
             &copy; {new Date().getFullYear()} CliniBuilds. All rights reserved.
           </div>
         </div>
