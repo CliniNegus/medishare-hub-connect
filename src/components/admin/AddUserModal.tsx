@@ -103,8 +103,6 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
       
       if (authError) throw authError;
       
-      // The profile will be created automatically via the database trigger
-      
       toast({
         title: "User Added Successfully",
         description: `${values.full_name} has been added as a ${values.role}`,

@@ -20,6 +20,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImage
     try {
       setUploading(true);
 
+      // Create the storage bucket if it doesn't exist (this will silently fail if it already exists)
+      // The SQL to create this bucket should have been run separately
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
       const filePath = `${fileName}`;

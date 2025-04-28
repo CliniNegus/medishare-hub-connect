@@ -11,6 +11,16 @@ const QuickActions = () => {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   
+  const handleProductAdded = () => {
+    // Refresh the product list or show a success message
+    console.log('Product added successfully');
+  };
+
+  const handleUserAdded = () => {
+    // Refresh the user list or show a success message
+    console.log('User added successfully');
+  };
+  
   return (
     <div className="bg-white p-4 rounded-lg shadow-sm mb-8">
       <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
@@ -51,12 +61,14 @@ const QuickActions = () => {
         open={isProductModalOpen}
         onOpenChange={setIsProductModalOpen}
         isAdmin={true}
+        onProductAdded={handleProductAdded}
       />
 
       {/* User Modal */}
       <AddUserModal
         open={isUserModalOpen}
         onOpenChange={setIsUserModalOpen}
+        onUserAdded={handleUserAdded}
       />
     </div>
   );
