@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 interface ImageUploadProps {
   onImageUploaded: (url: string) => void;
@@ -16,48 +15,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImage
   const [preview, setPreview] = useState<string | undefined>(currentImageUrl);
   const { toast } = useToast();
 
-  const uploadImage = async (file: File) => {
-    try {
-      setUploading(true);
-
-      // Create the storage bucket if it doesn't exist (this will silently fail if it already exists)
-      // The SQL to create this bucket should have been run separately
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('equipment_images')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('equipment_images')
-        .getPublicUrl(filePath);
-
-      setPreview(publicUrl);
-      onImageUploaded(publicUrl);
-
-      toast({
-        title: "Success",
-        description: "Image uploaded successfully",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files || event.target.files.length === 0) {
       return;
     }
+
     const file = event.target.files[0];
     if (file.size > 5 * 1024 * 1024) { // 5MB limit
       toast({
@@ -67,7 +29,29 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImage
       });
       return;
     }
-    uploadImage(file);
+
+    try {
+      setUploading(true);
+
+      // Create a preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setPreview(base64String);
+        onImageUploaded(base64String);
+      };
+      reader.readAsDataURL(file);
+      
+    } catch (error: any) {
+      console.error('Error handling file:', error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const removeImage = () => {

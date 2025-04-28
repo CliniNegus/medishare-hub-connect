@@ -31,8 +31,39 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const handleSubmit = async (values: ProductFormValues) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "You must be logged in to add products",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsSubmitting(true);
+      
+      let imageUrl = values.image_url;
+      if (imageUrl && imageUrl.startsWith('data:')) {
+        // Convert base64 to file and upload
+        const base64Data = imageUrl.split(',')[1];
+        const fileData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+        const fileName = `${Math.random().toString(36).substring(7)}.jpg`;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('equipment_images')
+          .upload(fileName, fileData.buffer, {
+            contentType: 'image/jpeg'
+          });
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('equipment_images')
+          .getPublicUrl(fileName);
+
+        imageUrl = publicUrl;
+      }
       
       const productData = {
         name: values.name,
@@ -44,8 +75,8 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
         manufacturer: values.manufacturer,
         model: values.model,
         specs: values.specs,
-        image_url: values.image_url,
-        owner_id: user?.id,
+        image_url: imageUrl,
+        owner_id: user.id,
         status: 'Available',
         available_inventory: 1,
         created_at: new Date().toISOString(),
