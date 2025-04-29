@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import AdminStatsCards from './AdminStatsCards';
 import QuickActions from './QuickActions';
 import DataTabs from './DataTabs';
-import EquipmentManagement from './EquipmentManagement';
+import EquipmentManagement from './equipment/EquipmentManagement';
 import UserManagement from './UserManagement';
 import MaintenanceManagement from './MaintenanceManagement';
 import FinancialManagement from './FinancialManagement';
