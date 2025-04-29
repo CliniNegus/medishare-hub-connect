@@ -22,7 +22,7 @@ interface Equipment {
   location: string | null;
   price: number | null;
   quantity: number | null;
-  image_url: string | null;  // Changed to nullable to match database schema
+  image_url: string | null;
   status: string | null;
   created_at: string;
 }
@@ -42,21 +42,25 @@ const EquipmentManagement = () => {
 
       if (error) throw error;
       
-      // Ensure the data matches our Equipment interface
-      const typedData = data?.map(item => ({
-        id: item.id,
-        name: item.name,
-        manufacturer: item.manufacturer,
-        category: item.category,
-        location: item.location,
-        price: item.price,
-        quantity: item.quantity,
-        image_url: item.image_url || null,  // Handle potentially missing image_url
-        status: item.status,
-        created_at: item.created_at
-      })) || [];
-      
-      setEquipment(typedData);
+      if (data) {
+        // Explicitly map the fields to ensure type safety
+        const typedData: Equipment[] = data.map(item => ({
+          id: item.id,
+          name: item.name,
+          manufacturer: item.manufacturer || null,
+          category: item.category || null,
+          location: item.location || null,
+          price: item.price || null,
+          quantity: item.quantity || null,
+          image_url: item.image_url || null,
+          status: item.status || null,
+          created_at: item.created_at
+        }));
+        
+        setEquipment(typedData);
+      } else {
+        setEquipment([]);
+      }
     } catch (error: any) {
       console.error('Error fetching equipment:', error.message);
       toast({
