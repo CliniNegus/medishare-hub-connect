@@ -43,6 +43,9 @@ const EquipmentManagement = () => {
       if (error) throw error;
       
       if (data) {
+        // Console log to debug the structure of the returned data
+        console.log('Raw equipment data:', data);
+        
         // Explicitly map the fields to ensure type safety
         const typedData: Equipment[] = data.map(item => ({
           id: item.id,
@@ -52,6 +55,7 @@ const EquipmentManagement = () => {
           location: item.location || null,
           price: item.price || null,
           quantity: item.quantity || null,
+          // Use optional chaining to safely access the image_url property
           image_url: item.image_url || null,
           status: item.status || null,
           created_at: item.created_at
