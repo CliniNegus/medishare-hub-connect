@@ -1,19 +1,17 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ProductForm } from "@/components/products/ProductForm";
 import { ProductFormValues } from '@/types/product';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import { useShopData } from '@/hooks/use-shop-data';
+import ShopSelector from './product/ShopSelector';
+import ModalHeader from './product/ModalHeader';
 
 interface AddProductModalProps {
   open: boolean;
@@ -31,42 +29,13 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
   const { toast } = useToast();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [shops, setShops] = useState<Array<{id: string, name: string, country: string}>>([]);
-  const [selectedShop, setSelectedShop] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  // Fetch shops for admin users
-  useEffect(() => {
-    if (isAdmin && open && user) {
-      fetchShops();
-    }
-  }, [isAdmin, open, user]);
-
-  const fetchShops = async () => {
-    try {
-      setLoading(true);
-      
-      const { data, error } = await supabase
-        .from('manufacturer_shops')
-        .select('id, name, country');
-      
-      if (error) throw error;
-      
-      setShops(data || []);
-      if (data && data.length > 0) {
-        setSelectedShop(data[0].id);
-      }
-    } catch (error: any) {
-      console.error('Error fetching shops:', error.message);
-      toast({
-        title: "Failed to load shops",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  
+  const { 
+    shops, 
+    selectedShop, 
+    setSelectedShop, 
+    loading: shopsLoading 
+  } = useShopData(isAdmin, open);
 
   const handleSubmit = async (values: ProductFormValues) => {
     if (!user) {
@@ -180,38 +149,18 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-[#333333]">Add New Product</DialogTitle>
-          <DialogDescription>
-            Enter the details of the new medical equipment item.
-          </DialogDescription>
-        </DialogHeader>
+        <ModalHeader 
+          title="Add New Product" 
+          description="Enter the details of the new medical equipment item." 
+        />
         
         {isAdmin && (
-          <div className="mb-4">
-            <Label htmlFor="shop">Select Shop</Label>
-            <Select 
-              value={selectedShop || ''} 
-              onValueChange={setSelectedShop}
-              disabled={loading || shops.length === 0}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a shop" />
-              </SelectTrigger>
-              <SelectContent>
-                {shops.map((shop) => (
-                  <SelectItem key={shop.id} value={shop.id}>
-                    {shop.name} ({shop.country})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {shops.length === 0 && !loading && (
-              <p className="text-sm text-red-500 mt-1">
-                No shops available. Please create a shop first.
-              </p>
-            )}
-          </div>
+          <ShopSelector 
+            shops={shops}
+            selectedShop={selectedShop}
+            onShopSelect={setSelectedShop}
+            loading={shopsLoading}
+          />
         )}
         
         <ProductForm 
