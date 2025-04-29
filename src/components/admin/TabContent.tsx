@@ -51,7 +51,8 @@ const TabContent: React.FC<TabContentProps> = ({
             const formattedData = data.map(item => ({
               id: item.id,
               name: item.name,
-              manufacturer: item.manufacturer || 'Unknown',
+              // Use category as manufacturer since manufacturer field doesn't exist
+              manufacturer: item.category || 'Unknown',
               status: item.status || 'Unknown',
               location: 'Warehouse' // Default location
             }));

@@ -67,11 +67,12 @@ const EquipmentManagement = ({ recentEquipment: initialEquipment }: EquipmentMan
           
         if (error) throw error;
         
-        // Transform data for display
+        // Transform data for display - handle missing manufacturer field
         const formattedEquipment = (data || []).map(item => ({
           id: item.id,
           name: item.name,
-          manufacturer: item.manufacturer || 'Unknown',
+          // Use a fallback for manufacturer since it's not in the database schema
+          manufacturer: item.category || 'Unknown', 
           status: item.status || 'Unknown',
           location: 'Warehouse' // Default location, update as needed
         }));
