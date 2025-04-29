@@ -17,13 +17,13 @@ import {
 interface Equipment {
   id: string;
   name: string;
-  manufacturer: string;
-  category: string;
-  location: string;
-  price: number;
-  quantity: number;
-  image_url: string;
-  status: string;
+  manufacturer: string | null;
+  category: string | null;
+  location: string | null;
+  price: number | null;
+  quantity: number | null;
+  image_url: string | null;  // Changed to nullable to match database schema
+  status: string | null;
   created_at: string;
 }
 
@@ -41,7 +41,22 @@ const EquipmentManagement = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setEquipment(data || []);
+      
+      // Ensure the data matches our Equipment interface
+      const typedData = data?.map(item => ({
+        id: item.id,
+        name: item.name,
+        manufacturer: item.manufacturer,
+        category: item.category,
+        location: item.location,
+        price: item.price,
+        quantity: item.quantity,
+        image_url: item.image_url || null,  // Handle potentially missing image_url
+        status: item.status,
+        created_at: item.created_at
+      })) || [];
+      
+      setEquipment(typedData);
     } catch (error: any) {
       console.error('Error fetching equipment:', error.message);
       toast({
@@ -59,7 +74,7 @@ const EquipmentManagement = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FFFFFF]">
       <Header />
       <main className="container mx-auto py-8">
         <div className="flex justify-between items-center mb-8">
@@ -67,9 +82,9 @@ const EquipmentManagement = () => {
           <EquipmentActions onEquipmentAdded={fetchEquipment} />
         </div>
 
-        <Card>
-          <CardHeader className="bg-gray-50">
-            <CardTitle className="text-lg">Equipment Inventory</CardTitle>
+        <Card className="border border-gray-200 shadow-sm">
+          <CardHeader className="bg-[#FFFFFF]">
+            <CardTitle className="text-lg text-[#333333]">Equipment Inventory</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -107,9 +122,9 @@ const EquipmentManagement = () => {
                         )}
                       </TableCell>
                       <TableCell className="font-medium">{item.name}</TableCell>
-                      <TableCell>{item.manufacturer}</TableCell>
-                      <TableCell>{item.category}</TableCell>
-                      <TableCell>{item.location}</TableCell>
+                      <TableCell>{item.manufacturer || '-'}</TableCell>
+                      <TableCell>{item.category || '-'}</TableCell>
+                      <TableCell>{item.location || '-'}</TableCell>
                       <TableCell>{item.price ? `$${item.price.toFixed(2)}` : '-'}</TableCell>
                       <TableCell>{item.quantity || '-'}</TableCell>
                       <TableCell>
@@ -117,7 +132,7 @@ const EquipmentManagement = () => {
                           ${item.status === 'Available' ? 'bg-green-100 text-green-800' : 
                             item.status === 'Leased' ? 'bg-blue-100 text-blue-800' : 
                             'bg-yellow-100 text-yellow-800'}`}>
-                          {item.status}
+                          {item.status || 'Unknown'}
                         </span>
                       </TableCell>
                     </TableRow>
