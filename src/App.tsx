@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -32,6 +31,7 @@ import SystemManagement from "./pages/SystemManagement";
 import VirtualShops from "./pages/VirtualShops";
 import ProfileManagement from "./pages/ProfileManagement";
 import ClientManagement from "./pages/ClientManagement";
+import EquipmentManagement from "./pages/EquipmentManagement";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -134,6 +134,8 @@ function App() {
                       </RoleDashboard>
                     </ProtectedRoute>
                   } />
+
+                  <Route path="/equipment-management" element={<EquipmentManagement />} />
 
                   <Route path="/admin" element={
                     <ProtectedRoute requireAdmin={true}>

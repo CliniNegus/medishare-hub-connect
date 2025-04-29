@@ -68,10 +68,13 @@ export type Database = {
           downtime_hours: number | null
           id: string
           lease_rate: number | null
+          location: string | null
+          manufacturer: string | null
           name: string
           owner_id: string | null
           payment_status: string | null
           price: number | null
+          quantity: number | null
           remote_control_enabled: boolean | null
           revenue_generated: number | null
           shop_id: string | null
@@ -87,10 +90,13 @@ export type Database = {
           downtime_hours?: number | null
           id?: string
           lease_rate?: number | null
+          location?: string | null
+          manufacturer?: string | null
           name: string
           owner_id?: string | null
           payment_status?: string | null
           price?: number | null
+          quantity?: number | null
           remote_control_enabled?: boolean | null
           revenue_generated?: number | null
           shop_id?: string | null
@@ -106,10 +112,13 @@ export type Database = {
           downtime_hours?: number | null
           id?: string
           lease_rate?: number | null
+          location?: string | null
+          manufacturer?: string | null
           name?: string
           owner_id?: string | null
           payment_status?: string | null
           price?: number | null
+          quantity?: number | null
           remote_control_enabled?: boolean | null
           revenue_generated?: number | null
           shop_id?: string | null
