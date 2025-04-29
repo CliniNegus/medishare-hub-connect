@@ -5,6 +5,7 @@ export interface Equipment {
   manufacturer: string;
   status: string;
   location: string;
+  image_url?: string;
 }
 
 export interface Maintenance {
