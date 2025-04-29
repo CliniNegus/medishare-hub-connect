@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardDescription, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Map, BrainCircuit, PieChart, Lightbulb, BarChart2, Settings } from 'lucide-react';
+import { Map, BrainCircuit, PieChart, Lightbulb, BarChart2, Settings, RefreshCw, ListFilter, FileText } from 'lucide-react';
 
 interface PredictedEquipmentNeed {
   id: string;
@@ -266,4 +265,3 @@ const PredictiveAnalytics = () => {
 };
 
 export default PredictiveAnalytics;
-
