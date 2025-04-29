@@ -46,6 +46,10 @@ const EquipmentManagement = () => {
         // Console log to debug the structure of the returned data
         console.log('Raw equipment data:', data);
         
+        // Check if we have image_url in the data
+        const hasImageUrl = data.length > 0 && 'image_url' in data[0];
+        console.log('Has image_url property:', hasImageUrl);
+        
         // Explicitly map the fields to ensure type safety
         const typedData: Equipment[] = data.map(item => ({
           id: item.id,
@@ -55,9 +59,8 @@ const EquipmentManagement = () => {
           location: item.location || null,
           price: item.price || null,
           quantity: item.quantity || null,
-          // Handle the image_url field explicitly - it might not be directly in the item object
-          // Check if the field exists in the item, and ensure null safety
-          image_url: item.image_url || null,
+          // Use null for image_url if it doesn't exist in the data
+          image_url: hasImageUrl ? (item as any).image_url || null : null,
           status: item.status || null,
           created_at: item.created_at
         }));
