@@ -67,6 +67,7 @@ export type Database = {
           description: string | null
           downtime_hours: number | null
           id: string
+          image_url: string | null
           lease_rate: number | null
           location: string | null
           manufacturer: string | null
@@ -89,6 +90,7 @@ export type Database = {
           description?: string | null
           downtime_hours?: number | null
           id?: string
+          image_url?: string | null
           lease_rate?: number | null
           location?: string | null
           manufacturer?: string | null
@@ -111,6 +113,7 @@ export type Database = {
           description?: string | null
           downtime_hours?: number | null
           id?: string
+          image_url?: string | null
           lease_rate?: number | null
           location?: string | null
           manufacturer?: string | null
