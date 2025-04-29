@@ -2,7 +2,7 @@
 import React from 'react';
 import AdminStatsCards from '../AdminStatsCards';
 import QuickActions from '../QuickActions';
-import DataTabs from '../DataTabs';
+import DataTabs from '../data-tabs';
 
 interface OverviewTabContentProps {
   stats: {
