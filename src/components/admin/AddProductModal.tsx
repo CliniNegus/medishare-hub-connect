@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ProductForm } from "@/components/products/ProductForm";
 import { ProductFormValues } from '@/types/product';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 interface AddProductModalProps {
   open: boolean;
@@ -29,6 +31,42 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
   const { toast } = useToast();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [shops, setShops] = useState<Array<{id: string, name: string, country: string}>>([]);
+  const [selectedShop, setSelectedShop] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch shops for admin users
+  useEffect(() => {
+    if (isAdmin && open && user) {
+      fetchShops();
+    }
+  }, [isAdmin, open, user]);
+
+  const fetchShops = async () => {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase
+        .from('manufacturer_shops')
+        .select('id, name, country');
+      
+      if (error) throw error;
+      
+      setShops(data || []);
+      if (data && data.length > 0) {
+        setSelectedShop(data[0].id);
+      }
+    } catch (error: any) {
+      console.error('Error fetching shops:', error.message);
+      toast({
+        title: "Failed to load shops",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (values: ProductFormValues) => {
     if (!user) {
@@ -40,31 +78,51 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
       return;
     }
 
+    if (isAdmin && !selectedShop) {
+      toast({
+        title: "Shop selection required",
+        description: "Please select a shop for this product",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsSubmitting(true);
+      console.log("Starting product submission process");
       
       let imageUrl = values.image_url;
       if (imageUrl && imageUrl.startsWith('data:')) {
+        console.log("Processing image upload");
         // Convert base64 to file and upload
         const base64Data = imageUrl.split(',')[1];
         const fileData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-        const fileName = `${Math.random().toString(36).substring(7)}.jpg`;
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.jpg`;
         
+        console.log("Creating file for upload");
+        const file = new File([fileData], fileName, { type: 'image/jpeg' });
+
+        console.log("Uploading to storage:", fileName);
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('equipment_images')
-          .upload(fileName, fileData.buffer, {
-            contentType: 'image/jpeg'
-          });
+          .upload(fileName, file);
 
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          console.error("Image upload error:", uploadError);
+          throw uploadError;
+        }
 
+        console.log("Upload successful, getting public URL");
         const { data: { publicUrl } } = supabase.storage
           .from('equipment_images')
           .getPublicUrl(fileName);
 
         imageUrl = publicUrl;
+        console.log("Generated public URL:", imageUrl);
       }
       
+      const shopId = isAdmin ? selectedShop : null;
+
       const productData = {
         name: values.name,
         description: values.description,
@@ -74,21 +132,29 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
         condition: values.condition,
         manufacturer: values.manufacturer,
         model: values.model,
+        year_manufactured: values.year_manufactured,
+        serial_number: values.serial_number || null,
         specs: values.specs,
         image_url: imageUrl,
         owner_id: user.id,
+        shop_id: shopId,
         status: 'Available',
-        available_inventory: 1,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase
+      console.log("Inserting product data:", productData);
+      const { error, data } = await supabase
         .from('equipment')
-        .insert(productData);
+        .insert(productData)
+        .select();
         
-      if (error) throw error;
+      if (error) {
+        console.error("Database insert error:", error);
+        throw error;
+      }
       
+      console.log("Product added successfully:", data);
       toast({
         title: "Product Added Successfully",
         description: `${values.name} has been added to your inventory`,
@@ -120,6 +186,33 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
             Enter the details of the new medical equipment item.
           </DialogDescription>
         </DialogHeader>
+        
+        {isAdmin && (
+          <div className="mb-4">
+            <Label htmlFor="shop">Select Shop</Label>
+            <Select 
+              value={selectedShop || ''} 
+              onValueChange={setSelectedShop}
+              disabled={loading || shops.length === 0}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a shop" />
+              </SelectTrigger>
+              <SelectContent>
+                {shops.map((shop) => (
+                  <SelectItem key={shop.id} value={shop.id}>
+                    {shop.name} ({shop.country})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {shops.length === 0 && !loading && (
+              <p className="text-sm text-red-500 mt-1">
+                No shops available. Please create a shop first.
+              </p>
+            )}
+          </div>
+        )}
         
         <ProductForm 
           onSubmit={handleSubmit}

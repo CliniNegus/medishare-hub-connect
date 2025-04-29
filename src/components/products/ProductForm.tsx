@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormField } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { BasicProductInfo } from './form/BasicProductInfo';
 import { ManufacturerInfo } from './form/ManufacturerInfo';
@@ -12,6 +13,7 @@ import { ShareableSwitch } from './form/ShareableSwitch';
 import ImageUpload from './ImageUpload';
 import { ProductFormValues, productSchema } from "@/types/product";
 import { WebsiteProductImport } from './WebsiteProductImport';
+import { useToast } from "@/hooks/use-toast";
 
 interface ProductFormProps {
   onSubmit: (values: ProductFormValues) => Promise<void>;
@@ -22,6 +24,7 @@ interface ProductFormProps {
 }
 
 export const ProductForm = ({ onSubmit, initialValues, isLoading, isEditing, onCancel }: ProductFormProps) => {
+  const { toast } = useToast();
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -53,6 +56,19 @@ export const ProductForm = ({ onSubmit, initialValues, isLoading, isEditing, onC
     form.reset(productData);
   };
 
+  const handleFormSubmit = async (values: ProductFormValues) => {
+    try {
+      await onSubmit(values);
+    } catch (error: any) {
+      console.error("Form submission error:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to submit form",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Card className="border-red-600">
       <CardHeader>
@@ -70,15 +86,18 @@ export const ProductForm = ({ onSubmit, initialValues, isLoading, isEditing, onC
         )}
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="image_url"
               render={({ field }) => (
-                <ImageUpload
-                  onImageUploaded={field.onChange}
-                  currentImageUrl={field.value}
-                />
+                <FormItem>
+                  <ImageUpload
+                    onImageUploaded={field.onChange}
+                    currentImageUrl={field.value}
+                  />
+                  <FormMessage />
+                </FormItem>
               )}
             />
 
@@ -89,7 +108,7 @@ export const ProductForm = ({ onSubmit, initialValues, isLoading, isEditing, onC
             <ProductDetails form={form} />
             
             <div className="flex justify-end space-x-2">
-              {isEditing && onCancel && (
+              {onCancel && (
                 <Button
                   type="button"
                   variant="outline"

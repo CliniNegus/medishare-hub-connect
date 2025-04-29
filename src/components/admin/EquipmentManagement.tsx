@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -17,6 +17,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import AddProductModal from './AddProductModal';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { createEquipmentImagesBucket } from '@/integrations/supabase/createStorageBucket';
 
 interface Equipment {
   id: string;
@@ -30,13 +33,88 @@ interface EquipmentManagementProps {
   recentEquipment: Equipment[];
 }
 
-const EquipmentManagement = ({ recentEquipment }: EquipmentManagementProps) => {
+const EquipmentManagement = ({ recentEquipment: initialEquipment }: EquipmentManagementProps) => {
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [equipment, setEquipment] = useState(initialEquipment);
+  const { toast } = useToast();
+  const [bucketReady, setBucketReady] = useState(false);
+
+  // Create/check bucket when component mounts
+  useEffect(() => {
+    const checkBucket = async () => {
+      const result = await createEquipmentImagesBucket();
+      setBucketReady(result);
+      if (!result) {
+        toast({
+          title: "Storage Setup Error",
+          description: "Failed to set up image storage. Some features may not work correctly.",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    checkBucket();
+  }, []);
+
+  // Fetch equipment data when refresh trigger changes
+  useEffect(() => {
+    const fetchEquipment = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('equipment')
+          .select('*');
+          
+        if (error) throw error;
+        
+        // Transform data for display
+        const formattedEquipment = (data || []).map(item => ({
+          id: item.id,
+          name: item.name,
+          manufacturer: item.manufacturer || 'Unknown',
+          status: item.status || 'Unknown',
+          location: 'Warehouse' // Default location, update as needed
+        }));
+        
+        setEquipment(formattedEquipment);
+      } catch (error: any) {
+        console.error('Error fetching equipment:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch equipment data",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    fetchEquipment();
+  }, [refreshTrigger]);
+
+  const handleAddEquipmentClick = async () => {
+    // Create bucket if needed before opening modal
+    if (!bucketReady) {
+      const result = await createEquipmentImagesBucket();
+      setBucketReady(result);
+      if (!result) {
+        toast({
+          title: "Storage Setup Error",
+          description: "Failed to set up image storage. Some features may not work correctly.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    
+    setIsAddProductModalOpen(true);
+  };
 
   const handleProductAdded = () => {
     // Increment trigger to refresh the equipment list
     setRefreshTrigger(prev => prev + 1);
+    toast({
+      title: "Success",
+      description: "Product added successfully", 
+    });
   };
 
   return (
@@ -44,7 +122,7 @@ const EquipmentManagement = ({ recentEquipment }: EquipmentManagementProps) => {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold">Equipment Management</h2>
         <Button 
-          onClick={() => setIsAddProductModalOpen(true)}
+          onClick={handleAddEquipmentClick}
           className="bg-[#E02020] hover:bg-[#E02020]/90 text-white"
         >
           <PlusCircle className="h-4 w-4 mr-2" />
@@ -99,9 +177,9 @@ const EquipmentManagement = ({ recentEquipment }: EquipmentManagementProps) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {recentEquipment.map((item) => (
+          {equipment.map((item) => (
             <TableRow key={item.id}>
-              <TableCell className="font-medium">{item.id}</TableCell>
+              <TableCell className="font-medium">{item.id.substring(0, 8)}...</TableCell>
               <TableCell>{item.name}</TableCell>
               <TableCell>{item.manufacturer}</TableCell>
               <TableCell>

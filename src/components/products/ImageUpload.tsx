@@ -32,13 +32,23 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImage
 
     try {
       setUploading(true);
+      console.log("Processing image file:", file.name);
 
-      // Create a preview URL
+      // Create a base64 preview
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result as string;
+        console.log("Base64 image created successfully");
         setPreview(base64String);
         onImageUploaded(base64String);
+      };
+      reader.onerror = (error) => {
+        console.error("FileReader error:", error);
+        toast({
+          title: "Error",
+          description: "Failed to read image file",
+          variant: "destructive",
+        });
       };
       reader.readAsDataURL(file);
       
@@ -46,7 +56,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImage
       console.error('Error handling file:', error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to process image",
         variant: "destructive",
       });
     } finally {
@@ -55,6 +65,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImage
   };
 
   const removeImage = () => {
+    console.log("Removing image");
     setPreview(undefined);
     onImageUploaded('');
   };
@@ -75,7 +86,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImage
                 variant="destructive"
                 size="icon"
                 className="absolute top-2 right-2"
-                onClick={removeImage}
+                onClick={(e) => {
+                  e.preventDefault();
+                  removeImage();
+                }}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -90,7 +104,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImage
             </div>
           )}
           <input
-            id={id}
+            id={id || "product-image"}
             type="file"
             className="hidden"
             accept="image/*"

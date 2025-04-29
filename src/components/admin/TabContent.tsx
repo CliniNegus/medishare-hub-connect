@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import AdminStatsCards from './AdminStatsCards';
 import QuickActions from './QuickActions';
 import DataTabs from './DataTabs';
@@ -9,6 +9,7 @@ import MaintenanceManagement from './MaintenanceManagement';
 import FinancialManagement from './FinancialManagement';
 import SettingsPanel from './SettingsPanel';
 import PredictiveAnalytics from './analytics/PredictiveAnalytics';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TabContentProps {
   activeTab: string;
@@ -30,10 +31,42 @@ interface TabContentProps {
 const TabContent: React.FC<TabContentProps> = ({
   activeTab,
   stats,
-  recentEquipment,
+  recentEquipment: initialEquipment,
   maintenanceSchedule,
   recentTransactions,
 }) => {
+  const [equipment, setEquipment] = useState(initialEquipment);
+
+  useEffect(() => {
+    if (activeTab === 'equipment') {
+      // Fetch latest equipment data when tab is equipment
+      const fetchEquipment = async () => {
+        try {
+          const { data } = await supabase
+            .from('equipment')
+            .select('*')
+            .limit(10);
+          
+          if (data) {
+            const formattedData = data.map(item => ({
+              id: item.id,
+              name: item.name,
+              manufacturer: item.manufacturer || 'Unknown',
+              status: item.status || 'Unknown',
+              location: 'Warehouse' // Default location
+            }));
+            
+            setEquipment(formattedData);
+          }
+        } catch (error) {
+          console.error('Error fetching equipment:', error);
+        }
+      };
+      
+      fetchEquipment();
+    }
+  }, [activeTab]);
+
   switch (activeTab) {
     case 'overview':
       return (
@@ -41,14 +74,14 @@ const TabContent: React.FC<TabContentProps> = ({
           <AdminStatsCards stats={stats} />
           <QuickActions />
           <DataTabs 
-            recentEquipment={recentEquipment}
+            recentEquipment={equipment}
             maintenanceSchedule={maintenanceSchedule}
             recentTransactions={recentTransactions}
           />
         </div>
       );
     case 'equipment':
-      return <EquipmentManagement recentEquipment={recentEquipment} />;
+      return <EquipmentManagement recentEquipment={equipment} />;
     case 'users':
       return <UserManagement stats={stats} />;
     case 'maintenance':
@@ -84,4 +117,3 @@ const TabContent: React.FC<TabContentProps> = ({
 };
 
 export default TabContent;
-
