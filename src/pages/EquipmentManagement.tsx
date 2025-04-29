@@ -55,7 +55,8 @@ const EquipmentManagement = () => {
           location: item.location || null,
           price: item.price || null,
           quantity: item.quantity || null,
-          // Use optional chaining to safely access the image_url property
+          // Handle the image_url field explicitly - it might not be directly in the item object
+          // Check if the field exists in the item, and ensure null safety
           image_url: item.image_url || null,
           status: item.status || null,
           created_at: item.created_at
