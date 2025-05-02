@@ -32,6 +32,7 @@ import VirtualShops from "./pages/VirtualShops";
 import ProfileManagement from "./pages/ProfileManagement";
 import ClientManagement from "./pages/ClientManagement";
 import EquipmentManagement from "./pages/EquipmentManagement";
+import AddEquipmentPage from './pages/AddEquipmentPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
