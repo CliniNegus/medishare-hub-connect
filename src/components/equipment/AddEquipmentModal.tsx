@@ -44,6 +44,7 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
   };
 
   const handleImageUploaded = (url: string) => {
+    console.log("Image uploaded, URL:", url);
     setImageUrl(url);
   };
 
@@ -61,51 +62,92 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
     
     try {
       setLoading(true);
+      console.log("Starting submission with form data:", form);
+      console.log("User ID:", user.id);
+      console.log("Image URL:", imageUrl);
       
       // Process the uploaded image if using base64
       let finalImageUrl = imageUrl;
       if (imageUrl && imageUrl.startsWith('data:')) {
-        const base64Data = imageUrl.split(',')[1];
-        const fileData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-        const fileName = `equipment_${Date.now()}_${Math.random().toString(36).substring(2)}.jpg`;
-        
-        const file = new File([fileData], fileName, { type: 'image/jpeg' });
+        console.log("Processing base64 image...");
+        try {
+          const base64Data = imageUrl.split(',')[1];
+          const fileData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+          const fileName = `equipment_${Date.now()}_${Math.random().toString(36).substring(2)}.jpg`;
+          
+          const file = new File([fileData], fileName, { type: 'image/jpeg' });
+          console.log("Created file object for upload:", fileName);
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('equipment_images')
-          .upload(fileName, file);
+          console.log("Uploading to equipment_images bucket...");
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('equipment_images')
+            .upload(fileName, file);
 
-        if (uploadError) {
-          throw uploadError;
+          if (uploadError) {
+            console.error("Upload error:", uploadError);
+            throw uploadError;
+          }
+
+          console.log("Upload successful:", uploadData);
+          const { data: { publicUrl } } = supabase.storage
+            .from('equipment_images')
+            .getPublicUrl(fileName);
+
+          finalImageUrl = publicUrl;
+          console.log("Generated public URL:", finalImageUrl);
+        } catch (imgError: any) {
+          console.error("Image processing error:", imgError);
+          toast({
+            title: "Image upload failed",
+            description: imgError.message || "Could not process the image",
+            variant: "destructive",
+          });
+          // Continue with submission without the image
+          finalImageUrl = null;
         }
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('equipment_images')
-          .getPublicUrl(fileName);
-
-        finalImageUrl = publicUrl;
       }
       
-      const { error } = await supabase.from('equipment').insert([
-        {
-          name: form.name,
-          manufacturer: form.manufacturer,
-          category: form.category,
-          location: form.location,
-          price: form.price ? parseFloat(form.price) : null,
-          quantity: form.quantity ? parseInt(form.quantity) : null,
-          image_url: finalImageUrl,
-          owner_id: user.id,
-          status: 'Available',
-        },
-      ]);
+      // Prepare data for database insertion
+      const equipmentData = {
+        name: form.name,
+        manufacturer: form.manufacturer,
+        category: form.category,
+        location: form.location,
+        price: form.price ? parseFloat(form.price) : null,
+        quantity: form.quantity ? parseInt(form.quantity) : null,
+        image_url: finalImageUrl,
+        owner_id: user.id,
+        status: 'Available',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
       
-      if (error) throw error;
+      console.log("Inserting equipment data:", equipmentData);
+      
+      const { data, error } = await supabase.from('equipment').insert([equipmentData]).select();
+      
+      console.log("Insert response data:", data);
+      
+      if (error) {
+        console.error("Database error:", error);
+        throw error;
+      }
       
       toast({
         title: "Equipment Added Successfully",
         description: `${form.name} has been added to the inventory`,
       });
+      
+      // Reset form
+      setForm({
+        name: '',
+        manufacturer: '',
+        category: '',
+        location: '',
+        price: '',
+        quantity: '',
+      });
+      setImageUrl(null);
       
       onOpenChange(false);
       if (onEquipmentAdded) {

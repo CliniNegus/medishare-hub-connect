@@ -22,6 +22,7 @@ export const UserRoleProvider = ({ children }: { children: ReactNode }) => {
   // Set role from profile when it loads
   useEffect(() => {
     if (profile?.role) {
+      console.log("Setting user role from profile:", profile.role);
       // Make sure we set the role in state to match the user's profile role
       setRole(profile.role as UserRole);
     }
@@ -29,7 +30,9 @@ export const UserRoleProvider = ({ children }: { children: ReactNode }) => {
 
   // Function to check if the user is registered with a specific role
   const isUserRegisteredAs = (checkRole: UserRole): boolean => {
-    return profile?.role === checkRole;
+    const hasRole = profile?.role === checkRole;
+    console.log(`Checking if user has role ${checkRole}:`, hasRole, "Current role:", profile?.role);
+    return hasRole;
   };
 
   // Function to update user role in database
@@ -55,8 +58,13 @@ export const UserRoleProvider = ({ children }: { children: ReactNode }) => {
     }
     
     // Check if the user's registered role is in allowed roles
-    // This ensures users can only access what their registered role allows
-    return profile?.role && allowedRoles.includes(profile.role as UserRole);
+    const isAuthorized = profile?.role && allowedRoles.includes(profile.role as UserRole);
+    console.log("Role authorization check:", {
+      currentRole: profile?.role,
+      allowedRoles,
+      isAuthorized
+    });
+    return !!isAuthorized;
   };
 
   return (
