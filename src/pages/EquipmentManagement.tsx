@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useNavigate } from 'react-router-dom';
 
 interface Equipment {
   id: string;
@@ -31,6 +32,7 @@ const EquipmentManagement = () => {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const fetchEquipment = async () => {
     try {
@@ -73,6 +75,11 @@ const EquipmentManagement = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAddEquipmentClick = () => {
+    console.log("Navigating to add equipment page from EquipmentManagement");
+    navigate('/add-equipment');
   };
 
   useEffect(() => {

@@ -12,9 +12,11 @@ const EquipmentHeader = ({ onAddEquipmentClick }: EquipmentHeaderProps) => {
   const navigate = useNavigate();
   
   const handleAddClick = () => {
+    console.log("Add Equipment button clicked in header");
     if (onAddEquipmentClick) {
       onAddEquipmentClick();
     } else {
+      console.log("Navigating to /add-equipment from header");
       navigate('/add-equipment');
     }
   };
@@ -25,6 +27,7 @@ const EquipmentHeader = ({ onAddEquipmentClick }: EquipmentHeaderProps) => {
       <Button 
         onClick={handleAddClick}
         className="bg-[#E02020] hover:bg-[#E02020]/90 text-white"
+        variant="primary-red"
       >
         <PlusCircle className="h-4 w-4 mr-2" />
         Add New Equipment

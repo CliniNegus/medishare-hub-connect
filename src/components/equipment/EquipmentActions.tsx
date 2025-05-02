@@ -12,6 +12,7 @@ const EquipmentActions: React.FC<EquipmentActionsProps> = ({ onEquipmentAdded })
   const navigate = useNavigate();
 
   const handleAddEquipmentClick = () => {
+    console.log("Add Equipment button clicked, navigating to /add-equipment");
     navigate('/add-equipment');
   };
 
@@ -20,6 +21,7 @@ const EquipmentActions: React.FC<EquipmentActionsProps> = ({ onEquipmentAdded })
       <Button 
         onClick={handleAddEquipmentClick}
         className="bg-[#E02020] hover:bg-[#E02020]/90 text-white"
+        variant="primary-red"
       >
         <Plus className="mr-2 h-4 w-4" />
         Add Equipment

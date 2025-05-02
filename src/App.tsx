@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -136,7 +137,21 @@ function App() {
                     </ProtectedRoute>
                   } />
 
-                  <Route path="/equipment-management" element={<EquipmentManagement />} />
+                  <Route path="/equipment-management" element={
+                    <ProtectedRoute>
+                      <RoleDashboard allowedRoles={['manufacturer', 'admin']}>
+                        <EquipmentManagement />
+                      </RoleDashboard>
+                    </ProtectedRoute>
+                  } />
+
+                  <Route path="/add-equipment" element={
+                    <ProtectedRoute>
+                      <RoleDashboard allowedRoles={['manufacturer', 'admin']}>
+                        <AddEquipmentPage />
+                      </RoleDashboard>
+                    </ProtectedRoute>
+                  } />
 
                   <Route path="/admin" element={
                     <ProtectedRoute requireAdmin={true}>
