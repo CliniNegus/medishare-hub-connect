@@ -26,10 +26,11 @@ const EquipmentHeader = ({ onAddEquipmentClick }: EquipmentHeaderProps) => {
       <h2 className="text-xl font-bold">Equipment Management</h2>
       <Button 
         onClick={handleAddClick}
-        className="bg-[#E02020] hover:bg-[#E02020]/90 text-white"
+        className="bg-[#E02020] hover:bg-[#E02020]/90 text-white font-bold px-5 py-2"
+        size="lg"
         variant="primary-red"
       >
-        <PlusCircle className="h-4 w-4 mr-2" />
+        <PlusCircle className="h-5 w-5 mr-2" />
         Add New Equipment
       </Button>
     </div>

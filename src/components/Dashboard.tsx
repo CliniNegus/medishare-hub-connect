@@ -24,6 +24,7 @@ const Dashboard = () => {
     
     // Make sure profile is loaded and role is set correctly
     if (user && profile && profile.role) {
+      console.log("Dashboard: Setting role to", profile.role);
       setRole(profile.role as any);
       
       // Redirect admin users to the admin dashboard
@@ -40,6 +41,12 @@ const Dashboard = () => {
       refreshProfile();
     }
   }, [refreshProfile, user]);
+
+  // For debugging
+  useEffect(() => {
+    console.log("Dashboard component - Current user role:", role);
+    console.log("Dashboard component - User profile:", profile);
+  }, [role, profile]);
 
   // If user doesn't have a profile role or tries to access a dashboard they're not registered for
   if (profile && !isUserRegisteredAs(profile.role as any)) {
@@ -65,10 +72,13 @@ const Dashboard = () => {
     );
   }
 
-  // Render appropriate dashboard based on user's registered role
+  // For debugging
   if (!profile) {
+    console.log("Dashboard - Profile not loaded yet");
     return <div className="h-screen flex items-center justify-center">Loading profile...</div>;
   }
+
+  console.log("Dashboard - Rendering dashboard for role:", profile.role);
 
   // Render the dashboard based on the profile's role
   switch (profile.role) {

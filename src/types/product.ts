@@ -15,6 +15,7 @@ export const productSchema = z.object({
   model: z.string().min(2, "Model must be at least 2 characters"),
   year_manufactured: z.number().min(1900).max(new Date().getFullYear() + 1).optional(),
   serial_number: z.string().optional(),
+  sales_option: z.enum(['direct_sale', 'lease', 'both']).optional(),
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;
@@ -25,4 +26,5 @@ export type Product = ProductFormValues & {
   status: string;
   created_at: string;
   updated_at: string;
+  sales_option?: 'direct_sale' | 'lease' | 'both';
 };

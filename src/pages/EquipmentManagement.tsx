@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
-import EquipmentActions from "@/components/equipment/EquipmentActions";
+import EquipmentHeader from "@/components/admin/equipment/EquipmentHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -14,6 +13,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
 
 interface Equipment {
   id: string;
@@ -92,12 +93,30 @@ const EquipmentManagement = () => {
       <main className="container mx-auto py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-[#333333]">Equipment Management</h1>
-          <EquipmentActions onEquipmentAdded={fetchEquipment} />
+          <Button 
+            onClick={handleAddEquipmentClick}
+            className="bg-[#E02020] hover:bg-[#E02020]/90 text-white font-bold"
+            size="lg"
+            variant="primary-red"
+          >
+            <PlusCircle className="h-5 w-5 mr-2" />
+            Add New Equipment
+          </Button>
         </div>
 
         <Card className="border border-gray-200 shadow-sm">
           <CardHeader className="bg-[#FFFFFF]">
-            <CardTitle className="text-lg text-[#333333]">Equipment Inventory</CardTitle>
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-lg text-[#333333]">Equipment Inventory</CardTitle>
+              <Button
+                onClick={handleAddEquipmentClick}
+                variant="outline"
+                className="border-red-600 text-red-600 hover:bg-red-50"
+              >
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Add Equipment
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {loading ? (

@@ -28,6 +28,16 @@ export const UserRoleProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [profile]);
 
+  // Debug effect
+  useEffect(() => {
+    console.log("UserRoleProvider - Current state:", { 
+      userExists: !!user, 
+      profileExists: !!profile,
+      currentRole: role,
+      profileRole: profile?.role
+    });
+  }, [user, profile, role]);
+
   // Function to check if the user is registered with a specific role
   const isUserRegisteredAs = (checkRole: UserRole): boolean => {
     const hasRole = profile?.role === checkRole;

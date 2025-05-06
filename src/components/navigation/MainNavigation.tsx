@@ -7,7 +7,8 @@ import {
   ShoppingCart, 
   Calculator, 
   FileText,
-  Signal
+  Signal,
+  Grid
 } from 'lucide-react';
 import { useUserRole } from "@/contexts/UserRoleContext";
 
@@ -28,6 +29,7 @@ export const MainNavigation = () => {
       ],
       manufacturer: [
         { icon: <Package className="h-5 w-5" />, label: 'Products', path: '/inventory' },
+        { icon: <Grid className="h-5 w-5" />, label: 'Equipment', path: '/equipment-management' },
         { icon: <ShoppingCart className="h-5 w-5" />, label: 'Orders', path: '/orders' },
         { icon: <Signal className="h-5 w-5" />, label: 'Tracking', path: '/tracking' },
         { icon: <FileText className="h-5 w-5" />, label: 'Leases', path: '/leases' },
@@ -38,6 +40,7 @@ export const MainNavigation = () => {
       ],
       admin: [
         { icon: <Package className="h-5 w-5" />, label: 'Inventory', path: '/inventory' },
+        { icon: <Grid className="h-5 w-5" />, label: 'Equipment', path: '/equipment-management' },
         { icon: <ShoppingCart className="h-5 w-5" />, label: 'Orders', path: '/orders' },
         { icon: <FileText className="h-5 w-5" />, label: 'Leases', path: '/leases' },
         { icon: <Calculator className="h-5 w-5" />, label: 'Financing', path: '/financing' },

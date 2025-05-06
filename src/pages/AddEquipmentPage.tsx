@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import { ProductForm } from '@/components/products/ProductForm';
 import { useToast } from "@/hooks/use-toast";
@@ -10,12 +11,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ProductFormValues } from '@/types/product';
 import { createEquipmentImagesBucket } from '@/integrations/supabase/createStorageBucket';
 import Layout from '@/components/Layout';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 const AddEquipmentPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [salesOption, setSalesOption] = useState<'direct_sale' | 'lease' | 'both'>('both');
 
   React.useEffect(() => {
     // Ensure the storage bucket exists
@@ -35,6 +39,7 @@ const AddEquipmentPage = () => {
     try {
       setIsSubmitting(true);
       console.log("Starting product submission process");
+      console.log("Sales option selected:", salesOption);
       
       let imageUrl = values.image_url;
       if (imageUrl && imageUrl.startsWith('data:')) {
@@ -71,7 +76,7 @@ const AddEquipmentPage = () => {
         description: values.description,
         category: values.category,
         price: values.price,
-        lease_rate: values.lease_rate || Math.round(values.price * 0.05),
+        lease_rate: salesOption === 'direct_sale' ? null : (values.lease_rate || Math.round(values.price * 0.05)),
         condition: values.condition,
         manufacturer: values.manufacturer,
         model: values.model,
@@ -81,6 +86,7 @@ const AddEquipmentPage = () => {
         image_url: imageUrl,
         owner_id: user.id,
         status: 'Available',
+        sales_option: salesOption,  // Add the sales option
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -131,6 +137,35 @@ const AddEquipmentPage = () => {
           </Button>
           <h1 className="text-2xl font-bold text-red-600">Add New Equipment</h1>
         </div>
+        
+        <Card className="mb-6 border-red-100">
+          <CardContent className="py-4">
+            <h2 className="text-lg font-medium mb-4">How would you like to offer this equipment?</h2>
+            <RadioGroup 
+              value={salesOption} 
+              onValueChange={(value) => setSalesOption(value as any)}
+              className="flex flex-col space-y-3"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="direct_sale" id="option-direct" />
+                <Label htmlFor="option-direct" className="font-medium">Direct Sale Only</Label>
+                <span className="text-sm text-gray-500 ml-2">- Equipment will be available for one-time purchase</span>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="lease" id="option-lease" />
+                <Label htmlFor="option-lease" className="font-medium">Lease Only</Label>
+                <span className="text-sm text-gray-500 ml-2">- Equipment will be available for long-term lease</span>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="both" id="option-both" />
+                <Label htmlFor="option-both" className="font-medium">Both Options</Label>
+                <span className="text-sm text-gray-500 ml-2">- Equipment will be available for purchase or lease</span>
+              </div>
+            </RadioGroup>
+          </CardContent>
+        </Card>
         
         <ProductForm 
           onSubmit={handleSubmit}
