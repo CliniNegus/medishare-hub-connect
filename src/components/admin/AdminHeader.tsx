@@ -1,8 +1,9 @@
 
 import React from 'react';
-import { Bell, Calendar, LogOut } from 'lucide-react';
+import { Bell, Calendar, LogOut, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,7 @@ import {
 
 const AdminHeader = () => {
   const { user, profile, signOut } = useAuth();
+  const navigate = useNavigate();
   
   const getInitials = () => {
     if (profile?.full_name) {
@@ -31,6 +33,14 @@ const AdminHeader = () => {
     <header className="flex justify-between items-center mb-8 bg-white p-4 rounded-lg shadow-sm">
       <h1 className="text-2xl font-bold">Admin Dashboard</h1>
       <div className="flex items-center space-x-4">
+        <Button 
+          className="bg-[#E02020] hover:bg-[#c01010] text-white"
+          onClick={() => navigate("/virtual-shops")}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Add Product
+        </Button>
+        
         <Button variant="outline" size="icon">
           <Bell className="h-5 w-5" />
         </Button>
