@@ -30,7 +30,7 @@ const ManufacturerHeader = () => {
         </Button>
         <Button 
           className="bg-red-600 hover:bg-red-700"
-          onClick={() => navigate("/add-equipment")}
+          onClick={() => navigate("/virtual-shops")}
         >
           <Plus className="mr-2 h-4 w-4" />
           Add Product
