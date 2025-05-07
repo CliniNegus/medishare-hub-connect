@@ -86,8 +86,19 @@ const InvoiceGeneration: React.FC<InvoiceGenerationProps> = ({ equipmentData }) 
               getTotal={getTotal}
               addInvoiceItem={addInvoiceItem}
               removeInvoiceItem={removeInvoiceItem}
-              updateItemTotal={updateItemTotal}
-              populateFromEquipment={populateFromEquipment}
+              updateItemTotal={(index, quantity, unitPrice) => {
+                updateItemTotal(invoiceItems[index].id, 'quantity', quantity);
+                updateItemTotal(invoiceItems[index].id, 'unitPrice', unitPrice);
+                // Recalculate total
+                const total = quantity * unitPrice;
+                updateItemTotal(invoiceItems[index].id, 'total', total);
+              }}
+              populateFromEquipment={(itemIndex) => {
+                // Assuming we want to use the first equipment item for demonstration
+                if (equipmentData && equipmentData.length > 0) {
+                  populateFromEquipment(equipmentData[0]);
+                }
+              }}
               equipmentData={equipmentData}
             />
             

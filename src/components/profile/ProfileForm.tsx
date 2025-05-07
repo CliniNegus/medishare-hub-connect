@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from '@/contexts/UserRoleContext';
 import ImageUpload from '@/components/products/ImageUpload';
-import { Upload } from 'lucide-react';
+import { Upload, X } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -108,28 +109,28 @@ const ProfileForm = () => {
                 Organization Logo
               </label>
               {formData.logo_url ? (
-                <div className="relative w-full h-48 border border-gray-300 rounded-lg overflow-hidden mb-2">
+                <div className="relative w-full h-36 border border-gray-300 rounded-lg overflow-hidden mb-2">
                   <img 
                     src={formData.logo_url} 
                     alt="Organization logo" 
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-contain p-2"
                   />
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="absolute top-2 right-2 bg-white"
+                    className="absolute top-2 right-2 bg-white h-8 w-8 p-0"
                     onClick={() => setFormData(prev => ({ ...prev, logo_url: '' }))}
                   >
-                    Change
+                    <X className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               ) : (
                 <div 
-                  className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 mb-2"
+                  className="w-full h-36 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 mb-2"
                   onClick={() => document.getElementById('logo-upload')?.click()}
                 >
-                  <Upload className="h-12 w-12 text-gray-400 mb-2" />
+                  <Upload className="h-8 w-8 text-gray-400 mb-2" />
                   <p className="text-sm text-gray-500">Click to upload your organization logo</p>
                   <p className="text-xs text-gray-400 mt-1">PNG, JPG or WEBP (Max 5MB)</p>
                 </div>
