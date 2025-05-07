@@ -8,9 +8,15 @@ interface ImageUploadProps {
   onImageUploaded: (url: string) => void;
   currentImageUrl?: string;
   id?: string;
+  className?: string;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImageUrl, id }) => {
+const ImageUpload: React.FC<ImageUploadProps> = ({ 
+  onImageUploaded, 
+  currentImageUrl, 
+  id,
+  className
+}) => {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | undefined>(currentImageUrl);
   const { toast } = useToast();
@@ -23,8 +29,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImage
     const file = event.target.files[0];
     if (file.size > 5 * 1024 * 1024) { // 5MB limit
       toast({
-        title: "Error",
-        description: "File size should be less than 5MB",
+        title: "File size error",
+        description: "Maximum file size is 5MB",
         variant: "destructive",
       });
       return;
@@ -71,7 +77,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImage
   };
 
   return (
-    <div className="space-y-4">
+    <div className={`space-y-4 ${className || ''}`}>
       <div className="flex items-center justify-center w-full">
         <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
           {preview ? (
@@ -115,7 +121,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImage
       </div>
       {uploading && (
         <div className="text-center text-sm text-gray-500">
-          Uploading...
+          Processing image...
         </div>
       )}
     </div>

@@ -9,6 +9,14 @@ const ManufacturerHeader = () => {
   const { profile, user } = useAuth();
   const navigate = useNavigate();
 
+  const handleAddProduct = () => {
+    navigate("/add-equipment");
+  };
+
+  const handleManageShops = () => {
+    navigate("/virtual-shops");
+  };
+
   return (
     <div className="flex justify-between items-center mb-8">
       <div>
@@ -23,14 +31,14 @@ const ManufacturerHeader = () => {
         <Button 
           variant="outline"
           className="border-red-600 text-red-600 hover:bg-red-50"
-          onClick={() => navigate("/virtual-shops")}
+          onClick={handleManageShops}
         >
           <Store className="mr-2 h-4 w-4" />
           Manage Virtual Shops
         </Button>
         <Button 
-          className="bg-red-600 hover:bg-red-700"
-          onClick={() => navigate("/virtual-shops")}
+          className="bg-[#E02020] hover:bg-[#E02020]/90 text-white"
+          onClick={handleAddProduct}
         >
           <Plus className="mr-2 h-4 w-4" />
           Add Product

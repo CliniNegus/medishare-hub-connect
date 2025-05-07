@@ -16,6 +16,7 @@ export const useEquipment = (initialEquipment: Equipment[]) => {
   const [equipment, setEquipment] = useState<Equipment[]>(initialEquipment);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [bucketReady, setBucketReady] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   // Create/check bucket when component mounts
@@ -24,6 +25,7 @@ export const useEquipment = (initialEquipment: Equipment[]) => {
       const result = await createEquipmentImagesBucket();
       setBucketReady(result);
       if (!result) {
+        console.error("Failed to setup equipment images storage bucket");
         toast({
           title: "Storage Setup Error",
           description: "Failed to set up image storage. Some features may not work correctly.",
@@ -39,20 +41,24 @@ export const useEquipment = (initialEquipment: Equipment[]) => {
   useEffect(() => {
     const fetchEquipment = async () => {
       try {
+        setLoading(true);
+        console.log("Fetching equipment data...");
+        
         const { data, error } = await supabase
           .from('equipment')
           .select('*');
           
         if (error) throw error;
         
+        console.log("Equipment data fetched:", data?.length || 0, "items");
+        
         // Transform data for display - handle missing manufacturer field
         const formattedEquipment = (data || []).map(item => ({
           id: item.id,
-          name: item.name,
-          // Use a fallback for manufacturer since it's not in the database schema
-          manufacturer: item.category || 'Unknown', 
+          name: item.name || "Unnamed Equipment",
+          manufacturer: item.manufacturer || item.category || 'Unknown', 
           status: item.status || 'Unknown',
-          location: 'Warehouse' // Default location, update as needed
+          location: item.location || 'Warehouse' // Default location
         }));
         
         setEquipment(formattedEquipment);
@@ -60,9 +66,11 @@ export const useEquipment = (initialEquipment: Equipment[]) => {
         console.error('Error fetching equipment:', error);
         toast({
           title: "Error",
-          description: "Failed to fetch equipment data",
+          description: "Failed to fetch equipment data: " + error.message,
           variant: "destructive",
         });
+      } finally {
+        setLoading(false);
       }
     };
     
@@ -89,8 +97,10 @@ export const useEquipment = (initialEquipment: Equipment[]) => {
 
   return {
     equipment,
+    loading,
     bucketReady,
     handleProductAdded,
-    ensureBucketReady
+    ensureBucketReady,
+    refreshEquipment: () => setRefreshTrigger(prev => prev + 1)
   };
 };

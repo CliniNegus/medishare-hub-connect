@@ -12,6 +12,7 @@ import { ProductFormValues } from '@/types/product';
 import { useShopData } from '@/hooks/use-shop-data';
 import ShopSelector from './product/ShopSelector';
 import ModalHeader from './product/ModalHeader';
+import { createEquipmentImagesBucket } from '@/integrations/supabase/createStorageBucket';
 
 interface AddProductModalProps {
   open: boolean;
@@ -36,6 +37,18 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
     setSelectedShop, 
     loading: shopsLoading 
   } = useShopData(isAdmin, open);
+
+  // Initialize bucket on component mount
+  React.useEffect(() => {
+    if (open) {
+      createEquipmentImagesBucket()
+        .then(success => {
+          if (!success) {
+            console.warn("Failed to initialize storage bucket for equipment images");
+          }
+        });
+    }
+  }, [open]);
 
   const handleSubmit = async (values: ProductFormValues) => {
     if (!user) {
@@ -78,7 +91,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
 
         if (uploadError) {
           console.error("Image upload error:", uploadError);
-          throw uploadError;
+          throw new Error(`Image upload failed: ${uploadError.message}`);
         }
 
         console.log("Upload successful, getting public URL");
@@ -120,7 +133,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
         
       if (error) {
         console.error("Database insert error:", error);
-        throw error;
+        throw new Error(`Database error: ${error.message}`);
       }
       
       console.log("Product added successfully:", data);
