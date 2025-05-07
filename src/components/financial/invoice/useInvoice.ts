@@ -26,7 +26,8 @@ export type Invoice = {
   notes: string;
 };
 
-const useInvoice = (equipmentData: EquipmentProps[]) => {
+// Export the hook with the correct name
+export const useInvoice = (equipmentData: EquipmentProps[]) => {
   const { toast } = useToast();
   const [invoiceNumber, setInvoiceNumber] = useState('INV-2025-0001');
   const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
@@ -36,16 +37,16 @@ const useInvoice = (equipmentData: EquipmentProps[]) => {
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
-  const [items, setItems] = useState<InvoiceItem[]>([
+  const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>([
     { id: 1, description: '', quantity: 1, unitPrice: 0, total: 0 }
   ]);
   const [notes, setNotes] = useState('');
 
   // Calculate invoice totals
-  const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+  const getSubtotal = () => invoiceItems.reduce((sum, item) => sum + item.total, 0);
   const taxRate = 0.07;
-  const taxAmount = subtotal * taxRate;
-  const total = subtotal + taxAmount;
+  const getTax = () => getSubtotal() * taxRate;
+  const getTotal = () => getSubtotal() + getTax();
 
   // Generate sample invoices
   const generateSampleInvoices = (): Invoice[] => {
@@ -100,15 +101,15 @@ const useInvoice = (equipmentData: EquipmentProps[]) => {
   const recentInvoices = generateSampleInvoices();
 
   // Add item to invoice
-  const addItem = () => {
-    const newId = items.length > 0 ? Math.max(...items.map(item => item.id)) + 1 : 1;
-    setItems([...items, { id: newId, description: '', quantity: 1, unitPrice: 0, total: 0 }]);
+  const addInvoiceItem = () => {
+    const newId = invoiceItems.length > 0 ? Math.max(...invoiceItems.map(item => item.id)) + 1 : 1;
+    setInvoiceItems([...invoiceItems, { id: newId, description: '', quantity: 1, unitPrice: 0, total: 0 }]);
   };
 
   // Remove item from invoice
-  const removeItem = (id: number) => {
-    if (items.length > 1) {
-      setItems(items.filter(item => item.id !== id));
+  const removeInvoiceItem = (id: number) => {
+    if (invoiceItems.length > 1) {
+      setInvoiceItems(invoiceItems.filter(item => item.id !== id));
     } else {
       toast({
         title: "Cannot Remove Item",
@@ -119,8 +120,8 @@ const useInvoice = (equipmentData: EquipmentProps[]) => {
   };
 
   // Update item details
-  const updateItem = (id: number, field: keyof InvoiceItem, value: any) => {
-    setItems(items.map(item => {
+  const updateItemTotal = (id: number, field: keyof InvoiceItem, value: any) => {
+    setInvoiceItems(invoiceItems.map(item => {
       if (item.id === id) {
         const updatedItem = { ...item, [field]: value };
         
@@ -136,14 +137,14 @@ const useInvoice = (equipmentData: EquipmentProps[]) => {
   };
 
   // Add equipment to invoice
-  const addEquipmentToInvoice = (equipment: EquipmentProps) => {
-    const newId = items.length > 0 ? Math.max(...items.map(item => item.id)) + 1 : 1;
+  const populateFromEquipment = (equipment: EquipmentProps) => {
+    const newId = invoiceItems.length > 0 ? Math.max(...invoiceItems.map(item => item.id)) + 1 : 1;
     
     // Use pricePerUse if available, fallback to 0
     const unitPrice = equipment.pricePerUse || 0;
     
-    setItems([
-      ...items,
+    setInvoiceItems([
+      ...invoiceItems,
       {
         id: newId,
         description: `${equipment.name} - ${equipment.type || 'Equipment'}`,
@@ -160,7 +161,7 @@ const useInvoice = (equipmentData: EquipmentProps[]) => {
   };
 
   // Generate/create invoice
-  const createInvoice = () => {
+  const handleCreateInvoice = () => {
     // Validate fields
     if (!customerName) {
       toast({
@@ -171,7 +172,7 @@ const useInvoice = (equipmentData: EquipmentProps[]) => {
       return;
     }
     
-    if (items.some(item => item.description === '' || item.total === 0)) {
+    if (invoiceItems.some(item => item.description === '' || item.total === 0)) {
       toast({
         title: "Invalid Line Items",
         description: "Please complete all line items with description and price",
@@ -183,7 +184,7 @@ const useInvoice = (equipmentData: EquipmentProps[]) => {
     // In a real app, this would save the invoice to the database
     toast({
       title: "Invoice Created",
-      description: `Invoice ${invoiceNumber} for $${total.toFixed(2)} has been created.`
+      description: `Invoice ${invoiceNumber} for $${getTotal().toFixed(2)} has been created.`
     });
     
     // Reset form or redirect to the invoice page
@@ -194,16 +195,16 @@ const useInvoice = (equipmentData: EquipmentProps[]) => {
       customerName,
       customerEmail,
       customerAddress,
-      items,
-      subtotal,
-      tax: taxAmount,
-      total,
+      invoiceItems,
+      subtotal: getSubtotal(),
+      tax: getTax(),
+      total: getTotal(),
       notes
     });
   };
 
   // Send invoice
-  const sendInvoice = () => {
+  const handleSendInvoice = () => {
     // First ensure invoice is created
     if (!customerName || !customerEmail) {
       toast({
@@ -224,34 +225,45 @@ const useInvoice = (equipmentData: EquipmentProps[]) => {
   };
 
   return {
+    // Form state
     invoiceNumber,
     setInvoiceNumber,
     invoiceDate,
     setInvoiceDate,
     dueDate,
     setDueDate,
+    taxRate,
+    setTaxRate: (value: number) => {/* This is a placeholder as taxRate is currently constant */},
     customerName,
     setCustomerName,
     customerEmail,
     setCustomerEmail,
     customerAddress,
     setCustomerAddress,
-    items,
-    setItems,
+    invoiceItems,
+    setInvoiceItems,
     notes,
     setNotes,
-    subtotal,
-    taxRate,
-    taxAmount,
-    total,
+    
+    // Invoice item functions
+    updateItemTotal,
+    addInvoiceItem,
+    removeInvoiceItem,
+    
+    // Total calculation functions
+    getSubtotal,
+    getTax,
+    getTotal,
+    
+    // Action handlers
+    handleCreateInvoice,
+    handleSendInvoice,
+    populateFromEquipment,
+    
+    // Mock data
     recentInvoices,
-    addItem,
-    removeItem,
-    updateItem,
-    addEquipmentToInvoice,
-    createInvoice,
-    sendInvoice
   };
 };
 
+// Export default for backward compatibility
 export default useInvoice;

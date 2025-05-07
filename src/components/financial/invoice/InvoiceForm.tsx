@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -76,8 +76,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
             <Input 
               id="tax-rate" 
               type="number" 
-              value={taxRate}
-              onChange={(e) => setTaxRate(Number(e.target.value))}
+              value={taxRate * 100}
+              onChange={(e) => setTaxRate(Number(e.target.value) / 100)}
               className="pl-10"
               min="0"
               max="100"

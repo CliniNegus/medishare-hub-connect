@@ -74,6 +74,8 @@ const InvoiceGeneration: React.FC<InvoiceGenerationProps> = ({ equipmentData }) 
               setCustomerEmail={setCustomerEmail}
               customerAddress={customerAddress}
               setCustomerAddress={setCustomerAddress}
+              notes={notes}
+              setNotes={setNotes}
             />
             
             <InvoiceItems 
