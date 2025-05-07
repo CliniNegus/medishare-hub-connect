@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CreditCard, FileText, Download, DollarSign } from "lucide-react";
 import PaymentProcessing from '../financial/PaymentProcessing';
-import FinancialReporting from '../financial/FinancialReporting';
+import FinancialReporting from '../financial/reporting/FinancialReporting';
 import InvoiceGeneration from '../financial/InvoiceGeneration';
 
 interface FinancingTabContentProps {

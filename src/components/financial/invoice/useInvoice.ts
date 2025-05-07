@@ -1,74 +1,167 @@
 
 import { useState } from 'react';
-import { useToast } from "@/components/ui/use-toast";
-import { format } from 'date-fns';
-import { EquipmentProps } from '@/components/EquipmentCard';
+import { EquipmentProps } from '../../EquipmentCard';
+import { useToast } from '@/components/ui/use-toast';
 
-export interface InvoiceItem {
+export type InvoiceItem = {
   id: number;
   description: string;
   quantity: number;
   unitPrice: number;
   total: number;
-}
+};
 
-export const useInvoice = (equipmentData: EquipmentProps[]) => {
+export type InvoiceStatus = "paid" | "sent" | "overdue" | "draft";
+
+export type Invoice = {
+  id: string;
+  date: Date;
+  dueDate: Date;
+  customer: string;
+  status: InvoiceStatus;
+  items: InvoiceItem[];
+  subtotal: number;
+  tax: number;
+  total: number;
+  notes: string;
+};
+
+const useInvoice = (equipmentData: EquipmentProps[]) => {
   const { toast } = useToast();
-  const [invoiceDate, setInvoiceDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
-  const [dueDate, setDueDate] = useState<string>(format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'));
-  const [customerName, setCustomerName] = useState<string>("");
-  const [customerEmail, setCustomerEmail] = useState<string>("");
-  const [customerAddress, setCustomerAddress] = useState<string>("");
-  const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>([
-    { id: 1, description: "", quantity: 1, unitPrice: 0, total: 0 }
+  const [invoiceNumber, setInvoiceNumber] = useState('INV-2025-0001');
+  const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
+  const [dueDate, setDueDate] = useState(
+    new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  );
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerAddress, setCustomerAddress] = useState('');
+  const [items, setItems] = useState<InvoiceItem[]>([
+    { id: 1, description: '', quantity: 1, unitPrice: 0, total: 0 }
   ]);
-  const [notes, setNotes] = useState<string>("");
-  const [taxRate, setTaxRate] = useState<number>(7);
+  const [notes, setNotes] = useState('');
 
-  const calculateTotal = (item: InvoiceItem) => {
-    return item.quantity * item.unitPrice;
+  // Calculate invoice totals
+  const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+  const taxRate = 0.07;
+  const taxAmount = subtotal * taxRate;
+  const total = subtotal + taxAmount;
+
+  // Generate sample invoices
+  const generateSampleInvoices = (): Invoice[] => {
+    return [
+      {
+        id: 'INV-2025-0001',
+        date: new Date('2025-04-15'),
+        dueDate: new Date('2025-05-15'),
+        customer: 'Memorial Hospital',
+        status: 'paid',
+        items: [
+          { id: 1, description: 'MRI Scanner Monthly Lease', quantity: 1, unitPrice: 3500, total: 3500 },
+          { id: 2, description: 'Maintenance Service', quantity: 1, unitPrice: 850, total: 850 }
+        ],
+        subtotal: 4350,
+        tax: 304.5,
+        total: 4654.5,
+        notes: 'Thank you for your business!'
+      },
+      {
+        id: 'INV-2025-0002',
+        date: new Date('2025-04-20'),
+        dueDate: new Date('2025-05-20'),
+        customer: 'City Medical Center',
+        status: 'sent',
+        items: [
+          { id: 1, description: 'CT Scanner Usage - Q1', quantity: 1, unitPrice: 5200, total: 5200 }
+        ],
+        subtotal: 5200,
+        tax: 364,
+        total: 5564,
+        notes: 'Net 30 payment terms'
+      },
+      {
+        id: 'INV-2025-0003',
+        date: new Date('2025-03-10'),
+        dueDate: new Date('2025-04-10'),
+        customer: 'University Health',
+        status: 'overdue',
+        items: [
+          { id: 1, description: 'Ultrasound Equipment Lease', quantity: 2, unitPrice: 1800, total: 3600 },
+          { id: 2, description: 'Training Session', quantity: 1, unitPrice: 750, total: 750 }
+        ],
+        subtotal: 4350,
+        tax: 304.5,
+        total: 4654.5,
+        notes: 'Please remit payment immediately'
+      }
+    ];
   };
-  
-  const updateItemTotal = (index: number, quantity: number, unitPrice: number) => {
-    const updatedItems = [...invoiceItems];
-    updatedItems[index].quantity = quantity;
-    updatedItems[index].unitPrice = unitPrice;
-    updatedItems[index].total = calculateTotal(updatedItems[index]);
-    setInvoiceItems(updatedItems);
+
+  const recentInvoices = generateSampleInvoices();
+
+  // Add item to invoice
+  const addItem = () => {
+    const newId = items.length > 0 ? Math.max(...items.map(item => item.id)) + 1 : 1;
+    setItems([...items, { id: newId, description: '', quantity: 1, unitPrice: 0, total: 0 }]);
   };
-  
-  const addInvoiceItem = () => {
-    const newId = invoiceItems.length > 0 
-      ? Math.max(...invoiceItems.map(item => item.id)) + 1 
-      : 1;
-    setInvoiceItems([...invoiceItems, { id: newId, description: "", quantity: 1, unitPrice: 0, total: 0 }]);
-  };
-  
-  const removeInvoiceItem = (id: number) => {
-    if (invoiceItems.length === 1) {
+
+  // Remove item from invoice
+  const removeItem = (id: number) => {
+    if (items.length > 1) {
+      setItems(items.filter(item => item.id !== id));
+    } else {
       toast({
         title: "Cannot Remove Item",
-        description: "Invoice must have at least one item",
+        description: "Invoice must have at least one line item",
         variant: "destructive"
       });
-      return;
     }
-    setInvoiceItems(invoiceItems.filter(item => item.id !== id));
   };
-  
-  const getSubtotal = () => {
-    return invoiceItems.reduce((sum, item) => sum + item.total, 0);
+
+  // Update item details
+  const updateItem = (id: number, field: keyof InvoiceItem, value: any) => {
+    setItems(items.map(item => {
+      if (item.id === id) {
+        const updatedItem = { ...item, [field]: value };
+        
+        // Recalculate total when quantity or unit price changes
+        if (field === 'quantity' || field === 'unitPrice') {
+          updatedItem.total = updatedItem.quantity * updatedItem.unitPrice;
+        }
+        
+        return updatedItem;
+      }
+      return item;
+    }));
   };
-  
-  const getTax = () => {
-    return getSubtotal() * (taxRate / 100);
+
+  // Add equipment to invoice
+  const addEquipmentToInvoice = (equipment: EquipmentProps) => {
+    const newId = items.length > 0 ? Math.max(...items.map(item => item.id)) + 1 : 1;
+    
+    // Use pricePerUse if available, fallback to 0
+    const unitPrice = equipment.pricePerUse || 0;
+    
+    setItems([
+      ...items,
+      {
+        id: newId,
+        description: `${equipment.name} - ${equipment.type || 'Equipment'}`,
+        quantity: 1,
+        unitPrice: unitPrice,
+        total: unitPrice
+      }
+    ]);
+    
+    toast({
+      title: "Added to Invoice",
+      description: `${equipment.name} has been added to this invoice.`
+    });
   };
-  
-  const getTotal = () => {
-    return getSubtotal() + getTax();
-  };
-  
-  const handleCreateInvoice = () => {
+
+  // Generate/create invoice
+  const createInvoice = () => {
+    // Validate fields
     if (!customerName) {
       toast({
         title: "Missing Information",
@@ -78,10 +171,10 @@ export const useInvoice = (equipmentData: EquipmentProps[]) => {
       return;
     }
     
-    if (invoiceItems.some(item => !item.description || item.total === 0)) {
+    if (items.some(item => item.description === '' || item.total === 0)) {
       toast({
-        title: "Invalid Invoice Items",
-        description: "Please complete all invoice items",
+        title: "Invalid Line Items",
+        description: "Please complete all line items with description and price",
         variant: "destructive"
       });
       return;
@@ -90,15 +183,32 @@ export const useInvoice = (equipmentData: EquipmentProps[]) => {
     // In a real app, this would save the invoice to the database
     toast({
       title: "Invoice Created",
-      description: `Invoice for ${customerName} has been created successfully`,
+      description: `Invoice ${invoiceNumber} for $${total.toFixed(2)} has been created.`
+    });
+    
+    // Reset form or redirect to the invoice page
+    console.log('Invoice created:', {
+      invoiceNumber,
+      invoiceDate,
+      dueDate,
+      customerName,
+      customerEmail,
+      customerAddress,
+      items,
+      subtotal,
+      tax: taxAmount,
+      total,
+      notes
     });
   };
-  
-  const handleSendInvoice = () => {
-    if (!customerEmail) {
+
+  // Send invoice
+  const sendInvoice = () => {
+    // First ensure invoice is created
+    if (!customerName || !customerEmail) {
       toast({
-        title: "Missing Email",
-        description: "Please enter a customer email address",
+        title: "Missing Information",
+        description: "Please enter customer name and email to send invoice",
         variant: "destructive"
       });
       return;
@@ -107,108 +217,41 @@ export const useInvoice = (equipmentData: EquipmentProps[]) => {
     // In a real app, this would email the invoice to the customer
     toast({
       title: "Invoice Sent",
-      description: `Invoice has been sent to ${customerEmail}`,
+      description: `Invoice ${invoiceNumber} has been sent to ${customerEmail}`
     });
-  };
-
-  const populateFromEquipment = (itemIndex: number) => {
-    if (equipmentData.length === 0) return;
     
-    const randomEquipment = equipmentData[Math.floor(Math.random() * equipmentData.length)];
-    const price = randomEquipment.price || 0;
-    
-    const updatedItems = [...invoiceItems];
-    updatedItems[itemIndex].description = `${randomEquipment.name} - Monthly Rental`;
-    updatedItems[itemIndex].quantity = 1;
-    updatedItems[itemIndex].unitPrice = price;
-    updatedItems[itemIndex].total = price;
-    setInvoiceItems(updatedItems);
+    console.log('Invoice sent to:', customerEmail);
   };
-
-  // Mock recent invoices data
-  const recentInvoices = [
-    {
-      id: 'INV-2025-001',
-      date: new Date(2025, 3, 15),
-      dueDate: new Date(2025, 4, 15),
-      customer: 'City General Hospital',
-      status: 'paid',
-      items: [
-        { id: 1, description: 'MRI Scanner Rental', quantity: 1, unitPrice: 5000, total: 5000 },
-        { id: 2, description: 'Maintenance Service', quantity: 2, unitPrice: 500, total: 1000 }
-      ],
-      subtotal: 6000,
-      tax: 420,
-      total: 6420,
-      notes: 'Thank you for your business'
-    },
-    {
-      id: 'INV-2025-002',
-      date: new Date(2025, 3, 10),
-      dueDate: new Date(2025, 4, 10),
-      customer: 'University Medical Center',
-      status: 'sent',
-      items: [
-        { id: 1, description: 'CT Scanner Rental', quantity: 1, unitPrice: 4200, total: 4200 },
-        { id: 2, description: 'Technical Support', quantity: 5, unitPrice: 200, total: 1000 }
-      ],
-      subtotal: 5200,
-      tax: 364,
-      total: 5564,
-      notes: 'Net 30 payment terms'
-    },
-    {
-      id: 'INV-2025-003',
-      date: new Date(2025, 3, 5),
-      dueDate: new Date(2025, 3, 20),
-      customer: 'Community Health Center',
-      status: 'overdue',
-      items: [
-        { id: 1, description: 'Ultrasound Equipment', quantity: 1, unitPrice: 3000, total: 3000 }
-      ],
-      subtotal: 3000,
-      tax: 210,
-      total: 3210,
-      notes: 'Please pay promptly'
-    }
-  ];
 
   return {
-    // Form state
+    invoiceNumber,
+    setInvoiceNumber,
     invoiceDate,
     setInvoiceDate,
     dueDate,
     setDueDate,
-    taxRate,
-    setTaxRate,
     customerName,
     setCustomerName,
     customerEmail,
     setCustomerEmail,
     customerAddress,
     setCustomerAddress,
-    invoiceItems,
-    setInvoiceItems,
+    items,
+    setItems,
     notes,
     setNotes,
-    
-    // Invoice item functions
-    calculateTotal,
-    updateItemTotal,
-    addInvoiceItem,
-    removeInvoiceItem,
-    
-    // Total calculation functions
-    getSubtotal,
-    getTax,
-    getTotal,
-    
-    // Action handlers
-    handleCreateInvoice,
-    handleSendInvoice,
-    populateFromEquipment,
-    
-    // Mock data
+    subtotal,
+    taxRate,
+    taxAmount,
+    total,
     recentInvoices,
+    addItem,
+    removeItem,
+    updateItem,
+    addEquipmentToInvoice,
+    createInvoice,
+    sendInvoice
   };
 };
+
+export default useInvoice;
