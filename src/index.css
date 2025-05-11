@@ -11,7 +11,7 @@
     --card-foreground: 33 7% 20%; /* dark gray for card text */
     --popover: 0 0% 100%; /* white for popovers */
     --popover-foreground: 33 7% 20%; /* dark gray for popover text */
-    --primary: 0 88% 55%; /* custom red for primary elements */
+    --primary: 0 88% 55%; /* Clinibuilds Red (#E02020) */
     --primary-foreground: 0 0% 100%; /* white text on red background */
     --secondary: 0 0% 95%; /* very light gray */
     --secondary-foreground: 33 7% 20%; /* dark gray */
@@ -19,7 +19,7 @@
     --muted-foreground: 0 0% 40%; /* medium gray */
     --accent: 0 0% 95%; /* very light gray */
     --accent-foreground: 33 7% 20%; /* dark gray */
-    --destructive: 0 88% 55%; /* custom red */
+    --destructive: 0 88% 55%; /* Clinibuilds Red (#E02020) */
     --destructive-foreground: 0 0% 100%; /* white */
     --border: 0 0% 90%; /* light gray border */
     --input: 0 0% 90%; /* light gray input */
@@ -34,7 +34,7 @@
     --card-foreground: 0 0% 100%; /* white card text */
     --popover: 33 7% 20%; /* dark gray popovers */
     --popover-foreground: 0 0% 100%; /* white popover text */
-    --primary: 0 88% 55%; /* custom red primary elements */
+    --primary: 0 88% 55%; /* Clinibuilds Red (#E02020) */
     --primary-foreground: 0 0% 100%; /* white text on red background */
     --secondary: 33 7% 25%; /* darker gray */
     --secondary-foreground: 0 0% 100%; /* white */
@@ -42,7 +42,7 @@
     --muted-foreground: 0 0% 70%; /* light gray */
     --accent: 33 7% 25%; /* darker gray */
     --accent-foreground: 0 0% 100%; /* white */
-    --destructive: 0 88% 55%; /* custom red */
+    --destructive: 0 88% 55%; /* Clinibuilds Red (#E02020) */
     --destructive-foreground: 0 0% 100%; /* white */
     --border: 33 7% 30%; /* dark border */
     --input: 33 7% 30%; /* dark input */
@@ -57,5 +57,24 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: 'Poppins', sans-serif;
+  }
+}
+
+@layer components {
+  .shadow-card {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  .clinibuilds-container {
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .clinibuilds-heading {
+    @apply text-2xl font-bold text-[#333333];
+  }
+  
+  .clinibuilds-subheading {
+    @apply text-lg font-semibold text-[#333333];
   }
 }
