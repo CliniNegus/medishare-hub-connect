@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -105,7 +106,7 @@ const ShopTab = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-bold text-red-600">Medical Shop</h2>

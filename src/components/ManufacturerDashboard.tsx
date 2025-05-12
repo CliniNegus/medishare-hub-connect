@@ -13,7 +13,7 @@ const ManufacturerDashboard = () => {
   const { virtualShops, loadingShops } = useManufacturerShops();
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="w-full">
       <div className="manufacturer-dashboard-header">
         <ManufacturerHeader />
       </div>
