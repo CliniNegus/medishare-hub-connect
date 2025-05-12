@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import BookingModal from './BookingModal';
@@ -41,7 +42,7 @@ const HospitalDashboard = () => {
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 hospital-dashboard-header">
         <div>
           <h1 className="text-2xl font-bold">Hospital Dashboard</h1>
           {profile && (
@@ -70,7 +71,7 @@ const HospitalDashboard = () => {
           setActiveTab={setActiveTab} 
         />
         
-        <TabsContent value="equipment" className="mt-0">
+        <TabsContent value="equipment" className="mt-0" data-tab="equipment">
           <EquipmentTabContent
             activeTab={activeTab}
             searchTerm={searchTerm}
@@ -84,14 +85,14 @@ const HospitalDashboard = () => {
           />
         </TabsContent>
         
-        <TabsContent value="bookings">
+        <TabsContent value="bookings" data-tab="bookings">
           <BookingsTabContent
             equipmentData={equipmentData}
             onBookEquipment={handleBookEquipment}
           />
         </TabsContent>
         
-        <TabsContent value="analytics">
+        <TabsContent value="analytics" data-tab="analytics">
           <DashboardContent 
             activeTab={activeTab}
             searchTerm={searchTerm}
@@ -105,15 +106,15 @@ const HospitalDashboard = () => {
           />
         </TabsContent>
 
-        <TabsContent value="therapy">
+        <TabsContent value="therapy" data-tab="therapy">
           <TherapyTabContent equipmentData={equipmentData} />
         </TabsContent>
 
-        <TabsContent value="financing">
+        <TabsContent value="financing" data-tab="financing">
           <FinancingTabContent equipmentData={equipmentData} />
         </TabsContent>
 
-        <TabsContent value="shop">
+        <TabsContent value="shop" data-tab="shop">
           <ShopTabContent />
         </TabsContent>
       </Tabs>

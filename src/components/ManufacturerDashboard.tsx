@@ -14,12 +14,18 @@ const ManufacturerDashboard = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <ManufacturerHeader />
-      <DashboardStatsCards {...dashboardStats} />
-      <VirtualShopsSection 
-        virtualShops={virtualShops} 
-        loadingShops={loadingShops} 
-      />
+      <div className="manufacturer-dashboard-header">
+        <ManufacturerHeader />
+      </div>
+      <div className="stats-cards-section">
+        <DashboardStatsCards {...dashboardStats} />
+      </div>
+      <div className="virtual-shops-section">
+        <VirtualShopsSection 
+          virtualShops={virtualShops} 
+          loadingShops={loadingShops} 
+        />
+      </div>
       <DashboardTabs />
     </div>
   );

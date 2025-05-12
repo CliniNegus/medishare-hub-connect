@@ -4,7 +4,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { X, HelpCircle, ArrowRight } from 'lucide-react';
+import { X, HelpCircle, ArrowRight, RotateCcw } from 'lucide-react';
+import { useTutorial } from '@/contexts/TutorialContext';
 
 type TourStep = {
   id: string;
@@ -25,6 +26,12 @@ export function OnboardingTour({ tourSteps, onComplete, tourId }: OnboardingTour
   const [showTour, setShowTour] = useState(false);
   const [showTourMenu, setShowTourMenu] = useState(false);
   const { toast } = useToast();
+  const { showTutorial: shouldShowTour, setShowTutorial, resetTutorial } = useTutorial();
+
+  useEffect(() => {
+    // Use the value from the TutorialContext to decide if we should show the tour
+    setShowTour(shouldShowTour);
+  }, [shouldShowTour]);
 
   useEffect(() => {
     // Check if the user has already seen this tour
@@ -32,12 +39,14 @@ export function OnboardingTour({ tourSteps, onComplete, tourId }: OnboardingTour
     if (!tourSeen) {
       setTimeout(() => {
         setShowTour(true);
+        setShowTutorial(true);
       }, 1000); // Delay to ensure the page is fully loaded
     }
-  }, [tourId]);
+  }, [tourId, setShowTutorial]);
 
   const handleSkipTour = () => {
     setShowTour(false);
+    setShowTutorial(false);
     localStorage.setItem(`tour-${tourId}-completed`, 'true');
     if (onComplete) {
       onComplete();
@@ -49,6 +58,7 @@ export function OnboardingTour({ tourSteps, onComplete, tourId }: OnboardingTour
       setCurrentStep(prev => prev + 1);
     } else {
       setShowTour(false);
+      setShowTutorial(false);
       localStorage.setItem(`tour-${tourId}-completed`, 'true');
       toast({
         title: "Tour completed",
@@ -66,6 +76,12 @@ export function OnboardingTour({ tourSteps, onComplete, tourId }: OnboardingTour
     }
   };
 
+  const handleRestartTour = () => {
+    setCurrentStep(0);
+    resetTutorial();
+    setShowTourMenu(false);
+  };
+
   const currentTourStep = tourSteps[currentStep];
 
   return (
@@ -77,7 +93,7 @@ export function OnboardingTour({ tourSteps, onComplete, tourId }: OnboardingTour
             <Button 
               variant="outline" 
               size="icon" 
-              className="fixed right-4 bottom-4 z-50 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-lg"
+              className="fixed right-4 bottom-20 z-50 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-lg"
               onClick={() => setShowTourMenu(true)}
             >
               <HelpCircle className="h-5 w-5" />
@@ -102,14 +118,10 @@ export function OnboardingTour({ tourSteps, onComplete, tourId }: OnboardingTour
           <div className="py-4 space-y-4">
             <Button 
               className="w-full bg-red-600 hover:bg-red-700" 
-              onClick={() => {
-                setShowTourMenu(false);
-                setCurrentStep(0);
-                setShowTour(true);
-              }}
+              onClick={handleRestartTour}
             >
-              Start Tour
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Restart Tour
             </Button>
             
             <div className="text-sm space-y-2">

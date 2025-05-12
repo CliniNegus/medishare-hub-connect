@@ -270,7 +270,7 @@ const InvestorDashboard = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-8 investor-dashboard-header">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Investor Dashboard</h1>
           {profile && (
@@ -404,7 +404,7 @@ const InvestorDashboard = () => {
         </Dialog>
       </div>
 
-      <Card className="mb-8">
+      <Card className="mb-8 wallet-balance-card">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div>
             <CardTitle className="text-lg font-bold">Wallet Balance</CardTitle>
@@ -474,23 +474,23 @@ const InvestorDashboard = () => {
 
       <Tabs defaultValue="portfolio" className="space-y-4" onValueChange={setActiveTab} value={activeTab}>
         <TabsList>
-          <TabsTrigger value="portfolio" className="text-sm">
+          <TabsTrigger value="portfolio" className="text-sm" data-tab="portfolio">
             <Briefcase className="h-4 w-4 mr-2" />
             Portfolio
           </TabsTrigger>
-          <TabsTrigger value="requests" className="text-sm">
+          <TabsTrigger value="requests" className="text-sm" data-tab="requests">
             <AlertCircle className="h-4 w-4 mr-2" />
             Funding Requests
           </TabsTrigger>
-          <TabsTrigger value="wallet" className="text-sm">
+          <TabsTrigger value="wallet" className="text-sm" data-tab="wallet">
             <PiggyBank className="h-4 w-4 mr-2" />
             Wallet
           </TabsTrigger>
-          <TabsTrigger value="opportunities" className="text-sm">
+          <TabsTrigger value="opportunities" className="text-sm" data-tab="opportunities">
             <TrendingUp className="h-4 w-4 mr-2" />
             Opportunities
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="text-sm">
+          <TabsTrigger value="analytics" className="text-sm" data-tab="analytics">
             <BarChart2 className="h-4 w-4 mr-2" />
             Analytics
           </TabsTrigger>
