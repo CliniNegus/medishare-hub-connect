@@ -4,10 +4,12 @@ import OnboardingTour from '../OnboardingTour';
 import { useTutorial } from '@/contexts/TutorialContext';
 
 const RoleDashboardTutorial: React.FC = () => {
-  const { showTutorial, setShowTutorial, getTutorialSteps, tourId } = useTutorial();
+  const { showTutorial, setShowTutorial, getTutorialSteps, tourId, markTutorialAsCompleted } = useTutorial();
 
-  const handleTutorialComplete = () => {
+  const handleTutorialComplete = async () => {
     setShowTutorial(false);
+    // Mark tutorial as completed and update user profile
+    await markTutorialAsCompleted();
   };
 
   const tutorialSteps = getTutorialSteps();

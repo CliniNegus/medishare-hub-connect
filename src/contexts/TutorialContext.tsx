@@ -3,6 +3,8 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useAuth } from './AuthContext';
 import { useUserRole, UserRole } from './UserRoleContext';
 import { hospitalTutorialSteps, manufacturerTutorialSteps, investorTutorialSteps } from '../components/tutorials/TutorialSteps';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 
 interface TutorialContextType {
   showTutorial: boolean;
@@ -11,6 +13,7 @@ interface TutorialContextType {
   resetTutorial: () => void;
   getTutorialSteps: () => any[];
   tourId: string;
+  markTutorialAsCompleted: () => Promise<void>;
 }
 
 const TutorialContext = createContext<TutorialContextType | undefined>(undefined);
@@ -21,6 +24,7 @@ export const TutorialProvider = ({ children }: { children: ReactNode }) => {
   const { user, profile } = useAuth();
   const { role } = useUserRole();
   const [tourId, setTourId] = useState<string>('default-tour');
+  const { toast } = useToast();
 
   // Determine if the tutorial should be shown based on user role and completion status
   useEffect(() => {
@@ -31,8 +35,10 @@ export const TutorialProvider = ({ children }: { children: ReactNode }) => {
       setTutorialCompleted(!!hasCompletedTour);
       setTourId(`${role}-dashboard-tour`);
       
-      // If it's the first login for this role, show the tutorial automatically
-      if (!hasCompletedTour) {
+      // Show tutorial automatically only if:
+      // 1. User is marked as a new user in their profile
+      // 2. They haven't completed this role's tutorial yet
+      if (profile.is_new_user && !hasCompletedTour) {
         // Small delay to ensure the dashboard components are loaded
         setTimeout(() => {
           setShowTutorial(true);
@@ -57,6 +63,33 @@ export const TutorialProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Mark tutorial as completed and update user profile
+  const markTutorialAsCompleted = async () => {
+    if (!user) return;
+
+    try {
+      // Mark as completed in localStorage
+      const tourKey = `tour-${role}-completed`;
+      localStorage.setItem(tourKey, 'true');
+      setTutorialCompleted(true);
+      
+      // Update user profile to set is_new_user to false
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_new_user: false })
+        .eq('id', user.id);
+        
+      if (error) throw error;
+    } catch (error: any) {
+      console.error('Failed to mark tutorial as completed:', error.message);
+      toast({
+        title: 'Error',
+        description: 'Failed to update tutorial status. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   // Reset tutorial to show it again
   const resetTutorial = () => {
     const tourKey = `tour-${role}-completed`;
@@ -73,7 +106,8 @@ export const TutorialProvider = ({ children }: { children: ReactNode }) => {
         tutorialCompleted,
         resetTutorial,
         getTutorialSteps,
-        tourId
+        tourId,
+        markTutorialAsCompleted
       }}
     >
       {children}

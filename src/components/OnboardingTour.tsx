@@ -34,20 +34,20 @@ export function OnboardingTour({ tourSteps, onComplete, tourId }: OnboardingTour
   }, [shouldShowTour]);
 
   useEffect(() => {
-    // Check if the user has already seen this tour
-    const tourSeen = localStorage.getItem(`tour-${tourId}-completed`);
-    if (!tourSeen) {
+    // For automatic display of tours, we rely on TutorialContext
+    // which now uses the is_new_user flag from the user profile
+    if (shouldShowTour) {
       setTimeout(() => {
         setShowTour(true);
-        setShowTutorial(true);
-      }, 1000); // Delay to ensure the page is fully loaded
+      }, 1000);
     }
-  }, [tourId, setShowTutorial]);
+  }, [shouldShowTour]);
 
   const handleSkipTour = () => {
     setShowTour(false);
     setShowTutorial(false);
-    localStorage.setItem(`tour-${tourId}-completed`, 'true');
+    
+    // When user skips the tour, we still mark it as completed
     if (onComplete) {
       onComplete();
     }
@@ -59,11 +59,12 @@ export function OnboardingTour({ tourSteps, onComplete, tourId }: OnboardingTour
     } else {
       setShowTour(false);
       setShowTutorial(false);
-      localStorage.setItem(`tour-${tourId}-completed`, 'true');
+      
       toast({
         title: "Tour completed",
         description: "You've completed the onboarding tour!",
       });
+      
       if (onComplete) {
         onComplete();
       }
