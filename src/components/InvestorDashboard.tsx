@@ -7,10 +7,11 @@ import {
   PiggyBank, ArrowUpRight, ArrowDownRight, TrendingUp,
   Briefcase, DollarSign, Building, FilePlus, BarChart2,
   Calendar, FileSpreadsheet, HelpCircle, Check, X, 
-  Map, Hospital, Users, AlertCircle, FileText
+  Map, Hospital, Users, AlertCircle, FileText, LogOut
 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Investment {
   id: string;
@@ -258,7 +259,8 @@ const InvestorDashboard = () => {
   const [activeTab, setActiveTab] = useState('portfolio');
   const [investmentDialogOpen, setInvestmentDialogOpen] = useState(false);
 
-  const { profile, user } = useAuth();
+  const { profile, user, signOut } = useAuth();
+  const { toast } = useToast();
 
   const handleApproveRequest = (id: string) => {
     console.log(`Approved request: ${id}`);
@@ -266,6 +268,22 @@ const InvestorDashboard = () => {
 
   const handleRejectRequest = (id: string) => {
     console.log(`Rejected request: ${id}`);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Logged out successfully",
+        description: "You have been signed out of your account",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -279,129 +297,135 @@ const InvestorDashboard = () => {
             </p>
           )}
         </div>
-        <Dialog open={investmentDialogOpen} onOpenChange={setInvestmentDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <FilePlus className="mr-2 h-4 w-4" />
-              New Investment
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-4xl">
-            <DialogHeader>
-              <DialogTitle>New Investment Opportunities</DialogTitle>
-              <DialogDescription>
-                Browse equipment needs by hospital clusters and make a new investment.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="py-4">
-              <Tabs defaultValue="requests" className="w-full">
-                <TabsList className="mb-4">
-                  <TabsTrigger value="requests">
-                    <FileText className="h-4 w-4 mr-2" />
-                    Funding Requests
-                  </TabsTrigger>
-                  <TabsTrigger value="clusters">
-                    <Map className="h-4 w-4 mr-2" />
-                    Hospital Clusters
-                  </TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="requests">
-                  <div className="border rounded-lg overflow-hidden">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Hospital</TableHead>
-                          <TableHead>Equipment</TableHead>
-                          <TableHead>Amount</TableHead>
-                          <TableHead>Term</TableHead>
-                          <TableHead>Expected ROI</TableHead>
-                          <TableHead>Date</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {fundingRequests.map((request) => (
-                          <TableRow key={request.id}>
-                            <TableCell>
-                              <div>
-                                <div className="font-medium">{request.hospital}</div>
-                                <div className="text-xs text-gray-500">{request.cluster}</div>
-                              </div>
-                            </TableCell>
-                            <TableCell>{request.equipment}</TableCell>
-                            <TableCell>${request.amount.toLocaleString()}</TableCell>
-                            <TableCell>{request.term}</TableCell>
-                            <TableCell>
-                              <span className="text-green-600 font-medium">{request.expectedRoi}%</span>
-                            </TableCell>
-                            <TableCell>{request.date}</TableCell>
-                            <TableCell>
-                              <div className="flex space-x-2">
-                                <Button 
-                                  size="sm" 
-                                  className="bg-green-600 hover:bg-green-700"
-                                  onClick={() => handleApproveRequest(request.id)}
-                                >
-                                  <Check className="h-4 w-4 mr-1" />
-                                  Approve
-                                </Button>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  className="text-red-600 border-red-200 hover:bg-red-50"
-                                  onClick={() => handleRejectRequest(request.id)}
-                                >
-                                  <X className="h-4 w-4 mr-1" />
-                                  Reject
-                                </Button>
-                              </div>
-                            </TableCell>
+        <div className="flex items-center space-x-3">
+          <Button variant="outline" className="flex items-center" onClick={handleSignOut}>
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
+          </Button>
+          <Dialog open={investmentDialogOpen} onOpenChange={setInvestmentDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <FilePlus className="mr-2 h-4 w-4" />
+                New Investment
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl">
+              <DialogHeader>
+                <DialogTitle>New Investment Opportunities</DialogTitle>
+                <DialogDescription>
+                  Browse equipment needs by hospital clusters and make a new investment.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <Tabs defaultValue="requests" className="w-full">
+                  <TabsList className="mb-4">
+                    <TabsTrigger value="requests">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Funding Requests
+                    </TabsTrigger>
+                    <TabsTrigger value="clusters">
+                      <Map className="h-4 w-4 mr-2" />
+                      Hospital Clusters
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="requests">
+                    <div className="border rounded-lg overflow-hidden">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Hospital</TableHead>
+                            <TableHead>Equipment</TableHead>
+                            <TableHead>Amount</TableHead>
+                            <TableHead>Term</TableHead>
+                            <TableHead>Expected ROI</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Actions</TableHead>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="clusters">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {hospitalClusters.map((cluster) => (
-                      <Card key={cluster.id} className="overflow-hidden">
-                        <CardHeader className="pb-2">
-                          <CardTitle>{cluster.name}</CardTitle>
-                          <CardDescription>{cluster.location} • {cluster.hospitals} hospitals</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-2">
-                            <div>
-                              <div className="text-sm font-medium">Equipment Needs:</div>
-                              <ul className="text-sm list-disc list-inside">
-                                {cluster.equipmentNeeds.map((need, idx) => (
-                                  <li key={idx}>{need}</li>
-                                ))}
-                              </ul>
-                            </div>
-                            <div className="flex justify-between items-center pt-2">
+                        </TableHeader>
+                        <TableBody>
+                          {fundingRequests.map((request) => (
+                            <TableRow key={request.id}>
+                              <TableCell>
+                                <div>
+                                  <div className="font-medium">{request.hospital}</div>
+                                  <div className="text-xs text-gray-500">{request.cluster}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>{request.equipment}</TableCell>
+                              <TableCell>${request.amount.toLocaleString()}</TableCell>
+                              <TableCell>{request.term}</TableCell>
+                              <TableCell>
+                                <span className="text-green-600 font-medium">{request.expectedRoi}%</span>
+                              </TableCell>
+                              <TableCell>{request.date}</TableCell>
+                              <TableCell>
+                                <div className="flex space-x-2">
+                                  <Button 
+                                    size="sm" 
+                                    className="bg-green-600 hover:bg-green-700"
+                                    onClick={() => handleApproveRequest(request.id)}
+                                  >
+                                    <Check className="h-4 w-4 mr-1" />
+                                    Approve
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    className="text-red-600 border-red-200 hover:bg-red-50"
+                                    onClick={() => handleRejectRequest(request.id)}
+                                  >
+                                    <X className="h-4 w-4 mr-1" />
+                                    Reject
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="clusters">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {hospitalClusters.map((cluster) => (
+                        <Card key={cluster.id} className="overflow-hidden">
+                          <CardHeader className="pb-2">
+                            <CardTitle>{cluster.name}</CardTitle>
+                            <CardDescription>{cluster.location} • {cluster.hospitals} hospitals</CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-2">
                               <div>
-                                <div className="text-sm font-medium">Predicted Value:</div>
-                                <div className="text-xl font-bold text-green-600">${cluster.predictedValue.toLocaleString()}</div>
+                                <div className="text-sm font-medium">Equipment Needs:</div>
+                                <ul className="text-sm list-disc list-inside">
+                                  {cluster.equipmentNeeds.map((need, idx) => (
+                                    <li key={idx}>{need}</li>
+                                  ))}
+                                </ul>
                               </div>
-                              <Button>Invest in Cluster</Button>
+                              <div className="flex justify-between items-center pt-2">
+                                <div>
+                                  <div className="text-sm font-medium">Predicted Value:</div>
+                                  <div className="text-xl font-bold text-green-600">${cluster.predictedValue.toLocaleString()}</div>
+                                </div>
+                                <Button>Invest in Cluster</Button>
+                              </div>
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </div>
-            <DialogFooter>
-              <Button onClick={() => setInvestmentDialogOpen(false)} className="ml-auto">Close</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
+              <DialogFooter>
+                <Button onClick={() => setInvestmentDialogOpen(false)} className="ml-auto">Close</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <Card className="mb-8 wallet-balance-card">
