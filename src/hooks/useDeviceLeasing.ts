@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
 
 // Define window.ethereum interface
 declare global {
@@ -47,9 +48,7 @@ export const useDeviceLeasing = () => {
         method: 'eth_requestAccounts' 
       });
       
-      // Get provider and signer - using ethers v6 syntax
-      // We'll use dynamic imports to avoid the TypeScript error
-      const ethers = await import('ethers');
+      // Get provider and signer
       const provider = new ethers.BrowserProvider(window.ethereum);
       const newSigner = await provider.getSigner();
       setSigner(newSigner);
@@ -88,8 +87,6 @@ export const useDeviceLeasing = () => {
       const investmentsData = await Promise.all(
         deviceIds.map(async (deviceId: bigint) => {
           const amount = await deviceContract.getInvestmentBalance(address, deviceId);
-          // We'll use dynamic import here too
-          const ethers = await import('ethers');
           return {
             deviceId: Number(deviceId),
             amount: ethers.formatEther(amount)
@@ -99,7 +96,6 @@ export const useDeviceLeasing = () => {
       
       // Get pending returns
       const returns = await deviceContract.getPendingReturns(address);
-      const ethers = await import('ethers');
       
       setInvestments(investmentsData);
       setPendingReturns(ethers.formatEther(returns));
@@ -116,7 +112,6 @@ export const useDeviceLeasing = () => {
     }
     
     try {
-      const ethers = await import('ethers');
       const tx = await contract.investInDevice(deviceId, {
         value: ethers.parseEther(amount)
       });
@@ -174,7 +169,6 @@ export const useDeviceLeasing = () => {
     try {
       const address = await signer.getAddress();
       const returns = await contract.getPendingReturns(address);
-      const ethers = await import('ethers');
       return ethers.formatEther(returns);
     } catch (err: any) {
       console.error("Error viewing earnings:", err);
