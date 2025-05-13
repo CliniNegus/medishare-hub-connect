@@ -264,15 +264,15 @@ const InvestorDashboard = () => {
   const { profile, user, signOut } = useAuth();
   const { toast } = useToast();
 
-  // Prevent default handlers for button clicks to avoid navigation issues
-  const handleApproveRequest = useCallback((id: string, e: React.MouseEvent) => {
+  // Fix: Update handler function to properly handle event types
+  const handleApproveRequest = useCallback((requestId: string, e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    console.log(`Approved request: ${id}`);
+    console.log(`Approved request: ${requestId}`);
   }, []);
 
-  const handleRejectRequest = useCallback((id: string, e: React.MouseEvent) => {
+  const handleRejectRequest = useCallback((requestId: string, e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    console.log(`Rejected request: ${id}`);
+    console.log(`Rejected request: ${requestId}`);
   }, []);
 
   const handleSignOut = useCallback(async (e: React.MouseEvent) => {
@@ -391,7 +391,7 @@ const InvestorDashboard = () => {
                                   <Button 
                                     size="sm" 
                                     className="bg-green-600 hover:bg-green-700"
-                                    onClick={() => handleApproveRequest(request.id)}
+                                    onClick={(e) => handleApproveRequest(request.id, e)}
                                   >
                                     <Check className="h-4 w-4 mr-1" />
                                     Approve
@@ -400,7 +400,7 @@ const InvestorDashboard = () => {
                                     size="sm" 
                                     variant="outline"
                                     className="text-red-600 border-red-200 hover:bg-red-50"
-                                    onClick={() => handleRejectRequest(request.id)}
+                                    onClick={(e) => handleRejectRequest(request.id, e)}
                                   >
                                     <X className="h-4 w-4 mr-1" />
                                     Reject
@@ -653,7 +653,7 @@ const InvestorDashboard = () => {
                         <Button 
                           size="sm" 
                           className="bg-green-600 hover:bg-green-700"
-                          onClick={() => handleApproveRequest(request.id)}
+                          onClick={(e) => handleApproveRequest(request.id, e)}
                         >
                           <Check className="h-4 w-4 mr-1" />
                           Approve
@@ -662,7 +662,7 @@ const InvestorDashboard = () => {
                           size="sm" 
                           variant="outline"
                           className="text-red-600 border-red-200 hover:bg-red-50"
-                          onClick={() => handleRejectRequest(request.id)}
+                          onClick={(e) => handleRejectRequest(request.id, e)}
                         >
                           <X className="h-4 w-4 mr-1" />
                           Reject
