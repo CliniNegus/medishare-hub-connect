@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,11 +7,12 @@ import {
   PiggyBank, ArrowUpRight, ArrowDownRight, TrendingUp,
   Briefcase, DollarSign, Building, FilePlus, BarChart2,
   Calendar, FileSpreadsheet, HelpCircle, Check, X, 
-  Map, Hospital, Users, AlertCircle, FileText, LogOut
+  Map, Hospital, Users, AlertCircle, FileText, LogOut, UserCog
 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
+import ChangeAccountTypeModal from "@/components/ChangeAccountTypeModal";
 
 interface Investment {
   id: string;
@@ -258,33 +259,45 @@ const InvestorDashboard = () => {
 
   const [activeTab, setActiveTab] = useState('portfolio');
   const [investmentDialogOpen, setInvestmentDialogOpen] = useState(false);
+  const [changeAccountTypeOpen, setChangeAccountTypeOpen] = useState(false);
 
   const { profile, user, signOut } = useAuth();
   const { toast } = useToast();
 
-  const handleApproveRequest = (id: string) => {
+  // Prevent default handlers for button clicks to avoid navigation issues
+  const handleApproveRequest = useCallback((id: string, e: React.MouseEvent) => {
+    e.preventDefault();
     console.log(`Approved request: ${id}`);
-  };
+  }, []);
 
-  const handleRejectRequest = (id: string) => {
+  const handleRejectRequest = useCallback((id: string, e: React.MouseEvent) => {
+    e.preventDefault();
     console.log(`Rejected request: ${id}`);
-  };
+  }, []);
 
-  const handleSignOut = async () => {
+  const handleSignOut = useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault();
     try {
       await signOut();
       toast({
         title: "Logged out successfully",
         description: "You have been signed out of your account",
+        duration: 3000, // Reduced from default for better UX
       });
     } catch (error: any) {
       toast({
         title: "Error signing out",
         description: error.message,
         variant: "destructive",
+        duration: 5000,
       });
     }
-  };
+  }, [signOut, toast]);
+
+  const handleChangeAccountType = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setChangeAccountTypeOpen(true);
+  }, []);
 
   return (
     <div className="container mx-auto p-6">
@@ -298,13 +311,27 @@ const InvestorDashboard = () => {
           )}
         </div>
         <div className="flex items-center space-x-3">
-          <Button variant="outline" className="flex items-center" onClick={handleSignOut}>
+          <Button 
+            variant="outline" 
+            className="flex items-center" 
+            onClick={handleChangeAccountType}
+          >
+            <UserCog className="h-4 w-4 mr-2" />
+            Change Account Type
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="flex items-center" 
+            onClick={handleSignOut}
+          >
             <LogOut className="h-4 w-4 mr-2" />
             Sign Out
           </Button>
+          
           <Dialog open={investmentDialogOpen} onOpenChange={setInvestmentDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button onClick={(e) => e.preventDefault()}>
                 <FilePlus className="mr-2 h-4 w-4" />
                 New Investment
               </Button>
@@ -761,6 +788,12 @@ const InvestorDashboard = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Add the ChangeAccountTypeModal */}
+      <ChangeAccountTypeModal 
+        open={changeAccountTypeOpen} 
+        onOpenChange={setChangeAccountTypeOpen} 
+      />
     </div>
   );
 };

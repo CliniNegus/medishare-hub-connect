@@ -29,7 +29,9 @@ const ChangeAccountTypeModal: React.FC<ChangeAccountTypeModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     if (selectedRole === profile?.role) {
       onOpenChange(false);
       return;
@@ -42,6 +44,7 @@ const ChangeAccountTypeModal: React.FC<ChangeAccountTypeModalProps> = ({
       toast({
         title: "Account type updated",
         description: `Your account has been updated to ${selectedRole}.`,
+        duration: 3000, // Reduced duration
       });
       
       onOpenChange(false);
@@ -50,6 +53,7 @@ const ChangeAccountTypeModal: React.FC<ChangeAccountTypeModalProps> = ({
         title: "Failed to update account type",
         description: error.message || "An error occurred while updating your account type.",
         variant: "destructive",
+        duration: 5000,
       });
     } finally {
       setIsSubmitting(false);
@@ -57,8 +61,11 @@ const ChangeAccountTypeModal: React.FC<ChangeAccountTypeModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      // Only allow closing if we're not in the middle of submission
+      if (!isSubmitting || !newOpen) onOpenChange(newOpen);
+    }}>
+      <DialogContent className="sm:max-w-md" onClick={(e) => e.stopPropagation()}>
         <DialogHeader>
           <DialogTitle>Change Account Type</DialogTitle>
           <DialogDescription>
@@ -110,7 +117,11 @@ const ChangeAccountTypeModal: React.FC<ChangeAccountTypeModalProps> = ({
         <DialogFooter className="flex space-x-2 sm:justify-end">
           <Button 
             variant="outline" 
-            onClick={() => onOpenChange(false)}
+            onClick={(e) => {
+              e.preventDefault();
+              if (!isSubmitting) onOpenChange(false);
+            }}
+            disabled={isSubmitting}
           >
             Cancel
           </Button>
