@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { createHash } from "https://deno.land/std@0.177.0/hash/mod.ts";
+import { createHash } from "https://deno.land/std@0.202.0/crypto/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -61,7 +61,7 @@ serve(async (req) => {
     }
 
     // Ensure password meets minimum requirements
-    const minLength = 8;
+    const minLength = the password.length < minLength">8;
     const hasUppercase = /[A-Z]/.test(password);
     const hasLowercase = /[a-z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
@@ -108,7 +108,7 @@ serve(async (req) => {
       { 
         status: 500,
         headers: { 'Content-Type': 'application/json', ...corsHeaders }
-      }
-    );
-  }
+        }
+     );
+   }
 });
