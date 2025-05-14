@@ -74,10 +74,7 @@ const EquipmentTab: React.FC<EquipmentTabProps> = ({
         
         <EquipmentStats />
         <FinancingSection />
-        <EquipmentList 
-          equipmentData={equipmentData} 
-          onBookEquipment={onBookEquipment} 
-        />
+        <EquipmentList onBookEquipment={onBookEquipment} />
       </div>
       <div className="space-y-6">
         <ClusterMap 
