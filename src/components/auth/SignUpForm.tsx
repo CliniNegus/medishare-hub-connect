@@ -22,10 +22,12 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
   const [organization, setOrganization] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [validating, setValidating] = useState(false);
   const [passwordValidationMessage, setPasswordValidationMessage] = useState<string | null>(null);
 
   const validatePassword = async (password: string) => {
     try {
+      setValidating(true);
       setPasswordValidationMessage(null);
       
       // Basic password strength checks
@@ -59,17 +61,23 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
         body: { password }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error invoking validate-password function:", error);
+        throw new Error("Could not validate password security: " + error.message);
+      }
       
-      if (data.isCompromised) {
+      if (data?.isCompromised) {
         setPasswordValidationMessage(`This password has been found in ${data.breachCount.toLocaleString()} data breaches. Please choose a different password.`);
         return false;
       }
 
       return true;
     } catch (error: any) {
+      console.error("Password validation error:", error);
       setPasswordValidationMessage(error.message || "Error validating password");
       return false;
+    } finally {
+      setValidating(false);
     }
   };
 
@@ -86,7 +94,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
       }
 
       // Sign up the user
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -99,6 +107,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
       });
 
       if (signUpError) {
+        console.error("Signup error:", signUpError);
         onError(signUpError.message);
         throw signUpError;
       }
@@ -110,6 +119,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
       
       onSuccess();
     } catch (error: any) {
+      console.error("Full signup error:", error);
       toast({
         title: "Registration failed",
         description: error.message,
@@ -183,8 +193,17 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
         </div>
       </CardContent>
       <CardFooter>
-        <Button type="submit" className="w-full bg-red-600 hover:bg-red-700" disabled={loading}>
-          {loading ? "Creating account..." : "Sign Up"}
+        <Button 
+          type="submit" 
+          className="w-full bg-red-600 hover:bg-red-700" 
+          disabled={loading || validating}
+        >
+          {loading 
+            ? "Creating account..." 
+            : validating 
+              ? "Validating password..." 
+              : "Sign Up"
+          }
         </Button>
       </CardFooter>
     </form>
