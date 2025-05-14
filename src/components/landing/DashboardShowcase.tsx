@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import OptimizedImage from '@/components/OptimizedImage';
@@ -10,6 +10,7 @@ import {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
+  type CarouselApi,
 } from "@/components/ui/carousel";
 
 interface ShowcaseItem {
@@ -42,6 +43,23 @@ const dashboardShowcases: ShowcaseItem[] = [
 
 const DashboardShowcase: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+
+  // Update the current index when the carousel slides change
+  useCallback(() => {
+    if (!carouselApi) return;
+    
+    const onSelect = () => {
+      setCurrentIndex(carouselApi.selectedScrollSnap());
+    };
+    
+    carouselApi.on("select", onSelect);
+    
+    // Cleanup function
+    return () => {
+      carouselApi.off("select", onSelect);
+    };
+  }, [carouselApi]);
 
   return (
     <div className="w-full max-w-6xl mx-auto">
@@ -51,12 +69,7 @@ const DashboardShowcase: React.FC = () => {
           align: "start",
           loop: true,
         }}
-        onSelect={(api) => {
-          // Get the current selected index from the Carousel API
-          if (api && typeof api.selectedScrollSnap === 'function') {
-            setCurrentIndex(api.selectedScrollSnap());
-          }
-        }}
+        setApi={setCarouselApi}
       >
         <CarouselContent>
           {dashboardShowcases.map((item, index) => (
@@ -89,7 +102,10 @@ const DashboardShowcase: React.FC = () => {
             {dashboardShowcases.map((_, index) => (
               <button
                 key={index}
-                onClick={() => setCurrentIndex(index)}
+                onClick={() => {
+                  carouselApi?.scrollTo(index);
+                  setCurrentIndex(index);
+                }}
                 className={cn(
                   "h-2 w-2 rounded-full transition-all",
                   currentIndex === index 
