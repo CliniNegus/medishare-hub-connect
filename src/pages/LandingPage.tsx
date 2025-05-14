@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import FeatureSlides from '@/components/landing/FeatureSlides';
 import OptimizedImage from '@/components/OptimizedImage';
+import DashboardShowcase from '@/components/landing/DashboardShowcase';
 import { 
   Heart, 
   TrendingUp, 
@@ -95,37 +97,11 @@ const LandingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Testimonials */}
+      {/* Dashboard Showcase Section (replacing Testimonials) */}
       <div className="py-16 bg-white">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-12 text-[#333333]">What Our Users Say</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                quote: "The virtual shops feature has revolutionized how we manage and distribute medical equipment across different regions.",
-                author: "Dr. Sarah Johnson",
-                role: "Chief of Surgery, Memorial Hospital"
-              },
-              {
-                quote: "As a manufacturer, we've expanded our reach globally through virtual shops, significantly increasing our distribution network.",
-                author: "Michael Chen",
-                role: "CEO, MedTech Innovations"
-              },
-              {
-                quote: "Managing equipment across multiple countries has never been easier. The platform streamlines everything.",
-                author: "Emma Williams",
-                role: "Investment Director, Healthcare Fund"
-              }
-            ].map((testimonial, index) => (
-              <div key={index} className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
-                <p className="italic mb-4 text-[#333333]">"{testimonial.quote}"</p>
-                <div>
-                  <p className="font-semibold text-[#333333]">{testimonial.author}</p>
-                  <p className="text-sm text-[#E02020]">{testimonial.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <h2 className="text-3xl font-bold text-center mb-12 text-[#333333]">Platform in Action</h2>
+          <DashboardShowcase />
         </div>
       </div>
 

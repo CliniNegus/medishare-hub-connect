@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Hospital, 
   Factory, 
@@ -10,7 +10,9 @@ import {
   Database,
   Activity,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Pause,
+  Play
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -99,6 +101,7 @@ const featureSlides: FeatureSlide[] = [
 
 const FeatureSlides: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   
   // Function to handle custom image upload (placeholder for now)
   const handleImageUpload = (slideIndex: number, featureIndex: number) => {
@@ -106,16 +109,38 @@ const FeatureSlides: React.FC = () => {
     // In a real implementation, this would trigger a file upload dialog
   };
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % featureSlides.length);
-  };
+  }, []);
 
-  const prevSlide = () => {
+  const prevSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev - 1 + featureSlides.length) % featureSlides.length);
-  };
+  }, []);
+
+  // Auto-rotate slides
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+    
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 5000); // Rotate every 5 seconds
+    
+    return () => clearInterval(interval);
+  }, [nextSlide, isAutoPlaying]);
+  
+  // Pause auto-rotation when hovering
+  const handleMouseEnter = () => setIsAutoPlaying(false);
+  const handleMouseLeave = () => setIsAutoPlaying(true);
+  
+  // Toggle auto-play
+  const toggleAutoPlay = () => setIsAutoPlaying(prev => !prev);
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 relative">
+    <div 
+      className="w-full max-w-6xl mx-auto px-4 relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <div className="w-full overflow-hidden rounded-xl">
         <div className="bg-white rounded-xl p-8 shadow-lg">
           <h3 className="text-2xl font-bold text-gray-900 mb-2">{featureSlides[currentSlide].title}</h3>
@@ -179,6 +204,7 @@ const FeatureSlides: React.FC = () => {
           <ChevronLeft className="h-5 w-5" />
           <span className="sr-only">Previous slide</span>
         </Button>
+        
         <div className="flex items-center space-x-2">
           {featureSlides.map((_, index) => (
             <button
@@ -194,6 +220,7 @@ const FeatureSlides: React.FC = () => {
             />
           ))}
         </div>
+        
         <Button 
           variant="outline" 
           size="icon" 
@@ -202,6 +229,16 @@ const FeatureSlides: React.FC = () => {
         >
           <ChevronRight className="h-5 w-5" />
           <span className="sr-only">Next slide</span>
+        </Button>
+        
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={toggleAutoPlay}
+          className="bg-white border-red-200 hover:bg-red-50 text-red-500 ml-2"
+          title={isAutoPlaying ? "Pause auto-rotation" : "Play auto-rotation"}
+        >
+          {isAutoPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
         </Button>
       </div>
     </div>
