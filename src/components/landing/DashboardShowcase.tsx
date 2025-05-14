@@ -47,9 +47,15 @@ const DashboardShowcase: React.FC = () => {
     <div className="w-full max-w-6xl mx-auto">
       <Carousel
         className="w-full"
-        onSelect={(index) => {
-          // Fixed: Extract the index value and pass it to setCurrentIndex
-          setCurrentIndex(index);
+        opts={{
+          align: "start",
+          loop: true,
+        }}
+        onSelect={(api) => {
+          // Get the current selected index from the Carousel API
+          if (api && typeof api.selectedScrollSnap === 'function') {
+            setCurrentIndex(api.selectedScrollSnap());
+          }
         }}
       >
         <CarouselContent>
