@@ -61,7 +61,7 @@ serve(async (req) => {
     }
 
     // Ensure password meets minimum requirements
-    const minLength = the password.length < minLength">8;
+    const minLength = 8;
     const hasUppercase = /[A-Z]/.test(password);
     const hasLowercase = /[a-z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
@@ -108,7 +108,7 @@ serve(async (req) => {
       { 
         status: 500,
         headers: { 'Content-Type': 'application/json', ...corsHeaders }
-        }
-     );
-   }
+      }
+    );
+  }
 });
