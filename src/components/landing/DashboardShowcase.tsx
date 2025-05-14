@@ -47,7 +47,10 @@ const DashboardShowcase: React.FC = () => {
     <div className="w-full max-w-6xl mx-auto">
       <Carousel
         className="w-full"
-        onSelect={(index) => setCurrentIndex(index)}
+        onSelect={(index) => {
+          // Fixed: Extract the index value and pass it to setCurrentIndex
+          setCurrentIndex(index);
+        }}
       >
         <CarouselContent>
           {dashboardShowcases.map((item, index) => (
