@@ -1,37 +1,46 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Layout } from '@/components/Layout';
 import ShopHeader from '@/components/shop/ShopHeader';
 import ShopFilters from '@/components/shop/ShopFilters';
 import ProductGrid from '@/components/shop/ProductGrid';
+import { CartProvider } from '@/contexts/CartContext';
+import TrendingProducts from '@/components/shop/TrendingProducts';
 
 const MedicalShop = () => {
-  const [cartItems, setCartItems] = useState<any[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [category, setCategory] = useState("all");
-  const [productType, setProductType] = useState("all");
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [category, setCategory] = React.useState("all");
+  const [productType, setProductType] = React.useState("all");
 
-  // Sample product data - Now handled by the useEquipmentData hook inside ProductGrid
+  // Sample categories - in a real app would come from the API
   const uniqueCategories = ["all", "PPE", "Diagnostic", "Imaging", "Surgical"];
   
   return (
-    <Layout>
-      <div className="p-6 max-w-7xl mx-auto">
-        <ShopHeader cartItemCount={cartItems.reduce((acc, item) => acc + item.quantity, 0)} />
-        
-        <ShopFilters 
-          searchTerm={searchTerm}
-          category={category}
-          productType={productType}
-          uniqueCategories={uniqueCategories}
-          onSearchChange={setSearchTerm}
-          onCategoryChange={setCategory}
-          onProductTypeChange={setProductType}
-        />
+    <CartProvider>
+      <Layout>
+        <div className="p-6 max-w-7xl mx-auto">
+          <ShopHeader />
+          
+          <ShopFilters 
+            searchTerm={searchTerm}
+            category={category}
+            productType={productType}
+            uniqueCategories={uniqueCategories}
+            onSearchChange={setSearchTerm}
+            onCategoryChange={setCategory}
+            onProductTypeChange={setProductType}
+          />
 
-        <ProductGrid />
-      </div>
-    </Layout>
+          <TrendingProducts />
+
+          <div className="mt-10 mb-6">
+            <h2 className="text-xl font-bold">All Products</h2>
+          </div>
+
+          <ProductGrid />
+        </div>
+      </Layout>
+    </CartProvider>
   );
 };
 
