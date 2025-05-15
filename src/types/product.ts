@@ -21,10 +21,11 @@ export const productSchema = z.object({
 export type ProductFormValues = z.infer<typeof productSchema>;
 
 export type Product = ProductFormValues & {
-  id: string;
+  id: string | number;  // Updated to accept both string and number
   owner_id: string;
   status: string;
   created_at: string;
   updated_at: string;
   sales_option?: 'direct_sale' | 'lease' | 'both';
+  description?: string;  // Making sure description is included
 };
