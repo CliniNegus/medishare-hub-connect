@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from "@/hooks/use-toast";
@@ -90,7 +89,7 @@ export const useProductManagement = ({ selectedShop }: UseProductManagementProps
     }
   };
 
-  const handleUpdate = async (productId: string, values: ProductFormValues) => {
+  const handleUpdate = async (productId: string | number, values: ProductFormValues) => {
     try {
       setLoading(true);
       
@@ -132,7 +131,7 @@ export const useProductManagement = ({ selectedShop }: UseProductManagementProps
     }
   };
 
-  const handleDelete = async (productId: string) => {
+  const handleDelete = async (productId: string | number) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
     
     try {

@@ -6,7 +6,7 @@ import { useCart } from '@/contexts/CartContext';
 import { Badge } from '@/components/ui/badge';
 
 const ShopHeader = () => {
-  const { totalItems, setIsCartOpen } = useCart();
+  const { totalItems, setIsOpen } = useCart();
 
   return (
     <div className="flex justify-between items-center mb-8">
@@ -15,7 +15,7 @@ const ShopHeader = () => {
         <Button 
           variant="outline" 
           className="flex items-center gap-2 border-red-300"
-          onClick={() => setIsCartOpen(true)}
+          onClick={() => setIsOpen(true)}
         >
           <ShoppingCart className="h-5 w-5 text-red-600" />
           <span>Cart</span>

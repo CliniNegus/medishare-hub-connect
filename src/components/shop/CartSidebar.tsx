@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 
 const CartSidebar = () => {
-  const { cartItems, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
+  const { items, isOpen, setIsOpen, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
   const { toast } = useToast();
 
   const handleCheckout = () => {
@@ -18,7 +18,7 @@ const CartSidebar = () => {
     // In a real app, this would navigate to checkout
   };
 
-  if (!isCartOpen) return null;
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-96 bg-white shadow-xl flex flex-col">
@@ -27,7 +27,7 @@ const CartSidebar = () => {
         <Button 
           variant="ghost" 
           size="icon" 
-          onClick={() => setIsCartOpen(false)}
+          onClick={() => setIsOpen(false)}
           className="rounded-full hover:bg-gray-100"
         >
           <X className="h-5 w-5" />
@@ -35,7 +35,7 @@ const CartSidebar = () => {
       </div>
       
       <div className="flex-1 overflow-y-auto p-4">
-        {cartItems.length === 0 ? (
+        {items.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-gray-500">
             <ShoppingBag className="h-12 w-12 mb-2" />
             <p className="text-lg font-medium">Your cart is empty</p>
@@ -43,7 +43,7 @@ const CartSidebar = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {cartItems.map(item => (
+            {items.map(item => (
               <div key={item.id} className="flex border-b pb-4">
                 <div className="h-20 w-20 bg-gray-100 rounded flex-shrink-0">
                   <img 
@@ -86,7 +86,7 @@ const CartSidebar = () => {
         )}
       </div>
       
-      {cartItems.length > 0 && (
+      {items.length > 0 && (
         <div className="p-4 border-t">
           <div className="flex justify-between mb-4">
             <span className="font-medium">Total</span>

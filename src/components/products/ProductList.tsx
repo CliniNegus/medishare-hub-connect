@@ -10,7 +10,7 @@ import type { Product } from "@/types/product";
 interface ProductListProps {
   products: Product[];
   onEdit: (product: Product) => void;
-  onDelete: (productId: string) => void;
+  onDelete: (productId: string | number) => void;
   onAdd: () => void;
 }
 
