@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from "@/hooks/use-toast";
@@ -109,7 +110,7 @@ export const useProductManagement = ({ selectedShop }: UseProductManagementProps
       const { error } = await supabase
         .from('equipment')
         .update(productData)
-        .eq('id', productId);
+        .eq('id', String(productId)); // Convert productId to string
         
       if (error) throw error;
       
@@ -140,7 +141,7 @@ export const useProductManagement = ({ selectedShop }: UseProductManagementProps
       const { error } = await supabase
         .from('equipment')
         .delete()
-        .eq('id', productId);
+        .eq('id', String(productId)); // Convert productId to string
         
       if (error) throw error;
       
