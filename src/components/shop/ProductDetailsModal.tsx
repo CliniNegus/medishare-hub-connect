@@ -1,22 +1,10 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Star, X } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
-
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  image: string;
-  rating: number;
-  inStock: boolean;
-  popular: boolean;
-  description?: string;
-}
+import { Product } from './ProductGrid';  // Import Product from updated interface
 
 interface ProductDetailsModalProps {
   product: Product | null;

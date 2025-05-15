@@ -1,21 +1,10 @@
-
 import React from 'react';
 import { ShoppingCart, Star, Eye } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
-
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  image: string;
-  rating: number;
-  inStock: boolean;
-  popular: boolean;
-}
+import { Product } from './ProductGrid';  // Import Product from updated interface
 
 interface ProductCardProps {
   product: Product;

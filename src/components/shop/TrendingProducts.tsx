@@ -8,7 +8,7 @@ import { useEquipmentData } from '@/hooks/use-equipment-data';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from '@/contexts/CartContext';
 import ProductDetailsModal from './ProductDetailsModal';
-import { Product } from './ProductGrid';
+import { Product } from './ProductGrid';  // Import Product from updated interface
 
 const TrendingProducts = () => {
   const { equipment, loading } = useEquipmentData();

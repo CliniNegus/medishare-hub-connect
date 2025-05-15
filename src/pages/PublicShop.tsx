@@ -26,7 +26,7 @@ const PublicShop = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Sample product data (using the same data structure as MedicalShop)
+  // Sample product data (using the updated Product interface)
   const products: Product[] = [
     { 
       id: 1, 

@@ -10,9 +10,9 @@ import ProductCard from '@/components/shop/ProductCard';
 import ProductDetailsModal from '@/components/shop/ProductDetailsModal';
 import { useCart } from '@/contexts/CartContext';
 
-// Define the product type for better type safety
+// Update the Product type to use string for id and add description field
 export interface Product {
-  id: number;
+  id: string | number;
   name: string;
   category: string;
   manufacturer: string;
@@ -23,6 +23,7 @@ export interface Product {
   inStock: boolean;
   popular: boolean;
   type?: string;
+  description?: string;
 }
 
 const ProductGrid = () => {
