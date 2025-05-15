@@ -1,9 +1,10 @@
 
 import React from 'react';
-import { ShoppingCart, Star } from "lucide-react";
+import { ShoppingCart, Star, Eye } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/contexts/CartContext";
 
 interface Product {
   id: number;
@@ -18,9 +19,23 @@ interface Product {
 
 interface ProductCardProps {
   product: Product;
+  onViewDetails: (product: Product) => void;
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
+  const { addToCart } = useCart();
+
+  const handleAddToCart = () => {
+    if (product.inStock) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+      });
+    }
+  };
+
   return (
     <Card key={product.id} className="border border-gray-200 hover:border-red-300 transition-colors">
       <div className="relative h-40 bg-gray-100 flex items-center justify-center">
@@ -51,13 +66,24 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </div>
         <div className="flex justify-between items-center mt-2">
           <div className="font-bold text-red-600">${product.price}</div>
-          <Button 
-            size="sm" 
-            className="bg-red-600 hover:bg-red-700 text-white"
-            disabled={!product.inStock}
-          >
-            <ShoppingCart className="h-3 w-3" />
-          </Button>
+          <div className="flex gap-1">
+            <Button 
+              size="sm" 
+              variant="outline"
+              className="border-gray-200"
+              onClick={() => onViewDetails(product)}
+            >
+              <Eye className="h-3 w-3" />
+            </Button>
+            <Button 
+              size="sm" 
+              className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={!product.inStock}
+              onClick={handleAddToCart}
+            >
+              <ShoppingCart className="h-3 w-3" />
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

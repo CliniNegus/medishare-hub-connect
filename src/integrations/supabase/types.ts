@@ -477,6 +477,7 @@ export type Database = {
           full_name: string | null
           id: string
           is_new_user: boolean | null
+          logo_url: string | null
           organization: string | null
           role: string | null
           updated_at: string
@@ -487,6 +488,7 @@ export type Database = {
           full_name?: string | null
           id: string
           is_new_user?: boolean | null
+          logo_url?: string | null
           organization?: string | null
           role?: string | null
           updated_at?: string
@@ -497,6 +499,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_new_user?: boolean | null
+          logo_url?: string | null
           organization?: string | null
           role?: string | null
           updated_at?: string

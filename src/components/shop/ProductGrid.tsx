@@ -1,14 +1,56 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useEquipmentData } from '@/hooks/use-equipment-data';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Eye } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import ProductCard from '@/components/shop/ProductCard';
+import ProductDetailsModal from '@/components/shop/ProductDetailsModal';
+import { useCart } from '@/contexts/CartContext';
+
+// Define the product type for better type safety
+export interface Product {
+  id: number;
+  name: string;
+  category: string;
+  manufacturer: string;
+  price: number;
+  image: string;
+  image_url?: string;
+  rating: number;
+  inStock: boolean;
+  popular: boolean;
+  type?: string;
+}
 
 const ProductGrid = () => {
   const { equipment, loading } = useEquipmentData();
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  // Map equipment data to our Product type
+  const products: Product[] = equipment.map(item => ({
+    id: item.id,
+    name: item.name,
+    category: item.category,
+    manufacturer: item.manufacturer,
+    price: item.price,
+    image: item.image_url || "/placeholder.svg",
+    rating: 4.5, // Default since equipment data doesn't have ratings
+    inStock: item.type === 'available',
+    popular: Math.random() > 0.7, // Randomly mark some as popular
+  }));
+
+  const handleViewDetails = (product: Product) => {
+    setSelectedProduct(product);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
 
   if (loading) {
     return (
@@ -32,39 +74,23 @@ const ProductGrid = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
-      {equipment.map(product => (
-        <Card key={product.id} className="overflow-hidden">
-          <div className="h-48 relative">
-            <img 
-              src={product.image_url || "/placeholder.svg"} 
-              alt={product.name} 
-              className="h-full w-full object-cover"
-            />
-            {product.type !== 'available' && (
-              <Badge className="absolute top-2 right-2 bg-amber-100 text-amber-800 border-amber-300">
-                Limited
-              </Badge>
-            )}
-          </div>
-          <CardContent className="p-4">
-            <h3 className="font-medium text-sm">{product.name}</h3>
-            <p className="text-xs text-gray-500 my-1">{product.manufacturer}</p>
-            <div className="flex items-center mt-2">
-              <Badge variant="outline" className="text-xs">
-                {product.category}
-              </Badge>
-            </div>
-          </CardContent>
-          <CardFooter className="p-4 pt-0 flex justify-between items-center">
-            <div className="font-bold text-red-600">${product.price}</div>
-            <Button size="sm" className="bg-red-600 hover:bg-red-700">
-              <ShoppingCart className="h-4 w-4" />
-            </Button>
-          </CardFooter>
-        </Card>
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+        {products.map(product => (
+          <ProductCard 
+            key={product.id} 
+            product={product} 
+            onViewDetails={handleViewDetails}
+          />
+        ))}
+      </div>
+      
+      <ProductDetailsModal 
+        product={selectedProduct}
+        open={modalOpen}
+        onClose={handleCloseModal}
+      />
+    </>
   );
 };
 
