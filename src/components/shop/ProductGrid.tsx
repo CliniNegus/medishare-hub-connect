@@ -4,7 +4,7 @@ import { useEquipmentData } from '@/hooks/use-equipment-data';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Eye, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const ProductGrid = () => {
@@ -58,21 +58,9 @@ const ProductGrid = () => {
           </CardContent>
           <CardFooter className="p-4 pt-0 flex justify-between items-center">
             <div className="font-bold text-red-600">${product.price}</div>
-            <div className="flex gap-2">
-              <Button 
-                size="sm" 
-                variant="outline"
-                className="border-gray-300 hover:border-gray-400"
-              >
-                <Eye className="h-4 w-4" />
-              </Button>
-              <Button 
-                size="sm" 
-                className="bg-red-600 hover:bg-red-700"
-              >
-                <ShoppingCart className="h-4 w-4" />
-              </Button>
-            </div>
+            <Button size="sm" className="bg-red-600 hover:bg-red-700">
+              <ShoppingCart className="h-4 w-4" />
+            </Button>
           </CardFooter>
         </Card>
       ))}

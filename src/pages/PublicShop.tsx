@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
+import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, ShoppingCart, Eye } from 'lucide-react';
+import { Search, Filter, ShoppingCart } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -12,8 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { Link } from 'react-router-dom';
+import PaymentOptionsDialog from '@/components/PaymentOptionsDialog';
 
 const PublicShop = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -23,26 +25,26 @@ const PublicShop = () => {
   // Sample product data (using the same data structure as MedicalShop)
   const products = [
     { 
-      id: "1", 
+      id: 1, 
       name: "Surgical Masks (50-pack)", 
       category: "PPE", 
       price: 12.99, 
       manufacturer: "MediProtect", 
-      image_url: "/placeholder.svg", 
+      image: "/placeholder.svg", 
       description: "High-quality surgical masks with 3-layer protection.",
       inStock: true,
-      type: "available"
+      type: "purchase"
     },
     { 
-      id: "2", 
+      id: 2, 
       name: "Nitrile Examination Gloves (100-pack)", 
       category: "PPE", 
       price: 24.99, 
       manufacturer: "SafeTouch", 
-      image_url: "/placeholder.svg", 
+      image: "/placeholder.svg", 
       description: "Powder-free nitrile examination gloves, suitable for medical procedures.",
       inStock: true,
-      type: "available"
+      type: "purchase"
     },
     // ... more products
   ];
@@ -56,7 +58,7 @@ const PublicShop = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const handleGuestAction = () => {
+  const handleGuestPurchase = () => {
     toast({
       title: "Account Required",
       description: "Please create an account or sign in to complete your purchase.",
@@ -76,10 +78,7 @@ const PublicShop = () => {
                   Sign In
                 </Button>
               </Link>
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-2 border-red-300"
-              >
+              <Button variant="outline" className="flex items-center gap-2 border-red-300">
                 <ShoppingCart className="h-5 w-5 text-red-600" />
                 <span>Cart (0)</span>
               </Button>
@@ -125,7 +124,7 @@ const PublicShop = () => {
             <Card key={product.id} className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
               <div className="aspect-square bg-gray-100 relative">
                 <img 
-                  src={product.image_url} 
+                  src={product.image} 
                   alt={product.name}
                   className="object-cover w-full h-full"
                 />
@@ -144,24 +143,13 @@ const PublicShop = () => {
               </CardContent>
               <CardFooter className="p-4 flex items-center justify-between">
                 <span className="font-bold text-red-600">${product.price}</span>
-                <div className="flex gap-2">
-                  <Button 
-                    className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700"
-                    size="sm"
-                  >
-                    <Eye className="h-4 w-4 mr-1" />
-                    Details
-                  </Button>
-                  <Button 
-                    onClick={handleGuestAction}
-                    disabled={!product.inStock}
-                    className="bg-red-600 hover:bg-red-700"
-                    size="sm"
-                  >
-                    <ShoppingCart className="h-4 w-4 mr-1" />
-                    Buy
-                  </Button>
-                </div>
+                <Button 
+                  onClick={handleGuestPurchase}
+                  disabled={!product.inStock}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Buy Now
+                </Button>
               </CardFooter>
             </Card>
           ))}

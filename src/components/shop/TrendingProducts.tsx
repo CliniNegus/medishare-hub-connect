@@ -3,7 +3,7 @@ import React from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { ChevronRight, ShoppingCart, Eye } from 'lucide-react';
+import { ChevronRight, ShoppingCart } from 'lucide-react';
 import { useEquipmentData } from '@/hooks/use-equipment-data';
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -72,22 +72,9 @@ const TrendingProducts = () => {
             </CardContent>
             <CardFooter className="p-4 pt-0 flex justify-between items-center">
               <span className="font-bold text-red-600">${product.price}</span>
-              <div className="flex gap-2">
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="h-7 w-7 p-0 border-gray-200 hover:bg-gray-50"
-                >
-                  <Eye className="h-3 w-3" />
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="h-7 w-7 p-0 border-red-200 hover:bg-red-50"
-                >
-                  <ShoppingCart className="h-3 w-3" />
-                </Button>
-              </div>
+              <Button size="sm" variant="outline" className="border-red-200 hover:bg-red-50">
+                <ShoppingCart className="h-3 w-3" />
+              </Button>
             </CardFooter>
           </Card>
         ))}
