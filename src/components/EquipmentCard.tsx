@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, DollarSign, ShoppingCart, Clock, Calculator } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useNavigate } from 'react-router-dom';
 
 export interface EquipmentProps {
   id: string;
@@ -35,6 +36,8 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
   nextAvailable,
   onBook
 }) => {
+  const navigate = useNavigate();
+  
   const statusColors = {
     'available': 'bg-red-500',
     'in-use': 'bg-black',
@@ -45,6 +48,10 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
     'available': 'Available',
     'in-use': 'In Use',
     'maintenance': 'Maintenance'
+  };
+  
+  const handleViewDetails = () => {
+    navigate(`/equipment/${id}`);
   };
 
   return (
@@ -134,6 +141,7 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
           <Button 
             variant="outline" 
             className="w-full border-red-200 text-red-600 hover:bg-red-50"
+            onClick={handleViewDetails}
           >
             View Details
           </Button>

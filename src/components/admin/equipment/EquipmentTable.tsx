@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from 'react-router-dom';
 
 interface Equipment {
   id: string;
@@ -23,6 +24,12 @@ interface EquipmentTableProps {
 }
 
 const EquipmentTable = ({ equipment }: EquipmentTableProps) => {
+  const navigate = useNavigate();
+
+  const handleViewDetails = (id: string) => {
+    navigate(`/equipment/${id}`);
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -53,7 +60,14 @@ const EquipmentTable = ({ equipment }: EquipmentTableProps) => {
             <TableCell>
               <div className="flex space-x-2">
                 <Button variant="outline" size="sm" className="border-[#E02020] text-[#E02020] hover:bg-red-50">Edit</Button>
-                <Button variant="outline" size="sm" className="border-gray-300 hover:bg-gray-50">View</Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-gray-300 hover:bg-gray-50"
+                  onClick={() => handleViewDetails(item.id)}
+                >
+                  View
+                </Button>
               </div>
             </TableCell>
           </TableRow>

@@ -34,6 +34,7 @@ import ProfileManagement from "./pages/ProfileManagement";
 import ClientManagement from "./pages/ClientManagement";
 import EquipmentManagement from "./pages/EquipmentManagement";
 import AddEquipmentPage from './pages/AddEquipmentPage';
+import EquipmentDetailsPage from './pages/EquipmentDetailsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -70,6 +71,12 @@ function App() {
                   <Route path="/dashboard" element={
                     <ProtectedRoute>
                       <Index />
+                    </ProtectedRoute>
+                  } />
+
+                  <Route path="/equipment/:id" element={
+                    <ProtectedRoute>
+                      <EquipmentDetailsPage />
                     </ProtectedRoute>
                   } />
 
