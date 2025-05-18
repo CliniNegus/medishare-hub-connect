@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -93,17 +94,19 @@ const EquipmentDetailsPage = () => {
       const endDate = new Date(date);
       endDate.setHours(endDate.getHours() + duration);
 
+      const booking = {
+        equipment_id: id,
+        user_id: user?.id,
+        start_time: date.toISOString(),
+        end_time: endDate.toISOString(),
+        status: 'pending',
+        notes: notes,
+        price_paid: equipment ? (equipment.price / 100) * duration : 0
+      };
+
       const { data, error } = await supabase
         .from('bookings')
-        .insert({
-          equipment_id: id,
-          user_id: user?.id,
-          start_time: date.toISOString(),
-          end_time: endDate.toISOString(),
-          status: 'pending',
-          notes: notes,
-          price_paid: equipment ? (equipment.price / 100) * duration : 0
-        })
+        .insert(booking)
         .select()
         .single();
 
@@ -119,6 +122,8 @@ const EquipmentDetailsPage = () => {
         title: "Booking successful",
         description: `You have booked ${equipment?.name} for ${duration} hour(s)`,
       });
+      
+      setBookingModalOpen(false);
 
       // Refresh equipment data
       const { data: updatedEquipment, error: equipmentError } = await supabase
