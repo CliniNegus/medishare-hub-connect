@@ -1,57 +1,36 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, ShoppingCart, Eye } from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ShoppingCart, Eye } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Link } from 'react-router-dom';
 import { CartProvider } from '@/contexts/CartContext';
 import CartSidebar from '@/components/shop/CartSidebar';
 import ProductDetailsModal from '@/components/shop/ProductDetailsModal';
-import { supabase } from '@/integrations/supabase/client';
-import { useProducts, Product } from '@/hooks/use-products';
+import { useProducts, Product, ProductFilterOptions } from '@/hooks/use-products';
 import { useCart } from '@/contexts/CartContext';
+import ShopFilters from '@/components/shop/ShopFilters';
 
 const PublicShop = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("all");
+  const [productType, setProductType] = useState("all");
+  const [sortBy, setSortBy] = useState("popularity");
   const { toast } = useToast();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [uniqueCategories, setUniqueCategories] = useState<string[]>(["all"]);
   
-  const { products, loading } = useProducts({ 
-    category: category === 'all' ? undefined : category, 
-    searchTerm 
-  });
+  const filterOptions: ProductFilterOptions = {
+    category: category === 'all' ? undefined : category,
+    searchTerm,
+    productType: productType as 'all' | 'disposable' | 'reusable',
+    sortBy: sortBy as 'popularity' | 'price_low_to_high' | 'price_high_to_low' | 'newest'
+  };
   
+  const { products, loading, uniqueCategories } = useProducts(filterOptions);
   const { addToCart } = useCart();
-
-  // Fetch unique categories
-  useEffect(() => {
-    const fetchCategories = async () => {
-      const { data, error } = await supabase
-        .from('products')
-        .select('category')
-        .not('category', 'is', null);
-      
-      if (!error && data) {
-        const categories = [...new Set(data.map(item => item.category))];
-        setUniqueCategories(["all", ...categories]);
-      }
-    };
-    
-    fetchCategories();
-  }, []);
 
   const handleGuestPurchase = () => {
     toast({
@@ -97,34 +76,17 @@ const PublicShop = () => {
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="relative flex-grow">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input 
-                placeholder="Search products..." 
-                className="pl-10" 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="flex gap-2">
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {uniqueCategories.map(cat => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat === "all" ? "All Categories" : cat}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button variant="outline" size="icon" className="border-red-300">
-                <Filter className="h-4 w-4 text-red-600" />
-              </Button>
-            </div>
-          </div>
+          <ShopFilters 
+            searchTerm={searchTerm}
+            category={category}
+            productType={productType}
+            sortBy={sortBy}
+            uniqueCategories={uniqueCategories}
+            onSearchChange={setSearchTerm}
+            onCategoryChange={setCategory}
+            onProductTypeChange={setProductType}
+            onSortByChange={setSortBy}
+          />
 
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

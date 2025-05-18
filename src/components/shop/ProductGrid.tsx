@@ -4,18 +4,14 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductCard from '@/components/shop/ProductCard';
 import ProductDetailsModal from '@/components/shop/ProductDetailsModal';
-import { useProducts, Product } from '@/hooks/use-products';
+import { useProducts, Product, ProductFilterOptions } from '@/hooks/use-products';
 
 interface ProductGridProps {
-  category?: string;
-  searchTerm?: string;
+  filterOptions?: ProductFilterOptions;
 }
 
-const ProductGrid = ({ category = 'all', searchTerm = '' }: ProductGridProps) => {
-  const { products, loading } = useProducts({ 
-    category: category === 'all' ? undefined : category, 
-    searchTerm 
-  });
+const ProductGrid = ({ filterOptions = {} }: ProductGridProps) => {
+  const { products, loading, totalCount } = useProducts(filterOptions);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -64,6 +60,12 @@ const ProductGrid = ({ category = 'all', searchTerm = '' }: ProductGridProps) =>
       {products.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-500">No products found matching your criteria.</p>
+        </div>
+      )}
+      
+      {totalCount > 0 && (
+        <div className="text-sm text-gray-500 mt-4">
+          Showing {products.length} of {totalCount} products
         </div>
       )}
       
