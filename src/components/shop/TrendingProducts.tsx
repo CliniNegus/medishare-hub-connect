@@ -4,34 +4,17 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { ChevronRight, ShoppingCart, Eye } from 'lucide-react';
-import { useEquipmentData } from '@/hooks/use-equipment-data';
+import { useProducts, Product } from '@/hooks/use-products';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from '@/contexts/CartContext';
 import ProductDetailsModal from './ProductDetailsModal';
-import { Product } from './ProductGrid';  // Import Product from updated interface
 
 const TrendingProducts = () => {
-  const { equipment, loading } = useEquipmentData();
+  const { products, loading } = useProducts({ featured: true });
   const { addToCart } = useCart();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   
-  // Get the first 4 items for trending products
-  const trendingProducts = equipment.slice(0, 4);
-
-  // Map to our Product type
-  const products: Product[] = trendingProducts.map(item => ({
-    id: item.id,
-    name: item.name,
-    category: item.category,
-    manufacturer: item.manufacturer,
-    price: item.price,
-    image: item.image_url || "/placeholder.svg",
-    rating: 4.8, // Default since equipment data doesn't have ratings
-    inStock: item.type === 'available',
-    popular: true, // All trending products are popular
-  }));
-
   const handleViewDetails = (product: Product) => {
     setSelectedProduct(product);
     setModalOpen(true);
@@ -86,11 +69,11 @@ const TrendingProducts = () => {
           <Card key={product.id} className="border rounded-lg overflow-hidden">
             <div className="h-32 bg-gray-100 relative">
               <img 
-                src={product.image}
+                src={product.image_url || "/placeholder.svg"}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
-              {!product.inStock && (
+              {product.stock_quantity <= 0 && (
                 <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                   <Badge variant="outline" className="text-white border-white">Out of Stock</Badge>
                 </div>
@@ -119,9 +102,9 @@ const TrendingProducts = () => {
                     id: product.id,
                     name: product.name,
                     price: product.price,
-                    image: product.image,
+                    image_url: product.image_url,
                   })}
-                  disabled={!product.inStock}
+                  disabled={product.stock_quantity <= 0}
                 >
                   <ShoppingCart className="h-3 w-3" />
                 </Button>

@@ -1,39 +1,53 @@
 
 import React from 'react';
-import { Search, Filter } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
+interface Category {
+  id: number;
+  name: string;
+  count: number;
+}
 
 interface ShopSearchProps {
-  categories: { id: number; name: string; count: number; }[];
-  onSearchChange: (term: string) => void;
-  onCategoryChange: (category: string) => void;
+  categories: Category[];
+  onSearchChange: (value: string) => void;
+  onCategoryChange: (value: string) => void;
 }
 
 const ShopSearch = ({ categories, onSearchChange, onCategoryChange }: ShopSearchProps) => {
   return (
-    <div className="flex flex-col sm:flex-row gap-4">
-      <div className="relative flex-grow">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-        <Input 
-          placeholder="Search products..." 
-          className="pl-10 border-red-200 focus:border-red-500 focus:ring-red-500"
+    <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+        <Input
+          placeholder="Search products and medical supplies..."
+          className="pl-10 bg-gray-50"
           onChange={(e) => onSearchChange(e.target.value)}
         />
       </div>
-      <div className="flex gap-2">
-        <select 
-          className="border border-red-200 rounded-md px-3 py-2 bg-white text-sm"
-          onChange={(e) => onCategoryChange(e.target.value)}
-        >
-          <option value="">All Categories</option>
-          {categories.map(category => (
-            <option key={category.id} value={category.name}>{category.name}</option>
+      
+      <div className="mt-4">
+        <h3 className="text-sm font-medium mb-2">Categories</h3>
+        <div className="flex flex-wrap gap-2">
+          <Badge 
+            onClick={() => onCategoryChange('')}
+            className="cursor-pointer bg-red-600 hover:bg-red-700"
+          >
+            All
+          </Badge>
+          {categories.map((category) => (
+            <Badge
+              key={category.id}
+              variant="outline"
+              className="cursor-pointer hover:bg-gray-100"
+              onClick={() => onCategoryChange(category.name)}
+            >
+              {category.name} ({category.count})
+            </Badge>
           ))}
-        </select>
-        <Button variant="outline" size="icon" className="border-red-200 text-red-600">
-          <Filter className="h-4 w-4" />
-        </Button>
+        </div>
       </div>
     </div>
   );

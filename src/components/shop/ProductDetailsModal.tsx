@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Star, X } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
-import { Product } from './ProductGrid';  // Import Product from updated interface
+import { Product } from '@/hooks/use-products';
 
 interface ProductDetailsModalProps {
   product: Product | null;
@@ -18,13 +18,15 @@ const ProductDetailsModal = ({ product, open, onClose }: ProductDetailsModalProp
   
   if (!product) return null;
   
+  const inStock = product.stock_quantity > 0;
+  
   const handleAddToCart = () => {
-    if (product.inStock) {
+    if (inStock) {
       addToCart({
         id: product.id,
         name: product.name,
         price: product.price,
-        image: product.image,
+        image_url: product.image_url,
       });
     }
   };
@@ -47,7 +49,7 @@ const ProductDetailsModal = ({ product, open, onClose }: ProductDetailsModalProp
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div className="bg-gray-100 rounded-md p-4 flex items-center justify-center h-44">
             <img 
-              src={product.image || "/placeholder.svg"} 
+              src={product.image_url || "/placeholder.svg"} 
               alt={product.name}
               className="max-h-full max-w-full object-contain"
             />
@@ -56,13 +58,15 @@ const ProductDetailsModal = ({ product, open, onClose }: ProductDetailsModalProp
           <div>
             <div className="flex items-center mb-2">
               <Badge variant="outline" className="text-xs border-red-200 text-red-700">
-                {product.category}
+                {product.category || 'Uncategorized'}
               </Badge>
-              <div className="flex items-center ml-2">
-                <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
-                <span className="text-xs ml-1">{product.rating}</span>
-              </div>
-              {product.popular && (
+              {product.rating && (
+                <div className="flex items-center ml-2">
+                  <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                  <span className="text-xs ml-1">{product.rating}</span>
+                </div>
+              )}
+              {product.is_featured && (
                 <Badge className="ml-2 bg-red-600">Popular</Badge>
               )}
             </div>
@@ -73,10 +77,14 @@ const ProductDetailsModal = ({ product, open, onClose }: ProductDetailsModalProp
               {product.description || "No description available for this product."}
             </p>
             
-            {!product.inStock && (
+            {!inStock && (
               <Badge variant="outline" className="mb-2 border-red-300 text-red-600">
                 Currently Out of Stock
               </Badge>
+            )}
+            
+            {product.manufacturer && (
+              <p className="text-xs text-gray-500">Manufacturer: {product.manufacturer}</p>
             )}
           </div>
         </div>
@@ -84,7 +92,7 @@ const ProductDetailsModal = ({ product, open, onClose }: ProductDetailsModalProp
         <DialogFooter className="mt-4">
           <Button 
             className="bg-red-600 hover:bg-red-700 w-full"
-            disabled={!product.inStock}
+            disabled={!inStock}
             onClick={handleAddToCart}
           >
             <ShoppingCart className="h-4 w-4 mr-2" />

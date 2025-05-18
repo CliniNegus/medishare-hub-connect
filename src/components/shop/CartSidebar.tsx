@@ -47,7 +47,7 @@ const CartSidebar = () => {
               <div key={item.id} className="flex border-b pb-4">
                 <div className="h-20 w-20 bg-gray-100 rounded flex-shrink-0">
                   <img 
-                    src={item.image || "/placeholder.svg"} 
+                    src={item.image_url || "/placeholder.svg"} 
                     alt={item.name} 
                     className="h-full w-full object-cover"
                   />

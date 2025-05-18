@@ -1,19 +1,19 @@
 
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
-interface CartItem {
-  id: string | number;
+export interface CartItem {
+  id: string;
   name: string;
   price: number;
-  image?: string;
+  image_url?: string | null;
   quantity: number;
 }
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (item: { id: string | number; name: string; price: number; image?: string }) => void;
-  removeFromCart: (id: string | number) => void;
-  updateQuantity: (id: string | number, quantity: number) => void;
+  addToCart: (item: { id: string; name: string; price: number; image_url?: string | null }) => void;
+  removeFromCart: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -27,7 +27,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
-  const addToCart = (item: { id: string | number; name: string; price: number; image?: string }) => {
+  const addToCart = (item: { id: string; name: string; price: number; image_url?: string | null }) => {
     setItems(currentItems => {
       const existingItemIndex = currentItems.findIndex(cartItem => cartItem.id === item.id);
       if (existingItemIndex > -1) {
@@ -41,11 +41,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setIsOpen(true);
   };
 
-  const removeFromCart = (id: string | number) => {
+  const removeFromCart = (id: string) => {
     setItems(currentItems => currentItems.filter(item => item.id !== id));
   };
 
-  const updateQuantity = (id: string | number, quantity: number) => {
+  const updateQuantity = (id: string, quantity: number) => {
     if (quantity < 1) return;
     setItems(currentItems => 
       currentItems.map(item => 

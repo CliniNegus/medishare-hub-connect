@@ -1,25 +1,73 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ShopSearch from '@/components/shop/ShopSearch';
 import TrendingProducts from '@/components/shop/TrendingProducts';
 import ProductGrid from '@/components/shop/ProductGrid';
 import ShopFeatures from '@/components/shop/ShopFeatures';
+import { supabase } from '@/integrations/supabase/client';
+import { useCart } from '@/contexts/CartContext';
 
 const ShopTab = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-
-  // Mock categories data
-  const categories = [
-    { id: 1, name: "Disposables", count: 124 },
-    { id: 2, name: "Instruments", count: 87 },
-    { id: 3, name: "Monitoring", count: 56 },
-    { id: 4, name: "Diagnostic", count: 43 },
-    { id: 5, name: "Surgical", count: 38 },
-    { id: 6, name: "Emergency", count: 29 }
-  ];
+  const { totalItems, setIsOpen } = useCart();
+  
+  // Mock categories data - will be updated with real data
+  const [categories, setCategories] = useState([
+    { id: 1, name: "Disposables", count: 0 },
+    { id: 2, name: "Instruments", count: 0 },
+    { id: 3, name: "Monitoring", count: 0 },
+    { id: 4, name: "Diagnostic", count: 0 },
+    { id: 5, name: "Surgical", count: 0 },
+    { id: 6, name: "First Aid", count: 0 },
+    { id: 7, name: "PPE", count: 0 },
+    { id: 8, name: "Supplies", count: 0 }
+  ]);
+  
+  // Fetch category counts
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        // Get categories with counts
+        const { data, error } = await supabase
+          .from('products')
+          .select('category, count(*)')
+          .not('category', 'is', null)
+          .group('category');
+        
+        if (error) throw error;
+        
+        if (data) {
+          const updatedCategories = categories.map(cat => {
+            const found = data.find(item => item.category === cat.name);
+            return {
+              ...cat,
+              count: found ? parseInt(found.count) : 0
+            };
+          });
+          
+          // Add any new categories not in the original list
+          data.forEach(item => {
+            if (item.category && !updatedCategories.some(c => c.name === item.category)) {
+              updatedCategories.push({
+                id: updatedCategories.length + 1,
+                name: item.category,
+                count: parseInt(item.count)
+              });
+            }
+          });
+          
+          setCategories(updatedCategories.filter(cat => cat.count > 0));
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+    
+    fetchCategories();
+  }, []);
 
   return (
     <div className="w-full space-y-6">
@@ -28,9 +76,12 @@ const ShopTab = () => {
           <h2 className="text-xl font-bold text-red-600">Medical Shop</h2>
           <p className="text-gray-600">Purchase disposables and smaller medical equipment</p>
         </div>
-        <Button className="bg-red-600 hover:bg-red-700">
+        <Button 
+          className="bg-red-600 hover:bg-red-700"
+          onClick={() => setIsOpen(true)}
+        >
           <ShoppingCart className="h-4 w-4 mr-2" />
-          View Cart (0)
+          View Cart ({totalItems})
         </Button>
       </div>
       
@@ -56,7 +107,10 @@ const ShopTab = () => {
           </div>
         </div>
         
-        <ProductGrid />
+        <ProductGrid 
+          category={selectedCategory}
+          searchTerm={searchTerm}
+        />
       </div>
       
       <ShopFeatures />

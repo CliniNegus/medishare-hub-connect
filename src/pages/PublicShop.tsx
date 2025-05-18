@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,9 @@ import { Link } from 'react-router-dom';
 import { CartProvider } from '@/contexts/CartContext';
 import CartSidebar from '@/components/shop/CartSidebar';
 import ProductDetailsModal from '@/components/shop/ProductDetailsModal';
-import { Product } from '@/components/shop/ProductGrid';
+import { supabase } from '@/integrations/supabase/client';
+import { useProducts, Product } from '@/hooks/use-products';
+import { useCart } from '@/contexts/CartContext';
 
 const PublicShop = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,44 +27,31 @@ const PublicShop = () => {
   const { toast } = useToast();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-
-  // Sample product data (using the updated Product interface)
-  const products: Product[] = [
-    { 
-      id: 1, 
-      name: "Surgical Masks (50-pack)", 
-      category: "PPE", 
-      price: 12.99, 
-      manufacturer: "MediProtect", 
-      image: "/placeholder.svg", 
-      description: "High-quality surgical masks with 3-layer protection.",
-      inStock: true,
-      popular: false,
-      rating: 4.5
-    },
-    { 
-      id: 2, 
-      name: "Nitrile Examination Gloves (100-pack)", 
-      category: "PPE", 
-      price: 24.99, 
-      manufacturer: "SafeTouch", 
-      image: "/placeholder.svg", 
-      description: "Powder-free nitrile examination gloves, suitable for medical procedures.",
-      inStock: true,
-      popular: true,
-      rating: 4.8
-    },
-    // ... more products
-  ];
-
-  const uniqueCategories = ["all", ...new Set(products.map(product => product.category))];
+  const [uniqueCategories, setUniqueCategories] = useState<string[]>(["all"]);
   
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         product.manufacturer.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = category === "all" || product.category === category;
-    return matchesSearch && matchesCategory;
+  const { products, loading } = useProducts({ 
+    category: category === 'all' ? undefined : category, 
+    searchTerm 
   });
+  
+  const { addToCart } = useCart();
+
+  // Fetch unique categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('category')
+        .not('category', 'is', null);
+      
+      if (!error && data) {
+        const categories = [...new Set(data.map(item => item.category))];
+        setUniqueCategories(["all", ...categories]);
+      }
+    };
+    
+    fetchCategories();
+  }, []);
 
   const handleGuestPurchase = () => {
     toast({
@@ -137,57 +126,77 @@ const PublicShop = () => {
             </div>
           </div>
 
-          {/* Products Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map(product => (
-              <Card key={product.id} className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
-                <div className="aspect-square bg-gray-100 relative">
-                  <img 
-                    src={product.image} 
-                    alt={product.name}
-                    className="object-cover w-full h-full"
-                  />
-                  {!product.inStock && (
-                    <Badge variant="destructive" className="absolute top-2 right-2">
-                      Out of Stock
-                    </Badge>
-                  )}
-                  {product.popular && (
-                    <Badge className="absolute top-2 left-2 bg-red-600">Popular</Badge>
-                  )}
-                </div>
-                <CardHeader className="p-4">
-                  <CardTitle className="text-lg">{product.name}</CardTitle>
-                  <p className="text-sm text-gray-500">{product.manufacturer}</p>
-                </CardHeader>
-                <CardContent className="p-4 pt-0">
-                  <p className="text-sm">{product.description}</p>
-                </CardContent>
-                <CardFooter className="p-4 flex items-center justify-between">
-                  <span className="font-bold text-red-600">${product.price}</span>
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleViewDetails(product)}
-                    >
-                      <Eye className="h-4 w-4 mr-1" />
-                      Details
-                    </Button>
-                    <Button 
-                      onClick={handleGuestPurchase}
-                      disabled={!product.inStock}
-                      className="bg-red-600 hover:bg-red-700"
-                      size="sm"
-                    >
-                      <ShoppingCart className="h-4 w-4 mr-1" />
-                      Buy
-                    </Button>
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {Array.from({ length: 8 }).map((_, idx) => (
+                <Card key={idx} className="overflow-hidden">
+                  <div className="aspect-square bg-gray-100"></div>
+                  <CardHeader className="p-4">
+                    <CardTitle className="h-4 bg-gray-200 rounded w-3/4"></CardTitle>
+                    <div className="h-3 bg-gray-200 rounded w-1/2 mt-2"></div>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-0">
+                    <div className="h-3 bg-gray-200 rounded w-full mt-2"></div>
+                  </CardContent>
+                  <CardFooter className="p-4 flex justify-between">
+                    <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                    <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {products.map(product => (
+                <Card key={product.id} className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
+                  <div className="aspect-square bg-gray-100 relative">
+                    <img 
+                      src={product.image_url || "/placeholder.svg"} 
+                      alt={product.name}
+                      className="object-cover w-full h-full"
+                    />
+                    {product.stock_quantity <= 0 && (
+                      <Badge variant="destructive" className="absolute top-2 right-2">
+                        Out of Stock
+                      </Badge>
+                    )}
+                    {product.is_featured && (
+                      <Badge className="absolute top-2 left-2 bg-red-600">Popular</Badge>
+                    )}
                   </div>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+                  <CardHeader className="p-4">
+                    <CardTitle className="text-lg">{product.name}</CardTitle>
+                    <p className="text-sm text-gray-500">{product.manufacturer}</p>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-0">
+                    <p className="text-sm">{product.description}</p>
+                  </CardContent>
+                  <CardFooter className="p-4 flex items-center justify-between">
+                    <span className="font-bold text-red-600">${product.price}</span>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleViewDetails(product)}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        Details
+                      </Button>
+                      <Button 
+                        onClick={handleGuestPurchase}
+                        disabled={product.stock_quantity <= 0}
+                        className="bg-red-600 hover:bg-red-700"
+                        size="sm"
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-1" />
+                        Buy
+                      </Button>
+                    </div>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          )}
         </main>
         
         <CartSidebar />
