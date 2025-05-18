@@ -48,7 +48,11 @@ const BookingModal: React.FC<BookingModalProps> = ({
     handleNotesChange,
     handleConfirm,
     calculateTotalPrice
-  } = useBookingForm({ pricePerUse, onConfirm, onClose });
+  } = useBookingForm({ 
+    pricePerUse, 
+    onConfirm, 
+    onClose 
+  });
   
   const handleDialogClose = () => {
     if (!isSubmitting) {

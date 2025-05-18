@@ -21,15 +21,17 @@ const EquipmentDetailsPage = () => {
   const { user } = useAuth();
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const { equipment, loading, refreshEquipment } = useEquipmentDetails(id);
-  const { handleBooking, isSubmitting } = useEquipmentBooking(
-    id, 
-    equipment, 
-    user?.id, 
-    () => {
+  
+  const { handleBooking, isSubmitting } = useEquipmentBooking({
+    equipment,
+    onSuccess: () => {
       setBookingModalOpen(false);
       refreshEquipment();
+    },
+    onError: (error) => {
+      console.error('Booking error:', error);
     }
-  );
+  });
 
   const handleBack = () => {
     navigate(-1);
@@ -107,7 +109,7 @@ const EquipmentDetailsPage = () => {
         equipmentName={equipment?.name || ''}
         pricePerUse={perUsePrice}
         onClose={() => setBookingModalOpen(false)}
-        onConfirm={handleBooking}
+        onConfirm={(date, duration, notes) => handleBooking(date, duration, notes, user?.id)}
         location={equipment?.location}
         cluster="Main Hospital"
         availability={isAvailable ? 'Available now' : 'Currently unavailable'}
