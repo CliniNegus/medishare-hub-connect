@@ -30,31 +30,38 @@ const ShopTab = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        // Get categories with counts
+        // Get all products to calculate category counts
         const { data, error } = await supabase
           .from('products')
-          .select('category, count(*)')
-          .not('category', 'is', null)
-          .group('category');
+          .select('category')
+          .not('category', 'is', null);
         
         if (error) throw error;
         
         if (data) {
+          // Calculate counts for each category
+          const categoryCounts = {};
+          data.forEach(item => {
+            if (item.category) {
+              categoryCounts[item.category] = (categoryCounts[item.category] || 0) + 1;
+            }
+          });
+          
+          // Update categories with counts
           const updatedCategories = categories.map(cat => {
-            const found = data.find(item => item.category === cat.name);
             return {
               ...cat,
-              count: found ? parseInt(found.count) : 0
+              count: categoryCounts[cat.name] || 0
             };
           });
           
           // Add any new categories not in the original list
-          data.forEach(item => {
-            if (item.category && !updatedCategories.some(c => c.name === item.category)) {
+          Object.keys(categoryCounts).forEach(categoryName => {
+            if (!updatedCategories.some(c => c.name === categoryName)) {
               updatedCategories.push({
                 id: updatedCategories.length + 1,
-                name: item.category,
-                count: parseInt(item.count)
+                name: categoryName,
+                count: categoryCounts[categoryName]
               });
             }
           });
