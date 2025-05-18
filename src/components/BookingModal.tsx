@@ -21,6 +21,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CalendarIcon, Clock, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -43,19 +45,66 @@ const BookingModal: React.FC<BookingModalProps> = ({
   cluster = "Not specified",
   availability = "Available now"
 }) => {
-  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [timeSlot, setTimeSlot] = useState<string>('09:00');
   const [duration, setDuration] = useState<number>(1);
   const [notes, setNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
   
   const handleConfirm = () => {
-    if (date) {
-      onConfirm(date, duration, notes);
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to book equipment",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!date) {
+      toast({
+        title: "Date required",
+        description: "Please select a date for your booking",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    // Create a new date with the selected time
+    const bookingDate = new Date(date);
+    const [hours, minutes] = timeSlot.split(':').map(Number);
+    bookingDate.setHours(hours, minutes, 0, 0);
+    
+    try {
+      onConfirm(bookingDate, duration, notes);
+      // Reset form values
+      setDate(new Date());
+      setTimeSlot('09:00');
+      setDuration(1);
+      setNotes("");
+    } catch (error) {
+      console.error('Error during booking confirmation:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  const handleDialogClose = () => {
+    if (!isSubmitting) {
       onClose();
     }
   };
   
+  const availabilityColor = availability.toLowerCase().includes('available') 
+    ? "bg-green-100 text-green-800" 
+    : "bg-gray-100 text-gray-800";
+  
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleDialogClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Book {equipmentName}</DialogTitle>
@@ -74,7 +123,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
                 <p className="text-xs text-gray-600">Located at <span className="font-medium">{location}</span></p>
                 <p className="text-xs text-gray-600">Part of <Badge variant="outline" className="text-xs">{cluster}</Badge> cluster</p>
                 <p className="text-xs mt-1">
-                  <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 hover:bg-green-100">{availability}</Badge>
+                  <Badge variant="secondary" className={`text-xs ${availabilityColor} hover:${availabilityColor}`}>{availability}</Badge>
                 </p>
               </div>
             </div>
@@ -88,7 +137,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
                 mode="single"
                 selected={date}
                 onSelect={setDate}
-                disabled={(date) => date < new Date()}
+                disabled={(date) => date < new Date() || new Date(date).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0)}
                 className="rounded-md border"
               />
             </div>
@@ -98,7 +147,10 @@ const BookingModal: React.FC<BookingModalProps> = ({
             <Label htmlFor="booking-time">Time Slot</Label>
             <div className="flex items-center">
               <Clock className="mr-2 h-4 w-4 opacity-70" />
-              <Select onValueChange={(value) => console.log(value)}>
+              <Select 
+                value={timeSlot} 
+                onValueChange={setTimeSlot}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select time" />
                 </SelectTrigger>
@@ -117,7 +169,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
           <div className="space-y-2">
             <Label htmlFor="duration">Duration (hours)</Label>
             <Select 
-              defaultValue="1" 
+              value={duration.toString()} 
               onValueChange={(value) => setDuration(parseInt(value))}
             >
               <SelectTrigger className="w-full">
@@ -160,13 +212,13 @@ const BookingModal: React.FC<BookingModalProps> = ({
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>Cancel</Button>
           <Button 
             onClick={handleConfirm} 
-            disabled={!date}
+            disabled={!date || isSubmitting}
             className="bg-red-600 hover:bg-red-700"
           >
-            Confirm Booking
+            {isSubmitting ? "Processing..." : "Confirm Booking"}
           </Button>
         </DialogFooter>
       </DialogContent>
