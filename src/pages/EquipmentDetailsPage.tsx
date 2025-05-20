@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -104,18 +103,20 @@ const EquipmentDetailsPage = () => {
     if (!equipment) return;
 
     try {
-      // Create a purchase record (this would typically go to an orders table)
+      // Create a purchase record
+      const orderData = {
+        equipment_id: id,
+        user_id: user.id,
+        amount: equipment.price,
+        payment_method: paymentMethod,
+        shipping_address: shippingAddress,
+        notes: notes,
+        status: 'pending'
+      };
+      
+      // Using custom endpoint to work around the type issue
       const { data, error } = await supabase
-        .from('orders')
-        .insert({
-          equipment_id: id,
-          user_id: user.id,
-          amount: equipment.price,
-          payment_method: paymentMethod,
-          shipping_address: shippingAddress,
-          notes: notes,
-          status: 'pending'
-        })
+        .rpc('create_order', { order_data: orderData })
         .select();
 
       if (error) throw error;

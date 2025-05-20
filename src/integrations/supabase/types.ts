@@ -517,6 +517,53 @@ export type Database = {
           },
         ]
       }
+      orders: {
+        Row: {
+          amount: number
+          created_at: string
+          equipment_id: string | null
+          id: string
+          notes: string | null
+          payment_method: string
+          shipping_address: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          equipment_id?: string | null
+          id?: string
+          notes?: string | null
+          payment_method: string
+          shipping_address: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          equipment_id?: string | null
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          shipping_address?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category: string | null
