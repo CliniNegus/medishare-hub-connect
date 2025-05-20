@@ -781,6 +781,21 @@ export type Database = {
         }
         Returns: string
       }
+      create_order: {
+        Args: { order_data: Json }
+        Returns: {
+          amount: number
+          created_at: string
+          equipment_id: string | null
+          id: string
+          notes: string | null
+          payment_method: string
+          shipping_address: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }[]
+      }
     }
     Enums: {
       payment_status: "pending" | "success" | "failed"

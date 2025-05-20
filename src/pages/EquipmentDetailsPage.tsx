@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -114,10 +115,10 @@ const EquipmentDetailsPage = () => {
         status: 'pending'
       };
       
-      // Using custom endpoint to work around the type issue
-      const { data, error } = await supabase
-        .rpc('create_order', { order_data: orderData })
-        .select();
+      // Call the edge function instead of using RPC
+      const { data, error } = await supabase.functions.invoke('create-order', {
+        body: { order: orderData }
+      });
 
       if (error) throw error;
 
