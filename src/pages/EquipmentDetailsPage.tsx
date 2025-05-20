@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,6 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import BookingModal from '@/components/BookingModal';
+import PurchaseModal from '@/components/PurchaseModal';
+import PaymentOptionsDialog from '@/components/PaymentOptionsDialog';
 import Header from '@/components/Header';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -36,6 +39,7 @@ const EquipmentDetailsPage = () => {
   const [equipment, setEquipment] = useState<EquipmentDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
+  const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchEquipmentDetails = async () => {
@@ -85,6 +89,69 @@ const EquipmentDetailsPage = () => {
     if (!equipment) return;
 
     createBooking(date, duration, notes);
+  };
+
+  const handlePurchase = async (paymentMethod: string, shippingAddress: string, notes: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to purchase equipment",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!equipment) return;
+
+    try {
+      // Create a purchase record (this would typically go to an orders table)
+      const { data, error } = await supabase
+        .from('orders')
+        .insert({
+          equipment_id: id,
+          user_id: user.id,
+          amount: equipment.price,
+          payment_method: paymentMethod,
+          shipping_address: shippingAddress,
+          notes: notes,
+          status: 'pending'
+        })
+        .select();
+
+      if (error) throw error;
+
+      // Update equipment status to 'sold'
+      await supabase
+        .from('equipment')
+        .update({ status: 'sold' })
+        .eq('id', id);
+
+      toast({
+        title: "Purchase successful",
+        description: `You have purchased ${equipment?.name}. Check your email for confirmation.`,
+      });
+      
+      setPurchaseModalOpen(false);
+
+      // Refresh equipment data
+      const { data: updatedEquipment, error: equipmentError } = await supabase
+        .from('equipment')
+        .select('*')
+        .eq('id', id)
+        .single();
+        
+      if (!equipmentError) {
+        setEquipment(updatedEquipment as EquipmentDetails);
+      }
+
+    } catch (error: any) {
+      console.error('Error creating purchase:', error);
+      toast({
+        title: "Purchase failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const createBooking = async (date: Date, duration: number, notes: string) => {
@@ -151,7 +218,8 @@ const EquipmentDetailsPage = () => {
     'Maintenance': 'bg-red-700',
     'available': 'bg-green-500',
     'in-use': 'bg-black',
-    'maintenance': 'bg-red-700'
+    'maintenance': 'bg-red-700',
+    'sold': 'bg-blue-500'
   };
 
   if (loading) {
@@ -219,6 +287,7 @@ const EquipmentDetailsPage = () => {
 
   const status = equipment?.status || 'Available';
   const perUsePrice = equipment ? Math.round(equipment.price / 100) : 0;
+  const isSold = status === 'sold';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -309,7 +378,7 @@ const EquipmentDetailsPage = () => {
               <Separator />
 
               <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-                {status === 'Available' || status === 'available' ? (
+                {!isSold && (status === 'Available' || status === 'available') ? (
                   <>
                     <Button 
                       className="bg-[#E02020] hover:bg-[#c01010] text-white py-6 text-lg shadow-md transform transition hover:scale-105"
@@ -318,7 +387,11 @@ const EquipmentDetailsPage = () => {
                       <Clock className="h-5 w-5 mr-2" />
                       Book for Use
                     </Button>
-                    <Button variant="outline" className="border-red-200 text-red-600 hover:bg-red-50">
+                    <Button 
+                      variant="outline" 
+                      className="border-red-200 text-red-600 hover:bg-red-50"
+                      onClick={() => setPurchaseModalOpen(true)}
+                    >
                       <ShoppingCart className="h-4 w-4 mr-2" />
                       Purchase
                     </Button>
@@ -330,7 +403,7 @@ const EquipmentDetailsPage = () => {
                 ) : (
                   <Button variant="outline" className="border-red-200 text-red-600 hover:bg-red-50">
                     <Clock className="h-4 w-4 mr-2" />
-                    Check Availability
+                    {isSold ? "Equipment Sold" : "Check Availability"}
                   </Button>
                 )}
               </div>
@@ -348,6 +421,16 @@ const EquipmentDetailsPage = () => {
         location={equipment?.location}
         cluster="Main Hospital"
         availability={status === 'Available' || status === 'available' ? 'Available now' : 'Currently unavailable'}
+      />
+
+      <PurchaseModal
+        isOpen={purchaseModalOpen}
+        equipmentName={equipment?.name || ''}
+        equipmentPrice={equipment?.price || 0}
+        onClose={() => setPurchaseModalOpen(false)}
+        onConfirm={handlePurchase}
+        location={equipment?.location}
+        manufacturer={equipment?.manufacturer}
       />
     </div>
   );
