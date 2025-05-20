@@ -1,9 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Bell, Calendar, LogOut, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import AddEquipmentModal from '@/components/equipment/AddEquipmentModal';
+import { useToast } from '@/hooks/use-toast';
+import { createEquipmentImagesBucket } from '@/integrations/supabase/createStorageBucket';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +19,8 @@ import {
 const AdminHeader = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isAddEquipmentModalOpen, setIsAddEquipmentModalOpen] = useState(false);
   
   const getInitials = () => {
     if (profile?.full_name) {
@@ -29,8 +34,18 @@ const AdminHeader = () => {
     return user?.email?.substring(0, 2).toUpperCase() || 'AB';
   };
 
-  const handleAddProduct = () => {
-    navigate("/add-equipment");
+  const handleAddEquipmentClick = async () => {
+    // Ensure storage bucket exists
+    const bucketReady = await createEquipmentImagesBucket();
+    if (!bucketReady) {
+      toast({
+        title: "Storage Setup Error",
+        description: "Failed to set up image storage. Some features may not work correctly.",
+        variant: "destructive",
+      });
+    }
+    
+    setIsAddEquipmentModalOpen(true);
   };
 
   return (
@@ -39,10 +54,10 @@ const AdminHeader = () => {
       <div className="flex items-center space-x-4">
         <Button 
           className="bg-[#E02020] hover:bg-[#c01010] text-white"
-          onClick={handleAddProduct}
+          onClick={handleAddEquipmentClick}
         >
           <Plus className="mr-2 h-4 w-4" />
-          Add Product
+          Add Equipment
         </Button>
         
         <Button variant="outline" size="icon">
@@ -80,6 +95,18 @@ const AdminHeader = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      
+      {/* Equipment Modal */}
+      <AddEquipmentModal
+        open={isAddEquipmentModalOpen}
+        onOpenChange={setIsAddEquipmentModalOpen}
+        onEquipmentAdded={() => {
+          toast({
+            title: "Equipment Added",
+            description: "The equipment has been successfully added",
+          });
+        }}
+      />
     </header>
   );
 };

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, Users, Clock, BarChart2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import AddProductModal from './AddProductModal';
+import AddEquipmentModal from '@/components/equipment/AddEquipmentModal';
 import AddUserModal from './AddUserModal';
 import { createEquipmentImagesBucket } from '@/integrations/supabase/createStorageBucket';
 import { useToast } from '@/hooks/use-toast';
@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 const QuickActions = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [bucketReady, setBucketReady] = useState(false);
   
@@ -47,15 +47,15 @@ const QuickActions = () => {
       }
     }
     
-    setIsProductModalOpen(true);
+    setIsEquipmentModalOpen(true);
   };
   
-  const handleProductAdded = () => {
+  const handleEquipmentAdded = () => {
     // Refresh the product list or show a success message
-    console.log('Product added successfully');
+    console.log('Equipment added successfully');
     toast({
       title: "Success",
-      description: "Product added successfully",
+      description: "Equipment added successfully",
     });
   };
 
@@ -99,12 +99,11 @@ const QuickActions = () => {
         </Button>
       </div>
 
-      {/* Product Modal */}
-      <AddProductModal
-        open={isProductModalOpen}
-        onOpenChange={setIsProductModalOpen}
-        isAdmin={true}
-        onProductAdded={handleProductAdded}
+      {/* Equipment Modal */}
+      <AddEquipmentModal
+        open={isEquipmentModalOpen}
+        onOpenChange={setIsEquipmentModalOpen}
+        onEquipmentAdded={handleEquipmentAdded}
       />
 
       {/* User Modal */}

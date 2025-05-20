@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import AddProductModal from '../AddProductModal';
+import AddEquipmentModal from '@/components/equipment/AddEquipmentModal';
 import EquipmentHeader from './EquipmentHeader';
 import EquipmentCategories from './EquipmentCategories';
 import EquipmentTable from './EquipmentTable';
@@ -20,7 +20,7 @@ interface EquipmentManagementProps {
 }
 
 const EquipmentManagement = ({ recentEquipment: initialEquipment }: EquipmentManagementProps) => {
-  const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+  const [isAddEquipmentModalOpen, setIsAddEquipmentModalOpen] = useState(false);
   const { equipment, handleProductAdded, ensureBucketReady } = useEquipment(initialEquipment);
   const { toast } = useToast();
 
@@ -35,7 +35,7 @@ const EquipmentManagement = ({ recentEquipment: initialEquipment }: EquipmentMan
       return;
     }
     
-    setIsAddProductModalOpen(true);
+    setIsAddEquipmentModalOpen(true);
   };
 
   return (
@@ -46,12 +46,11 @@ const EquipmentManagement = ({ recentEquipment: initialEquipment }: EquipmentMan
       <h3 className="text-lg font-semibold mb-4">All Equipment</h3>
       <EquipmentTable equipment={equipment} />
 
-      {/* Add Product Modal */}
-      <AddProductModal
-        open={isAddProductModalOpen}
-        onOpenChange={setIsAddProductModalOpen}
-        isAdmin={true}
-        onProductAdded={handleProductAdded}
+      {/* Equipment Modal */}
+      <AddEquipmentModal
+        open={isAddEquipmentModalOpen}
+        onOpenChange={setIsAddEquipmentModalOpen}
+        onEquipmentAdded={handleProductAdded}
       />
     </div>
   );
