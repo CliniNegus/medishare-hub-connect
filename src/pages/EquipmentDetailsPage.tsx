@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,7 +9,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import BookingModal from '@/components/BookingModal';
-import PurchaseModal from '@/components/PurchaseModal';
 import Header from '@/components/Header';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -38,7 +36,6 @@ const EquipmentDetailsPage = () => {
   const [equipment, setEquipment] = useState<EquipmentDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
-  const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchEquipmentDetails = async () => {
@@ -148,56 +145,13 @@ const EquipmentDetailsPage = () => {
     }
   };
 
-  const handlePurchase = () => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to purchase equipment",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setPurchaseModalOpen(true);
-  };
-
-  const handleConfirmPurchase = async () => {
-    try {
-      // Update equipment status to 'sold'
-      await supabase
-        .from('equipment')
-        .update({ status: 'sold' })
-        .eq('id', id);
-
-      // Refresh equipment data
-      const { data: updatedEquipment, error: equipmentError } = await supabase
-        .from('equipment')
-        .select('*')
-        .eq('id', id)
-        .single();
-        
-      if (!equipmentError) {
-        setEquipment(updatedEquipment as EquipmentDetails);
-      }
-
-    } catch (error: any) {
-      console.error('Error updating equipment status:', error);
-      toast({
-        title: "Status update failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
   const statusColors = {
     'Available': 'bg-green-500',
     'In Use': 'bg-black',
     'Maintenance': 'bg-red-700',
     'available': 'bg-green-500',
     'in-use': 'bg-black',
-    'maintenance': 'bg-red-700',
-    'sold': 'bg-purple-700'
+    'maintenance': 'bg-red-700'
   };
 
   if (loading) {
@@ -278,7 +232,7 @@ const EquipmentDetailsPage = () => {
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle className="text-2xl font-bold text-red-600">{equipment?.name}</CardTitle>
-              <Badge className={`${statusColors[status as keyof typeof statusColors] || 'bg-gray-500'}`}>
+              <Badge className={`${statusColors[status]}`}>
                 {status}
               </Badge>
             </div>
@@ -355,7 +309,7 @@ const EquipmentDetailsPage = () => {
               <Separator />
 
               <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-                {(status === 'Available' || status === 'available') && (
+                {status === 'Available' || status === 'available' ? (
                   <>
                     <Button 
                       className="bg-[#E02020] hover:bg-[#c01010] text-white py-6 text-lg shadow-md transform transition hover:scale-105"
@@ -364,11 +318,7 @@ const EquipmentDetailsPage = () => {
                       <Clock className="h-5 w-5 mr-2" />
                       Book for Use
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      className="border-red-200 text-red-600 hover:bg-red-50"
-                      onClick={handlePurchase}
-                    >
+                    <Button variant="outline" className="border-red-200 text-red-600 hover:bg-red-50">
                       <ShoppingCart className="h-4 w-4 mr-2" />
                       Purchase
                     </Button>
@@ -398,15 +348,6 @@ const EquipmentDetailsPage = () => {
         location={equipment?.location}
         cluster="Main Hospital"
         availability={status === 'Available' || status === 'available' ? 'Available now' : 'Currently unavailable'}
-      />
-
-      <PurchaseModal 
-        isOpen={purchaseModalOpen}
-        onClose={() => setPurchaseModalOpen(false)}
-        equipmentName={equipment?.name || ''}
-        price={equipment?.price || 0}
-        location={equipment?.location}
-        onConfirmPurchase={handleConfirmPurchase}
       />
     </div>
   );
