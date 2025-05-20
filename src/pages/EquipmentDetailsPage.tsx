@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -313,10 +312,10 @@ const EquipmentDetailsPage = () => {
                 {status === 'Available' || status === 'available' ? (
                   <>
                     <Button 
-                      className="bg-red-600 hover:bg-red-700"
+                      className="bg-[#E02020] hover:bg-[#c01010] text-white py-6 text-lg shadow-md transform transition hover:scale-105"
                       onClick={() => setBookingModalOpen(true)}
                     >
-                      <Clock className="h-4 w-4 mr-2" />
+                      <Clock className="h-5 w-5 mr-2" />
                       Book for Use
                     </Button>
                     <Button variant="outline" className="border-red-200 text-red-600 hover:bg-red-50">
