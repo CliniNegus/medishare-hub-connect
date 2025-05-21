@@ -120,7 +120,7 @@ export const useEquipmentForm = ({ onSuccess, onCancel }: UseEquipmentFormProps 
         quantity: form.quantity ? parseInt(form.quantity) : null,
         image_url: finalImageUrl,
         owner_id: user.id,
-        status: 'Available',
+        status: 'Available', // Updated to use the correct status value
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
