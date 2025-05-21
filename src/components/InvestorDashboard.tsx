@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,8 +12,11 @@ import {
 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import ChangeAccountTypeModal from "@/components/ChangeAccountTypeModal";
+import InvestmentForm from "@/components/investment/InvestmentForm";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
 interface Investment {
   id: string;
@@ -73,58 +77,8 @@ const InvestorDashboard = () => {
     walletBalance: 123500
   };
 
-  const investments: Investment[] = [
-    {
-      id: 'INV-001',
-      hospital: 'City Hospital',
-      equipment: 'MRI Scanner X9',
-      amount: 250000,
-      date: '2024-11-15',
-      term: '36 months',
-      roi: 9.2,
-      status: 'active'
-    },
-    {
-      id: 'INV-002',
-      hospital: 'Memorial Medical Center',
-      equipment: 'CT Scanner Ultra',
-      amount: 180000,
-      date: '2024-09-22',
-      term: '24 months',
-      roi: 8.1,
-      status: 'active'
-    },
-    {
-      id: 'INV-003',
-      hospital: 'County Clinic',
-      equipment: 'Digital X-Ray System',
-      amount: 95000,
-      date: '2024-08-10',
-      term: '24 months',
-      roi: 7.8,
-      status: 'active'
-    },
-    {
-      id: 'INV-004',
-      hospital: 'University Hospital',
-      equipment: 'Patient Monitoring System',
-      amount: 120000,
-      date: '2023-12-05',
-      term: '18 months',
-      roi: 6.9,
-      status: 'completed'
-    },
-    {
-      id: 'INV-005',
-      hospital: 'Children\'s Hospital',
-      equipment: 'Ultrasound Unit',
-      amount: 85000,
-      date: '2024-02-18',
-      term: '30 months',
-      roi: 8.7,
-      status: 'active'
-    }
-  ];
+  const [investments, setInvestments] = useState<Investment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const walletTransactions: WalletTransaction[] = [
     {
@@ -260,9 +214,61 @@ const InvestorDashboard = () => {
   const [activeTab, setActiveTab] = useState('portfolio');
   const [investmentDialogOpen, setInvestmentDialogOpen] = useState(false);
   const [changeAccountTypeOpen, setChangeAccountTypeOpen] = useState(false);
+  const [dialogTabValue, setDialogTabValue] = useState('investment-form');
 
   const { profile, user, signOut } = useAuth();
   const { toast } = useToast();
+
+  // Fetch investments from Supabase
+  useEffect(() => {
+    const fetchInvestments = async () => {
+      if (!user) return;
+      
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('investments')
+          .select(`
+            id, 
+            amount, 
+            date, 
+            term, 
+            roi, 
+            status, 
+            notes,
+            hospitals:hospital_id(name),
+            equipment:equipment_id(name)
+          `)
+          .eq('investor_id', user.id);
+        
+        if (error) throw error;
+        
+        const formattedInvestments = data.map(item => ({
+          id: item.id,
+          hospital: item.hospitals?.name || 'Unknown Hospital',
+          equipment: item.equipment?.name || 'Unknown Equipment',
+          amount: Number(item.amount),
+          date: new Date(item.date).toISOString().split('T')[0],
+          term: item.term,
+          roi: Number(item.roi),
+          status: (item.status as 'active' | 'completed' | 'pending')
+        }));
+        
+        setInvestments(formattedInvestments);
+      } catch (error) {
+        console.error('Error fetching investments:', error);
+        toast({
+          title: 'Error loading investments',
+          description: 'There was a problem loading your investments. Please try again.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchInvestments();
+  }, [user, toast]);
 
   // Fix: Update handler function to properly handle event types
   const handleApproveRequest = useCallback((requestId: string, e: React.MouseEvent<HTMLButtonElement>) => {
@@ -299,6 +305,53 @@ const InvestorDashboard = () => {
     setChangeAccountTypeOpen(true);
   }, []);
 
+  const handleInvestmentSuccess = () => {
+    setInvestmentDialogOpen(false);
+    toast({
+      title: "Investment Created",
+      description: "Your new investment has been created successfully",
+      duration: 3000,
+    });
+    // Refresh investments after successful creation
+    if (user) {
+      supabase
+        .from('investments')
+        .select(`
+          id, 
+          amount, 
+          date, 
+          term, 
+          roi, 
+          status, 
+          notes,
+          hospitals:hospital_id(name),
+          equipment:equipment_id(name)
+        `)
+        .eq('investor_id', user.id)
+        .then(({ data, error }) => {
+          if (error) {
+            console.error('Error fetching investments:', error);
+            return;
+          }
+          
+          if (data) {
+            const formattedInvestments = data.map(item => ({
+              id: item.id,
+              hospital: item.hospitals?.name || 'Unknown Hospital',
+              equipment: item.equipment?.name || 'Unknown Equipment',
+              amount: Number(item.amount),
+              date: new Date(item.date).toISOString().split('T')[0],
+              term: item.term,
+              roi: Number(item.roi),
+              status: (item.status as 'active' | 'completed' | 'pending')
+            }));
+            
+            setInvestments(formattedInvestments);
+          }
+        });
+    }
+  };
+
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-8 investor-dashboard-header">
@@ -331,21 +384,33 @@ const InvestorDashboard = () => {
           
           <Dialog open={investmentDialogOpen} onOpenChange={setInvestmentDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={(e) => e.preventDefault()}>
+              <Button 
+                onClick={(e) => {
+                  e.preventDefault(); 
+                  setDialogTabValue('investment-form');
+                  setInvestmentDialogOpen(true);
+                }}
+                className="bg-[#E02020] hover:bg-[#C01010] text-white"
+              >
                 <FilePlus className="mr-2 h-4 w-4" />
                 New Investment
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-4xl">
               <DialogHeader>
-                <DialogTitle>New Investment Opportunities</DialogTitle>
+                <DialogTitle>New Investment</DialogTitle>
                 <DialogDescription>
-                  Browse equipment needs by hospital clusters and make a new investment.
+                  Create a new investment or browse investment opportunities.
                 </DialogDescription>
               </DialogHeader>
+              
               <div className="py-4">
-                <Tabs defaultValue="requests" className="w-full">
+                <Tabs defaultValue={dialogTabValue} value={dialogTabValue} onValueChange={setDialogTabValue} className="w-full">
                   <TabsList className="mb-4">
+                    <TabsTrigger value="investment-form">
+                      <FilePlus className="h-4 w-4 mr-2" />
+                      Create Investment
+                    </TabsTrigger>
                     <TabsTrigger value="requests">
                       <FileText className="h-4 w-4 mr-2" />
                       Funding Requests
@@ -355,6 +420,13 @@ const InvestorDashboard = () => {
                       Hospital Clusters
                     </TabsTrigger>
                   </TabsList>
+                  
+                  <TabsContent value="investment-form">
+                    <InvestmentForm 
+                      onSuccess={handleInvestmentSuccess}
+                      onCancel={() => setInvestmentDialogOpen(false)}
+                    />
+                  </TabsContent>
                   
                   <TabsContent value="requests">
                     <div className="border rounded-lg overflow-hidden">
@@ -437,7 +509,18 @@ const InvestorDashboard = () => {
                                   <div className="text-sm font-medium">Predicted Value:</div>
                                   <div className="text-xl font-bold text-green-600">${cluster.predictedValue.toLocaleString()}</div>
                                 </div>
-                                <Button>Invest in Cluster</Button>
+                                <Button 
+                                  onClick={() => {
+                                    setDialogTabValue('investment-form');
+                                    toast({
+                                      title: "Cluster Selected",
+                                      description: `Preparing investment for ${cluster.name}`,
+                                    });
+                                  }}
+                                  className="bg-[#E02020] hover:bg-[#C01010] text-white"
+                                >
+                                  Invest in Cluster
+                                </Button>
                               </div>
                             </div>
                           </CardContent>
@@ -447,9 +530,6 @@ const InvestorDashboard = () => {
                   </TabsContent>
                 </Tabs>
               </div>
-              <DialogFooter>
-                <Button onClick={() => setInvestmentDialogOpen(false)} className="ml-auto">Close</Button>
-              </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
@@ -560,49 +640,83 @@ const InvestorDashboard = () => {
                   <Calendar className="h-4 w-4 mr-2" />
                   Filter
                 </Button>
+                <Button 
+                  size="sm"
+                  className="bg-[#E02020] hover:bg-[#C01010] text-white"
+                  onClick={() => {
+                    setDialogTabValue('investment-form');
+                    setInvestmentDialogOpen(true);
+                  }}
+                >
+                  <FilePlus className="h-4 w-4 mr-2" />
+                  New Investment
+                </Button>
               </div>
             </div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Hospital</TableHead>
-                  <TableHead>Equipment</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Investment Date</TableHead>
-                  <TableHead>Term</TableHead>
-                  <TableHead>ROI</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {investments.map((investment) => (
-                  <TableRow key={investment.id}>
-                    <TableCell className="font-medium">{investment.id}</TableCell>
-                    <TableCell>{investment.hospital}</TableCell>
-                    <TableCell>{investment.equipment}</TableCell>
-                    <TableCell>${investment.amount.toLocaleString()}</TableCell>
-                    <TableCell>{investment.date}</TableCell>
-                    <TableCell>{investment.term}</TableCell>
-                    <TableCell>{investment.roi}%</TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium
-                        ${investment.status === 'active' ? 'bg-green-100 text-green-800' : 
-                          investment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                          'bg-blue-100 text-blue-800'}`}>
-                        {investment.status.charAt(0).toUpperCase() + investment.status.slice(1)}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm">Details</Button>
-                      </div>
-                    </TableCell>
+            
+            {isLoading ? (
+              <div className="text-center py-8">
+                <p>Loading investments...</p>
+              </div>
+            ) : investments.length === 0 ? (
+              <div className="text-center py-8 border border-dashed border-gray-300 rounded-lg">
+                <FilePlus className="h-12 w-12 mx-auto text-gray-400 mb-2" />
+                <h3 className="text-lg font-medium text-gray-800 mb-1">No Investments Yet</h3>
+                <p className="text-gray-500 mb-4">Start investing to see your portfolio grow</p>
+                <Button 
+                  onClick={() => {
+                    setDialogTabValue('investment-form');
+                    setInvestmentDialogOpen(true);
+                  }}
+                  className="bg-[#E02020] hover:bg-[#C01010] text-white"
+                >
+                  <FilePlus className="h-4 w-4 mr-2" />
+                  Create First Investment
+                </Button>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Hospital</TableHead>
+                    <TableHead>Equipment</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Investment Date</TableHead>
+                    <TableHead>Term</TableHead>
+                    <TableHead>ROI</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {investments.map((investment) => (
+                    <TableRow key={investment.id}>
+                      <TableCell className="font-medium">{investment.id.substring(0, 8)}</TableCell>
+                      <TableCell>{investment.hospital}</TableCell>
+                      <TableCell>{investment.equipment}</TableCell>
+                      <TableCell>${investment.amount.toLocaleString()}</TableCell>
+                      <TableCell>{investment.date}</TableCell>
+                      <TableCell>{investment.term}</TableCell>
+                      <TableCell>{investment.roi}%</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium
+                          ${investment.status === 'active' ? 'bg-green-100 text-green-800' : 
+                            investment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                            'bg-blue-100 text-blue-800'}`}>
+                          {investment.status.charAt(0).toUpperCase() + investment.status.slice(1)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm">Details</Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </div>
         </TabsContent>
 

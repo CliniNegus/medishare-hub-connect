@@ -314,6 +314,66 @@ export type Database = {
           },
         ]
       }
+      investments: {
+        Row: {
+          amount: number
+          created_at: string
+          date: string
+          equipment_id: string | null
+          hospital_id: string | null
+          id: string
+          investor_id: string
+          notes: string | null
+          roi: number
+          status: string
+          term: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          date?: string
+          equipment_id?: string | null
+          hospital_id?: string | null
+          id?: string
+          investor_id: string
+          notes?: string | null
+          roi: number
+          status?: string
+          term: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          date?: string
+          equipment_id?: string | null
+          hospital_id?: string | null
+          id?: string
+          investor_id?: string
+          notes?: string | null
+          roi?: number
+          status?: string
+          term?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "investments_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "investments_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leases: {
         Row: {
           created_at: string
