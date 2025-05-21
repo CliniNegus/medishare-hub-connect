@@ -71,7 +71,6 @@ const AddEquipmentPage = () => {
         console.log("Generated public URL:", imageUrl);
       }
 
-      // Fix: Use a valid status value - 'Available' is the correct casing based on error
       const productData = {
         name: values.name,
         description: values.description,
@@ -86,8 +85,8 @@ const AddEquipmentPage = () => {
         specs: values.specs,
         image_url: imageUrl,
         owner_id: user.id,
-        status: 'Available', // Fixed status value with correct casing
-        sales_option: salesOption,
+        status: 'Available',
+        sales_option: salesOption,  // Add the sales option
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };

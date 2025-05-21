@@ -32,18 +32,7 @@ export const useProductManagement = ({ selectedShop }: UseProductManagementProps
       
       if (error) throw error;
       
-      // Cast the sales_option to the expected type
-      const typedProducts = data?.map(item => ({
-        ...item,
-        // Ensure sales_option is one of the expected values or null
-        sales_option: (item.sales_option === 'direct_sale' || 
-                       item.sales_option === 'lease' || 
-                       item.sales_option === 'both') 
-                       ? (item.sales_option as 'direct_sale' | 'lease' | 'both') 
-                       : null
-      })) as Product[] || [];
-      
-      setProducts(typedProducts);
+      setProducts(data || []);
     } catch (error: any) {
       console.error('Error fetching products:', error.message);
       toast({
@@ -116,8 +105,6 @@ export const useProductManagement = ({ selectedShop }: UseProductManagementProps
         condition: values.condition,
         specs: values.specs,
         updated_at: new Date().toISOString(),
-        // Make sure to include sales_option if it exists
-        ...(values.sales_option && { sales_option: values.sales_option }),
       };
 
       const { error } = await supabase

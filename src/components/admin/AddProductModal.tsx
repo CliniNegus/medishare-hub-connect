@@ -120,7 +120,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
         image_url: imageUrl,
         owner_id: user.id,
         shop_id: shopId,
-        status: 'Available', // Updated to use the correct status value
+        status: 'Available',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };

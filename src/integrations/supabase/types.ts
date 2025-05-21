@@ -118,7 +118,6 @@ export type Database = {
           lease_rate: number | null
           location: string | null
           manufacturer: string | null
-          model: string | null
           name: string
           owner_id: string | null
           payment_status: string | null
@@ -126,10 +125,7 @@ export type Database = {
           quantity: number | null
           remote_control_enabled: boolean | null
           revenue_generated: number | null
-          sales_option: string | null
-          serial_number: string | null
           shop_id: string | null
-          specs: string | null
           status: string | null
           updated_at: string
           usage_hours: number | null
@@ -145,7 +141,6 @@ export type Database = {
           lease_rate?: number | null
           location?: string | null
           manufacturer?: string | null
-          model?: string | null
           name: string
           owner_id?: string | null
           payment_status?: string | null
@@ -153,10 +148,7 @@ export type Database = {
           quantity?: number | null
           remote_control_enabled?: boolean | null
           revenue_generated?: number | null
-          sales_option?: string | null
-          serial_number?: string | null
           shop_id?: string | null
-          specs?: string | null
           status?: string | null
           updated_at?: string
           usage_hours?: number | null
@@ -172,7 +164,6 @@ export type Database = {
           lease_rate?: number | null
           location?: string | null
           manufacturer?: string | null
-          model?: string | null
           name?: string
           owner_id?: string | null
           payment_status?: string | null
@@ -180,10 +171,7 @@ export type Database = {
           quantity?: number | null
           remote_control_enabled?: boolean | null
           revenue_generated?: number | null
-          sales_option?: string | null
-          serial_number?: string | null
           shop_id?: string | null
-          specs?: string | null
           status?: string | null
           updated_at?: string
           usage_hours?: number | null
