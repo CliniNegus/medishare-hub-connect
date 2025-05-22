@@ -32,7 +32,21 @@ export const useProductManagement = ({ selectedShop }: UseProductManagementProps
       
       if (error) throw error;
       
-      setProducts(data || []);
+      // Map database results to Product type and handle sales_option
+      const mappedProducts: Product[] = (data || []).map(item => {
+        // Ensure sales_option is one of the allowed values or null
+        let validSalesOption: 'direct_sale' | 'lease' | 'both' | null = null;
+        if (item.sales_option === 'direct_sale' || item.sales_option === 'lease' || item.sales_option === 'both') {
+          validSalesOption = item.sales_option;
+        }
+        
+        return {
+          ...item,
+          sales_option: validSalesOption
+        } as Product;
+      });
+      
+      setProducts(mappedProducts);
     } catch (error: any) {
       console.error('Error fetching products:', error.message);
       toast({
@@ -64,6 +78,7 @@ export const useProductManagement = ({ selectedShop }: UseProductManagementProps
         status: 'Available',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        sales_option: values.sales_option
       };
 
       const { error } = await supabase
@@ -105,6 +120,7 @@ export const useProductManagement = ({ selectedShop }: UseProductManagementProps
         condition: values.condition,
         specs: values.specs,
         updated_at: new Date().toISOString(),
+        sales_option: values.sales_option
       };
 
       const { error } = await supabase

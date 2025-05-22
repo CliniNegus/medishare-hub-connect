@@ -26,6 +26,6 @@ export type Product = ProductFormValues & {
   status: string;
   created_at: string;
   updated_at: string;
-  sales_option?: 'direct_sale' | 'lease' | 'both';
+  sales_option?: 'direct_sale' | 'lease' | 'both' | string | null;  // Updated to allow any string value
   description?: string;  // Making sure description is included
 };
