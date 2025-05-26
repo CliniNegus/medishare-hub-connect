@@ -39,9 +39,9 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
   const navigate = useNavigate();
   
   const statusColors = {
-    'available': 'bg-red-500',
-    'in-use': 'bg-black',
-    'maintenance': 'bg-red-700'
+    'available': 'bg-green-500',
+    'in-use': 'bg-yellow-500',
+    'maintenance': 'bg-red-500'
   };
 
   const statusLabels = {
@@ -63,7 +63,7 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
           className="w-full h-full object-cover" 
         />
         <Badge 
-          className={`absolute top-2 right-2 ${statusColors[status]}`}
+          className={`absolute top-2 right-2 ${statusColors[status]} text-white`}
         >
           {statusLabels[status]}
         </Badge>
