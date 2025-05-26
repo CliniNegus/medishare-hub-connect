@@ -19,7 +19,7 @@ import ShopTabContent from './hospital-dashboard/ShopTabContent';
 
 const HospitalDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("Available");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [selectedClusterNode, setSelectedClusterNode] = useState<string | undefined>(undefined);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
