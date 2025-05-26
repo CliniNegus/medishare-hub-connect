@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { EquipmentProps } from '@/components/EquipmentCard';
 import { ClusterNode } from '@/components/ClusterMap';
 import EquipmentSearch from '../EquipmentSearch';
@@ -10,6 +10,7 @@ import ClusterMap from '@/components/ClusterMap';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Calculator, Clock } from 'lucide-react';
+import { useEquipmentData } from '@/hooks/use-equipment-data';
 
 interface EquipmentTabProps {
   searchTerm: string;
@@ -19,6 +20,10 @@ interface EquipmentTabProps {
   selectedClusterNode: string | undefined;
   setSelectedClusterNode: (id: string) => void;
   onBookEquipment: (id: string) => void;
+  statusFilter: string;
+  setStatusFilter: (status: string) => void;
+  categoryFilter: string;
+  setCategoryFilter: (category: string) => void;
 }
 
 const EquipmentTab: React.FC<EquipmentTabProps> = ({
@@ -29,11 +34,31 @@ const EquipmentTab: React.FC<EquipmentTabProps> = ({
   selectedClusterNode,
   setSelectedClusterNode,
   onBookEquipment,
+  statusFilter,
+  setStatusFilter,
+  categoryFilter,
+  setCategoryFilter,
 }) => {
+  const { equipment } = useEquipmentData();
+  
+  // Get unique categories from the equipment data
+  const categories = useMemo(() => {
+    const uniqueCategories = [...new Set(equipment.map(item => item.category).filter(Boolean))];
+    return uniqueCategories;
+  }, [equipment]);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2 space-y-6">
-        <EquipmentSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <EquipmentSearch 
+          searchTerm={searchTerm} 
+          setSearchTerm={setSearchTerm}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          categoryFilter={categoryFilter}
+          setCategoryFilter={setCategoryFilter}
+          categories={categories}
+        />
         
         <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
           <h3 className="text-lg font-semibold mb-3 text-red-600">Equipment Acquisition Options</h3>
@@ -74,7 +99,12 @@ const EquipmentTab: React.FC<EquipmentTabProps> = ({
         
         <EquipmentStats />
         <FinancingSection />
-        <EquipmentList onBookEquipment={onBookEquipment} />
+        <EquipmentList 
+          onBookEquipment={onBookEquipment}
+          searchTerm={searchTerm}
+          statusFilter={statusFilter}
+          categoryFilter={categoryFilter}
+        />
       </div>
       <div className="space-y-6">
         <ClusterMap 

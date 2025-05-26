@@ -19,6 +19,8 @@ import ShopTabContent from './hospital-dashboard/ShopTabContent';
 
 const HospitalDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [selectedClusterNode, setSelectedClusterNode] = useState<string | undefined>(undefined);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState<EquipmentProps | null>(null);
@@ -82,6 +84,10 @@ const HospitalDashboard = () => {
             setSelectedClusterNode={setSelectedClusterNode}
             onBookEquipment={handleBookEquipment}
             recentTransactions={recentTransactions}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            categoryFilter={categoryFilter}
+            setCategoryFilter={setCategoryFilter}
           />
         </TabsContent>
         

@@ -26,6 +26,10 @@ interface DashboardContentProps {
     amount: number;
     type: 'deposit' | 'withdrawal' | 'return';
   }[];
+  statusFilter?: string;
+  setStatusFilter?: (status: string) => void;
+  categoryFilter?: string;
+  setCategoryFilter?: (category: string) => void;
 }
 
 const DashboardContent: React.FC<DashboardContentProps> = ({
@@ -37,7 +41,11 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   selectedClusterNode,
   setSelectedClusterNode,
   onBookEquipment,
-  recentTransactions
+  recentTransactions,
+  statusFilter = "all",
+  setStatusFilter = () => {},
+  categoryFilter = "all",
+  setCategoryFilter = () => {}
 }) => {
   switch (activeTab) {
     case 'hospitals':
@@ -69,6 +77,10 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
           selectedClusterNode={selectedClusterNode}
           setSelectedClusterNode={setSelectedClusterNode}
           onBookEquipment={onBookEquipment}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          categoryFilter={categoryFilter}
+          setCategoryFilter={setCategoryFilter}
         />
       );
   }

@@ -28,6 +28,10 @@ interface EquipmentTabContentProps {
     type: 'deposit' | 'withdrawal' | 'return';
   }[];
   activeTab: string;
+  statusFilter: string;
+  setStatusFilter: (status: string) => void;
+  categoryFilter: string;
+  setCategoryFilter: (category: string) => void;
 }
 
 const EquipmentTabContent: React.FC<EquipmentTabContentProps> = ({
@@ -39,7 +43,11 @@ const EquipmentTabContent: React.FC<EquipmentTabContentProps> = ({
   setSelectedClusterNode,
   onBookEquipment,
   recentTransactions,
-  activeTab
+  activeTab,
+  statusFilter,
+  setStatusFilter,
+  categoryFilter,
+  setCategoryFilter,
 }) => {
   const [equipmentSubTab, setEquipmentSubTab] = useState("overview");
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
@@ -84,6 +92,10 @@ const EquipmentTabContent: React.FC<EquipmentTabContentProps> = ({
               setSelectedClusterNode={setSelectedClusterNode}
               onBookEquipment={onBookEquipment}
               recentTransactions={recentTransactions}
+              statusFilter={statusFilter}
+              setStatusFilter={setStatusFilter}
+              categoryFilter={categoryFilter}
+              setCategoryFilter={setCategoryFilter}
             />
           </TabsContent>
 
