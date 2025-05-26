@@ -48,7 +48,8 @@ export function useEquipmentData() {
           category: item.category || 'Uncategorized',
           manufacturer: item.manufacturer || 'Unknown',
           type: item.status === 'Available' ? 'available' : 
-                item.status === 'Maintenance' ? 'maintenance' : 'in-use',
+                item.status === 'In Use' ? 'in-use' :
+                item.status === 'Maintenance' ? 'maintenance' : 'available',
           location: item.location || 'Unknown',
           cluster: 'Main Hospital', // Default value as it might not be in the DB
           pricePerUse: Math.round(item.price / 100) || 10, // Example calculation
