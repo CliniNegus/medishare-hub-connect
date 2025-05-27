@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ImageUploadProps {
   onImageUploaded: (url: string) => void;
@@ -34,21 +35,46 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
     try {
       setUploading(true);
+      console.log("Starting file upload to Supabase Storage");
       
-      // Create a base64 preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setPreview(base64String);
-        onImageUploaded(base64String);
-      };
-      reader.readAsDataURL(file);
+      // Generate unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+      
+      console.log("Uploading file:", fileName);
+      
+      // Upload directly to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('equipment_images')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        throw uploadError;
+      }
+
+      console.log("Upload successful:", uploadData);
+      
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('equipment_images')
+        .getPublicUrl(fileName);
+
+      console.log("Generated public URL:", publicUrl);
+      
+      setPreview(publicUrl);
+      onImageUploaded(publicUrl);
+      
+      toast({
+        title: "Image uploaded successfully",
+        description: "Your image has been uploaded and is ready to use",
+      });
       
     } catch (error: any) {
-      console.error('Error processing image:', error);
+      console.error('Error uploading image:', error);
       toast({
-        title: "Error",
-        description: "Failed to process image",
+        title: "Upload failed",
+        description: error.message || "Failed to upload image",
         variant: "destructive",
       });
     } finally {
@@ -92,6 +118,9 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                 <span className="font-semibold">Click to upload</span> or drag and drop
               </p>
               <p className="text-xs text-gray-500">PNG, JPG or WEBP (MAX. 5MB)</p>
+              {uploading && (
+                <p className="text-xs text-blue-500 mt-2">Uploading...</p>
+              )}
             </div>
           )}
           <input
@@ -104,11 +133,6 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           />
         </label>
       </div>
-      {uploading && (
-        <div className="text-center text-sm text-gray-500">
-          Processing image...
-        </div>
-      )}
     </div>
   );
 };

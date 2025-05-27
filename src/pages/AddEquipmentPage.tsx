@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ProductFormValues } from '@/types/product';
-import { createEquipmentImagesBucket } from '@/integrations/supabase/createStorageBucket';
 import Layout from '@/components/Layout';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -19,11 +19,6 @@ const AddEquipmentPage = () => {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [salesOption, setSalesOption] = useState<'direct_sale' | 'lease' | 'both'>('both');
-
-  React.useEffect(() => {
-    // Ensure the storage bucket exists
-    createEquipmentImagesBucket();
-  }, []);
 
   const handleSubmit = async (values: ProductFormValues) => {
     if (!user) {
@@ -40,35 +35,8 @@ const AddEquipmentPage = () => {
       console.log("Starting product submission process");
       console.log("Sales option selected:", salesOption);
       
-      let imageUrl = values.image_url;
-      if (imageUrl && imageUrl.startsWith('data:')) {
-        console.log("Processing image upload");
-        // Convert base64 to file and upload
-        const base64Data = imageUrl.split(',')[1];
-        const fileData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-        const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.jpg`;
-        
-        console.log("Creating file for upload");
-        const file = new File([fileData], fileName, { type: 'image/jpeg' });
-
-        console.log("Uploading to storage:", fileName);
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('equipment_images')
-          .upload(fileName, file);
-
-        if (uploadError) {
-          console.error("Image upload error:", uploadError);
-          throw uploadError;
-        }
-
-        console.log("Upload successful, getting public URL");
-        const { data: { publicUrl } } = supabase.storage
-          .from('equipment_images')
-          .getPublicUrl(fileName);
-
-        imageUrl = publicUrl;
-        console.log("Generated public URL:", imageUrl);
-      }
+      // Image URL is already processed if it was uploaded
+      const imageUrl = values.image_url;
 
       const productData = {
         name: values.name,
@@ -84,7 +52,7 @@ const AddEquipmentPage = () => {
         specs: values.specs,
         image_url: imageUrl,
         owner_id: user.id,
-        status: 'available',  // Changed from 'Available' to 'available'
+        status: 'available',
         sales_option: salesOption,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

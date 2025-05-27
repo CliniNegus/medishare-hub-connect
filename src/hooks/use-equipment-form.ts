@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { createEquipmentImagesBucket } from '@/integrations/supabase/createStorageBucket';
 
 interface UseEquipmentFormProps {
   onSuccess?: () => void;
@@ -69,47 +68,6 @@ export const useEquipmentForm = ({ onSuccess, onCancel }: UseEquipmentFormProps 
       console.log("User ID:", user.id);
       console.log("Image URL:", imageUrl);
       
-      // Process the uploaded image if using base64
-      let finalImageUrl = imageUrl;
-      if (imageUrl && imageUrl.startsWith('data:')) {
-        console.log("Processing base64 image...");
-        try {
-          const base64Data = imageUrl.split(',')[1];
-          const fileData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-          const fileName = `equipment_${Date.now()}_${Math.random().toString(36).substring(2)}.jpg`;
-          
-          const file = new File([fileData], fileName, { type: 'image/jpeg' });
-          console.log("Created file object for upload:", fileName);
-
-          console.log("Uploading to equipment_images bucket...");
-          const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('equipment_images')
-            .upload(fileName, file);
-
-          if (uploadError) {
-            console.error("Upload error:", uploadError);
-            throw uploadError;
-          }
-
-          console.log("Upload successful:", uploadData);
-          const { data: { publicUrl } } = supabase.storage
-            .from('equipment_images')
-            .getPublicUrl(fileName);
-
-          finalImageUrl = publicUrl;
-          console.log("Generated public URL:", finalImageUrl);
-        } catch (imgError: any) {
-          console.error("Image processing error:", imgError);
-          toast({
-            title: "Image upload failed",
-            description: imgError.message || "Could not process the image",
-            variant: "destructive",
-          });
-          // Continue with submission without the image
-          finalImageUrl = null;
-        }
-      }
-      
       // Prepare data for database insertion
       const equipmentData = {
         name: form.name,
@@ -118,9 +76,9 @@ export const useEquipmentForm = ({ onSuccess, onCancel }: UseEquipmentFormProps 
         location: form.location,
         price: form.price ? parseFloat(form.price) : null,
         quantity: form.quantity ? parseInt(form.quantity) : null,
-        image_url: finalImageUrl,
+        image_url: imageUrl,
         owner_id: user.id,
-        status: 'available',  // Changed from 'Available' to 'available'
+        status: 'available',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -159,15 +117,27 @@ export const useEquipmentForm = ({ onSuccess, onCancel }: UseEquipmentFormProps 
     }
   };
 
-  // Initialize storage bucket if needed
+  // Storage bucket check function
   const initializeStorage = async () => {
     try {
-      const bucketCreated = await createEquipmentImagesBucket();
-      if (!bucketCreated) {
-        console.warn("Failed to initialize equipment images storage bucket");
+      // Check if bucket exists
+      const { data: buckets, error } = await supabase.storage.listBuckets();
+      if (error) {
+        console.error("Error checking storage buckets:", error);
+        return false;
+      }
+      
+      const bucketExists = buckets?.some(bucket => bucket.name === 'equipment_images');
+      if (bucketExists) {
+        console.log("Equipment images bucket is ready");
+        return true;
+      } else {
+        console.error("Equipment images bucket not found");
+        return false;
       }
     } catch (error) {
       console.error("Error initializing storage:", error);
+      return false;
     }
   };
 
