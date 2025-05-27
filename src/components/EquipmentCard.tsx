@@ -4,7 +4,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, DollarSign, ShoppingCart, Clock, Calculator } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useNavigate } from 'react-router-dom';
 
 export interface EquipmentProps {
@@ -115,37 +114,12 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
         </div>
       </CardContent>
       <CardFooter>
-        {status === 'available' ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="w-full bg-red-600 hover:bg-red-700">
-                Acquire Equipment
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => onBook && onBook(id)} className="cursor-pointer">
-                <Clock className="h-4 w-4 mr-2" />
-                <span>Book for Use</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                <span>Purchase</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
-                <Calculator className="h-4 w-4 mr-2" />
-                <span>Finance</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <Button 
-            variant="outline" 
-            className="w-full border-red-200 text-red-600 hover:bg-red-50"
-            onClick={handleViewDetails}
-          >
-            View Details
-          </Button>
-        )}
+        <Button 
+          className="w-full bg-red-600 hover:bg-red-700 text-white"
+          onClick={handleViewDetails}
+        >
+          View Details
+        </Button>
       </CardFooter>
     </Card>
   );

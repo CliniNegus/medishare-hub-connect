@@ -5,13 +5,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, DollarSign, ShoppingCart, Clock, Calculator, ArrowLeft } from "lucide-react";
+import { Calendar, MapPin, DollarSign, ShoppingCart, Clock, Calculator, ArrowLeft, Package, Wrench } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import BookingModal from '@/components/BookingModal';
 import PurchaseModal from '@/components/PurchaseModal';
-import PaymentOptionsDialog from '@/components/PaymentOptionsDialog';
 import Header from '@/components/Header';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -29,13 +28,19 @@ interface EquipmentDetails {
   condition: string;
   created_at: string;
   updated_at: string;
+  model: string;
+  serial_number: string;
+  specs: string;
+  quantity: number;
+  usage_hours: number;
+  downtime_hours: number;
 }
 
 const EquipmentDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const [equipment, setEquipment] = useState<EquipmentDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
@@ -104,7 +109,6 @@ const EquipmentDetailsPage = () => {
     if (!equipment) return;
 
     try {
-      // Create a purchase record
       const orderData = {
         equipment_id: id,
         user_id: user.id,
@@ -115,14 +119,12 @@ const EquipmentDetailsPage = () => {
         status: 'pending'
       };
       
-      // Call the edge function instead of using RPC
       const { data, error } = await supabase.functions.invoke('create-order', {
         body: { order: orderData }
       });
 
       if (error) throw error;
 
-      // Update equipment status to 'sold'
       await supabase
         .from('equipment')
         .update({ status: 'sold' })
@@ -135,7 +137,6 @@ const EquipmentDetailsPage = () => {
       
       setPurchaseModalOpen(false);
 
-      // Refresh equipment data
       const { data: updatedEquipment, error: equipmentError } = await supabase
         .from('equipment')
         .select('*')
@@ -158,7 +159,6 @@ const EquipmentDetailsPage = () => {
 
   const createBooking = async (date: Date, duration: number, notes: string) => {
     try {
-      // Calculate end time based on duration (in hours)
       const endDate = new Date(date);
       endDate.setHours(endDate.getHours() + duration);
 
@@ -180,7 +180,6 @@ const EquipmentDetailsPage = () => {
 
       if (error) throw error;
 
-      // Temporary update equipment status
       await supabase
         .from('equipment')
         .update({ status: 'in-use' })
@@ -193,7 +192,6 @@ const EquipmentDetailsPage = () => {
       
       setBookingModalOpen(false);
 
-      // Refresh equipment data
       const { data: updatedEquipment, error: equipmentError } = await supabase
         .from('equipment')
         .select('*')
@@ -212,6 +210,13 @@ const EquipmentDetailsPage = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleFinancing = () => {
+    toast({
+      title: "Financing Options",
+      description: "Financing options will be available soon. Please contact our sales team for more information.",
+    });
   };
 
   const statusColors = {
@@ -290,6 +295,7 @@ const EquipmentDetailsPage = () => {
   const status = equipment?.status || 'Available';
   const perUsePrice = equipment ? Math.round(equipment.price / 100) : 0;
   const isSold = status === 'sold';
+  const isAvailable = status === 'Available' || status === 'available';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -299,41 +305,78 @@ const EquipmentDetailsPage = () => {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
+        
         <Card>
           <CardHeader>
             <div className="flex justify-between items-center">
-              <CardTitle className="text-2xl font-bold text-red-600">{equipment?.name}</CardTitle>
-              <Badge className={`${statusColors[status]}`}>
+              <CardTitle className="text-3xl font-bold text-red-600">{equipment?.name}</CardTitle>
+              <Badge className={`${statusColors[status]} text-white`}>
                 {status}
               </Badge>
             </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-8">
-              <div className="flex flex-col md:flex-row gap-6">
-                <div className="w-full md:w-1/3 bg-gray-100 rounded-md overflow-hidden">
+              <div className="flex flex-col lg:flex-row gap-8">
+                <div className="w-full lg:w-1/2 bg-gray-100 rounded-md overflow-hidden">
                   <img 
                     src={equipment?.image_url || "/placeholder.svg"} 
                     alt={equipment?.name} 
-                    className="w-full h-64 object-cover object-center" 
+                    className="w-full h-96 object-cover object-center" 
                   />
                 </div>
-                <div className="w-full md:w-2/3">
-                  <div className="flex items-center space-x-2 mb-4">
+                <div className="w-full lg:w-1/2">
+                  <div className="flex flex-wrap items-center gap-2 mb-6">
                     <Badge variant="outline" className="text-sm border-red-200 text-red-600">{equipment?.category}</Badge>
                     <Badge variant="outline" className="text-sm">{equipment?.manufacturer}</Badge>
-                    <Badge variant="outline" className="text-sm">{equipment?.condition}</Badge>
+                    {equipment?.condition && <Badge variant="outline" className="text-sm">{equipment?.condition}</Badge>}
+                    {equipment?.model && <Badge variant="outline" className="text-sm">Model: {equipment?.model}</Badge>}
                   </div>
-                  <div className="flex items-center text-sm text-gray-600 mb-3">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    <span>{equipment?.location || 'Location not specified'}</span>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center text-gray-600">
+                      <MapPin className="h-5 w-5 mr-2" />
+                      <span className="text-lg">{equipment?.location || 'Location not specified'}</span>
+                    </div>
+                    
+                    {equipment?.serial_number && (
+                      <div className="flex items-center text-gray-600">
+                        <Package className="h-5 w-5 mr-2" />
+                        <span>Serial: {equipment.serial_number}</span>
+                      </div>
+                    )}
+                    
+                    {(equipment?.usage_hours || equipment?.downtime_hours) && (
+                      <div className="flex items-center text-gray-600">
+                        <Wrench className="h-5 w-5 mr-2" />
+                        <span>
+                          Usage: {equipment?.usage_hours || 0}h | Downtime: {equipment?.downtime_hours || 0}h
+                        </span>
+                      </div>
+                    )}
+                    
+                    {equipment?.quantity && equipment.quantity > 1 && (
+                      <div className="text-gray-600">
+                        <span className="font-medium">Available Quantity: {equipment.quantity}</span>
+                      </div>
+                    )}
                   </div>
-                  <div className="mt-4">
-                    <h3 className="text-lg font-semibold mb-2">Description</h3>
-                    <p className="text-gray-700">
+                  
+                  <div className="mt-6">
+                    <h3 className="text-xl font-semibold mb-3 text-gray-800">Description</h3>
+                    <p className="text-gray-700 leading-relaxed">
                       {equipment?.description || 'No description available for this equipment.'}
                     </p>
                   </div>
+                  
+                  {equipment?.specs && (
+                    <div className="mt-6">
+                      <h3 className="text-xl font-semibold mb-3 text-gray-800">Technical Specifications</h3>
+                      <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                        {equipment.specs}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -341,36 +384,36 @@ const EquipmentDetailsPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card className="bg-gray-50 border-gray-200">
-                  <CardContent className="p-4">
+                  <CardContent className="p-6">
                     <div className="flex flex-col">
-                      <span className="text-sm text-gray-500 mb-1">Purchase Price</span>
+                      <span className="text-sm text-gray-500 mb-2">Purchase Price</span>
                       <div className="flex items-center">
-                        <DollarSign className="h-5 w-5 mr-1 text-red-500" />
-                        <span className="text-xl font-bold">${equipment?.price?.toLocaleString() || 'N/A'}</span>
+                        <DollarSign className="h-6 w-6 mr-2 text-red-500" />
+                        <span className="text-2xl font-bold text-gray-800">${equipment?.price?.toLocaleString() || 'N/A'}</span>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
                 
                 <Card className="bg-gray-50 border-gray-200">
-                  <CardContent className="p-4">
+                  <CardContent className="p-6">
                     <div className="flex flex-col">
-                      <span className="text-sm text-gray-500 mb-1">Monthly Lease Rate</span>
+                      <span className="text-sm text-gray-500 mb-2">Monthly Lease Rate</span>
                       <div className="flex items-center">
-                        <Calculator className="h-5 w-5 mr-1 text-red-500" />
-                        <span className="text-xl font-bold">${equipment?.lease_rate?.toLocaleString() || 'N/A'}</span>
+                        <Calculator className="h-6 w-6 mr-2 text-red-500" />
+                        <span className="text-2xl font-bold text-gray-800">${equipment?.lease_rate?.toLocaleString() || 'N/A'}</span>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
                 
                 <Card className="bg-gray-50 border-gray-200">
-                  <CardContent className="p-4">
+                  <CardContent className="p-6">
                     <div className="flex flex-col">
-                      <span className="text-sm text-gray-500 mb-1">Per Use Price</span>
+                      <span className="text-sm text-gray-500 mb-2">Per Use Price</span>
                       <div className="flex items-center">
-                        <Clock className="h-5 w-5 mr-1 text-red-500" />
-                        <span className="text-xl font-bold">${perUsePrice?.toFixed(2) || 'N/A'}</span>
+                        <Clock className="h-6 w-6 mr-2 text-red-500" />
+                        <span className="text-2xl font-bold text-gray-800">${perUsePrice?.toFixed(2) || 'N/A'}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -379,35 +422,54 @@ const EquipmentDetailsPage = () => {
 
               <Separator />
 
-              <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-                {!isSold && (status === 'Available' || status === 'available') ? (
-                  <>
-                    <Button 
-                      className="bg-[#E02020] hover:bg-[#c01010] text-white py-6 text-lg shadow-md transform transition hover:scale-105"
-                      onClick={() => setBookingModalOpen(true)}
-                    >
-                      <Clock className="h-5 w-5 mr-2" />
-                      Book for Use
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="border-red-200 text-red-600 hover:bg-red-50"
-                      onClick={() => setPurchaseModalOpen(true)}
-                    >
-                      <ShoppingCart className="h-4 w-4 mr-2" />
-                      Purchase
-                    </Button>
-                    <Button variant="outline" className="border-gray-200 hover:bg-gray-50">
-                      <Calculator className="h-4 w-4 mr-2" />
-                      Finance
-                    </Button>
-                  </>
-                ) : (
-                  <Button variant="outline" className="border-red-200 text-red-600 hover:bg-red-50">
-                    <Clock className="h-4 w-4 mr-2" />
-                    {isSold ? "Equipment Sold" : "Check Availability"}
-                  </Button>
-                )}
+              <div className="bg-white p-6 rounded-lg border-2 border-red-100">
+                <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Equipment Actions</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {!isSold && isAvailable ? (
+                    <>
+                      <Button 
+                        size="lg"
+                        className="bg-[#E02020] hover:bg-[#c01010] text-white py-4 text-lg font-semibold shadow-md transform transition hover:scale-105"
+                        onClick={() => setBookingModalOpen(true)}
+                      >
+                        <Clock className="h-5 w-5 mr-2" />
+                        Book for Use
+                      </Button>
+                      
+                      <Button 
+                        size="lg"
+                        variant="outline" 
+                        className="border-2 border-[#E02020] text-[#E02020] hover:bg-red-50 py-4 text-lg font-semibold"
+                        onClick={() => setPurchaseModalOpen(true)}
+                      >
+                        <ShoppingCart className="h-5 w-5 mr-2" />
+                        Purchase
+                      </Button>
+                      
+                      <Button 
+                        size="lg"
+                        variant="outline" 
+                        className="border-2 border-[#333333] text-[#333333] hover:bg-gray-50 py-4 text-lg font-semibold"
+                        onClick={handleFinancing}
+                      >
+                        <Calculator className="h-5 w-5 mr-2" />
+                        Financing
+                      </Button>
+                    </>
+                  ) : (
+                    <div className="col-span-3 text-center">
+                      <Button 
+                        variant="outline" 
+                        size="lg"
+                        className="border-red-200 text-red-600 hover:bg-red-50 py-4 text-lg"
+                        disabled
+                      >
+                        <Clock className="h-5 w-5 mr-2" />
+                        {isSold ? "Equipment Sold" : "Currently Unavailable"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </CardContent>
@@ -422,7 +484,7 @@ const EquipmentDetailsPage = () => {
         onConfirm={handleBooking}
         location={equipment?.location}
         cluster="Main Hospital"
-        availability={status === 'Available' || status === 'available' ? 'Available now' : 'Currently unavailable'}
+        availability={isAvailable ? 'Available now' : 'Currently unavailable'}
       />
 
       <PurchaseModal
