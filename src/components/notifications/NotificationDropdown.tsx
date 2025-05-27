@@ -7,9 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuHeader,
   DropdownMenuTrigger,
-  DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from '@/contexts/AuthContext';
@@ -50,7 +48,8 @@ const NotificationDropdown = () => {
 
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      // Use any type to bypass TypeScript issues with missing table types
+      const { data, error } = await (supabase as any)
         .from('notifications')
         .select('*')
         .eq('user_id', user.id)
@@ -59,8 +58,9 @@ const NotificationDropdown = () => {
 
       if (error) throw error;
 
-      setNotifications(data || []);
-      setUnreadCount(data?.filter(n => !n.read).length || 0);
+      const typedData = data as Notification[];
+      setNotifications(typedData || []);
+      setUnreadCount(typedData?.filter(n => !n.read).length || 0);
     } catch (error: any) {
       console.error('Error fetching notifications:', error);
       toast({
@@ -77,7 +77,7 @@ const NotificationDropdown = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('notifications')
         .update({ read: true, updated_at: new Date().toISOString() })
         .eq('id', notificationId)
@@ -111,7 +111,7 @@ const NotificationDropdown = () => {
       
       if (unreadIds.length === 0) return;
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('notifications')
         .update({ read: true, updated_at: new Date().toISOString() })
         .in('id', unreadIds)

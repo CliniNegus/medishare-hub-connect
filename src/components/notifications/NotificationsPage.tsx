@@ -6,7 +6,7 @@ import NotificationSystem from '@/components/communication/NotificationSystem';
 
 const NotificationsPage = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-[#FFFFFF]">
       <Header />
       <main className="flex-1 p-6">
         <div className="max-w-4xl mx-auto">
@@ -15,7 +15,9 @@ const NotificationsPage = () => {
             <h1 className="text-2xl font-bold text-[#333333]">All Notifications</h1>
           </div>
           
-          <NotificationSystem />
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <NotificationSystem />
+          </div>
         </div>
       </main>
     </div>
