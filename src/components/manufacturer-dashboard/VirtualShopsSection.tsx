@@ -1,97 +1,119 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Store, Plus, Package } from "lucide-react";
+import { Store, Plus, TrendingUp, MapPin, Package } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
-
-interface VirtualShop {
-  id: string;
-  name: string;
-  country: string;
-  equipment_count: number;
-  revenue_generated: number;
-}
+import { VirtualShop } from './hooks/useManufacturerShops';
 
 interface VirtualShopsSectionProps {
   virtualShops: VirtualShop[];
   loadingShops: boolean;
 }
 
-const VirtualShopsSection = ({ virtualShops, loadingShops }: VirtualShopsSectionProps) => {
+const VirtualShopsSection: React.FC<VirtualShopsSectionProps> = ({ 
+  virtualShops, 
+  loadingShops 
+}) => {
   const navigate = useNavigate();
 
-  return (
-    <Card className="mb-8 border-red-100">
-      <CardHeader className="pb-3">
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle className="text-lg flex items-center">
-              <Store className="h-5 w-5 mr-2 text-red-600" />
-              Virtual Shops
-            </CardTitle>
-            <CardDescription>
-              Manage your equipment across different countries
-            </CardDescription>
+  if (loadingShops) {
+    return (
+      <Card className="shadow-lg border-0">
+        <CardContent className="p-8">
+          <div className="flex justify-center items-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#E02020]"></div>
           </div>
-          <Button 
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="shadow-lg border-0">
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-[#E02020] rounded-lg">
+              <Store className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-xl text-[#333333]">Virtual Shops</CardTitle>
+              <p className="text-gray-600 text-sm">Manage your global presence</p>
+            </div>
+          </div>
+          <Button
             onClick={() => navigate('/virtual-shops')}
-            className="bg-red-600 hover:bg-red-700"
+            className="bg-[#E02020] hover:bg-[#c01c1c] text-white"
           >
-            View All Shops
+            <Plus className="h-4 w-4 mr-2" />
+            Add Shop
           </Button>
         </div>
       </CardHeader>
       <CardContent>
-        {loadingShops ? (
-          <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
-          </div>
-        ) : virtualShops.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {virtualShops.map(shop => (
-              <Card key={shop.id} className="border border-gray-200">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-md">{shop.name}</CardTitle>
-                  <CardDescription>{shop.country}</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex justify-between items-center mb-2 mt-2">
-                    <div>
-                      <p className="text-sm text-gray-500">Equipment</p>
-                      <p className="font-semibold">{shop.equipment_count}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-500">Revenue</p>
-                      <p className="font-semibold text-red-600">
-                        ${shop.revenue_generated.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    className="w-full mt-2 border-red-200 text-red-600 hover:bg-red-50"
-                    onClick={() => navigate(`/products?shop=${shop.id}`)}
-                  >
-                    <Package className="h-4 w-4 mr-2" />
-                    Manage Equipment
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <Store className="h-12 w-12 mx-auto text-gray-300 mb-3" />
-            <h3 className="text-lg font-medium mb-2">No Virtual Shops Yet</h3>
-            <p className="text-gray-500 mb-4">Create your first virtual shop to start managing your equipment globally</p>
-            <Button 
+        {virtualShops.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="p-4 bg-gray-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+              <Store className="h-8 w-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-[#333333] mb-2">No Virtual Shops Yet</h3>
+            <p className="text-gray-600 mb-4">Create your first virtual shop to start reaching global markets</p>
+            <Button
               onClick={() => navigate('/virtual-shops')}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-[#E02020] hover:bg-[#c01c1c] text-white"
             >
               <Plus className="h-4 w-4 mr-2" />
               Create First Shop
             </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {virtualShops.map((shop) => (
+              <Card key={shop.id} className="border border-gray-200 hover:border-[#E02020] transition-colors duration-200">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-[#E02020] rounded-lg">
+                        <Store className="h-4 w-4 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-[#333333]">{shop.name}</h3>
+                        <p className="text-sm text-gray-600 flex items-center">
+                          <MapPin className="h-3 w-3 mr-1" />
+                          {shop.country}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-center mb-1">
+                        <Package className="h-4 w-4 text-[#E02020] mr-1" />
+                      </div>
+                      <p className="text-lg font-bold text-[#333333]">{shop.equipment_count}</p>
+                      <p className="text-xs text-gray-600">Equipment</p>
+                    </div>
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-center mb-1">
+                        <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
+                      </div>
+                      <p className="text-lg font-bold text-[#333333]">${shop.revenue_generated.toFixed(0)}</p>
+                      <p className="text-xs text-gray-600">Revenue</p>
+                    </div>
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    className="w-full border-[#E02020] text-[#E02020] hover:bg-[#E02020] hover:text-white"
+                    onClick={() => navigate(`/virtual-shops?shop=${shop.id}`)}
+                  >
+                    Manage Shop
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         )}
       </CardContent>

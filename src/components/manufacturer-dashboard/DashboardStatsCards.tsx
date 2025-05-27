@@ -20,58 +20,65 @@ const DashboardStatsCards = ({
   available, 
   monthlyRevenue 
 }: StatsProps) => {
+  const stats = [
+    {
+      title: "Total Equipment",
+      value: totalEquipment,
+      description: "Units in circulation",
+      icon: Package,
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
+    },
+    {
+      title: "Active Leases",
+      value: activeLease,
+      description: "Across multiple clusters",
+      icon: CheckCircle,
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+    },
+    {
+      title: "Maintenance",
+      value: maintenance,
+      description: "Units in service",
+      icon: AlertCircle,
+      color: "text-amber-600",
+      bgColor: "bg-amber-50",
+    },
+    {
+      title: "Available",
+      value: available,
+      description: "Ready to deploy",
+      icon: Truck,
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+    },
+    {
+      title: "Monthly Revenue",
+      value: `$${(monthlyRevenue / 1000).toFixed(0)}k`,
+      description: "+5.2% from last month",
+      icon: CircleDollarSign,
+      color: "text-[#E02020]",
+      bgColor: "bg-red-50",
+    },
+  ];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium">Total Equipment</CardTitle>
-          <Package className="h-4 w-4 text-red-600" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{totalEquipment}</div>
-          <p className="text-xs text-gray-500">Units in circulation</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium">Active Leases</CardTitle>
-          <CheckCircle className="h-4 w-4 text-red-600" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{activeLease}</div>
-          <p className="text-xs text-gray-500">Across multiple clusters</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium">Maintenance</CardTitle>
-          <AlertCircle className="h-4 w-4 text-red-600" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{maintenance}</div>
-          <p className="text-xs text-gray-500">Units in service</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium">Available</CardTitle>
-          <Truck className="h-4 w-4 text-red-600" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{available}</div>
-          <p className="text-xs text-gray-500">Ready to deploy</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
-          <CircleDollarSign className="h-4 w-4 text-red-600" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">${(monthlyRevenue / 1000).toFixed(0)}k</div>
-          <p className="text-xs text-gray-500">+5.2% from last month</p>
-        </CardContent>
-      </Card>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      {stats.map((stat, index) => (
+        <Card key={index} className="border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-[#333333]">{stat.title}</CardTitle>
+            <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+              <stat.icon className={`h-4 w-4 ${stat.color}`} />
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="text-2xl font-bold text-[#333333] mb-1">{stat.value}</div>
+            <p className="text-xs text-gray-500">{stat.description}</p>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 };

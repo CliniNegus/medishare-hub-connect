@@ -9,40 +9,74 @@ import {
   DashboardTabs 
 } from './manufacturer-dashboard';
 import ChangeAccountTypeModal from './ChangeAccountTypeModal';
-import { UserCog } from 'lucide-react';
+import { UserCog, TrendingUp, Activity } from 'lucide-react';
 import { Button } from "./ui/button";
+import { Card, CardContent } from "./ui/card";
 
 const ManufacturerDashboard = () => {
   const { virtualShops, loadingShops } = useManufacturerShops();
   const [accountTypeModalOpen, setAccountTypeModalOpen] = useState(false);
 
   return (
-    <div className="w-full">
-      <div className="manufacturer-dashboard-header">
-        <ManufacturerHeader />
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section with Gradient Background */}
+      <div className="relative bg-gradient-to-r from-[#E02020] to-[#c01c1c] text-white">
+        <div className="absolute inset-0 bg-black opacity-10"></div>
+        <div className="relative z-10 px-6 py-8">
+          <ManufacturerHeader />
+        </div>
       </div>
-      <div className="stats-cards-section">
-        <DashboardStatsCards {...dashboardStats} />
+
+      {/* Main Content */}
+      <div className="px-6 -mt-4 relative z-20">
+        {/* Quick Stats Overview */}
+        <Card className="mb-8 shadow-lg border-0">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-[#333333] flex items-center">
+                <Activity className="h-5 w-5 mr-2 text-[#E02020]" />
+                Performance Overview
+              </h2>
+              <div className="flex items-center text-sm text-green-600 bg-green-50 px-3 py-1 rounded-full">
+                <TrendingUp className="h-4 w-4 mr-1" />
+                +12% this month
+              </div>
+            </div>
+            <DashboardStatsCards {...dashboardStats} />
+          </CardContent>
+        </Card>
+
+        {/* Virtual Shops Section */}
+        <div className="mb-8">
+          <VirtualShopsSection 
+            virtualShops={virtualShops} 
+            loadingShops={loadingShops} 
+          />
+        </div>
+
+        {/* Management Tabs */}
+        <Card className="shadow-lg border-0 mb-8">
+          <CardContent className="p-0">
+            <DashboardTabs />
+          </CardContent>
+        </Card>
+
+        {/* Account Settings */}
+        <div className="flex justify-end mb-8">
+          <Card className="shadow-md border-0">
+            <CardContent className="p-4">
+              <Button 
+                variant="outline" 
+                className="border-[#E02020] text-[#E02020] hover:bg-[#E02020] hover:text-white transition-colors duration-200"
+                onClick={() => setAccountTypeModalOpen(true)}
+              >
+                <UserCog className="h-4 w-4 mr-2" />
+                Account Settings
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-      <div className="virtual-shops-section">
-        <VirtualShopsSection 
-          virtualShops={virtualShops} 
-          loadingShops={loadingShops} 
-        />
-      </div>
-      
-      <div className="flex justify-end mb-6">
-        <Button 
-          variant="outline" 
-          className="flex items-center space-x-2 border-red-600 text-red-600 hover:bg-red-50"
-          onClick={() => setAccountTypeModalOpen(true)}
-        >
-          <UserCog className="h-4 w-4 mr-2" />
-          <span>Change Account Type</span>
-        </Button>
-      </div>
-      
-      <DashboardTabs />
       
       <ChangeAccountTypeModal
         open={accountTypeModalOpen}
