@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +7,8 @@ import {
   PiggyBank, ArrowUpRight, ArrowDownRight, TrendingUp,
   Briefcase, DollarSign, Building, FilePlus, BarChart2,
   Calendar, FileSpreadsheet, HelpCircle, Check, X, 
-  Map, Hospital, Users, AlertCircle, FileText, LogOut, UserCog
+  Map, Hospital, Users, AlertCircle, FileText, LogOut, UserCog,
+  Sparkles, Activity, Target, Clock
 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,6 +17,8 @@ import ChangeAccountTypeModal from "@/components/ChangeAccountTypeModal";
 import InvestmentForm from "@/components/investment/InvestmentForm";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
+import { Badge } from "@/components/ui/badge";
+import InvestorWallet from "@/components/InvestorWallet";
 
 interface Investment {
   id: string;
@@ -219,7 +221,6 @@ const InvestorDashboard = () => {
   const { profile, user, signOut } = useAuth();
   const { toast } = useToast();
 
-  // Fetch investments from Supabase
   useEffect(() => {
     const fetchInvestments = async () => {
       if (!user) return;
@@ -270,7 +271,6 @@ const InvestorDashboard = () => {
     fetchInvestments();
   }, [user, toast]);
 
-  // Fix: Update handler function to properly handle event types
   const handleApproveRequest = useCallback((requestId: string, e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     console.log(`Approved request: ${requestId}`);
@@ -288,7 +288,7 @@ const InvestorDashboard = () => {
       toast({
         title: "Logged out successfully",
         description: "You have been signed out of your account",
-        duration: 3000, // Reduced from default for better UX
+        duration: 3000,
       });
     } catch (error: any) {
       toast({
@@ -312,7 +312,6 @@ const InvestorDashboard = () => {
       description: "Your new investment has been created successfully",
       duration: 3000,
     });
-    // Refresh investments after successful creation
     if (user) {
       supabase
         .from('investments')
@@ -353,557 +352,638 @@ const InvestorDashboard = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-8 investor-dashboard-header">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">Investor Dashboard</h1>
-          {profile && (
-            <p className="text-gray-600">
-              {profile.full_name || user?.email} {profile.organization && `• ${profile.organization}`}
-            </p>
-          )}
-        </div>
-        <div className="flex items-center space-x-3">
-          <Button 
-            variant="outline" 
-            className="flex items-center" 
-            onClick={handleChangeAccountType}
-          >
-            <UserCog className="h-4 w-4 mr-2" />
-            Change Account Type
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            className="flex items-center" 
-            onClick={handleSignOut}
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
-          </Button>
-          
-          <Dialog open={investmentDialogOpen} onOpenChange={setInvestmentDialogOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                onClick={(e) => {
-                  e.preventDefault(); 
-                  setDialogTabValue('investment-form');
-                  setInvestmentDialogOpen(true);
-                }}
-                className="bg-[#E02020] hover:bg-[#C01010] text-white"
-              >
-                <FilePlus className="mr-2 h-4 w-4" />
-                New Investment
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl">
-              <DialogHeader>
-                <DialogTitle>New Investment</DialogTitle>
-                <DialogDescription>
-                  Create a new investment or browse investment opportunities.
-                </DialogDescription>
-              </DialogHeader>
+    <div className="min-h-screen bg-[#F5F5F5]">
+      {/* Hero Section with Gradient Background */}
+      <div className="relative bg-gradient-to-r from-[#E02020] to-[#c01c1c] text-white">
+        <div className="absolute inset-0 bg-black opacity-10"></div>
+        <div className="relative z-10 px-6 py-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-3xl lg:text-4xl font-bold">Investor Dashboard</h1>
+                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    Premium
+                  </Badge>
+                </div>
+                <div className="space-y-1">
+                  {profile && (
+                    <p className="text-white/90 text-lg">
+                      Welcome back, {profile.full_name || user?.email?.split('@')[0]}
+                    </p>
+                  )}
+                  {profile?.organization && (
+                    <p className="text-white/75 flex items-center">
+                      <Building className="h-4 w-4 mr-1" />
+                      {profile.organization}
+                    </p>
+                  )}
+                </div>
+              </div>
               
-              <div className="py-4">
-                <Tabs defaultValue={dialogTabValue} value={dialogTabValue} onValueChange={setDialogTabValue} className="w-full">
-                  <TabsList className="mb-4">
-                    <TabsTrigger value="investment-form">
+              <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                <Button 
+                  variant="outline" 
+                  className="bg-white/10 border-white/30 text-white hover:bg-white hover:text-[#E02020] transition-all duration-200 backdrop-blur-sm"
+                  onClick={handleChangeAccountType}
+                >
+                  <UserCog className="mr-2 h-4 w-4" />
+                  Account Settings
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  className="bg-white/10 border-white/30 text-white hover:bg-white hover:text-[#E02020] transition-all duration-200 backdrop-blur-sm"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
+                
+                <Dialog open={investmentDialogOpen} onOpenChange={setInvestmentDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      onClick={(e) => {
+                        e.preventDefault(); 
+                        setDialogTabValue('investment-form');
+                        setInvestmentDialogOpen(true);
+                      }}
+                      className="bg-white text-[#E02020] hover:bg-white/90 font-semibold shadow-lg"
+                    >
+                      <FilePlus className="mr-2 h-4 w-4" />
+                      New Investment
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl">
+                    <DialogHeader>
+                      <DialogTitle>New Investment</DialogTitle>
+                      <DialogDescription>
+                        Create a new investment or browse investment opportunities.
+                      </DialogDescription>
+                    </DialogHeader>
+                    
+                    <div className="py-4">
+                      <Tabs defaultValue={dialogTabValue} value={dialogTabValue} onValueChange={setDialogTabValue} className="w-full">
+                        <TabsList className="mb-4">
+                          <TabsTrigger value="investment-form">
+                            <FilePlus className="h-4 w-4 mr-2" />
+                            Create Investment
+                          </TabsTrigger>
+                          <TabsTrigger value="requests">
+                            <FileText className="h-4 w-4 mr-2" />
+                            Funding Requests
+                          </TabsTrigger>
+                          <TabsTrigger value="clusters">
+                            <Map className="h-4 w-4 mr-2" />
+                            Hospital Clusters
+                          </TabsTrigger>
+                        </TabsList>
+                        
+                        <TabsContent value="investment-form">
+                          <InvestmentForm 
+                            onSuccess={handleInvestmentSuccess}
+                            onCancel={() => setInvestmentDialogOpen(false)}
+                          />
+                        </TabsContent>
+                        
+                        <TabsContent value="requests">
+                          <Card>
+                            <CardContent className="p-0">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>Hospital</TableHead>
+                                    <TableHead>Equipment</TableHead>
+                                    <TableHead>Amount</TableHead>
+                                    <TableHead>Term</TableHead>
+                                    <TableHead>Expected ROI</TableHead>
+                                    <TableHead>Date</TableHead>
+                                    <TableHead>Actions</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {fundingRequests.map((request) => (
+                                    <TableRow key={request.id}>
+                                      <TableCell>
+                                        <div>
+                                          <div className="font-medium">{request.hospital}</div>
+                                          <div className="text-xs text-gray-500">{request.cluster}</div>
+                                        </div>
+                                      </TableCell>
+                                      <TableCell>{request.equipment}</TableCell>
+                                      <TableCell>${request.amount.toLocaleString()}</TableCell>
+                                      <TableCell>{request.term}</TableCell>
+                                      <TableCell>
+                                        <span className="text-green-600 font-medium">{request.expectedRoi}%</span>
+                                      </TableCell>
+                                      <TableCell>{request.date}</TableCell>
+                                      <TableCell>
+                                        <div className="flex space-x-2">
+                                          <Button 
+                                            size="sm" 
+                                            className="bg-green-600 hover:bg-green-700"
+                                            onClick={(e) => handleApproveRequest(request.id, e)}
+                                          >
+                                            <Check className="h-4 w-4 mr-1" />
+                                            Approve
+                                          </Button>
+                                          <Button 
+                                            size="sm" 
+                                            variant="outline"
+                                            className="text-red-600 border-red-200 hover:bg-red-50"
+                                            onClick={(e) => handleRejectRequest(request.id, e)}
+                                          >
+                                            <X className="h-4 w-4 mr-1" />
+                                            Reject
+                                          </Button>
+                                        </div>
+                                      </TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </CardContent>
+                          </Card>
+                        </TabsContent>
+                        
+                        <TabsContent value="clusters">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {hospitalClusters.map((cluster) => (
+                              <Card key={cluster.id} className="overflow-hidden">
+                                <CardHeader className="pb-2">
+                                  <CardTitle>{cluster.name}</CardTitle>
+                                  <CardDescription>{cluster.location} • {cluster.hospitals} hospitals</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                  <div className="space-y-2">
+                                    <div>
+                                      <div className="text-sm font-medium">Equipment Needs:</div>
+                                      <ul className="text-sm list-disc list-inside">
+                                        {cluster.equipmentNeeds.map((need, idx) => (
+                                          <li key={idx}>{need}</li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                    <div className="flex justify-between items-center pt-2">
+                                      <div>
+                                        <div className="text-sm font-medium">Predicted Value:</div>
+                                        <div className="text-xl font-bold text-green-600">${cluster.predictedValue.toLocaleString()}</div>
+                                      </div>
+                                      <Button 
+                                        onClick={() => {
+                                          setDialogTabValue('investment-form');
+                                          toast({
+                                            title: "Cluster Selected",
+                                            description: `Preparing investment for ${cluster.name}`,
+                                          });
+                                        }}
+                                        className="bg-[#E02020] hover:bg-[#C01010] text-white"
+                                      >
+                                        Invest in Cluster
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
+                        </TabsContent>
+                      </Tabs>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="px-6 -mt-4 relative z-20">
+        {/* Quick Stats Overview */}
+        <Card className="mb-8 shadow-lg border-0">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-xl font-semibold text-[#333333] flex items-center">
+                  <Activity className="h-5 w-5 mr-2 text-[#E02020]" />
+                  Investment Overview
+                </CardTitle>
+                <CardDescription>Your portfolio performance at a glance</CardDescription>
+              </div>
+              <div className="flex items-center text-sm text-green-600 bg-green-50 px-3 py-1 rounded-full">
+                <TrendingUp className="h-4 w-4 mr-1" />
+                Portfolio growth: +12.4%
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-blue-600 font-medium">Total Invested</p>
+                    <p className="text-2xl font-bold text-blue-800">${(stats.totalInvested / 1000).toFixed(0)}k</p>
+                    <p className="text-xs text-blue-600 mt-1">Across {stats.activeInvestments} investments</p>
+                  </div>
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Briefcase className="h-5 w-5 text-blue-600" />
+                  </div>
+                </div>
+              </div>
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-green-600 font-medium">Average ROI</p>
+                    <p className="text-2xl font-bold text-green-800">{stats.averageRoi}%</p>
+                    <div className="flex items-center text-xs text-green-600 mt-1">
+                      <ArrowUpRight className="h-3 w-3 mr-1" />
+                      <span>+0.5% from last month</span>
+                    </div>
+                  </div>
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <TrendingUp className="h-5 w-5 text-green-600" />
+                  </div>
+                </div>
+              </div>
+              <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-purple-600 font-medium">Projected Earnings</p>
+                    <p className="text-2xl font-bold text-purple-800">${(stats.projectedEarnings / 1000).toFixed(1)}k</p>
+                    <p className="text-xs text-purple-600 mt-1">Next 12 months</p>
+                  </div>
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Target className="h-5 w-5 text-purple-600" />
+                  </div>
+                </div>
+              </div>
+              <div className="bg-[#E02020]/10 p-4 rounded-lg border border-[#E02020]/20">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-[#E02020] font-medium">Available Balance</p>
+                    <p className="text-2xl font-bold text-[#E02020]">${(stats.walletBalance / 1000).toFixed(0)}k</p>
+                    <p className="text-xs text-[#E02020] mt-1">Ready to invest</p>
+                  </div>
+                  <div className="p-2 bg-[#E02020]/10 rounded-lg">
+                    <PiggyBank className="h-5 w-5 text-[#E02020]" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Dashboard Tabs */}
+        <Card className="shadow-lg border-0 mb-8">
+          <CardContent className="p-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-[#333333] mb-2">Investment Management Hub</h2>
+              <p className="text-gray-600">Manage your portfolio, explore opportunities, and track performance</p>
+            </div>
+
+            <Tabs defaultValue="portfolio" className="space-y-6" onValueChange={setActiveTab} value={activeTab}>
+              <TabsList className="grid w-full grid-cols-5 bg-gray-100 p-1 rounded-lg">
+                <TabsTrigger value="portfolio" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm transition-all duration-200">
+                  <Briefcase className="h-4 w-4" />
+                  <span className="hidden sm:inline">Portfolio</span>
+                </TabsTrigger>
+                <TabsTrigger value="requests" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm transition-all duration-200">
+                  <AlertCircle className="h-4 w-4" />
+                  <span className="hidden sm:inline">Requests</span>
+                </TabsTrigger>
+                <TabsTrigger value="wallet" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm transition-all duration-200">
+                  <PiggyBank className="h-4 w-4" />
+                  <span className="hidden sm:inline">Wallet</span>
+                </TabsTrigger>
+                <TabsTrigger value="opportunities" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm transition-all duration-200">
+                  <TrendingUp className="h-4 w-4" />
+                  <span className="hidden sm:inline">Opportunities</span>
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm transition-all duration-200">
+                  <BarChart2 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Analytics</span>
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="portfolio" className="space-y-4 mt-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-[#333333]">Investment Portfolio</h3>
+                  <div className="flex space-x-2">
+                    <Button variant="outline" size="sm">
+                      <FileSpreadsheet className="h-4 w-4 mr-2" />
+                      Export
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Filter
+                    </Button>
+                    <Button 
+                      size="sm"
+                      className="bg-[#E02020] hover:bg-[#C01010] text-white"
+                      onClick={() => {
+                        setDialogTabValue('investment-form');
+                        setInvestmentDialogOpen(true);
+                      }}
+                    >
                       <FilePlus className="h-4 w-4 mr-2" />
-                      Create Investment
-                    </TabsTrigger>
-                    <TabsTrigger value="requests">
-                      <FileText className="h-4 w-4 mr-2" />
-                      Funding Requests
-                    </TabsTrigger>
-                    <TabsTrigger value="clusters">
-                      <Map className="h-4 w-4 mr-2" />
-                      Hospital Clusters
-                    </TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="investment-form">
-                    <InvestmentForm 
-                      onSuccess={handleInvestmentSuccess}
-                      onCancel={() => setInvestmentDialogOpen(false)}
-                    />
-                  </TabsContent>
-                  
-                  <TabsContent value="requests">
-                    <div className="border rounded-lg overflow-hidden">
+                      New Investment
+                    </Button>
+                  </div>
+                </div>
+                
+                {isLoading ? (
+                  <Card>
+                    <CardContent className="p-8">
+                      <div className="text-center">
+                        <div className="animate-spin h-8 w-8 border-4 border-[#E02020] border-t-transparent rounded-full mx-auto mb-4"></div>
+                        <p className="text-gray-600">Loading your investments...</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : investments.length === 0 ? (
+                  <Card>
+                    <CardContent className="p-8">
+                      <div className="text-center border border-dashed border-gray-300 rounded-lg p-8">
+                        <FilePlus className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                        <h3 className="text-xl font-semibold text-gray-800 mb-2">No Investments Yet</h3>
+                        <p className="text-gray-600 mb-6">Start investing to see your portfolio grow and track your returns</p>
+                        <Button 
+                          onClick={() => {
+                            setDialogTabValue('investment-form');
+                            setInvestmentDialogOpen(true);
+                          }}
+                          className="bg-[#E02020] hover:bg-[#C01010] text-white"
+                        >
+                          <FilePlus className="h-4 w-4 mr-2" />
+                          Create First Investment
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card>
+                    <CardContent className="p-0">
                       <Table>
                         <TableHeader>
                           <TableRow>
+                            <TableHead>ID</TableHead>
                             <TableHead>Hospital</TableHead>
                             <TableHead>Equipment</TableHead>
                             <TableHead>Amount</TableHead>
+                            <TableHead>Investment Date</TableHead>
                             <TableHead>Term</TableHead>
-                            <TableHead>Expected ROI</TableHead>
-                            <TableHead>Date</TableHead>
+                            <TableHead>ROI</TableHead>
+                            <TableHead>Status</TableHead>
                             <TableHead>Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {fundingRequests.map((request) => (
-                            <TableRow key={request.id}>
+                          {investments.map((investment) => (
+                            <TableRow key={investment.id}>
+                              <TableCell className="font-medium">{investment.id.substring(0, 8)}</TableCell>
+                              <TableCell>{investment.hospital}</TableCell>
+                              <TableCell>{investment.equipment}</TableCell>
+                              <TableCell>${investment.amount.toLocaleString()}</TableCell>
+                              <TableCell>{investment.date}</TableCell>
+                              <TableCell>{investment.term}</TableCell>
+                              <TableCell>{investment.roi}%</TableCell>
                               <TableCell>
-                                <div>
-                                  <div className="font-medium">{request.hospital}</div>
-                                  <div className="text-xs text-gray-500">{request.cluster}</div>
-                                </div>
+                                <Badge variant={
+                                  investment.status === 'active' ? 'default' : 
+                                  investment.status === 'pending' ? 'secondary' : 
+                                  'outline'
+                                }>
+                                  {investment.status.charAt(0).toUpperCase() + investment.status.slice(1)}
+                                </Badge>
                               </TableCell>
-                              <TableCell>{request.equipment}</TableCell>
-                              <TableCell>${request.amount.toLocaleString()}</TableCell>
-                              <TableCell>{request.term}</TableCell>
                               <TableCell>
-                                <span className="text-green-600 font-medium">{request.expectedRoi}%</span>
-                              </TableCell>
-                              <TableCell>{request.date}</TableCell>
-                              <TableCell>
-                                <div className="flex space-x-2">
-                                  <Button 
-                                    size="sm" 
-                                    className="bg-green-600 hover:bg-green-700"
-                                    onClick={(e) => handleApproveRequest(request.id, e)}
-                                  >
-                                    <Check className="h-4 w-4 mr-1" />
-                                    Approve
-                                  </Button>
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline"
-                                    className="text-red-600 border-red-200 hover:bg-red-50"
-                                    onClick={(e) => handleRejectRequest(request.id, e)}
-                                  >
-                                    <X className="h-4 w-4 mr-1" />
-                                    Reject
-                                  </Button>
-                                </div>
+                                <Button variant="outline" size="sm">Details</Button>
                               </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
                       </Table>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="clusters">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {hospitalClusters.map((cluster) => (
-                        <Card key={cluster.id} className="overflow-hidden">
-                          <CardHeader className="pb-2">
-                            <CardTitle>{cluster.name}</CardTitle>
-                            <CardDescription>{cluster.location} • {cluster.hospitals} hospitals</CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="space-y-2">
-                              <div>
-                                <div className="text-sm font-medium">Equipment Needs:</div>
-                                <ul className="text-sm list-disc list-inside">
-                                  {cluster.equipmentNeeds.map((need, idx) => (
-                                    <li key={idx}>{need}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                              <div className="flex justify-between items-center pt-2">
-                                <div>
-                                  <div className="text-sm font-medium">Predicted Value:</div>
-                                  <div className="text-xl font-bold text-green-600">${cluster.predictedValue.toLocaleString()}</div>
-                                </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="requests" className="space-y-4 mt-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-[#333333]">Hospital Funding Requests</h3>
+                  <Button variant="outline" size="sm">
+                    <FileSpreadsheet className="h-4 w-4 mr-2" />
+                    Export
+                  </Button>
+                </div>
+                
+                <Card>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>ID</TableHead>
+                          <TableHead>Hospital</TableHead>
+                          <TableHead>Cluster</TableHead>
+                          <TableHead>Equipment</TableHead>
+                          <TableHead>Amount</TableHead>
+                          <TableHead>Expected ROI</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {fundingRequests.map((request) => (
+                          <TableRow key={request.id}>
+                            <TableCell className="font-medium">{request.id}</TableCell>
+                            <TableCell>{request.hospital}</TableCell>
+                            <TableCell>{request.cluster}</TableCell>
+                            <TableCell>{request.equipment}</TableCell>
+                            <TableCell>${request.amount.toLocaleString()}</TableCell>
+                            <TableCell>
+                              <span className="text-green-600 font-medium">{request.expectedRoi}%</span>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={
+                                request.status === 'approved' ? 'default' : 
+                                request.status === 'rejected' ? 'destructive' : 
+                                'secondary'
+                              }>
+                                {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex space-x-2">
                                 <Button 
-                                  onClick={() => {
-                                    setDialogTabValue('investment-form');
-                                    toast({
-                                      title: "Cluster Selected",
-                                      description: `Preparing investment for ${cluster.name}`,
-                                    });
-                                  }}
-                                  className="bg-[#E02020] hover:bg-[#C01010] text-white"
+                                  size="sm" 
+                                  className="bg-green-600 hover:bg-green-700"
+                                  onClick={(e) => handleApproveRequest(request.id, e)}
                                 >
-                                  Invest in Cluster
+                                  <Check className="h-4 w-4 mr-1" />
+                                  Approve
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  className="text-red-600 border-red-200 hover:bg-red-50"
+                                  onClick={(e) => handleRejectRequest(request.id, e)}
+                                >
+                                  <X className="h-4 w-4 mr-1" />
+                                  Reject
                                 </Button>
                               </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="wallet" className="space-y-4 mt-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-xl font-semibold text-[#333333]">Wallet Transactions</h3>
+                      <div className="flex space-x-2">
+                        <Button className="bg-[#E02020] hover:bg-[#C01010] text-white">
+                          <ArrowUpRight className="h-4 w-4 mr-2" />
+                          Deposit
+                        </Button>
+                        <Button variant="outline">
+                          <ArrowDownRight className="h-4 w-4 mr-2" />
+                          Withdraw
+                        </Button>
+                      </div>
                     </div>
-                  </TabsContent>
-                </Tabs>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
+                    <Card>
+                      <CardContent className="p-0">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>ID</TableHead>
+                              <TableHead>Date</TableHead>
+                              <TableHead>Description</TableHead>
+                              <TableHead>Amount</TableHead>
+                              <TableHead>Type</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {walletTransactions.map((transaction) => (
+                              <TableRow key={transaction.id}>
+                                <TableCell className="font-medium">{transaction.id}</TableCell>
+                                <TableCell>{transaction.date}</TableCell>
+                                <TableCell>{transaction.description}</TableCell>
+                                <TableCell>${transaction.amount.toLocaleString()}</TableCell>
+                                <TableCell>
+                                  <Badge variant={
+                                    transaction.type === 'deposit' ? 'default' : 
+                                    transaction.type === 'return' ? 'secondary' : 
+                                    'outline'
+                                  }>
+                                    {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
+                                  </Badge>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  <div>
+                    <InvestorWallet
+                      balance={stats.walletBalance}
+                      totalInvested={stats.totalInvested}
+                      returns={stats.projectedEarnings}
+                      returnsPercentage={stats.averageRoi}
+                      recentTransactions={walletTransactions}
+                    />
+                  </div>
+                </div>
+              </TabsContent>
 
-      <Card className="mb-8 wallet-balance-card">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <div>
-            <CardTitle className="text-lg font-bold">Wallet Balance</CardTitle>
-            <CardDescription>Available funds for investment</CardDescription>
-          </div>
-          <PiggyBank className="h-5 w-5 text-primary" />
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-baseline">
-            <div className="text-3xl font-bold">${stats.walletBalance.toLocaleString()}</div>
-            <Button variant="outline" className="ml-auto" size="sm">
-              <DollarSign className="h-4 w-4 mr-2" />
-              Manage Funds
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+              <TabsContent value="opportunities" className="space-y-4 mt-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-[#333333]">Investment Opportunities</h3>
+                  <Button variant="outline" size="sm">
+                    <HelpCircle className="h-4 w-4 mr-2" />
+                    How It Works
+                  </Button>
+                </div>
+                <Card>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>ID</TableHead>
+                          <TableHead>Hospital</TableHead>
+                          <TableHead>Equipment</TableHead>
+                          <TableHead>Amount</TableHead>
+                          <TableHead>Term</TableHead>
+                          <TableHead>Est. ROI</TableHead>
+                          <TableHead>Risk Level</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {opportunities.map((opportunity) => (
+                          <TableRow key={opportunity.id}>
+                            <TableCell className="font-medium">{opportunity.id}</TableCell>
+                            <TableCell>{opportunity.hospital}</TableCell>
+                            <TableCell>{opportunity.equipment}</TableCell>
+                            <TableCell>${opportunity.amount.toLocaleString()}</TableCell>
+                            <TableCell>{opportunity.term}</TableCell>
+                            <TableCell>{opportunity.estimatedRoi}%</TableCell>
+                            <TableCell>
+                              <Badge variant={
+                                opportunity.risk === 'low' ? 'default' : 
+                                opportunity.risk === 'medium' ? 'secondary' : 
+                                'destructive'
+                              }>
+                                {opportunity.risk.charAt(0).toUpperCase() + opportunity.risk.slice(1)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex space-x-2">
+                                <Button variant="outline" size="sm">Details</Button>
+                                <Button size="sm" className="bg-[#E02020] hover:bg-[#C01010] text-white">Invest</Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Invested</CardTitle>
-            <Briefcase className="h-4 w-4 text-gray-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${(stats.totalInvested / 1000).toFixed(0)}k</div>
-            <p className="text-xs text-gray-500">Across {stats.activeInvestments} active investments</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Average ROI</CardTitle>
-            <TrendingUp className="h-4 w-4 text-gray-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.averageRoi}%</div>
-            <div className="flex items-center text-xs text-green-600">
-              <ArrowUpRight className="h-3 w-3 mr-1" />
-              <span>0.5% from last month</span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Projected Earnings</CardTitle>
-            <DollarSign className="h-4 w-4 text-gray-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${(stats.projectedEarnings / 1000).toFixed(1)}k</div>
-            <div className="flex items-center text-xs text-green-600">
-              <ArrowUpRight className="h-3 w-3 mr-1" />
-              <span>Next 12 months</span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Hospital Partners</CardTitle>
-            <Building className="h-4 w-4 text-gray-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-gray-500">Across 8 regions</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="portfolio" className="space-y-4" onValueChange={setActiveTab} value={activeTab}>
-        <TabsList>
-          <TabsTrigger value="portfolio" className="text-sm" data-tab="portfolio">
-            <Briefcase className="h-4 w-4 mr-2" />
-            Portfolio
-          </TabsTrigger>
-          <TabsTrigger value="requests" className="text-sm" data-tab="requests">
-            <AlertCircle className="h-4 w-4 mr-2" />
-            Funding Requests
-          </TabsTrigger>
-          <TabsTrigger value="wallet" className="text-sm" data-tab="wallet">
-            <PiggyBank className="h-4 w-4 mr-2" />
-            Wallet
-          </TabsTrigger>
-          <TabsTrigger value="opportunities" className="text-sm" data-tab="opportunities">
-            <TrendingUp className="h-4 w-4 mr-2" />
-            Opportunities
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="text-sm" data-tab="analytics">
-            <BarChart2 className="h-4 w-4 mr-2" />
-            Analytics
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="portfolio" className="space-y-4">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">Investment Portfolio</h2>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm">
-                  <FileSpreadsheet className="h-4 w-4 mr-2" />
-                  Export
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Filter
-                </Button>
-                <Button 
-                  size="sm"
-                  className="bg-[#E02020] hover:bg-[#C01010] text-white"
-                  onClick={() => {
-                    setDialogTabValue('investment-form');
-                    setInvestmentDialogOpen(true);
-                  }}
-                >
-                  <FilePlus className="h-4 w-4 mr-2" />
-                  New Investment
-                </Button>
-              </div>
-            </div>
-            
-            {isLoading ? (
-              <div className="text-center py-8">
-                <p>Loading investments...</p>
-              </div>
-            ) : investments.length === 0 ? (
-              <div className="text-center py-8 border border-dashed border-gray-300 rounded-lg">
-                <FilePlus className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-                <h3 className="text-lg font-medium text-gray-800 mb-1">No Investments Yet</h3>
-                <p className="text-gray-500 mb-4">Start investing to see your portfolio grow</p>
-                <Button 
-                  onClick={() => {
-                    setDialogTabValue('investment-form');
-                    setInvestmentDialogOpen(true);
-                  }}
-                  className="bg-[#E02020] hover:bg-[#C01010] text-white"
-                >
-                  <FilePlus className="h-4 w-4 mr-2" />
-                  Create First Investment
-                </Button>
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Hospital</TableHead>
-                    <TableHead>Equipment</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Investment Date</TableHead>
-                    <TableHead>Term</TableHead>
-                    <TableHead>ROI</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {investments.map((investment) => (
-                    <TableRow key={investment.id}>
-                      <TableCell className="font-medium">{investment.id.substring(0, 8)}</TableCell>
-                      <TableCell>{investment.hospital}</TableCell>
-                      <TableCell>{investment.equipment}</TableCell>
-                      <TableCell>${investment.amount.toLocaleString()}</TableCell>
-                      <TableCell>{investment.date}</TableCell>
-                      <TableCell>{investment.term}</TableCell>
-                      <TableCell>{investment.roi}%</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium
-                          ${investment.status === 'active' ? 'bg-green-100 text-green-800' : 
-                            investment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                            'bg-blue-100 text-blue-800'}`}>
-                          {investment.status.charAt(0).toUpperCase() + investment.status.slice(1)}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button variant="outline" size="sm">Details</Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="requests" className="space-y-4">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">Hospital Funding Requests</h2>
-              <Button variant="outline" size="sm">
-                <FileSpreadsheet className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            </div>
-            
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Hospital</TableHead>
-                  <TableHead>Cluster</TableHead>
-                  <TableHead>Equipment</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Expected ROI</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {fundingRequests.map((request) => (
-                  <TableRow key={request.id}>
-                    <TableCell className="font-medium">{request.id}</TableCell>
-                    <TableCell>{request.hospital}</TableCell>
-                    <TableCell>{request.cluster}</TableCell>
-                    <TableCell>{request.equipment}</TableCell>
-                    <TableCell>${request.amount.toLocaleString()}</TableCell>
-                    <TableCell>
-                      <span className="text-green-600 font-medium">{request.expectedRoi}%</span>
-                    </TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium
-                        ${request.status === 'approved' ? 'bg-green-100 text-green-800' : 
-                          request.status === 'rejected' ? 'bg-red-100 text-red-800' : 
-                          'bg-yellow-100 text-yellow-800'}`}>
-                        {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button 
-                          size="sm" 
-                          className="bg-green-600 hover:bg-green-700"
-                          onClick={(e) => handleApproveRequest(request.id, e)}
-                        >
-                          <Check className="h-4 w-4 mr-1" />
-                          Approve
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          className="text-red-600 border-red-200 hover:bg-red-50"
-                          onClick={(e) => handleRejectRequest(request.id, e)}
-                        >
-                          <X className="h-4 w-4 mr-1" />
-                          Reject
-                        </Button>
+              <TabsContent value="analytics" className="space-y-4 mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-xl font-semibold text-[#333333]">Investment Analytics</CardTitle>
+                    <CardDescription>Track your portfolio performance and investment trends</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+                      <div className="text-center">
+                        <BarChart2 className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                        <h4 className="text-lg font-medium text-gray-600 mb-2">Analytics Dashboard</h4>
+                        <p className="text-gray-500">Advanced analytics charts would be displayed here</p>
+                        <p className="text-gray-500 text-sm mt-2">Including ROI trends, investment distribution, and performance metrics</p>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="wallet" className="space-y-4">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">Wallet Transactions</h2>
-              <div className="flex space-x-2">
-                <Button>
-                  <ArrowUpRight className="h-4 w-4 mr-2" />
-                  Deposit
-                </Button>
-                <Button variant="outline">
-                  <ArrowDownRight className="h-4 w-4 mr-2" />
-                  Withdraw
-                </Button>
-              </div>
-            </div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Type</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {walletTransactions.map((transaction) => (
-                  <TableRow key={transaction.id}>
-                    <TableCell className="font-medium">{transaction.id}</TableCell>
-                    <TableCell>{transaction.date}</TableCell>
-                    <TableCell>{transaction.description}</TableCell>
-                    <TableCell>${transaction.amount.toLocaleString()}</TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium
-                        ${transaction.type === 'deposit' ? 'bg-green-100 text-green-800' : 
-                          transaction.type === 'return' ? 'bg-blue-100 text-blue-800' : 
-                          'bg-yellow-100 text-yellow-800'}`}>
-                        {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="opportunities" className="space-y-4">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">Investment Opportunities</h2>
-              <Button variant="outline" size="sm">
-                <HelpCircle className="h-4 w-4 mr-2" />
-                How It Works
-              </Button>
-            </div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Hospital</TableHead>
-                  <TableHead>Equipment</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Term</TableHead>
-                  <TableHead>Est. ROI</TableHead>
-                  <TableHead>Risk Level</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {opportunities.map((opportunity) => (
-                  <TableRow key={opportunity.id}>
-                    <TableCell className="font-medium">{opportunity.id}</TableCell>
-                    <TableCell>{opportunity.hospital}</TableCell>
-                    <TableCell>{opportunity.equipment}</TableCell>
-                    <TableCell>${opportunity.amount.toLocaleString()}</TableCell>
-                    <TableCell>{opportunity.term}</TableCell>
-                    <TableCell>{opportunity.estimatedRoi}%</TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium
-                        ${opportunity.risk === 'low' ? 'bg-green-100 text-green-800' : 
-                          opportunity.risk === 'medium' ? 'bg-yellow-100 text-yellow-800' : 
-                          'bg-red-100 text-red-800'}`}>
-                        {opportunity.risk.charAt(0).toUpperCase() + opportunity.risk.slice(1)}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm">Details</Button>
-                        <Button size="sm">Invest</Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="analytics" className="space-y-4">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold mb-6">Investment Analytics</h2>
-            <div className="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
-              <div className="text-center">
-                <BarChart2 className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                <p className="text-gray-500">Analytics charts would be displayed here in a real implementation.</p>
-                <p className="text-gray-500 text-sm mt-2">Including ROI trends, investment distribution, and performance metrics.</p>
-              </div>
-            </div>
-          </div>
-        </TabsContent>
-      </Tabs>
-
-      {/* Add the ChangeAccountTypeModal */}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
+      
       <ChangeAccountTypeModal 
         open={changeAccountTypeOpen} 
         onOpenChange={setChangeAccountTypeOpen} 
