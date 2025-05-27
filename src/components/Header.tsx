@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 
 const Header = () => {
@@ -71,6 +79,14 @@ const Header = () => {
       });
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleSettingsClick = () => {
+    if (role === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate('/profile');
     }
   };
 
@@ -130,9 +146,53 @@ const Header = () => {
           {user && (
             <>
               <NotificationDropdown />
-              <Button variant="ghost" size="icon">
-                <Settings className="h-5 w-5 text-gray-600" />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Settings className="h-5 w-5 text-gray-600" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-white border shadow-lg z-50">
+                  <DropdownMenuItem 
+                    onClick={() => navigate('/profile')}
+                    className="cursor-pointer hover:bg-gray-50"
+                  >
+                    <UserCircle className="h-4 w-4 mr-2" />
+                    Profile Management
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem 
+                    onClick={() => navigate('/security-settings')}
+                    className="cursor-pointer hover:bg-gray-50"
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    Security Settings
+                  </DropdownMenuItem>
+                  
+                  {role === 'admin' && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={() => navigate('/admin')}
+                        className="cursor-pointer hover:bg-gray-50"
+                      >
+                        <LayoutDashboard className="h-4 w-4 mr-2" />
+                        Admin Settings
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  
+                  <DropdownMenuSeparator />
+                  
+                  <DropdownMenuItem 
+                    onClick={() => setAccountTypeModalOpen(true)}
+                    className="cursor-pointer hover:bg-gray-50"
+                  >
+                    <UserCog className="h-4 w-4 mr-2" />
+                    Change Account Type
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           )}
           
