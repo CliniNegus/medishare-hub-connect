@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { Check, ChevronRight, Circle } from "lucide-react"
@@ -179,6 +180,19 @@ const DropdownMenuShortcut = ({
 }
 DropdownMenuShortcut.displayName = "DropdownMenuShortcut"
 
+const DropdownMenuHeader = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => {
+  return (
+    <div
+      className={cn("px-2 py-1.5 text-sm font-semibold", className)}
+      {...props}
+    />
+  )
+}
+DropdownMenuHeader.displayName = "DropdownMenuHeader"
+
 export {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -195,4 +209,5 @@ export {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuRadioGroup,
+  DropdownMenuHeader,
 }

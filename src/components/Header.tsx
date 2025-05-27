@@ -1,13 +1,13 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Bell, Settings, UserCircle, Package, ShoppingCart, Home, Calculator, LayoutDashboard, LogOut, Trash2, UserCog } from "lucide-react";
+import { Settings, UserCircle, Package, ShoppingCart, Home, Calculator, LayoutDashboard, LogOut, Trash2, UserCog } from "lucide-react";
 import UserRoleSelector from './UserRoleSelector';
 import { useUserRole } from '@/contexts/UserRoleContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import ChangeAccountTypeModal from './ChangeAccountTypeModal';
+import NotificationDropdown from './notifications/NotificationDropdown';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -129,9 +129,7 @@ const Header = () => {
         <div className="flex items-center space-x-4">
           {user && (
             <>
-              <Button variant="ghost" size="icon">
-                <Bell className="h-5 w-5 text-gray-600" />
-              </Button>
+              <NotificationDropdown />
               <Button variant="ghost" size="icon">
                 <Settings className="h-5 w-5 text-gray-600" />
               </Button>
