@@ -47,14 +47,14 @@ export function useEquipmentData() {
           price: item.price || 0,
           category: item.category || 'Uncategorized',
           manufacturer: item.manufacturer || 'Unknown',
-          type: item.status === 'Available' ? 'available' : 
-                item.status === 'Maintenance' ? 'maintenance' : 'in-use',
+          type: item.status === 'available' ? 'available' : 
+                item.status === 'maintenance' ? 'maintenance' : 'in-use',
           location: item.location || 'Unknown',
           cluster: 'Main Hospital', // Default value as it might not be in the DB
           pricePerUse: Math.round(item.price / 100) || 10, // Example calculation
           purchasePrice: item.price || 0,
           leaseRate: item.lease_rate || Math.round((item.price || 0) * 0.05),
-          nextAvailable: item.status !== 'Available' ? '2025-06-01' : undefined,
+          nextAvailable: item.status !== 'available' ? '2025-06-01' : undefined,
         }));
         
         setEquipment(formattedEquipment);

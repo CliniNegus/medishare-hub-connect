@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -85,8 +84,8 @@ const AddEquipmentPage = () => {
         specs: values.specs,
         image_url: imageUrl,
         owner_id: user.id,
-        status: 'Available',
-        sales_option: salesOption,  // Add the sales option
+        status: 'available',  // Changed from 'Available' to 'available'
+        sales_option: salesOption,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
