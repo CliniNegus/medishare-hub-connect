@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Bell, CheckCheck, Archive, Mail } from 'lucide-react';
@@ -50,8 +49,14 @@ const NotificationSystem = () => {
 
       if (error) throw error;
 
-      setNotifications(data || []);
-      setUnreadCount(data?.filter(n => !n.read).length || 0);
+      // Type cast the data to ensure it matches our interface
+      const typedNotifications: Notification[] = (data || []).map(notification => ({
+        ...notification,
+        type: notification.type as 'info' | 'success' | 'warning' | 'error'
+      }));
+
+      setNotifications(typedNotifications);
+      setUnreadCount(typedNotifications.filter(n => !n.read).length);
     } catch (error: any) {
       console.error('Error fetching notifications:', error);
       toast({
