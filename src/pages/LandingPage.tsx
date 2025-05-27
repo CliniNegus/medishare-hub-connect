@@ -28,25 +28,47 @@ const LandingPage: React.FC = () => {
         </div>
         
         <div className="container mx-auto px-6 text-center relative z-10">
-          <div className="flex items-center justify-center gap-6 mb-10 animate-fade-in">
-            <div className="relative">
-              <OptimizedImage
-                src="https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/Clinibuilds%20Logo.jpg"
-                alt="CliniBuilds Logo"
-                height={85}
-                className="object-contain rounded-xl shadow-lg"
-              />
-              <div className="absolute -top-2 -right-2">
-                <Sparkles className="h-6 w-6 text-[#E02020] animate-pulse" />
+          <div className="flex items-center justify-center gap-8 mb-12 animate-fade-in">
+            <div className="relative group">
+              {/* Logo container with enhanced styling */}
+              <div className="relative bg-white p-6 rounded-3xl shadow-2xl border-4 border-[#E02020]/20 group-hover:border-[#E02020]/40 transition-all duration-500 transform group-hover:scale-105">
+                {/* Glow effect behind logo */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#E02020]/20 to-red-300/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                
+                {/* Logo image */}
+                <OptimizedImage
+                  src="https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/Clinibuilds%20Logo.jpg"
+                  alt="CliniBuilds Logo"
+                  height={120}
+                  className="object-contain rounded-2xl relative z-10 filter group-hover:brightness-110 transition-all duration-300"
+                />
+                
+                {/* Animated sparkles */}
+                <div className="absolute -top-3 -right-3 animate-pulse">
+                  <Sparkles className="h-8 w-8 text-[#E02020] drop-shadow-lg" />
+                </div>
+                <div className="absolute -bottom-2 -left-2 animate-pulse delay-700">
+                  <Sparkles className="h-6 w-6 text-amber-400 drop-shadow-lg" />
+                </div>
+                
+                {/* Floating badge */}
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-[#E02020] to-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-bounce">
+                  #1 Platform
+                </div>
               </div>
             </div>
+            
             <div className="text-left">
-              <h1 className="text-6xl font-bold text-[#333333] leading-tight">
+              <h1 className="text-7xl font-bold text-[#333333] leading-tight bg-gradient-to-r from-[#333333] via-[#E02020] to-[#333333] bg-clip-text text-transparent">
                 CliniBuilds
               </h1>
-              <p className="text-2xl font-semibold text-[#E02020] mt-2">
+              <p className="text-3xl font-semibold text-[#E02020] mt-3 tracking-wide">
                 Medical Equipment Platform
               </p>
+              <div className="mt-4 flex items-center gap-2">
+                <div className="h-1 w-16 bg-gradient-to-r from-[#E02020] to-red-400 rounded-full"></div>
+                <span className="text-sm font-medium text-[#333333]/60 uppercase tracking-widest">Leading Innovation</span>
+              </div>
             </div>
           </div>
           
