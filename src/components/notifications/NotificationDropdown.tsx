@@ -48,8 +48,7 @@ const NotificationDropdown = () => {
 
     try {
       setLoading(true);
-      // Use any type to bypass TypeScript issues with missing table types
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('notifications')
         .select('*')
         .eq('user_id', user.id)
@@ -58,9 +57,8 @@ const NotificationDropdown = () => {
 
       if (error) throw error;
 
-      const typedData = data as Notification[];
-      setNotifications(typedData || []);
-      setUnreadCount(typedData?.filter(n => !n.read).length || 0);
+      setNotifications(data || []);
+      setUnreadCount(data?.filter(n => !n.read).length || 0);
     } catch (error: any) {
       console.error('Error fetching notifications:', error);
       toast({
@@ -77,7 +75,7 @@ const NotificationDropdown = () => {
     if (!user) return;
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('notifications')
         .update({ read: true, updated_at: new Date().toISOString() })
         .eq('id', notificationId)
@@ -111,7 +109,7 @@ const NotificationDropdown = () => {
       
       if (unreadIds.length === 0) return;
 
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('notifications')
         .update({ read: true, updated_at: new Date().toISOString() })
         .in('id', unreadIds)

@@ -9,6 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Notification {
   id: string;
@@ -21,48 +22,6 @@ interface Notification {
   created_at: string;
 }
 
-// Mock notifications data
-const mockNotifications: Notification[] = [
-  {
-    id: '1',
-    user_id: 'user-1',
-    title: 'New Equipment Added',
-    message: 'An MRI machine has been added to your inventory.',
-    type: 'info',
-    read: false,
-    created_at: new Date(Date.now() - 3600000).toISOString()
-  },
-  {
-    id: '2',
-    user_id: 'user-1',
-    title: 'Lease Approved',
-    message: 'Your lease request for the ultrasound machine has been approved.',
-    type: 'success',
-    read: false,
-    action_url: '/leases/details',
-    created_at: new Date(Date.now() - 86400000).toISOString()
-  },
-  {
-    id: '3',
-    user_id: 'user-1',
-    title: 'Maintenance Required',
-    message: 'The X-ray machine requires scheduled maintenance.',
-    type: 'warning',
-    read: true,
-    created_at: new Date(Date.now() - 172800000).toISOString()
-  },
-  {
-    id: '4',
-    user_id: 'user-1',
-    title: 'Payment Overdue',
-    message: 'Your payment for the CT scanner lease is overdue.',
-    type: 'error',
-    read: true,
-    action_url: '/payments',
-    created_at: new Date(Date.now() - 259200000).toISOString()
-  }
-];
-
 const NotificationSystem = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -74,32 +33,6 @@ const NotificationSystem = () => {
   useEffect(() => {
     if (user) {
       fetchNotifications();
-      
-      // Simulate real-time notification with a timeout
-      const timeout = setTimeout(() => {
-        const newNotification: Notification = {
-          id: `notification-${Date.now()}`,
-          user_id: 'user-1',
-          title: 'New Message Received',
-          message: 'You have a new message from Hospital Administrator.',
-          type: 'info',
-          read: false,
-          created_at: new Date().toISOString()
-        };
-        
-        setNotifications(prev => [newNotification, ...prev]);
-        setUnreadCount(count => count + 1);
-        
-        toast({
-          title: newNotification.title,
-          description: newNotification.message,
-          variant: 'default',
-        });
-      }, 10000);
-      
-      return () => {
-        clearTimeout(timeout);
-      };
     }
   }, [user]);
 
@@ -109,19 +42,24 @@ const NotificationSystem = () => {
     try {
       setLoading(true);
       
-      // Use mock data instead of database query
-      setTimeout(() => {
-        setNotifications(mockNotifications);
-        setUnreadCount(mockNotifications.filter(n => !n.read).length);
-        setLoading(false);
-      }, 500);
-    } catch (error) {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setNotifications(data || []);
+      setUnreadCount(data?.filter(n => !n.read).length || 0);
+    } catch (error: any) {
       console.error('Error fetching notifications:', error);
       toast({
         title: 'Error',
         description: 'Failed to load notifications',
         variant: 'destructive',
       });
+    } finally {
       setLoading(false);
     }
   };
@@ -130,7 +68,14 @@ const NotificationSystem = () => {
     if (!user) return;
     
     try {
-      // Update local state instead of database
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true, updated_at: new Date().toISOString() })
+        .eq('id', notificationId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      
       setNotifications(prev => 
         prev.map(notification => 
           notification.id === notificationId 
@@ -140,7 +85,7 @@ const NotificationSystem = () => {
       );
       
       setUnreadCount(count => Math.max(0, count - 1));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error marking notification as read:', error);
       toast({
         title: 'Error',
@@ -154,7 +99,18 @@ const NotificationSystem = () => {
     if (!user) return;
     
     try {
-      // Update local state instead of database
+      const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
+      
+      if (unreadIds.length === 0) return;
+
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true, updated_at: new Date().toISOString() })
+        .in('id', unreadIds)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      
       setNotifications(prev => 
         prev.map(notification => ({ ...notification, read: true }))
       );
@@ -165,7 +121,7 @@ const NotificationSystem = () => {
         title: 'Success',
         description: 'All notifications marked as read',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error marking all notifications as read:', error);
       toast({
         title: 'Error',
