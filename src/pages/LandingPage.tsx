@@ -10,36 +10,75 @@ import {
   TrendingUp, 
   Users, 
   Clock,
-  Store
+  Store,
+  ArrowRight,
+  CheckCircle,
+  Sparkles
 } from "lucide-react";
 
 const LandingPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white">
       {/* Hero Section */}
-      <div className="relative bg-white py-16 border-b border-gray-100">
-        <div className="container mx-auto px-6 text-center">
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <OptimizedImage
-              src="https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/Clinibuilds%20Logo.jpg"
-              alt="CliniBuilds Logo"
-              height={75}
-              className="object-contain"
-            />
-            <h1 className="text-5xl font-bold text-[#333333]">
-              CliniBuilds
-              <span className="text-[#E02020]"> Medical Equipment Platform</span>
-            </h1>
+      <div className="relative bg-gradient-to-br from-white via-red-50/30 to-white py-20 border-b border-gray-100 overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-20 left-1/4 w-72 h-72 bg-red-100/20 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-blue-100/20 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="container mx-auto px-6 text-center relative z-10">
+          <div className="flex items-center justify-center gap-6 mb-10 animate-fade-in">
+            <div className="relative">
+              <OptimizedImage
+                src="https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/Clinibuilds%20Logo.jpg"
+                alt="CliniBuilds Logo"
+                height={85}
+                className="object-contain rounded-xl shadow-lg"
+              />
+              <div className="absolute -top-2 -right-2">
+                <Sparkles className="h-6 w-6 text-[#E02020] animate-pulse" />
+              </div>
+            </div>
+            <div className="text-left">
+              <h1 className="text-6xl font-bold text-[#333333] leading-tight">
+                CliniBuilds
+              </h1>
+              <p className="text-2xl font-semibold text-[#E02020] mt-2">
+                Medical Equipment Platform
+              </p>
+            </div>
           </div>
-          <p className="text-xl mb-10 max-w-3xl mx-auto text-[#333333]">
-            Connecting hospitals, manufacturers, and investors for efficient medical equipment sharing, 
-            reducing costs and improving healthcare outcomes.
-          </p>
-          <div className="flex justify-center space-x-6">
-            <Button asChild size="lg" className="bg-[#E02020] hover:bg-[#E02020]/90 text-white font-semibold">
-              <Link to="/shop/public">Browse Medical Supplies</Link>
+          
+          <div className="max-w-4xl mx-auto mb-12">
+            <p className="text-xl leading-relaxed text-[#333333]/80 mb-6">
+              Connecting hospitals, manufacturers, and investors for efficient medical equipment sharing, 
+              reducing costs and improving healthcare outcomes.
+            </p>
+            <div className="flex items-center justify-center gap-4 text-sm text-[#333333]/60">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <span>Trusted by 500+ Hospitals</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <span>95% Cost Reduction</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <span>Real-time Tracking</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row justify-center gap-6 max-w-md mx-auto">
+            <Button asChild size="lg" className="bg-gradient-to-r from-[#E02020] to-[#E02020]/90 hover:from-[#E02020]/90 hover:to-[#E02020] text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group">
+              <Link to="/shop/public" className="flex items-center gap-2">
+                Browse Medical Supplies
+                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="border-[#333333] text-[#333333] hover:bg-gray-50 font-semibold">
+            <Button asChild variant="outline" size="lg" className="border-2 border-[#333333] text-[#333333] hover:bg-[#333333] hover:text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300">
               <Link to="/auth">Sign In</Link>
             </Button>
           </div>
@@ -47,47 +86,72 @@ const LandingPage: React.FC = () => {
       </div>
 
       {/* Features Section */}
-      <div className="py-16 bg-white">
+      <div className="py-20 bg-white relative">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-12 text-[#333333]">Platform Features</h2>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-[#333333] mb-4">Platform Features</h2>
+            <p className="text-lg text-[#333333]/70 max-w-2xl mx-auto">
+              Discover how our comprehensive platform transforms medical equipment management
+            </p>
+          </div>
           <FeatureSlides />
         </div>
       </div>
 
       {/* Benefits Section */}
-      <div className="py-16 bg-gray-50">
+      <div className="py-20 bg-gradient-to-br from-gray-50 via-white to-gray-50">
         <div className="container mx-auto px-6">
-          <div className="flex flex-col lg:flex-row items-center">
-            <div className="lg:w-1/2 mb-10 lg:mb-0">
-              <h2 className="text-3xl font-bold mb-6 text-[#333333]">Benefits</h2>
-              <ul className="space-y-4">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            <div className="lg:w-1/2 space-y-8">
+              <div>
+                <h2 className="text-4xl font-bold mb-6 text-[#333333]">
+                  Transform Your Healthcare Operations
+                </h2>
+                <p className="text-lg text-[#333333]/70 mb-8">
+                  Experience the power of modern medical equipment management with our comprehensive platform
+                </p>
+              </div>
+              
+              <ul className="space-y-6">
                 {[
-                  { icon: <Store className="h-6 w-6 text-[#E02020]" />, text: "Manage virtual shops across multiple countries" },
-                  { icon: <Clock className="h-6 w-6 text-[#E02020]" />, text: "Reduce equipment acquisition time by up to 50%" },
-                  { icon: <TrendingUp className="h-6 w-6 text-[#E02020]" />, text: "Increase equipment utilization by 30-40%" },
-                  { icon: <Users className="h-6 w-6 text-[#E02020]" />, text: "Serve more patients with efficient equipment distribution" },
-                  { icon: <Heart className="h-6 w-6 text-[#E02020]" />, text: "Improve patient outcomes through better equipment access" }
+                  { icon: <Store className="h-7 w-7 text-[#E02020]" />, text: "Manage virtual shops across multiple countries", highlight: "Global Reach" },
+                  { icon: <Clock className="h-7 w-7 text-[#E02020]" />, text: "Reduce equipment acquisition time by up to 50%", highlight: "Faster Deployment" },
+                  { icon: <TrendingUp className="h-7 w-7 text-[#E02020]" />, text: "Increase equipment utilization by 30-40%", highlight: "Better ROI" },
+                  { icon: <Users className="h-7 w-7 text-[#E02020]" />, text: "Serve more patients with efficient equipment distribution", highlight: "Patient Care" },
+                  { icon: <Heart className="h-7 w-7 text-[#E02020]" />, text: "Improve patient outcomes through better equipment access", highlight: "Health Impact" }
                 ].map((benefit, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="mr-4 mt-1">{benefit.icon}</span>
-                    <span className="text-[#333333]">{benefit.text}</span>
+                  <li key={index} className="flex items-start group hover:bg-white/50 p-4 rounded-xl transition-all duration-300">
+                    <div className="bg-red-50 p-3 rounded-lg mr-4 group-hover:bg-[#E02020] group-hover:text-white transition-all duration-300">
+                      {benefit.icon}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-[#E02020] text-sm uppercase tracking-wide">{benefit.highlight}</span>
+                      <p className="text-[#333333] mt-1">{benefit.text}</p>
+                    </div>
                   </li>
                 ))}
               </ul>
             </div>
+            
             <div className="lg:w-1/2">
-              <div className="bg-white p-8 rounded-lg shadow-md">
-                <h3 className="text-2xl font-bold mb-4 text-[#333333]">Impact Metrics</h3>
+              <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+                <div className="text-center mb-8">
+                  <h3 className="text-3xl font-bold text-[#333333] mb-2">Impact Metrics</h3>
+                  <p className="text-[#333333]/60">Real results from our platform users</p>
+                </div>
+                
                 <div className="grid grid-cols-2 gap-6">
                   {[
-                    { value: "45%", label: "Cost Reduction" },
-                    { value: "60%", label: "Faster Deployment" },
-                    { value: "32%", label: "More Patients Served" },
-                    { value: "28%", label: "Maintenance Cost Reduction" }
+                    { value: "45%", label: "Cost Reduction", color: "from-red-500 to-pink-500" },
+                    { value: "60%", label: "Faster Deployment", color: "from-blue-500 to-cyan-500" },
+                    { value: "32%", label: "More Patients Served", color: "from-green-500 to-emerald-500" },
+                    { value: "28%", label: "Maintenance Cost Reduction", color: "from-purple-500 to-violet-500" }
                   ].map((stat, index) => (
-                    <div key={index} className="text-center p-4 bg-gray-50 rounded-lg">
-                      <div className="text-3xl font-bold text-[#E02020] mb-2">{stat.value}</div>
-                      <div className="text-sm text-[#333333]">{stat.label}</div>
+                    <div key={index} className="text-center p-6 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100 hover:shadow-lg transition-all duration-300 group">
+                      <div className={`text-4xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mb-3 group-hover:scale-110 transition-transform`}>
+                        {stat.value}
+                      </div>
+                      <div className="text-sm font-medium text-[#333333]">{stat.label}</div>
                     </div>
                   ))}
                 </div>
@@ -97,49 +161,88 @@ const LandingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Dashboard Showcase Section (replacing Testimonials) */}
-      <div className="py-16 bg-white">
+      {/* Dashboard Showcase Section */}
+      <div className="py-20 bg-white">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-12 text-[#333333]">Platform in Action</h2>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-[#333333] mb-4">Platform in Action</h2>
+            <p className="text-lg text-[#333333]/70 max-w-2xl mx-auto">
+              See how our intuitive dashboards empower different user roles to achieve their goals
+            </p>
+          </div>
           <DashboardShowcase />
         </div>
       </div>
 
       {/* Call to Action */}
-      <div className="py-16 bg-gray-50 border-t border-gray-100">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-6 text-[#333333]">Ready to Transform Your Medical Equipment Management?</h2>
-          <p className="text-xl mb-8 max-w-3xl mx-auto text-[#333333]">
-            Join hospitals, manufacturers, and investors already benefiting from our virtual shops platform.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <Button asChild size="lg" className="bg-[#E02020] hover:bg-[#E02020]/90 text-white font-semibold">
-              <Link to="/auth">Sign Up Now</Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="border-[#333333] text-[#333333] hover:bg-gray-50 font-semibold">
-              <Link to="/dashboard">Explore Dashboard</Link>
-            </Button>
+      <div className="py-20 bg-gradient-to-br from-[#E02020]/5 via-white to-[#E02020]/5 border-t border-gray-100 relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-10 left-10 w-40 h-40 bg-[#E02020]/10 rounded-full blur-2xl"></div>
+          <div className="absolute bottom-10 right-10 w-60 h-60 bg-blue-500/10 rounded-full blur-2xl"></div>
+        </div>
+        
+        <div className="container mx-auto px-6 text-center relative z-10">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-4xl font-bold mb-6 text-[#333333]">
+              Ready to Transform Your Medical Equipment Management?
+            </h2>
+            <p className="text-xl mb-10 text-[#333333]/80 leading-relaxed">
+              Join hospitals, manufacturers, and investors already benefiting from our virtual shops platform.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row justify-center gap-6 max-w-lg mx-auto">
+              <Button asChild size="lg" className="bg-gradient-to-r from-[#E02020] to-[#E02020]/90 hover:from-[#E02020]/90 hover:to-[#E02020] text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group">
+                <Link to="/auth" className="flex items-center gap-2">
+                  Sign Up Now
+                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="border-2 border-[#333333] text-[#333333] hover:bg-[#333333] hover:text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300">
+                <Link to="/dashboard">Explore Dashboard</Link>
+              </Button>
+            </div>
+            
+            <div className="mt-12 flex items-center justify-center gap-8 text-sm text-[#333333]/60">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span>Free to start</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span>No credit card required</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span>24/7 support</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="py-10 bg-white border-t border-gray-100">
+      <footer className="py-12 bg-[#333333] text-white">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-6 md:mb-0">
-              <h2 className="text-2xl font-bold text-[#E02020]">CliniBuilds</h2>
-              <p className="text-[#333333]">Medical Equipment Management Platform</p>
+            <div className="mb-8 md:mb-0 text-center md:text-left">
+              <h2 className="text-3xl font-bold text-[#E02020] mb-2">CliniBuilds</h2>
+              <p className="text-gray-300">Medical Equipment Management Platform</p>
+              <p className="text-sm text-gray-400 mt-2">Transforming healthcare through technology</p>
             </div>
-            <div className="flex space-x-6">
-              <Link to="/auth" className="text-[#333333] hover:text-[#E02020]">Sign In</Link>
-              <Link to="/admin-auth" className="text-[#333333] hover:text-[#E02020]">Admin</Link>
-              <a href="#" className="text-[#333333] hover:text-[#E02020]">Privacy Policy</a>
-              <a href="#" className="text-[#333333] hover:text-[#E02020]">Terms of Service</a>
+            
+            <div className="flex flex-wrap justify-center md:justify-end gap-6">
+              <Link to="/auth" className="text-gray-300 hover:text-[#E02020] transition-colors duration-300 font-medium">Sign In</Link>
+              <Link to="/admin-auth" className="text-gray-300 hover:text-[#E02020] transition-colors duration-300 font-medium">Admin</Link>
+              <a href="#" className="text-gray-300 hover:text-[#E02020] transition-colors duration-300 font-medium">Privacy Policy</a>
+              <a href="#" className="text-gray-300 hover:text-[#E02020] transition-colors duration-300 font-medium">Terms of Service</a>
             </div>
           </div>
-          <div className="mt-8 text-center text-sm text-[#333333]">
-            &copy; {new Date().getFullYear()} CliniBuilds. All rights reserved.
+          
+          <div className="mt-8 pt-8 border-t border-gray-700 text-center">
+            <p className="text-sm text-gray-400">
+              &copy; {new Date().getFullYear()} CliniBuilds. All rights reserved. • Building the future of healthcare equipment management.
+            </p>
           </div>
         </div>
       </footer>
