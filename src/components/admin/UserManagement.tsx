@@ -3,15 +3,8 @@ import React, { useState } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import AddUserModal from './AddUserModal';
+import ActiveUsersTable from './ActiveUsersTable';
 
 interface Stats {
   hospitals: number;
@@ -73,59 +66,7 @@ const UserManagement = ({ stats }: { stats: Stats }) => {
       </div>
       
       <h3 className="text-lg font-semibold mb-4">Recently Active Users</h3>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>User ID</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Organization</TableHead>
-            <TableHead>Last Active</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <TableRow>
-            <TableCell className="font-medium">USR001</TableCell>
-            <TableCell>Dr. Jennifer Smith</TableCell>
-            <TableCell>Hospital Admin</TableCell>
-            <TableCell>City Hospital</TableCell>
-            <TableCell>2 hours ago</TableCell>
-            <TableCell>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm">Edit</Button>
-                <Button variant="outline" size="sm">View</Button>
-              </div>
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className="font-medium">USR002</TableCell>
-            <TableCell>Michael Johnson</TableCell>
-            <TableCell>Manufacturer Rep</TableCell>
-            <TableCell>MediTech</TableCell>
-            <TableCell>1 day ago</TableCell>
-            <TableCell>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm">Edit</Button>
-                <Button variant="outline" size="sm">View</Button>
-              </div>
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className="font-medium">USR003</TableCell>
-            <TableCell>Sarah Williams</TableCell>
-            <TableCell>Investor</TableCell>
-            <TableCell>Health Ventures</TableCell>
-            <TableCell>3 days ago</TableCell>
-            <TableCell>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm">Edit</Button>
-                <Button variant="outline" size="sm">View</Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+      <ActiveUsersTable />
 
       {/* Add User Modal */}
       <AddUserModal

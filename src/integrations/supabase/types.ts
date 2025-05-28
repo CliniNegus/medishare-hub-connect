@@ -740,6 +740,7 @@ export type Database = {
           full_name: string | null
           id: string
           is_new_user: boolean | null
+          last_active: string | null
           location: string | null
           logo_url: string | null
           organization: string | null
@@ -755,6 +756,7 @@ export type Database = {
           full_name?: string | null
           id: string
           is_new_user?: boolean | null
+          last_active?: string | null
           location?: string | null
           logo_url?: string | null
           organization?: string | null
@@ -770,6 +772,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_new_user?: boolean | null
+          last_active?: string | null
           location?: string | null
           logo_url?: string | null
           organization?: string | null
@@ -915,6 +918,10 @@ export type Database = {
           updated_at: string
           user_id: string | null
         }[]
+      }
+      update_user_last_active: {
+        Args: { user_uuid: string }
+        Returns: undefined
       }
     }
     Enums: {
