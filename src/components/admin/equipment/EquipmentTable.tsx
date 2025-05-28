@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Table,
@@ -18,7 +17,7 @@ import EquipmentEditModal from './EquipmentEditModal';
 interface EquipmentTableProps {
   equipment: Equipment[];
   loading: boolean;
-  onUpdateEquipment: (id: string, updates: Partial<Equipment>) => Promise<void>;
+  onUpdateEquipment: (id: string, updates: Partial<Equipment>) => Promise<Equipment>;
 }
 
 const EquipmentTable = ({ equipment, loading, onUpdateEquipment }: EquipmentTableProps) => {
