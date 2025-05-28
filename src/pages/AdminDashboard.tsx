@@ -3,9 +3,13 @@ import React, { useState } from 'react';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
 import TabContent from '@/components/admin/TabContent';
+import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // Initialize admin notifications
+  useAdminNotifications();
 
   // Sample data
   const stats = {
@@ -61,4 +65,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-

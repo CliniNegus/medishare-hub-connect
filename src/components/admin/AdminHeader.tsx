@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
-import { Bell, Calendar, LogOut, Plus } from 'lucide-react';
+import { Calendar, LogOut, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import AddEquipmentModal from '@/components/equipment/AddEquipmentModal';
 import { useToast } from '@/hooks/use-toast';
 import { createEquipmentImagesBucket } from '@/integrations/supabase/createStorageBucket';
+import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -50,7 +51,7 @@ const AdminHeader = () => {
 
   return (
     <header className="flex justify-between items-center mb-8 bg-white p-4 rounded-lg shadow-sm">
-      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+      <h1 className="text-2xl font-bold text-[#333333]">Admin Dashboard</h1>
       <div className="flex items-center space-x-4">
         <Button 
           className="bg-[#E02020] hover:bg-[#c01010] text-white"
@@ -60,9 +61,8 @@ const AdminHeader = () => {
           Add Equipment
         </Button>
         
-        <Button variant="outline" size="icon">
-          <Bell className="h-5 w-5" />
-        </Button>
+        <NotificationDropdown />
+        
         <Button variant="outline" size="icon">
           <Calendar className="h-5 w-5" />
         </Button>
