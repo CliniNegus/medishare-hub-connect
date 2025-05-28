@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Calendar, LogOut, Plus } from 'lucide-react';
+import { Calendar, LogOut, Plus, Bell } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -73,45 +73,71 @@ const AdminHeader = () => {
   };
 
   return (
-    <header className="flex justify-between items-center mb-8 bg-white p-4 rounded-lg shadow-sm">
-      <h1 className="text-2xl font-bold text-[#333333]">Admin Dashboard</h1>
-      <div className="flex items-center space-x-4">
+    <header className="flex justify-between items-center p-6 bg-gradient-to-r from-white to-gray-50/50">
+      {/* Left side - Title with modern styling */}
+      <div className="flex flex-col">
+        <h1 className="text-3xl font-bold text-[#333333] tracking-tight">
+          Admin Dashboard
+        </h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Manage your platform and monitor system health
+        </p>
+      </div>
+      
+      {/* Right side - Actions with enhanced design */}
+      <div className="flex items-center space-x-3">
+        {/* Add Equipment Button with enhanced styling */}
         <Button 
-          className="bg-[#E02020] hover:bg-[#c01010] text-white font-semibold"
+          className="bg-gradient-to-r from-[#E02020] to-[#c01010] hover:from-[#c01010] hover:to-[#a00808] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
           onClick={handleAddEquipmentClick}
         >
           <Plus className="mr-2 h-4 w-4" />
           Add Equipment
         </Button>
         
+        {/* Notification Bell with modern styling */}
         <NotificationDropdown />
         
-        <Button variant="outline" size="icon">
-          <Calendar className="h-5 w-5" />
+        {/* Calendar Button with subtle styling */}
+        <Button 
+          variant="outline" 
+          size="icon"
+          className="border-gray-200 hover:border-[#E02020] hover:bg-[#E02020]/5 transition-all duration-200"
+        >
+          <Calendar className="h-5 w-5 text-gray-600" />
         </Button>
         
+        {/* User Menu with enhanced design */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-              <span className="font-medium text-gray-600">{getInitials()}</span>
+            <Button 
+              variant="ghost" 
+              className="relative h-12 w-12 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 flex items-center justify-center transition-all duration-200 hover:shadow-md"
+            >
+              <span className="font-semibold text-gray-700">{getInitials()}</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end" forceMount>
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{profile?.full_name || 'User'}</p>
-                <p className="text-xs leading-none text-muted-foreground">
+          <DropdownMenuContent className="w-64 mr-4 mt-2 border-0 shadow-xl bg-white/95 backdrop-blur-md" align="end" forceMount>
+            <DropdownMenuLabel className="font-normal p-4">
+              <div className="flex flex-col space-y-2">
+                <p className="text-base font-semibold leading-none text-[#333333]">
+                  {profile?.full_name || 'User'}
+                </p>
+                <p className="text-sm leading-none text-gray-500">
                   {user?.email}
                 </p>
                 {profile?.organization && (
-                  <p className="text-xs leading-none text-muted-foreground mt-1">
+                  <p className="text-xs leading-none text-gray-400 bg-gray-100 px-2 py-1 rounded-md inline-block">
                     {profile.organization}
                   </p>
                 )}
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={signOut} className="text-red-600 cursor-pointer">
+            <DropdownMenuSeparator className="bg-gray-100" />
+            <DropdownMenuItem 
+              onClick={signOut} 
+              className="text-[#E02020] cursor-pointer hover:bg-red-50 transition-colors duration-200 m-2 rounded-md"
+            >
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>

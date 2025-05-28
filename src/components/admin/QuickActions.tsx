@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Users, Clock, BarChart2 } from 'lucide-react';
+import { PlusCircle, Users, Clock, BarChart2, Zap } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import AddEquipmentModal from '@/components/equipment/AddEquipmentModal';
 import AddUserModal from './AddUserModal';
@@ -63,40 +63,84 @@ const QuickActions = () => {
     // Refresh the user list or show a success message
     console.log('User added successfully');
   };
+
+  const quickActions = [
+    {
+      title: "Add Equipment",
+      description: "Register new medical equipment",
+      icon: PlusCircle,
+      action: handleAddEquipmentClick,
+      gradient: "from-[#E02020] to-[#c01010]",
+      bgGradient: "from-red-50 to-red-100",
+    },
+    {
+      title: "Add User Account",
+      description: "Create new user accounts",
+      icon: Users,
+      action: () => setIsUserModalOpen(true),
+      gradient: "from-blue-500 to-blue-600",
+      bgGradient: "from-blue-50 to-blue-100",
+    },
+    {
+      title: "Schedule Maintenance",
+      description: "Plan equipment maintenance",
+      icon: Clock,
+      action: () => {},
+      gradient: "from-green-500 to-green-600",
+      bgGradient: "from-green-50 to-green-100",
+    },
+    {
+      title: "View User Dashboard",
+      description: "Switch to user interface",
+      icon: BarChart2,
+      action: () => navigate('/dashboard'),
+      gradient: "from-purple-500 to-purple-600",
+      bgGradient: "from-purple-50 to-purple-100",
+    },
+  ];
   
   return (
-    <div className="bg-white p-4 rounded-lg shadow-sm mb-8">
-      <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
-      <div className="flex flex-wrap gap-4">
-        <Button 
-          className="flex items-center bg-[#E02020] hover:bg-[#E02020]/90 text-white"
-          onClick={handleAddEquipmentClick}
-        >
-          <PlusCircle className="h-4 w-4 mr-2" />
-          Add Equipment
-        </Button>
+    <div className="bg-gradient-to-r from-white to-gray-50/50 p-6 rounded-2xl shadow-lg border border-gray-100 mb-8">
+      {/* Header */}
+      <div className="flex items-center mb-6">
+        <div className="p-2 bg-gradient-to-r from-[#E02020] to-[#c01010] rounded-xl mr-3">
+          <Zap className="h-6 w-6 text-white" />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold text-[#333333]">Quick Actions</h2>
+          <p className="text-sm text-gray-500">Frequently used administrative tasks</p>
+        </div>
+      </div>
 
-        <Button 
-          className="flex items-center bg-[#E02020] hover:bg-[#E02020]/90 text-white"
-          onClick={() => setIsUserModalOpen(true)}
-        >
-          <Users className="h-4 w-4 mr-2" />
-          Add User Account
-        </Button>
-
-        <Button className="flex items-center bg-[#E02020] hover:bg-[#E02020]/90 text-white">
-          <Clock className="h-4 w-4 mr-2" />
-          Schedule Maintenance
-        </Button>
-
-        <Button 
-          variant="outline" 
-          className="flex items-center"
-          onClick={() => navigate('/dashboard')}
-        >
-          <BarChart2 className="h-4 w-4 mr-2" />
-          View User Dashboard
-        </Button>
+      {/* Action Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {quickActions.map((action, index) => {
+          const Icon = action.icon;
+          
+          return (
+            <div
+              key={action.title}
+              className={`group relative overflow-hidden bg-gradient-to-br ${action.bgGradient} p-4 rounded-xl border border-white/50 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105`}
+              onClick={action.action}
+            >
+              {/* Icon */}
+              <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${action.gradient} text-white shadow-md mb-3 group-hover:scale-110 transition-transform duration-200`}>
+                <Icon className="h-5 w-5" />
+              </div>
+              
+              {/* Content */}
+              <h3 className="font-semibold text-gray-900 mb-1 text-sm">
+                {action.title}
+              </h3>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                {action.description}
+              </p>
+              
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-20 h-20 bg-white/20 rounded-full -mr-10 -mt-10 group-hover:scale-110 transition-transform duration-300" />
+            </div>
+          );
+        })}
       </div>
 
       {/* Equipment Modal */}

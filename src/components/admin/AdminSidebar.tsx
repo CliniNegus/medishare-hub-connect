@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, Package, Bell, Calendar, Settings, 
-  FileText, BarChart2, Clock, DollarSign, LogOut
+  FileText, BarChart2, Clock, DollarSign, LogOut, Home
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -14,103 +14,99 @@ interface AdminSidebarProps {
 const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
   const navigate = useNavigate();
 
+  const menuItems = [
+    { id: 'overview', label: 'Dashboard', icon: BarChart2 },
+    { id: 'equipment', label: 'Equipment', icon: Package },
+    { id: 'users', label: 'Users', icon: Users },
+    { id: 'maintenance', label: 'Maintenance', icon: Clock },
+    { id: 'finance', label: 'Finance', icon: DollarSign },
+    { id: 'shop', label: 'Medical Shop', icon: Package },
+  ];
+
+  const secondaryItems = [
+    { id: 'settings', label: 'Settings', icon: Settings },
+    { action: () => navigate('/dashboard'), label: 'User Dashboard', icon: Home },
+    { action: () => navigate('/'), label: 'Sign Out', icon: LogOut },
+  ];
+
   return (
-    <div className="w-64 bg-black text-white h-screen fixed">
-      <div className="p-4 border-b border-gray-800">
+    <div className="w-64 bg-gradient-to-b from-[#333333] to-black text-white h-screen fixed left-0 top-0 z-20 shadow-2xl">
+      {/* Logo Section with enhanced design */}
+      <div className="p-6 border-b border-gray-700/50 bg-gradient-to-r from-[#E02020]/10 to-transparent">
         <div className="flex items-center">
-          <div className="h-8 w-8 rounded-md bg-red-600 mr-2"></div>
-          <h1 className="text-xl font-bold">Admin Panel</h1>
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#E02020] to-[#c01010] mr-3 flex items-center justify-center shadow-lg">
+            <BarChart2 className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-white">CliniBuilds</h1>
+            <p className="text-xs text-gray-300">Admin Panel</p>
+          </div>
         </div>
       </div>
-      <nav className="p-4">
-        <ul className="space-y-2">
-          <li>
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`w-full flex items-center p-2 rounded-md ${activeTab === 'overview' ? 'bg-red-600' : 'hover:bg-gray-800'}`}
-            >
-              <BarChart2 className="h-5 w-5 mr-3" />
-              Dashboard
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => setActiveTab('equipment')}
-              className={`w-full flex items-center p-2 rounded-md ${activeTab === 'equipment' ? 'bg-red-600' : 'hover:bg-gray-800'}`}
-            >
-              <Package className="h-5 w-5 mr-3" />
-              Equipment
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => setActiveTab('users')}
-              className={`w-full flex items-center p-2 rounded-md ${activeTab === 'users' ? 'bg-red-600' : 'hover:bg-gray-800'}`}
-            >
-              <Users className="h-5 w-5 mr-3" />
-              Users
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => setActiveTab('maintenance')}
-              className={`w-full flex items-center p-2 rounded-md ${activeTab === 'maintenance' ? 'bg-red-600' : 'hover:bg-gray-800'}`}
-            >
-              <Clock className="h-5 w-5 mr-3" />
-              Maintenance
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => setActiveTab('finance')}
-              className={`w-full flex items-center p-2 rounded-md ${activeTab === 'finance' ? 'bg-red-600' : 'hover:bg-gray-800'}`}
-            >
-              <DollarSign className="h-5 w-5 mr-3" />
-              Finance
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => setActiveTab('shop')}
-              className={`w-full flex items-center p-2 rounded-md ${activeTab === 'shop' ? 'bg-red-600' : 'hover:bg-gray-800'}`}
-            >
-              <Package className="h-5 w-5 mr-3" />
-              Medical Shop
-            </button>
-          </li>
-        </ul>
-        <div className="pt-8 border-t border-gray-800 mt-8">
-          <ul className="space-y-2">
-            <li>
+
+      {/* Main Navigation */}
+      <nav className="flex-1 p-4">
+        <div className="space-y-2">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            
+            return (
               <button
-                onClick={() => setActiveTab('settings')}
-                className={`w-full flex items-center p-2 rounded-md ${activeTab === 'settings' ? 'bg-red-600' : 'hover:bg-gray-800'}`}
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center p-3 rounded-xl transition-all duration-200 group ${
+                  isActive 
+                    ? 'bg-gradient-to-r from-[#E02020] to-[#c01010] text-white shadow-lg transform scale-105' 
+                    : 'hover:bg-white/10 text-gray-300 hover:text-white hover:transform hover:scale-105'
+                }`}
               >
-                <Settings className="h-5 w-5 mr-3" />
-                Settings
+                <Icon className={`h-5 w-5 mr-3 transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                <span className="font-medium">{item.label}</span>
+                {isActive && (
+                  <div className="ml-auto w-2 h-2 bg-white rounded-full animate-pulse" />
+                )}
               </button>
-            </li>
-            <li>
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="w-full flex items-center p-2 rounded-md hover:bg-gray-800"
-              >
-                <FileText className="h-5 w-5 mr-3" />
-                Back to Dashboard
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => navigate('/')}
-                className="w-full flex items-center p-2 rounded-md hover:bg-gray-800"
-              >
-                <LogOut className="h-5 w-5 mr-3" />
-                Sign Out
-              </button>
-            </li>
-          </ul>
+            );
+          })}
+        </div>
+
+        {/* Secondary Navigation */}
+        <div className="pt-8 mt-8 border-t border-gray-700/50">
+          <div className="space-y-2">
+            {secondaryItems.map((item, index) => {
+              const Icon = item.icon;
+              const isActive = 'id' in item && activeTab === item.id;
+              
+              return (
+                <button
+                  key={index}
+                  onClick={() => {
+                    if ('action' in item) {
+                      item.action();
+                    } else if ('id' in item) {
+                      setActiveTab(item.id);
+                    }
+                  }}
+                  className={`w-full flex items-center p-3 rounded-xl transition-all duration-200 group ${
+                    isActive 
+                      ? 'bg-gradient-to-r from-[#E02020] to-[#c01010] text-white shadow-lg' 
+                      : 'hover:bg-white/10 text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <Icon className="h-5 w-5 mr-3 transition-transform duration-200 group-hover:scale-110" />
+                  <span className="font-medium">{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </nav>
+
+      {/* Bottom decoration */}
+      <div className="p-4">
+        <div className="h-1 bg-gradient-to-r from-[#E02020] to-[#c01010] rounded-full opacity-50" />
+      </div>
     </div>
   );
 };
