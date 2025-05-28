@@ -36,17 +36,40 @@ const AdminHeader = () => {
   };
 
   const handleAddEquipmentClick = async () => {
+    console.log("Add Equipment button clicked in admin header");
+    
     // Ensure storage bucket exists
-    const bucketReady = await createEquipmentImagesBucket();
-    if (!bucketReady) {
+    try {
+      const bucketReady = await createEquipmentImagesBucket();
+      if (!bucketReady) {
+        toast({
+          title: "Storage Setup Error",
+          description: "Failed to set up image storage. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      console.log("Storage bucket ready, opening modal");
+      setIsAddEquipmentModalOpen(true);
+    } catch (error) {
+      console.error("Error setting up storage:", error);
       toast({
-        title: "Storage Setup Error",
-        description: "Failed to set up image storage. Some features may not work correctly.",
+        title: "Error",
+        description: "Failed to initialize storage. Please try again.",
         variant: "destructive",
       });
     }
-    
-    setIsAddEquipmentModalOpen(true);
+  };
+
+  const handleEquipmentAdded = () => {
+    setIsAddEquipmentModalOpen(false);
+    toast({
+      title: "Equipment Added",
+      description: "The equipment has been successfully added to the inventory",
+    });
+    // Optionally refresh the page or trigger a data refresh
+    window.location.reload();
   };
 
   return (
@@ -54,7 +77,7 @@ const AdminHeader = () => {
       <h1 className="text-2xl font-bold text-[#333333]">Admin Dashboard</h1>
       <div className="flex items-center space-x-4">
         <Button 
-          className="bg-[#E02020] hover:bg-[#c01010] text-white"
+          className="bg-[#E02020] hover:bg-[#c01010] text-white font-semibold"
           onClick={handleAddEquipmentClick}
         >
           <Plus className="mr-2 h-4 w-4" />
@@ -100,12 +123,7 @@ const AdminHeader = () => {
       <AddEquipmentModal
         open={isAddEquipmentModalOpen}
         onOpenChange={setIsAddEquipmentModalOpen}
-        onEquipmentAdded={() => {
-          toast({
-            title: "Equipment Added",
-            description: "The equipment has been successfully added",
-          });
-        }}
+        onEquipmentAdded={handleEquipmentAdded}
       />
     </header>
   );

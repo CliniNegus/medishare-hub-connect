@@ -20,6 +20,7 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
     form,
     loading,
     handleChange,
+    handleSelectChange,
     handleImageUploaded,
     handleSubmit,
     initializeStorage
@@ -41,11 +42,11 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-[#333333]">Add New Medical Equipment</DialogTitle>
           <DialogDescription>
-            Enter the details of the new medical equipment item.
+            Enter the details of the new medical equipment item. Fields marked with * are required.
           </DialogDescription>
         </DialogHeader>
         
@@ -53,6 +54,7 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
           <EquipmentForm 
             form={form}
             handleChange={handleChange}
+            handleSelectChange={handleSelectChange}
             handleImageUploaded={handleImageUploaded}
           />
           

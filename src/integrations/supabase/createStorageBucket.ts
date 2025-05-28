@@ -22,8 +22,23 @@ export const createEquipmentImagesBucket = async () => {
       return true;
     }
     
-    console.log("Equipment images bucket does not exist, but this should not happen since it was created via SQL.");
-    return false;
+    // Create the bucket if it doesn't exist
+    console.log("Creating equipment_images bucket...");
+    const { data: newBucket, error: createError } = await supabase
+      .storage
+      .createBucket('equipment_images', {
+        public: true,
+        allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
+        fileSizeLimit: 5242880 // 5MB
+      });
+    
+    if (createError) {
+      console.error("Error creating bucket:", createError);
+      return false;
+    }
+    
+    console.log("Equipment images bucket created successfully:", newBucket);
+    return true;
   } catch (error) {
     console.error("Error in createEquipmentImagesBucket:", error);
     return false;
