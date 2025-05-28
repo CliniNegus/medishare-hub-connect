@@ -47,7 +47,7 @@ const TabContent: React.FC<TabContentProps> = ({
         />
       );
     case 'equipment':
-      return <EquipmentManagement recentEquipment={equipment} />;
+      return <EquipmentManagement />;
     case 'users':
       return <UserManagement stats={stats} />;
     case 'maintenance':

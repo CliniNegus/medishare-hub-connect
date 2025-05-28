@@ -919,6 +919,10 @@ export type Database = {
           user_id: string | null
         }[]
       }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       update_user_last_active: {
         Args: { user_uuid: string }
         Returns: undefined
