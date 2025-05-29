@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import MaintenanceAlertsSection from './maintenance/MaintenanceAlertsSection';
 
 interface Maintenance {
   id: string;
@@ -35,19 +36,7 @@ const MaintenanceManagement = ({ maintenanceSchedule, maintenanceAlerts }: Maint
         </Button>
       </div>
       
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-4">Maintenance Alerts</h3>
-        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-md mb-4">
-          <h4 className="font-semibold text-yellow-700 mb-2">Equipment Requiring Immediate Attention: {maintenanceAlerts}</h4>
-          <p className="text-yellow-600 mb-3">The following equipment items require immediate maintenance:</p>
-          <ul className="list-disc list-inside text-yellow-600 mb-3">
-            <li>MRI Scanner X9 (City Hospital) - Calibration Overdue</li>
-            <li>CT Scanner Ultra (Warehouse) - Preventive Maintenance Required</li>
-            <li>Patient Monitor X3 (Memorial Hospital) - Error Codes Reported</li>
-          </ul>
-          <Button variant="outline" size="sm">View All Alerts</Button>
-        </div>
-      </div>
+      <MaintenanceAlertsSection />
       
       <h3 className="text-lg font-semibold mb-4">Upcoming Maintenance Schedule</h3>
       <Table>

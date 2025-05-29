@@ -1,201 +1,127 @@
-
-import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { UserRoleProvider } from "./contexts/UserRoleContext";
-import { AuthProvider } from "./contexts/AuthContext";
-import ErrorBoundary from "./components/ErrorBoundary";
-import PublicShop from "./pages/PublicShop";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import Inventory from "./pages/Inventory";
-import Orders from "./pages/Orders";
-import FinancingCalculator from "./pages/FinancingCalculator";
-import LandingPage from "./pages/LandingPage";
-import AdminDashboard from "./pages/AdminDashboard";
-import Auth from "./pages/Auth";
-import AdminAuth from "./pages/AdminAuth";
-import ResetPassword from "./pages/ResetPassword";
-import LeaseManagement from "./pages/LeaseManagement";
-import EquipmentTracking from "./pages/EquipmentTracking";
-import MedicalShop from "./pages/MedicalShop";
-import ProductManagement from "./pages/ProductManagement";
-import SecuritySettings from "./pages/SecuritySettings";
-import ProtectedRoute from "./components/ProtectedRoute";
-import RoleDashboard from "./components/RoleDashboard";
-import HospitalRegistrationForm from "./components/HospitalRegistrationForm";
-import HospitalLocations from "./pages/HospitalLocations";
-import SystemManagement from "./pages/SystemManagement";
-import VirtualShops from "./pages/VirtualShops";
-import ProfileManagement from "./pages/ProfileManagement";
-import ClientManagement from "./pages/ClientManagement";
-import EquipmentManagement from "./pages/EquipmentManagement";
-import AddEquipmentPage from './pages/AddEquipmentPage';
-import EquipmentDetailsPage from './pages/EquipmentDetailsPage';
+import { AuthProvider } from './contexts/AuthContext';
+import { UserRoleProvider } from './contexts/UserRoleContext';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { CartProvider } from './contexts/CartContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Layout from './components/Layout';
+import ErrorBoundary from './components/ErrorBoundary';
+
+// Page imports
+import Index from './pages/Index';
+import Auth from './pages/Auth';
+import AdminAuth from './pages/AdminAuth';
+import Dashboard from './components/Dashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import MaintenanceAlertsPage from './pages/MaintenanceAlertsPage';
+import Shop from './pages/Shop';
+import ProductDetails from './pages/ProductDetails';
+import Checkout from './pages/Checkout';
+import Orders from './pages/Orders';
+import LeaseCalculator from './pages/LeaseCalculator';
+import Support from './pages/Support';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
       staleTime: 5 * 60 * 1000, // 5 minutes
+      refetchOnWindowFocus: false,
     },
   },
 });
 
 function App() {
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <AuthProvider>
-            <UserRoleProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/admin-auth" element={<AdminAuth />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
-                  <Route path="/register/hospital" element={<HospitalRegistrationForm />} />
-                  <Route path="/security-settings" element={
-                    <ProtectedRoute>
-                      <SecuritySettings />
-                    </ProtectedRoute>
-                  } />
-
-                  <Route path="/dashboard" element={
-                    <ProtectedRoute>
-                      <Index />
-                    </ProtectedRoute>
-                  } />
-
-                  <Route path="/equipment/:id" element={
-                    <ProtectedRoute>
-                      <EquipmentDetailsPage />
-                    </ProtectedRoute>
-                  } />
-
-                  <Route path="/inventory" element={
-                    <ProtectedRoute>
-                      <RoleDashboard allowedRoles={['hospital', 'admin']}>
-                        <Inventory />
-                      </RoleDashboard>
-                    </ProtectedRoute>
-                  } />
-
-                  <Route path="/orders" element={
-                    <ProtectedRoute>
-                      <RoleDashboard allowedRoles={['hospital', 'manufacturer', 'admin']}>
-                        <Orders />
-                      </RoleDashboard>
-                    </ProtectedRoute>
-                  } />
-
-                  <Route path="/financing" element={
-                    <ProtectedRoute>
-                      <RoleDashboard allowedRoles={['hospital', 'investor', 'admin']}>
-                        <FinancingCalculator />
-                      </RoleDashboard>
-                    </ProtectedRoute>
-                  } />
-
-                  <Route path="/leases" element={
-                    <ProtectedRoute>
-                      <RoleDashboard allowedRoles={['hospital', 'manufacturer', 'investor', 'admin']}>
-                        <LeaseManagement />
-                      </RoleDashboard>
-                    </ProtectedRoute>
-                  } />
-
-                  <Route path="/tracking" element={
-                    <ProtectedRoute>
-                      <RoleDashboard allowedRoles={['manufacturer', 'admin']}>
-                        <EquipmentTracking />
-                      </RoleDashboard>
-                    </ProtectedRoute>
-                  } />
-
-                  <Route path="/products" element={
-                    <ProtectedRoute>
-                      <RoleDashboard allowedRoles={['manufacturer', 'admin']}>
-                        <ProductManagement />
-                      </RoleDashboard>
-                    </ProtectedRoute>
-                  } />
-
-                  <Route path="/clients" element={
-                    <ProtectedRoute>
-                      <RoleDashboard allowedRoles={['hospital', 'manufacturer', 'admin']}>
-                        <ClientManagement />
-                      </RoleDashboard>
-                    </ProtectedRoute>
-                  } />
-
-                  <Route path="/virtual-shops" element={
-                    <ProtectedRoute>
-                      <RoleDashboard allowedRoles={['manufacturer', 'admin']}>
-                        <VirtualShops />
-                      </RoleDashboard>
-                    </ProtectedRoute>
-                  } />
-
-                  <Route path="/equipment-management" element={
-                    <ProtectedRoute>
-                      <RoleDashboard allowedRoles={['manufacturer', 'admin']}>
-                        <EquipmentManagement />
-                      </RoleDashboard>
-                    </ProtectedRoute>
-                  } />
-
-                  <Route path="/add-equipment" element={
-                    <ProtectedRoute>
-                      <RoleDashboard allowedRoles={['manufacturer', 'admin']}>
-                        <AddEquipmentPage />
-                      </RoleDashboard>
-                    </ProtectedRoute>
-                  } />
-
-                  <Route path="/admin" element={
-                    <ProtectedRoute requireAdmin={true}>
-                      <AdminDashboard />
-                    </ProtectedRoute>
-                  } />
-
-                  <Route path="/shop/public" element={<PublicShop />} />
-                  
-                  <Route path="/shop" element={
-                    <ProtectedRoute>
-                      <MedicalShop />
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/system" element={
-                    <ProtectedRoute>
-                      <RoleDashboard allowedRoles={['admin', 'hospital', 'manufacturer', 'investor']}>
-                        <SystemManagement />
-                      </RoleDashboard>
-                    </ProtectedRoute>
-                  } />
-
-                  <Route path="/profile" element={
-                    <ProtectedRoute>
-                      <ProfileManagement />
-                    </ProtectedRoute>
-                  } />
-
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </UserRoleProvider>
-          </AuthProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <UserRoleProvider>
+          <ThemeProvider>
+            <CartProvider>
+              <ErrorBoundary>
+                <Router>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/admin-auth" element={<AdminAuth />} />
+                    <Route 
+                      path="/dashboard" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <Dashboard />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin" 
+                      element={
+                        <ProtectedRoute adminOnly>
+                          <AdminDashboard />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/maintenance-alerts" 
+                      element={
+                        <ProtectedRoute adminOnly>
+                          <MaintenanceAlertsPage />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route path="/shop" element={<Shop />} />
+                    <Route path="/product/:id" element={<ProductDetails />} />
+                    <Route 
+                      path="/checkout" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <Checkout />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/orders" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <Orders />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/lease-calculator" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <LeaseCalculator />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/support" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <Support />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                  </Routes>
+                  <Toaster />
+                </Router>
+              </ErrorBoundary>
+            </CartProvider>
+          </ThemeProvider>
+        </UserRoleProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 

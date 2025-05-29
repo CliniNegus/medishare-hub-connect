@@ -501,6 +501,62 @@ export type Database = {
           },
         ]
       }
+      maintenance_alerts: {
+        Row: {
+          created_at: string
+          equipment_id: string | null
+          equipment_name: string
+          id: string
+          issue_description: string
+          issue_type: string
+          last_service_date: string | null
+          location: string
+          resolved_at: string | null
+          scheduled_maintenance_date: string | null
+          status: string
+          updated_at: string
+          urgency: string
+        }
+        Insert: {
+          created_at?: string
+          equipment_id?: string | null
+          equipment_name: string
+          id?: string
+          issue_description: string
+          issue_type: string
+          last_service_date?: string | null
+          location: string
+          resolved_at?: string | null
+          scheduled_maintenance_date?: string | null
+          status?: string
+          updated_at?: string
+          urgency?: string
+        }
+        Update: {
+          created_at?: string
+          equipment_id?: string | null
+          equipment_name?: string
+          id?: string
+          issue_description?: string
+          issue_type?: string
+          last_service_date?: string | null
+          location?: string
+          resolved_at?: string | null
+          scheduled_maintenance_date?: string | null
+          status?: string
+          updated_at?: string
+          urgency?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_alerts_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       manufacturer_payouts: {
         Row: {
           amount: number
