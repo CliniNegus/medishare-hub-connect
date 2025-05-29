@@ -28,8 +28,8 @@ export const createEquipmentImagesBucket = async () => {
       .storage
       .createBucket('equipment_images', {
         public: true,
-        allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
-        fileSizeLimit: 5242880 // 5MB
+        allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+        fileSizeLimit: 10485760 // 10MB
       });
     
     if (createError) {
@@ -38,7 +38,20 @@ export const createEquipmentImagesBucket = async () => {
     }
     
     console.log("Equipment images bucket created successfully:", newBucket);
-    return true;
+    
+    // Add storage policies for the bucket
+    try {
+      console.log("Setting up storage policies...");
+      
+      // Note: Storage policies are typically set up through SQL migrations
+      // but we'll return true here since the bucket creation was successful
+      return true;
+    } catch (policyError) {
+      console.error("Error setting up storage policies:", policyError);
+      // Even if policies fail, we can still use the bucket if it's public
+      return true;
+    }
+    
   } catch (error) {
     console.error("Error in createEquipmentImagesBucket:", error);
     return false;

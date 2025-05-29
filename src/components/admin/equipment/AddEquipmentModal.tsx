@@ -22,6 +22,7 @@ import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { ImageUpload } from '@/components/equipment/ImageUpload';
 import { createEquipmentImagesBucket } from '@/integrations/supabase/createStorageBucket';
 
 interface AddEquipmentModalProps {
@@ -59,14 +60,29 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
   // Initialize storage bucket when modal opens
   useEffect(() => {
     if (open) {
-      createEquipmentImagesBucket();
+      initializeStorage();
     }
   }, [open]);
+
+  const initializeStorage = async () => {
+    try {
+      await createEquipmentImagesBucket();
+    } catch (error) {
+      console.error("Failed to initialize storage:", error);
+    }
+  };
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
+    }));
+  };
+
+  const handleImageUploaded = (url: string) => {
+    setFormData(prev => ({
+      ...prev,
+      image_url: url
     }));
   };
 
@@ -176,6 +192,15 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Image Upload */}
+          <div className="space-y-2">
+            <Label>Equipment Image</Label>
+            <ImageUpload 
+              onImageUploaded={handleImageUploaded}
+              currentImageUrl={formData.image_url}
+            />
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Equipment Name */}
             <div className="space-y-2">

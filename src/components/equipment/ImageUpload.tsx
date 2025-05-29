@@ -4,6 +4,7 @@ import { Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { createEquipmentImagesBucket } from "@/integrations/supabase/createStorageBucket";
 
 interface ImageUploadProps {
   onImageUploaded: (url: string) => void;
@@ -18,16 +19,42 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   const [preview, setPreview] = useState<string | undefined>(currentImageUrl);
   const { toast } = useToast();
 
+  const ensureBucketExists = async () => {
+    try {
+      const bucketReady = await createEquipmentImagesBucket();
+      if (!bucketReady) {
+        throw new Error("Failed to setup storage bucket");
+      }
+      return true;
+    } catch (error) {
+      console.error("Bucket setup error:", error);
+      return false;
+    }
+  };
+
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files || event.target.files.length === 0) {
       return;
     }
 
     const file = event.target.files[0];
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+    
+    // Validate file size (10MB limit)
+    if (file.size > 10 * 1024 * 1024) {
       toast({
         title: "File too large",
-        description: "Maximum file size is 5MB",
+        description: "Maximum file size is 10MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a valid image file (JPEG, PNG, WebP, or GIF)",
         variant: "destructive",
       });
       return;
@@ -37,16 +64,25 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       setUploading(true);
       console.log("Starting file upload to Supabase Storage");
       
+      // Ensure bucket exists before uploading
+      const bucketReady = await ensureBucketExists();
+      if (!bucketReady) {
+        throw new Error("Storage bucket is not available");
+      }
+      
       // Generate unique filename
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const fileName = `equipment_${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
       
       console.log("Uploading file:", fileName);
       
-      // Upload directly to Supabase Storage
+      // Upload to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('equipment_images')
-        .upload(fileName, file);
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
       if (uploadError) {
         console.error("Upload error:", uploadError);
@@ -74,7 +110,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       console.error('Error uploading image:', error);
       toast({
         title: "Upload failed",
-        description: error.message || "Failed to upload image",
+        description: error.message || "Failed to upload image. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -113,13 +149,13 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center pt-4 pb-4">
-              <Upload className="w-7 h-7 mb-3 text-gray-500" />
-              <p className="mb-2 text-sm text-gray-500">
+              <Upload className="w-7 h-7 mb-3 text-[#E02020]" />
+              <p className="mb-2 text-sm text-gray-700">
                 <span className="font-semibold">Click to upload</span> or drag and drop
               </p>
-              <p className="text-xs text-gray-500">PNG, JPG or WEBP (MAX. 5MB)</p>
+              <p className="text-xs text-gray-500">PNG, JPG, WebP or GIF (MAX. 10MB)</p>
               {uploading && (
-                <p className="text-xs text-blue-500 mt-2">Uploading...</p>
+                <p className="text-xs text-[#E02020] mt-2">Uploading...</p>
               )}
             </div>
           )}
