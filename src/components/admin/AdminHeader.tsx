@@ -4,9 +4,8 @@ import { Calendar, LogOut, Plus, Bell } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import AddEquipmentModal from '@/components/equipment/AddEquipmentModal';
+import AddEquipmentModal from '@/components/admin/equipment/AddEquipmentModal';
 import { useToast } from '@/hooks/use-toast';
-import { createEquipmentImagesBucket } from '@/integrations/supabase/createStorageBucket';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { 
   DropdownMenu,
@@ -35,35 +34,11 @@ const AdminHeader = () => {
     return user?.email?.substring(0, 2).toUpperCase() || 'AB';
   };
 
-  const handleAddEquipmentClick = async () => {
-    console.log("Add Equipment button clicked in admin header");
-    
-    // Ensure storage bucket exists
-    try {
-      const bucketReady = await createEquipmentImagesBucket();
-      if (!bucketReady) {
-        toast({
-          title: "Storage Setup Error",
-          description: "Failed to set up image storage. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      console.log("Storage bucket ready, opening modal");
-      setIsAddEquipmentModalOpen(true);
-    } catch (error) {
-      console.error("Error setting up storage:", error);
-      toast({
-        title: "Error",
-        description: "Failed to initialize storage. Please try again.",
-        variant: "destructive",
-      });
-    }
+  const handleAddEquipmentClick = () => {
+    setIsAddEquipmentModalOpen(true);
   };
 
   const handleEquipmentAdded = () => {
-    setIsAddEquipmentModalOpen(false);
     toast({
       title: "Equipment Added",
       description: "The equipment has been successfully added to the inventory",

@@ -31,6 +31,40 @@ interface AddEquipmentModalProps {
   onEquipmentAdded?: () => void;
 }
 
+interface EquipmentFormData {
+  name: string;
+  manufacturer: string;
+  category: string;
+  description: string;
+  model: string;
+  serial_number: string;
+  condition: string;
+  location: string;
+  status: string;
+  price: string;
+  lease_rate: string;
+  quantity: string;
+  specs: string;
+  image_url: string;
+}
+
+const INITIAL_FORM_DATA: EquipmentFormData = {
+  name: '',
+  manufacturer: '',
+  category: '',
+  description: '',
+  model: '',
+  serial_number: '',
+  condition: '',
+  location: '',
+  status: 'Available',
+  price: '',
+  lease_rate: '',
+  quantity: '1',
+  specs: '',
+  image_url: '',
+};
+
 const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
   open,
   onOpenChange,
@@ -39,23 +73,7 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  
-  const [formData, setFormData] = useState({
-    name: '',
-    manufacturer: '',
-    category: '',
-    description: '',
-    model: '',
-    serial_number: '',
-    condition: '',
-    location: '',
-    status: 'Available',
-    price: '',
-    lease_rate: '',
-    quantity: '1',
-    specs: '',
-    image_url: '',
-  });
+  const [formData, setFormData] = useState<EquipmentFormData>(INITIAL_FORM_DATA);
 
   // Initialize storage bucket when modal opens
   useEffect(() => {
@@ -67,12 +85,13 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
   const initializeStorage = async () => {
     try {
       await createEquipmentImagesBucket();
+      console.log("Storage bucket initialized successfully");
     } catch (error) {
       console.error("Failed to initialize storage:", error);
     }
   };
 
-  const handleChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof EquipmentFormData, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -84,6 +103,22 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
       ...prev,
       image_url: url
     }));
+  };
+
+  const resetForm = () => {
+    setFormData(INITIAL_FORM_DATA);
+  };
+
+  const validateForm = (): boolean => {
+    if (!formData.name.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Equipment name is required",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -98,12 +133,7 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
       return;
     }
 
-    if (!formData.name) {
-      toast({
-        title: "Required field missing",
-        description: "Please enter an equipment name",
-        variant: "destructive",
-      });
+    if (!validateForm()) {
       return;
     }
 
@@ -111,19 +141,19 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
       setLoading(true);
       
       const equipmentData = {
-        name: formData.name,
-        manufacturer: formData.manufacturer || null,
+        name: formData.name.trim(),
+        manufacturer: formData.manufacturer.trim() || null,
         category: formData.category || null,
-        description: formData.description || null,
-        model: formData.model || null,
-        serial_number: formData.serial_number || null,
+        description: formData.description.trim() || null,
+        model: formData.model.trim() || null,
+        serial_number: formData.serial_number.trim() || null,
         condition: formData.condition || null,
-        location: formData.location || null,
+        location: formData.location.trim() || null,
         status: formData.status,
         price: formData.price ? parseFloat(formData.price) : null,
         lease_rate: formData.lease_rate ? parseFloat(formData.lease_rate) : null,
         quantity: formData.quantity ? parseInt(formData.quantity) : 1,
-        specs: formData.specs || null,
+        specs: formData.specs.trim() || null,
         image_url: formData.image_url || null,
         owner_id: user.id,
         usage_hours: 0,
@@ -133,38 +163,29 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
         payment_status: 'compliant'
       };
 
+      console.log("Submitting equipment data:", equipmentData);
+
       const { data, error } = await supabase
         .from('equipment')
         .insert([equipmentData])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Database error:", error);
+        throw error;
+      }
+
+      console.log("Equipment added successfully:", data);
 
       toast({
         title: "Equipment Added Successfully",
         description: `${formData.name} has been added to the inventory`,
       });
 
-      // Reset form
-      setFormData({
-        name: '',
-        manufacturer: '',
-        category: '',
-        description: '',
-        model: '',
-        serial_number: '',
-        condition: '',
-        location: '',
-        status: 'Available',
-        price: '',
-        lease_rate: '',
-        quantity: '1',
-        specs: '',
-        image_url: '',
-      });
-
+      resetForm();
       onOpenChange(false);
+      
       if (onEquipmentAdded) {
         onEquipmentAdded();
       }
@@ -173,7 +194,7 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
       console.error('Error adding equipment:', error);
       toast({
         title: "Failed to add equipment",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
     } finally {
@@ -191,7 +212,7 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Image Upload */}
           <div className="space-y-2">
             <Label>Equipment Image</Label>
@@ -201,36 +222,34 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
             />
           </div>
 
+          {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Equipment Name */}
             <div className="space-y-2">
               <Label htmlFor="name">Equipment Name *</Label>
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => handleChange('name', e.target.value)}
+                onChange={(e) => handleInputChange('name', e.target.value)}
                 placeholder="Enter equipment name"
                 required
               />
             </div>
 
-            {/* Manufacturer */}
             <div className="space-y-2">
               <Label htmlFor="manufacturer">Manufacturer</Label>
               <Input
                 id="manufacturer"
                 value={formData.manufacturer}
-                onChange={(e) => handleChange('manufacturer', e.target.value)}
+                onChange={(e) => handleInputChange('manufacturer', e.target.value)}
                 placeholder="Enter manufacturer name"
               />
             </div>
 
-            {/* Category */}
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
               <Select
                 value={formData.category}
-                onValueChange={(value) => handleChange('category', value)}
+                onValueChange={(value) => handleInputChange('category', value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
@@ -246,34 +265,31 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
               </Select>
             </div>
 
-            {/* Model */}
             <div className="space-y-2">
               <Label htmlFor="model">Model</Label>
               <Input
                 id="model"
                 value={formData.model}
-                onChange={(e) => handleChange('model', e.target.value)}
+                onChange={(e) => handleInputChange('model', e.target.value)}
                 placeholder="Enter model"
               />
             </div>
 
-            {/* Serial Number */}
             <div className="space-y-2">
               <Label htmlFor="serial_number">Serial Number</Label>
               <Input
                 id="serial_number"
                 value={formData.serial_number}
-                onChange={(e) => handleChange('serial_number', e.target.value)}
+                onChange={(e) => handleInputChange('serial_number', e.target.value)}
                 placeholder="Enter serial number"
               />
             </div>
 
-            {/* Condition */}
             <div className="space-y-2">
               <Label htmlFor="condition">Condition</Label>
               <Select
                 value={formData.condition}
-                onValueChange={(value) => handleChange('condition', value)}
+                onValueChange={(value) => handleInputChange('condition', value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select condition" />
@@ -288,23 +304,21 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
               </Select>
             </div>
 
-            {/* Location */}
             <div className="space-y-2">
               <Label htmlFor="location">Location</Label>
               <Input
                 id="location"
                 value={formData.location}
-                onChange={(e) => handleChange('location', e.target.value)}
+                onChange={(e) => handleInputChange('location', e.target.value)}
                 placeholder="Enter location"
               />
             </div>
 
-            {/* Status */}
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
               <Select
                 value={formData.status}
-                onValueChange={(value) => handleChange('status', value)}
+                onValueChange={(value) => handleInputChange('status', value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
@@ -319,33 +333,32 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
               </Select>
             </div>
 
-            {/* Price */}
             <div className="space-y-2">
               <Label htmlFor="price">Price ($)</Label>
               <Input
                 id="price"
                 type="number"
                 step="0.01"
+                min="0"
                 value={formData.price}
-                onChange={(e) => handleChange('price', e.target.value)}
+                onChange={(e) => handleInputChange('price', e.target.value)}
                 placeholder="Enter price"
               />
             </div>
 
-            {/* Lease Rate */}
             <div className="space-y-2">
               <Label htmlFor="lease_rate">Lease Rate ($/month)</Label>
               <Input
                 id="lease_rate"
                 type="number"
                 step="0.01"
+                min="0"
                 value={formData.lease_rate}
-                onChange={(e) => handleChange('lease_rate', e.target.value)}
+                onChange={(e) => handleInputChange('lease_rate', e.target.value)}
                 placeholder="Enter monthly lease rate"
               />
             </div>
 
-            {/* Quantity */}
             <div className="space-y-2">
               <Label htmlFor="quantity">Quantity</Label>
               <Input
@@ -353,7 +366,7 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
                 type="number"
                 min="1"
                 value={formData.quantity}
-                onChange={(e) => handleChange('quantity', e.target.value)}
+                onChange={(e) => handleInputChange('quantity', e.target.value)}
                 placeholder="Enter quantity"
               />
             </div>
@@ -365,7 +378,7 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => handleChange('description', e.target.value)}
+              onChange={(e) => handleInputChange('description', e.target.value)}
               placeholder="Enter equipment description"
               rows={3}
             />
@@ -377,7 +390,7 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
             <Textarea
               id="specs"
               value={formData.specs}
-              onChange={(e) => handleChange('specs', e.target.value)}
+              onChange={(e) => handleInputChange('specs', e.target.value)}
               placeholder="Enter technical specifications"
               rows={3}
             />
@@ -395,7 +408,7 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
             </Button>
             <Button
               type="submit"
-              disabled={loading || !formData.name}
+              disabled={loading || !formData.name.trim()}
               className="bg-[#E02020] hover:bg-[#E02020]/90"
             >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

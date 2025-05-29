@@ -10,7 +10,7 @@ interface EquipmentHeaderProps {
 const EquipmentHeader = ({ onAddEquipmentClick }: EquipmentHeaderProps) => {
   return (
     <div className="flex justify-between items-center mb-6">
-      <h2 className="text-xl font-bold">Equipment Management</h2>
+      <h2 className="text-xl font-bold text-[#333333]">Equipment Management</h2>
       <Button 
         onClick={onAddEquipmentClick}
         className="bg-[#E02020] hover:bg-[#E02020]/90 text-white font-bold px-5 py-2"
