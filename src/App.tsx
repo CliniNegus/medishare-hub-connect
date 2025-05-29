@@ -20,6 +20,15 @@ import MaintenanceAlertsPage from './pages/MaintenanceAlertsPage';
 import Orders from './pages/Orders';
 import MedicalShop from './pages/MedicalShop';
 import ProfileManagement from './pages/ProfileManagement';
+import Inventory from './pages/Inventory';
+import FinancingCalculator from './pages/FinancingCalculator';
+import LeaseManagement from './pages/LeaseManagement';
+import HospitalLocations from './pages/HospitalLocations';
+import EquipmentTracking from './pages/EquipmentTracking';
+import ProductManagement from './pages/ProductManagement';
+import VirtualShops from './pages/VirtualShops';
+import ClientManagement from './pages/ClientManagement';
+import SystemManagement from './pages/SystemManagement';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -70,6 +79,16 @@ function App() {
                       } 
                     />
                     <Route 
+                      path="/inventory" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <Inventory />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
                       path="/orders" 
                       element={
                         <ProtectedRoute>
@@ -80,10 +99,90 @@ function App() {
                       } 
                     />
                     <Route 
+                      path="/financing" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <FinancingCalculator />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/leases" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <LeaseManagement />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/hospital-locations" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <HospitalLocations />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/tracking" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <EquipmentTracking />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/products" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <ProductManagement />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/virtual-shops" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <VirtualShops />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/clients" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <ClientManagement />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
                       path="/shop" 
                       element={
                         <ProtectedRoute>
                           <MedicalShop />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/system" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <SystemManagement />
+                          </Layout>
                         </ProtectedRoute>
                       } 
                     />
