@@ -40,17 +40,16 @@ const Index: React.FC = () => {
         <nav className="relative bg-white/90 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
           <div className="container mx-auto px-6">
             <div className="flex justify-between items-center py-4">
-              {/* Logo in Navigation */}
+              {/* Logo in Navigation - Made more visible */}
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <OptimizedImage
                     src="https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/Clinibuilds%20Logo.jpg"
                     alt="CliniBuilds Logo"
-                    height={40}
-                    className="object-contain rounded-lg"
+                    height={50}
+                    className="object-contain rounded-lg shadow-md"
                   />
                 </div>
-                <span className="text-xl font-bold text-[#E02020]">CliniBuilds</span>
               </div>
 
               {/* Desktop Navigation */}
@@ -96,7 +95,7 @@ const Index: React.FC = () => {
           </div>
         </nav>
 
-        {/* Hero Section with Dominant Logo */}
+        {/* Hero Section */}
         <div className="relative py-20 lg:py-32 border-b border-gray-100 overflow-hidden">
           {/* Background decorative elements */}
           <div className="absolute inset-0 overflow-hidden">
@@ -105,52 +104,6 @@ const Index: React.FC = () => {
           </div>
           
           <div className="container mx-auto px-6 text-center relative z-10">
-            {/* Dominant Logo Section */}
-            <div className="mb-16 animate-fade-in">
-              <div className="relative group inline-block">
-                {/* Enhanced Logo Container */}
-                <div className="relative bg-white p-8 lg:p-12 rounded-3xl shadow-2xl border-4 border-[#E02020]/30 group-hover:border-[#E02020]/50 transition-all duration-700 transform group-hover:scale-105">
-                  {/* Enhanced Glow effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#E02020]/30 to-red-300/30 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                  
-                  {/* Main Logo */}
-                  <OptimizedImage
-                    src="https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/Clinibuilds%20Logo.jpg"
-                    alt="CliniBuilds Logo"
-                    height={200}
-                    className="object-contain rounded-2xl relative z-10 filter group-hover:brightness-110 transition-all duration-500 w-auto mx-auto lg:h-48"
-                  />
-                  
-                  {/* Animated decorative elements */}
-                  <div className="absolute -top-4 -right-4 animate-bounce">
-                    <Sparkles className="h-10 w-10 text-[#E02020] drop-shadow-lg" />
-                  </div>
-                  <div className="absolute -bottom-3 -left-3 animate-bounce delay-700">
-                    <Sparkles className="h-8 w-8 text-amber-400 drop-shadow-lg" />
-                  </div>
-                  <div className="absolute top-1/2 -right-6 animate-pulse delay-500">
-                    <div className="h-4 w-4 bg-gradient-to-r from-[#E02020] to-red-400 rounded-full"></div>
-                  </div>
-                  <div className="absolute top-1/4 -left-6 animate-pulse delay-1000">
-                    <div className="h-3 w-3 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full"></div>
-                  </div>
-                  
-                  {/* Premium Badge */}
-                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-[#E02020] to-red-600 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg animate-bounce">
-                    #1 Medical Platform
-                  </div>
-                </div>
-                
-                {/* Floating additional elements */}
-                <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white px-6 py-3 rounded-full shadow-lg border border-gray-200">
-                  <span className="text-sm font-semibold text-[#333333] flex items-center gap-2">
-                    <Heart className="h-4 w-4 text-red-500" />
-                    Trusted by 500+ Hospitals
-                  </span>
-                </div>
-              </div>
-            </div>
-            
             {/* Brand Title and Tagline */}
             <div className="mb-12 space-y-6">
               <h1 className="text-5xl lg:text-7xl font-bold text-[#333333] leading-tight">
