@@ -126,11 +126,14 @@ const MaintenanceManagement = ({ maintenanceSchedule: propSchedule, maintenanceA
     }
   };
 
-  const getMaintenanceType = (description: string) => {
-    if (description.toLowerCase().includes('preventive')) return 'Preventive';
-    if (description.toLowerCase().includes('calibration')) return 'Calibration';
-    if (description.toLowerCase().includes('repair')) return 'Repair';
-    if (description.toLowerCase().includes('inspection')) return 'Inspection';
+  const getMaintenanceType = (description: string | null | undefined) => {
+    if (!description) return 'Maintenance';
+    
+    const desc = description.toLowerCase();
+    if (desc.includes('preventive')) return 'Preventive';
+    if (desc.includes('calibration')) return 'Calibration';
+    if (desc.includes('repair')) return 'Repair';
+    if (desc.includes('inspection')) return 'Inspection';
     return 'Maintenance';
   };
 
