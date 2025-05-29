@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import AddEquipmentModal from '@/components/equipment/AddEquipmentModal';
+import AddEquipmentModal from './AddEquipmentModal';
 import EquipmentHeader from './EquipmentHeader';
 import EquipmentCategories from './EquipmentCategories';
 import EquipmentTable from './EquipmentTable';
