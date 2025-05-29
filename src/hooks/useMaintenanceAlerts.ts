@@ -34,8 +34,16 @@ export const useMaintenanceAlerts = () => {
 
       if (error) throw error;
 
-      setAlerts(data || []);
-      setFilteredAlerts(data || []);
+      // Type assertion to ensure proper typing from database
+      const typedData = (data || []).map((alert: any) => ({
+        ...alert,
+        issue_type: alert.issue_type as MaintenanceAlert['issue_type'],
+        urgency: alert.urgency as MaintenanceAlert['urgency'],
+        status: alert.status as MaintenanceAlert['status']
+      }));
+
+      setAlerts(typedData);
+      setFilteredAlerts(typedData);
     } catch (error: any) {
       console.error('Error fetching maintenance alerts:', error);
       toast({

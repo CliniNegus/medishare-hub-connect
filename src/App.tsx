@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/toaster";
@@ -16,12 +17,7 @@ import AdminAuth from './pages/AdminAuth';
 import Dashboard from './components/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import MaintenanceAlertsPage from './pages/MaintenanceAlertsPage';
-import Shop from './pages/Shop';
-import ProductDetails from './pages/ProductDetails';
-import Checkout from './pages/Checkout';
 import Orders from './pages/Orders';
-import LeaseCalculator from './pages/LeaseCalculator';
-import Support from './pages/Support';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -58,7 +54,7 @@ function App() {
                     <Route 
                       path="/admin" 
                       element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute requireAdmin>
                           <AdminDashboard />
                         </ProtectedRoute>
                       } 
@@ -66,20 +62,8 @@ function App() {
                     <Route 
                       path="/admin/maintenance-alerts" 
                       element={
-                        <ProtectedRoute adminOnly>
+                        <ProtectedRoute requireAdmin>
                           <MaintenanceAlertsPage />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route path="/shop" element={<Shop />} />
-                    <Route path="/product/:id" element={<ProductDetails />} />
-                    <Route 
-                      path="/checkout" 
-                      element={
-                        <ProtectedRoute>
-                          <Layout>
-                            <Checkout />
-                          </Layout>
                         </ProtectedRoute>
                       } 
                     />
@@ -89,26 +73,6 @@ function App() {
                         <ProtectedRoute>
                           <Layout>
                             <Orders />
-                          </Layout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/lease-calculator" 
-                      element={
-                        <ProtectedRoute>
-                          <Layout>
-                            <LeaseCalculator />
-                          </Layout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/support" 
-                      element={
-                        <ProtectedRoute>
-                          <Layout>
-                            <Support />
                           </Layout>
                         </ProtectedRoute>
                       } 
