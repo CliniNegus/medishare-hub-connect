@@ -1,12 +1,12 @@
-
 import React, { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { UserRole } from '@/contexts/UserRoleContext';
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Mail, User, Building, Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface SignUpFormProps {
@@ -23,6 +23,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [validating, setValidating] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [passwordValidationMessage, setPasswordValidationMessage] = useState<string | null>(null);
 
   const validatePassword = async (password: string) => {
@@ -138,72 +139,143 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
     }
   };
 
+  const passwordRequirements = [
+    { text: "At least 8 characters", met: password.length >= 8 },
+    { text: "One uppercase letter", met: /[A-Z]/.test(password) },
+    { text: "One lowercase letter", met: /[a-z]/.test(password) },
+    { text: "One number", met: /[0-9]/.test(password) },
+    { text: "One special character", met: /[^A-Za-z0-9]/.test(password) },
+  ];
+
   return (
-    <form onSubmit={handleSignUp}>
-      <CardContent className="space-y-4 pt-4">
-        <div className="space-y-2">
-          <Input
-            id="email-signup"
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Input
-            id="full-name"
-            type="text"
-            placeholder="Full Name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Input
-            id="organization"
-            type="text"
-            placeholder="Organization (Hospital, Manufacturer, etc.)"
-            value={organization}
-            onChange={(e) => setOrganization(e.target.value)}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Input
-            id="password-signup"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={handlePasswordChange}
-            required
-            className={passwordValidationMessage ? "border-red-500" : ""}
-          />
-          {passwordValidationMessage && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{passwordValidationMessage}</AlertDescription>
-            </Alert>
-          )}
-          <p className="text-xs text-gray-500">
-            Password must be at least 8 characters and include uppercase, lowercase, numbers, and special characters.
-          </p>
+    <form onSubmit={handleSignUp} className="space-y-6">
+      <CardContent className="space-y-6 pt-6">
+        <div className="grid grid-cols-1 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="email-signup" className="text-sm font-medium text-clinibuilds-dark">
+              Email Address
+            </Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Input
+                id="email-signup"
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="pl-10 h-12 border-2 border-gray-200 focus:border-clinibuilds-red rounded-lg transition-all duration-200"
+              />
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="full-name" className="text-sm font-medium text-clinibuilds-dark">
+              Full Name
+            </Label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Input
+                id="full-name"
+                type="text"
+                placeholder="Enter your full name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                className="pl-10 h-12 border-2 border-gray-200 focus:border-clinibuilds-red rounded-lg transition-all duration-200"
+              />
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="organization" className="text-sm font-medium text-clinibuilds-dark">
+              Organization
+            </Label>
+            <div className="relative">
+              <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Input
+                id="organization"
+                type="text"
+                placeholder="Hospital, Manufacturer, etc."
+                value={organization}
+                onChange={(e) => setOrganization(e.target.value)}
+                required
+                className="pl-10 h-12 border-2 border-gray-200 focus:border-clinibuilds-red rounded-lg transition-all duration-200"
+              />
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <Label htmlFor="password-signup" className="text-sm font-medium text-clinibuilds-dark">
+              Password
+            </Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Input
+                id="password-signup"
+                type={showPassword ? "text" : "password"}
+                placeholder="Create a secure password"
+                value={password}
+                onChange={handlePasswordChange}
+                required
+                className={`pl-10 pr-10 h-12 border-2 rounded-lg transition-all duration-200 ${
+                  passwordValidationMessage ? "border-red-500 focus:border-red-500" : "border-gray-200 focus:border-clinibuilds-red"
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
+            
+            {password && (
+              <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                <p className="text-sm font-medium text-clinibuilds-dark mb-2">Password Requirements:</p>
+                {passwordRequirements.map((req, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <CheckCircle className={`h-4 w-4 ${req.met ? 'text-green-500' : 'text-gray-300'}`} />
+                    <span className={`text-sm ${req.met ? 'text-green-600' : 'text-gray-500'}`}>
+                      {req.text}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {passwordValidationMessage && (
+              <Alert variant="destructive" className="bg-red-50 border-red-200">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-red-700">
+                  {passwordValidationMessage}
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
         </div>
       </CardContent>
-      <CardFooter>
+      
+      <CardFooter className="pb-6">
         <Button 
           type="submit" 
-          className="w-full bg-red-600 hover:bg-red-700" 
+          className="w-full h-12 bg-clinibuilds-red hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
           disabled={loading || validating}
         >
-          {loading 
-            ? "Creating account..." 
-            : validating 
-              ? "Validating password..." 
-              : "Sign Up"
-          }
+          {loading ? (
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Creating account...</span>
+            </div>
+          ) : validating ? (
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Validating password...</span>
+            </div>
+          ) : (
+            "Create Account"
+          )}
         </Button>
       </CardFooter>
     </form>

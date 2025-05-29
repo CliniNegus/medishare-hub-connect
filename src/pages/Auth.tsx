@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -100,10 +99,10 @@ const Auth = () => {
   };
 
   const roleIcons = {
-    hospital: <Hospital className="h-8 w-8 mb-2 text-red-600" />,
-    manufacturer: <Factory className="h-8 w-8 mb-2 text-red-600" />,
-    investor: <PiggyBank className="h-8 w-8 mb-2 text-red-600" />,
-    admin: <ShieldAlert className="h-8 w-8 mb-2 text-red-600" />
+    hospital: <Hospital className="h-8 w-8 mb-3 text-clinibuilds-red" />,
+    manufacturer: <Factory className="h-8 w-8 mb-3 text-clinibuilds-red" />,
+    investor: <PiggyBank className="h-8 w-8 mb-3 text-clinibuilds-red" />,
+    admin: <ShieldAlert className="h-8 w-8 mb-3 text-clinibuilds-red" />
   };
 
   const roleDescriptions = {
@@ -114,83 +113,104 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl">Medical Equipment Sharing</CardTitle>
-          <CardDescription>
-            Sign in to access the platform
-          </CardDescription>
-        </CardHeader>
-        
-        {unconfirmedEmail && (
-          <EmailConfirmationAlert 
-            email={unconfirmedEmail}
-            onResendConfirmation={resendConfirmationEmail}
-            loading={loading}
-          />
-        )}
-
-        {errorMessage && !unconfirmedEmail && (
-          <ErrorAlert message={errorMessage} />
-        )}
-        
-        <Tabs defaultValue="signin" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="signin">
-            <SignInForm 
-              onSuccess={handleSignInSuccess}
-              onEmailNotConfirmed={handleEmailNotConfirmed}
-              onError={handleError}
-              onForgotPassword={handleForgotPassword}
-            />
-          </TabsContent>
-          
-          <TabsContent value="signup">
-            <div className="mb-4">
-              <h3 className="text-sm font-medium mb-2">Select Account Type</h3>
-              <div className="grid grid-cols-3 gap-2">
-                {['hospital', 'manufacturer', 'investor'].map((role) => (
-                  <div 
-                    key={role}
-                    onClick={() => setSelectedRole(role as UserRole)}
-                    className={`flex flex-col items-center justify-center p-2 rounded-md cursor-pointer ${
-                      selectedRole === role 
-                        ? 'bg-red-50 border-2 border-red-600' 
-                        : 'bg-white border border-gray-200 hover:bg-gray-50'
-                    }`}
-                  >
-                    {roleIcons[role as UserRole]}
-                    <span className="text-sm font-medium">{role.charAt(0).toUpperCase() + role.slice(1)}</span>
-                  </div>
-                ))}
-              </div>
-              <p className="text-xs text-gray-500 mt-2">
-                {roleDescriptions[selectedRole]}
-              </p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md">
+        <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+          <CardHeader className="space-y-4 text-center pb-2">
+            <div className="w-16 h-16 bg-gradient-to-br from-clinibuilds-red to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-2">
+              <Hospital className="h-8 w-8 text-white" />
             </div>
-            
-            <SignUpForm 
-              onSuccess={handleSignUpSuccess}
-              onError={handleError}
-              metadata={{ role: selectedRole }}
-            />
-          </TabsContent>
+            <div className="space-y-2">
+              <CardTitle className="text-2xl font-bold text-clinibuilds-dark">
+                CliniBuilds Platform
+              </CardTitle>
+              <CardDescription className="text-gray-600">
+                Medical Equipment Sharing & Management
+              </CardDescription>
+            </div>
+          </CardHeader>
           
-          {showPasswordReset && (
-            <TabsContent value="passwordReset">
-              <PasswordResetForm 
-                onSuccess={handleResetSuccess}
+          {unconfirmedEmail && (
+            <EmailConfirmationAlert 
+              email={unconfirmedEmail}
+              onResendConfirmation={resendConfirmationEmail}
+              loading={loading}
+            />
+          )}
+
+          {errorMessage && !unconfirmedEmail && (
+            <ErrorAlert message={errorMessage} />
+          )}
+          
+          <Tabs defaultValue="signin" value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mx-6 mb-6 bg-gray-100 p-1 rounded-lg">
+              <TabsTrigger 
+                value="signin" 
+                className="rounded-md font-medium transition-all duration-200 data-[state=active]:bg-white data-[state=active]:text-clinibuilds-red data-[state=active]:shadow-sm"
+              >
+                Sign In
+              </TabsTrigger>
+              <TabsTrigger 
+                value="signup"
+                className="rounded-md font-medium transition-all duration-200 data-[state=active]:bg-white data-[state=active]:text-clinibuilds-red data-[state=active]:shadow-sm"
+              >
+                Sign Up
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="signin">
+              <SignInForm 
+                onSuccess={handleSignInSuccess}
+                onEmailNotConfirmed={handleEmailNotConfirmed}
                 onError={handleError}
+                onForgotPassword={handleForgotPassword}
               />
             </TabsContent>
-          )}
-        </Tabs>
-      </Card>
+            
+            <TabsContent value="signup">
+              <div className="px-6 mb-6">
+                <h3 className="text-lg font-semibold text-clinibuilds-dark mb-4">Select Account Type</h3>
+                <div className="grid grid-cols-3 gap-3">
+                  {['hospital', 'manufacturer', 'investor'].map((role) => (
+                    <div 
+                      key={role}
+                      onClick={() => setSelectedRole(role as UserRole)}
+                      className={`flex flex-col items-center justify-center p-4 rounded-xl cursor-pointer transition-all duration-200 ${
+                        selectedRole === role 
+                          ? 'bg-red-50 border-2 border-clinibuilds-red shadow-md transform scale-105' 
+                          : 'bg-white border-2 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                      }`}
+                    >
+                      {roleIcons[role as UserRole]}
+                      <span className="text-sm font-semibold text-clinibuilds-dark">
+                        {role.charAt(0).toUpperCase() + role.slice(1)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-sm text-gray-500 mt-3 text-center">
+                  {roleDescriptions[selectedRole]}
+                </p>
+              </div>
+              
+              <SignUpForm 
+                onSuccess={handleSignUpSuccess}
+                onError={handleError}
+                metadata={{ role: selectedRole }}
+              />
+            </TabsContent>
+            
+            {showPasswordReset && (
+              <TabsContent value="passwordReset">
+                <PasswordResetForm 
+                  onSuccess={handleResetSuccess}
+                  onError={handleError}
+                />
+              </TabsContent>
+            )}
+          </Tabs>
+        </Card>
+      </div>
     </div>
   );
 };
