@@ -18,6 +18,7 @@ import Dashboard from './components/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import MaintenanceAlertsPage from './pages/MaintenanceAlertsPage';
 import Orders from './pages/Orders';
+import MedicalShop from './pages/MedicalShop';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -74,6 +75,14 @@ function App() {
                           <Layout>
                             <Orders />
                           </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/shop" 
+                      element={
+                        <ProtectedRoute>
+                          <MedicalShop />
                         </ProtectedRoute>
                       } 
                     />
