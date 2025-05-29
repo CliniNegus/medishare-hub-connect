@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -104,20 +105,28 @@ const Index: React.FC = () => {
           </div>
           
           <div className="container mx-auto px-6 text-center relative z-10">
-            {/* Brand Title and Tagline */}
-            <div className="mb-12 space-y-6">
-              <h1 className="text-5xl lg:text-7xl font-bold text-[#333333] leading-tight">
-                <span className="bg-gradient-to-r from-[#333333] via-[#E02020] to-[#333333] bg-clip-text text-transparent">
-                  CliniBuilds
-                </span>
-              </h1>
-              <p className="text-2xl lg:text-3xl font-semibold text-[#E02020] tracking-wide">
-                Medical Equipment Platform
-              </p>
-              <div className="flex items-center justify-center gap-3">
-                <div className="h-1 w-20 bg-gradient-to-r from-[#E02020] to-red-400 rounded-full"></div>
-                <span className="text-sm font-medium text-[#333333]/60 uppercase tracking-widest">Leading Innovation</span>
-                <div className="h-1 w-20 bg-gradient-to-r from-red-400 to-[#E02020] rounded-full"></div>
+            {/* Hero Content with Large Background Logo */}
+            <div className="relative mb-12 space-y-6">
+              {/* Large Background Logo */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <OptimizedImage
+                  src="https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/Clinibuilds%20Logo.jpg"
+                  alt="CliniBuilds Background Logo"
+                  height={400}
+                  className="object-contain opacity-[0.15] select-none"
+                />
+              </div>
+              
+              {/* Foreground Content */}
+              <div className="relative z-10">
+                <p className="text-2xl lg:text-3xl font-semibold text-[#E02020] tracking-wide mb-4">
+                  Medical Equipment Platform
+                </p>
+                <div className="flex items-center justify-center gap-3 mb-8">
+                  <div className="h-1 w-20 bg-gradient-to-r from-[#E02020] to-red-400 rounded-full"></div>
+                  <span className="text-sm font-medium text-[#333333]/60 uppercase tracking-widest">Leading Innovation</span>
+                  <div className="h-1 w-20 bg-gradient-to-r from-red-400 to-[#E02020] rounded-full"></div>
+                </div>
               </div>
             </div>
             
