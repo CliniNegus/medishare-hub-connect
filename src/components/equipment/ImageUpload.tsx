@@ -3,8 +3,6 @@ import React, { useState } from 'react';
 import { Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { createEquipmentImagesBucket } from "@/integrations/supabase/createStorageBucket";
 
 interface ImageUploadProps {
   onImageUploaded: (url: string) => void;
@@ -18,19 +16,6 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | undefined>(currentImageUrl);
   const { toast } = useToast();
-
-  const ensureBucketExists = async () => {
-    try {
-      const bucketReady = await createEquipmentImagesBucket();
-      if (!bucketReady) {
-        throw new Error("Failed to setup storage bucket");
-      }
-      return true;
-    } catch (error) {
-      console.error("Bucket setup error:", error);
-      return false;
-    }
-  };
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files || event.target.files.length === 0) {
@@ -62,55 +47,36 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
     try {
       setUploading(true);
-      console.log("Starting file upload to Supabase Storage");
-      
-      // Ensure bucket exists before uploading
-      const bucketReady = await ensureBucketExists();
-      if (!bucketReady) {
-        throw new Error("Storage bucket is not available");
-      }
-      
-      // Generate unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `equipment_${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
-      
-      console.log("Uploading file:", fileName);
-      
-      // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('equipment_images')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
+      console.log("Processing image file:", file.name);
+
+      // Create a base64 preview for now
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        console.log("Base64 image created successfully");
+        setPreview(base64String);
+        onImageUploaded(base64String);
+        
+        toast({
+          title: "Image processed successfully",
+          description: "Your image has been processed and is ready to use",
         });
-
-      if (uploadError) {
-        console.error("Upload error:", uploadError);
-        throw uploadError;
-      }
-
-      console.log("Upload successful:", uploadData);
-      
-      // Get the public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('equipment_images')
-        .getPublicUrl(fileName);
-
-      console.log("Generated public URL:", publicUrl);
-      
-      setPreview(publicUrl);
-      onImageUploaded(publicUrl);
-      
-      toast({
-        title: "Image uploaded successfully",
-        description: "Your image has been uploaded and is ready to use",
-      });
+      };
+      reader.onerror = (error) => {
+        console.error("FileReader error:", error);
+        toast({
+          title: "Error",
+          description: "Failed to read image file",
+          variant: "destructive",
+        });
+      };
+      reader.readAsDataURL(file);
       
     } catch (error: any) {
-      console.error('Error uploading image:', error);
+      console.error('Error handling file:', error);
       toast({
-        title: "Upload failed",
-        description: error.message || "Failed to upload image. Please try again.",
+        title: "Error",
+        description: error.message || "Failed to process image",
         variant: "destructive",
       });
     } finally {
@@ -155,7 +121,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
               </p>
               <p className="text-xs text-gray-500">PNG, JPG, WebP or GIF (MAX. 10MB)</p>
               {uploading && (
-                <p className="text-xs text-[#E02020] mt-2">Uploading...</p>
+                <p className="text-xs text-[#E02020] mt-2">Processing...</p>
               )}
             </div>
           )}

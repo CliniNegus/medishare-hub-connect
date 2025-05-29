@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -23,7 +23,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { ImageUpload } from '@/components/equipment/ImageUpload';
-import { createEquipmentImagesBucket } from '@/integrations/supabase/createStorageBucket';
 
 interface AddEquipmentModalProps {
   open: boolean;
@@ -74,22 +73,6 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<EquipmentFormData>(INITIAL_FORM_DATA);
-
-  // Initialize storage bucket when modal opens
-  useEffect(() => {
-    if (open) {
-      initializeStorage();
-    }
-  }, [open]);
-
-  const initializeStorage = async () => {
-    try {
-      await createEquipmentImagesBucket();
-      console.log("Storage bucket initialized successfully");
-    } catch (error) {
-      console.error("Failed to initialize storage:", error);
-    }
-  };
 
   const handleInputChange = (field: keyof EquipmentFormData, value: string) => {
     setFormData(prev => ({

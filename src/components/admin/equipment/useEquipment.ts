@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { createEquipmentImagesBucket } from '@/integrations/supabase/createStorageBucket';
 
 interface Equipment {
   id: string;
@@ -15,27 +14,8 @@ interface Equipment {
 export const useEquipment = (initialEquipment: Equipment[]) => {
   const [equipment, setEquipment] = useState<Equipment[]>(initialEquipment);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [bucketReady, setBucketReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-
-  // Create/check bucket when component mounts
-  useEffect(() => {
-    const checkBucket = async () => {
-      const result = await createEquipmentImagesBucket();
-      setBucketReady(result);
-      if (!result) {
-        console.error("Failed to setup equipment images storage bucket");
-        toast({
-          title: "Storage Setup Error",
-          description: "Failed to set up image storage. Some features may not work correctly.",
-          variant: "destructive",
-        });
-      }
-    };
-    
-    checkBucket();
-  }, []);
 
   // Fetch equipment data when refresh trigger changes
   useEffect(() => {
@@ -86,21 +66,10 @@ export const useEquipment = (initialEquipment: Equipment[]) => {
     });
   };
 
-  const ensureBucketReady = async () => {
-    if (!bucketReady) {
-      const result = await createEquipmentImagesBucket();
-      setBucketReady(result);
-      return result;
-    }
-    return true;
-  };
-
   return {
     equipment,
     loading,
-    bucketReady,
     handleProductAdded,
-    ensureBucketReady,
     refreshEquipment: () => setRefreshTrigger(prev => prev + 1)
   };
 };

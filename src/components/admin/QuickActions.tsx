@@ -1,11 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, Users, Clock, BarChart2, Zap } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import AddEquipmentModal from '@/components/equipment/AddEquipmentModal';
 import AddUserModal from './AddUserModal';
-import { createEquipmentImagesBucket } from '@/integrations/supabase/createStorageBucket';
 import { useToast } from '@/hooks/use-toast';
 
 const QuickActions = () => {
@@ -13,45 +12,12 @@ const QuickActions = () => {
   const { toast } = useToast();
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-  const [bucketReady, setBucketReady] = useState(false);
   
-  useEffect(() => {
-    // Check bucket exists when component mounts
-    const checkBucket = async () => {
-      const result = await createEquipmentImagesBucket();
-      setBucketReady(result);
-      if (!result) {
-        toast({
-          title: "Storage Setup Error",
-          description: "Failed to set up image storage. Some features may not work correctly.",
-          variant: "destructive",
-        });
-      }
-    };
-    
-    checkBucket();
-  }, []);
-  
-  const handleAddEquipmentClick = async () => {
-    // Create bucket if needed before opening modal
-    if (!bucketReady) {
-      const result = await createEquipmentImagesBucket();
-      setBucketReady(result);
-      if (!result) {
-        toast({
-          title: "Storage Setup Error",
-          description: "Failed to set up image storage. Some features may not work correctly.",
-          variant: "destructive",
-        });
-        return;
-      }
-    }
-    
+  const handleAddEquipmentClick = () => {
     setIsEquipmentModalOpen(true);
   };
   
   const handleEquipmentAdded = () => {
-    // Refresh the product list or show a success message
     console.log('Equipment added successfully');
     toast({
       title: "Success",
@@ -60,7 +26,6 @@ const QuickActions = () => {
   };
 
   const handleUserAdded = () => {
-    // Refresh the user list or show a success message
     console.log('User added successfully');
   };
 
