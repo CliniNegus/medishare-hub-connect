@@ -3,10 +3,12 @@ import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Package, Calendar, ShoppingCart, 
-  HeartPulse, CreditCard, BarChart3 
+  HeartPulse, CreditCard, BarChart3,
+  FileText
 } from "lucide-react";
 import EquipmentTabContent from './EquipmentTabContent';
 import BookingsTabContent from './BookingsTabContent';
+import OrdersTabContent from './OrdersTabContent';
 import TherapyTabContent from './TherapyTabContent';
 import FinancingTabContent from './FinancingTabContent';
 import ShopTabContent from './ShopTabContent';
@@ -67,6 +69,11 @@ const HospitalDashboardTabs: React.FC<HospitalDashboardTabsProps> = ({
       count: 8,
     },
     {
+      value: 'orders',
+      label: 'Orders',
+      icon: FileText,
+    },
+    {
       value: 'analytics',
       label: 'Analytics',
       icon: BarChart3,
@@ -96,7 +103,7 @@ const HospitalDashboardTabs: React.FC<HospitalDashboardTabsProps> = ({
       </div>
       
       <Tabs defaultValue="equipment" className="space-y-6" onValueChange={setActiveTab} value={activeTab}>
-        <TabsList className="grid w-full grid-cols-6 bg-gray-100 p-1 rounded-lg">
+        <TabsList className="grid w-full grid-cols-7 bg-gray-100 p-1 rounded-lg">
           {tabConfig.map((tab) => (
             <TabsTrigger 
               key={tab.value}
@@ -137,6 +144,10 @@ const HospitalDashboardTabs: React.FC<HospitalDashboardTabsProps> = ({
             equipmentData={equipmentData}
             onBookEquipment={onBookEquipment}
           />
+        </TabsContent>
+
+        <TabsContent value="orders" className="space-y-4 mt-6">
+          <OrdersTabContent />
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4 mt-6">

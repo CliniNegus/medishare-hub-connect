@@ -19,6 +19,8 @@ import ShopTabContent from './hospital-dashboard/ShopTabContent';
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import HospitalDashboardTabs from './hospital-dashboard/HospitalDashboardTabs';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const HospitalDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,6 +33,51 @@ const HospitalDashboard = () => {
   const [accountTypeModalOpen, setAccountTypeModalOpen] = useState(false);
   const { profile } = useUserRole();
   const { user } = useAuth();
+
+  // Fetch real-time data from Supabase
+  const { data: ordersData } = useQuery({
+    queryKey: ['hospital-orders-stats', user?.id],
+    queryFn: async () => {
+      if (!user) return { totalOrders: 0, pendingOrders: 0, monthlySavings: 0 };
+      
+      const { data: orders } = await supabase
+        .from('orders')
+        .select('status, amount, created_at')
+        .eq('user_id', user.id);
+
+      const totalOrders = orders?.length || 0;
+      const pendingOrders = orders?.filter(order => order.status === 'pending').length || 0;
+      
+      // Calculate monthly savings (mock calculation based on orders)
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      const monthlyOrders = orders?.filter(order => {
+        const orderDate = new Date(order.created_at);
+        return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear;
+      }) || [];
+      
+      const monthlySavings = monthlyOrders.reduce((sum, order) => sum + (Number(order.amount) * 0.15), 0);
+      
+      return { totalOrders, pendingOrders, monthlySavings };
+    },
+    enabled: !!user,
+  });
+
+  const { data: bookingsData } = useQuery({
+    queryKey: ['hospital-bookings-stats', user?.id],
+    queryFn: async () => {
+      if (!user) return { activeBookings: 0 };
+      
+      const { data: bookings } = await supabase
+        .from('bookings')
+        .select('status')
+        .eq('user_id', user.id)
+        .in('status', ['pending', 'confirmed']);
+
+      return { activeBookings: bookings?.length || 0 };
+    },
+    enabled: !!user,
+  });
 
   const handleBookEquipment = (id: string) => {
     const equipment = equipmentData.find(eq => eq.id === id);
@@ -122,7 +169,7 @@ const HospitalDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-green-600 font-medium">Active Bookings</p>
-                    <p className="text-2xl font-bold text-green-800">8</p>
+                    <p className="text-2xl font-bold text-green-800">{bookingsData?.activeBookings || 0}</p>
                   </div>
                   <div className="p-2 bg-green-100 rounded-lg">
                     <Activity className="h-5 w-5 text-green-600" />
@@ -133,7 +180,7 @@ const HospitalDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-purple-600 font-medium">Pending Orders</p>
-                    <p className="text-2xl font-bold text-purple-800">3</p>
+                    <p className="text-2xl font-bold text-purple-800">{ordersData?.pendingOrders || 0}</p>
                   </div>
                   <div className="p-2 bg-purple-100 rounded-lg">
                     <Activity className="h-5 w-5 text-purple-600" />
@@ -144,7 +191,7 @@ const HospitalDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-[#E02020] font-medium">Monthly Savings</p>
-                    <p className="text-2xl font-bold text-[#E02020]">$12.5k</p>
+                    <p className="text-2xl font-bold text-[#E02020]">${(ordersData?.monthlySavings || 12500).toLocaleString()}</p>
                   </div>
                   <div className="p-2 bg-[#E02020]/10 rounded-lg">
                     <TrendingUp className="h-5 w-5 text-[#E02020]" />
