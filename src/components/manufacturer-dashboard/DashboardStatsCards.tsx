@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Package, CircleDollarSign, CheckCircle, AlertCircle, Truck
 } from "lucide-react";
@@ -11,6 +12,7 @@ interface StatsProps {
   maintenance: number;
   available: number;
   monthlyRevenue: number;
+  loading?: boolean;
 }
 
 const DashboardStatsCards = ({ 
@@ -18,7 +20,8 @@ const DashboardStatsCards = ({
   activeLease, 
   maintenance, 
   available, 
-  monthlyRevenue 
+  monthlyRevenue,
+  loading = false
 }: StatsProps) => {
   const stats = [
     {
@@ -32,7 +35,7 @@ const DashboardStatsCards = ({
     {
       title: "Active Leases",
       value: activeLease,
-      description: "Across multiple clusters",
+      description: "Currently leased units",
       icon: CheckCircle,
       color: "text-green-600",
       bgColor: "bg-green-50",
@@ -55,13 +58,32 @@ const DashboardStatsCards = ({
     },
     {
       title: "Monthly Revenue",
-      value: `$${(monthlyRevenue / 1000).toFixed(0)}k`,
-      description: "+5.2% from last month",
+      value: `$${(monthlyRevenue / 1000).toFixed(1)}k`,
+      description: "From active leases",
       icon: CircleDollarSign,
       color: "text-[#E02020]",
       bgColor: "bg-red-50",
     },
   ];
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {stats.map((_, index) => (
+          <Card key={index} className="border-0 shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-8 w-8 rounded-lg" />
+            </CardHeader>
+            <CardContent className="pt-0">
+              <Skeleton className="h-8 w-16 mb-1" />
+              <Skeleton className="h-3 w-20" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">

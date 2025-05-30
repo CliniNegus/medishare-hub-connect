@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { dashboardStats } from './manufacturer-dashboard/data/dashboardData';
 import { useManufacturerShops } from './manufacturer-dashboard/hooks/useManufacturerShops';
+import { useManufacturerStats } from '@/hooks/use-manufacturer-stats';
 import { 
   ManufacturerHeader, 
   DashboardStatsCards, 
@@ -15,6 +15,7 @@ import { Card, CardContent } from "./ui/card";
 
 const ManufacturerDashboard = () => {
   const { virtualShops, loadingShops } = useManufacturerShops();
+  const { stats, loading: statsLoading, error } = useManufacturerStats();
   const [accountTypeModalOpen, setAccountTypeModalOpen] = useState(false);
 
   return (
@@ -39,10 +40,24 @@ const ManufacturerDashboard = () => {
               </h2>
               <div className="flex items-center text-sm text-green-600 bg-green-50 px-3 py-1 rounded-full">
                 <TrendingUp className="h-4 w-4 mr-1" />
-                +12% this month
+                Real-time data
               </div>
             </div>
-            <DashboardStatsCards {...dashboardStats} />
+            
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                Error loading stats: {error}
+              </div>
+            )}
+            
+            <DashboardStatsCards 
+              totalEquipment={stats.totalEquipment}
+              activeLease={stats.activeLease}
+              maintenance={stats.maintenance}
+              available={stats.available}
+              monthlyRevenue={stats.monthlyRevenue}
+              loading={statsLoading}
+            />
           </CardContent>
         </Card>
 
