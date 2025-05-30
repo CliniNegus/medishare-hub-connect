@@ -45,16 +45,16 @@ export const useRealTimeLeases = (statusFilter?: string) => {
         .from('leases')
         .select(`
           *,
-          equipment:equipment_id (
+          equipment!inner (
             name,
             category,
             manufacturer
           ),
-          hospital:hospital_id (
+          hospital:profiles!leases_hospital_id_fkey (
             organization,
             email
           ),
-          investor:investor_id (
+          investor:profiles!leases_investor_id_fkey (
             organization,
             email
           )
@@ -79,7 +79,35 @@ export const useRealTimeLeases = (statusFilter?: string) => {
         return;
       }
 
-      setLeases(data || []);
+      // Transform the data to match our interface
+      const transformedLeases: Lease[] = (data || []).map(lease => ({
+        id: lease.id,
+        equipment_id: lease.equipment_id,
+        hospital_id: lease.hospital_id,
+        investor_id: lease.investor_id,
+        start_date: lease.start_date,
+        end_date: lease.end_date,
+        monthly_payment: lease.monthly_payment,
+        total_value: lease.total_value,
+        status: lease.status,
+        created_at: lease.created_at,
+        updated_at: lease.updated_at,
+        equipment: lease.equipment ? {
+          name: lease.equipment.name,
+          category: lease.equipment.category,
+          manufacturer: lease.equipment.manufacturer
+        } : undefined,
+        hospital: lease.hospital ? {
+          organization: lease.hospital.organization || 'Unknown Hospital',
+          email: lease.hospital.email || ''
+        } : undefined,
+        investor: lease.investor ? {
+          organization: lease.investor.organization || 'Unknown Investor',
+          email: lease.investor.email || ''
+        } : undefined
+      }));
+
+      setLeases(transformedLeases);
     } catch (error) {
       console.error('Error fetching leases:', error);
     } finally {
