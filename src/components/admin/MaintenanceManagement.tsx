@@ -100,6 +100,27 @@ const MaintenanceManagement = ({ maintenanceSchedule: propSchedule, maintenanceA
     } else {
       fetchMaintenanceSchedule();
     }
+
+    // Set up real-time subscription for maintenance updates
+    const channel = supabase
+      .channel('maintenance_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'maintenance'
+        },
+        (payload) => {
+          console.log('Maintenance change:', payload);
+          fetchMaintenanceSchedule();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [propSchedule]);
 
   const handleCancelMaintenance = async (maintenanceId: string) => {

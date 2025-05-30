@@ -1,18 +1,93 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertTriangle, Clock, Wrench, Eye, Calendar } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useMaintenanceAlerts } from '@/hooks/useMaintenanceAlerts';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from "@/hooks/use-toast";
 import ScheduleMaintenanceModal from './ScheduleMaintenanceModal';
 
+interface MaintenanceAlert {
+  id: string;
+  equipment_id?: string;
+  equipment_name: string;
+  location: string;
+  issue_type: 'calibration_overdue' | 'preventive_maintenance' | 'error_codes' | 'inspection_required' | 'repair_needed';
+  issue_description: string;
+  urgency: 'low' | 'medium' | 'high' | 'critical';
+  status: 'pending' | 'scheduled' | 'in_progress' | 'resolved';
+  last_service_date?: string;
+  created_at: string;
+  updated_at: string;
+  resolved_at?: string;
+  scheduled_maintenance_date?: string;
+}
+
 const MaintenanceAlertsSection = () => {
-  const { alerts, loading, getAlertCounts, updateAlertStatus } = useMaintenanceAlerts();
+  const [alerts, setAlerts] = useState<MaintenanceAlert[]>([]);
+  const [loading, setLoading] = useState(true);
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
-  const [selectedAlert, setSelectedAlert] = useState(null);
+  const [selectedAlert, setSelectedAlert] = useState<MaintenanceAlert | null>(null);
   const navigate = useNavigate();
-  const alertCounts = getAlertCounts();
+  const { toast } = useToast();
+
+  const fetchMaintenanceAlerts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('maintenance_alerts')
+        .select('*')
+        .neq('status', 'resolved')
+        .order('urgency', { ascending: false })
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setAlerts(data || []);
+    } catch (error: any) {
+      console.error('Error fetching maintenance alerts:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch maintenance alerts",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMaintenanceAlerts();
+
+    // Set up real-time subscription for maintenance alerts
+    const channel = supabase
+      .channel('maintenance_alerts_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'maintenance_alerts'
+        },
+        (payload) => {
+          console.log('Maintenance alert change:', payload);
+          fetchMaintenanceAlerts();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const getAlertCounts = () => {
+    const pending = alerts.filter(alert => alert.status === 'pending').length;
+    const critical = alerts.filter(alert => alert.urgency === 'critical').length;
+    const high = alerts.filter(alert => alert.urgency === 'high').length;
+    
+    return { pending, critical, high, total: alerts.length };
+  };
 
   const getUrgencyColor = (urgency: string) => {
     switch (urgency) {
@@ -39,7 +114,7 @@ const MaintenanceAlertsSection = () => {
     ).join(' ');
   };
 
-  const handleScheduleMaintenance = (alert: any) => {
+  const handleScheduleMaintenance = (alert: MaintenanceAlert) => {
     setSelectedAlert(alert);
     setScheduleModalOpen(true);
   };
@@ -47,6 +122,8 @@ const MaintenanceAlertsSection = () => {
   const handleViewAllAlerts = () => {
     navigate('/admin/maintenance-alerts');
   };
+
+  const alertCounts = getAlertCounts();
 
   if (loading) {
     return (
@@ -57,70 +134,111 @@ const MaintenanceAlertsSection = () => {
   }
 
   const criticalAlerts = alerts.filter(alert => 
-    alert.urgency === 'critical' && alert.status === 'pending'
+    (alert.urgency === 'critical' || alert.urgency === 'high') && alert.status === 'pending'
   );
 
   return (
     <>
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-4 text-[#333333]">Maintenance Alerts</h3>
-        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-md mb-4">
-          <h4 className="font-semibold text-yellow-700 mb-2 flex items-center">
-            <AlertTriangle className="h-5 w-5 mr-2" />
-            Equipment Requiring Immediate Attention: {alertCounts.critical + alertCounts.high}
-          </h4>
-          <p className="text-yellow-600 mb-3">The following equipment items require immediate maintenance:</p>
-          
-          <div className="space-y-2 mb-4">
-            {criticalAlerts.slice(0, 3).map((alert) => (
-              <div key={alert.id} className="flex items-center justify-between p-3 bg-white rounded border border-yellow-200">
-                <div className="flex items-center space-x-3">
-                  {getIssueIcon(alert.issue_type)}
-                  <div>
-                    <span className="font-medium text-gray-900">{alert.equipment_name}</span>
-                    <span className="text-gray-600 ml-2">({alert.location})</span>
-                    <div className="text-sm text-gray-500">{alert.issue_description}</div>
+        
+        {alerts.length === 0 ? (
+          <div className="bg-green-50 border border-green-200 p-4 rounded-md mb-4">
+            <h4 className="font-semibold text-green-700 mb-2 flex items-center">
+              <AlertTriangle className="h-5 w-5 mr-2" />
+              No Active Maintenance Alerts
+            </h4>
+            <p className="text-green-600 mb-3">All equipment is operating normally. No immediate maintenance required.</p>
+            
+            <div className="flex space-x-3">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleViewAllAlerts}
+                className="border-[#E02020] text-[#E02020] hover:bg-red-50"
+              >
+                <Eye className="h-4 w-4 mr-1" />
+                View All Alerts
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setScheduleModalOpen(true)}
+                className="border-gray-300 text-gray-600 hover:bg-gray-50"
+              >
+                <Calendar className="h-4 w-4 mr-1" />
+                Schedule Maintenance
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-md mb-4">
+            <h4 className="font-semibold text-yellow-700 mb-2 flex items-center">
+              <AlertTriangle className="h-5 w-5 mr-2" />
+              Equipment Requiring Immediate Attention: {alertCounts.critical + alertCounts.high}
+            </h4>
+            <p className="text-yellow-600 mb-3">The following equipment items require immediate maintenance:</p>
+            
+            <div className="space-y-2 mb-4">
+              {criticalAlerts.slice(0, 3).map((alert) => (
+                <div key={alert.id} className="flex items-center justify-between p-3 bg-white rounded border border-yellow-200">
+                  <div className="flex items-center space-x-3">
+                    {getIssueIcon(alert.issue_type)}
+                    <div>
+                      <span className="font-medium text-gray-900">{alert.equipment_name}</span>
+                      <span className="text-gray-600 ml-2">({alert.location})</span>
+                      <div className="text-sm text-gray-500">{alert.issue_description}</div>
+                      <div className="text-xs text-gray-400">{formatIssueType(alert.issue_type)}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Badge className={getUrgencyColor(alert.urgency)}>
+                      {alert.urgency.toUpperCase()}
+                    </Badge>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleScheduleMaintenance(alert)}
+                      className="border-[#E02020] text-[#E02020] hover:bg-red-50"
+                    >
+                      <Calendar className="h-3 w-3 mr-1" />
+                      Schedule
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Badge className={getUrgencyColor(alert.urgency)}>
-                    {alert.urgency.toUpperCase()}
-                  </Badge>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleScheduleMaintenance(alert)}
-                    className="border-[#E02020] text-[#E02020] hover:bg-red-50"
-                  >
-                    <Calendar className="h-3 w-3 mr-1" />
-                    Schedule
-                  </Button>
+              ))}
+              
+              {criticalAlerts.length > 3 && (
+                <div className="text-center py-2">
+                  <span className="text-sm text-gray-500">
+                    And {criticalAlerts.length - 3} more alert{criticalAlerts.length - 3 > 1 ? 's' : ''}...
+                  </span>
                 </div>
-              </div>
-            ))}
+              )}
+            </div>
+            
+            <div className="flex space-x-3">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleViewAllAlerts}
+                className="border-[#E02020] text-[#E02020] hover:bg-red-50"
+              >
+                <Eye className="h-4 w-4 mr-1" />
+                View All Alerts ({alertCounts.total})
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setScheduleModalOpen(true)}
+                className="border-gray-300 text-gray-600 hover:bg-gray-50"
+              >
+                <Calendar className="h-4 w-4 mr-1" />
+                Schedule Maintenance
+              </Button>
+            </div>
           </div>
-          
-          <div className="flex space-x-3">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleViewAllAlerts}
-              className="border-[#E02020] text-[#E02020] hover:bg-red-50"
-            >
-              <Eye className="h-4 w-4 mr-1" />
-              View All Alerts ({alertCounts.total})
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setScheduleModalOpen(true)}
-              className="border-gray-300 text-gray-600 hover:bg-gray-50"
-            >
-              <Calendar className="h-4 w-4 mr-1" />
-              Schedule Maintenance
-            </Button>
-          </div>
-        </div>
+        )}
       </div>
 
       <ScheduleMaintenanceModal
@@ -130,6 +248,7 @@ const MaintenanceAlertsSection = () => {
         onScheduled={() => {
           setScheduleModalOpen(false);
           setSelectedAlert(null);
+          fetchMaintenanceAlerts();
         }}
       />
     </>
