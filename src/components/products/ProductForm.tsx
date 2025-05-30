@@ -10,6 +10,7 @@ import { ManufacturerInfo } from './form/ManufacturerInfo';
 import { ProductDetails } from './form/ProductDetails';
 import { PricingSection } from './form/PricingSection';
 import { ShareableSwitch } from './form/ShareableSwitch';
+import { SalesOptionsField } from './form/SalesOptionsField';
 import ImageUpload from './ImageUpload';
 import { ProductFormValues, productSchema } from "@/types/product";
 import { WebsiteProductImport } from './WebsiteProductImport';
@@ -41,6 +42,7 @@ export const ProductForm = ({ onSubmit, initialValues, isLoading, isEditing, onC
       model: '',
       year_manufactured: undefined,
       serial_number: '',
+      sales_option: 'both',
       ...initialValues
     },
   });
@@ -104,6 +106,7 @@ export const ProductForm = ({ onSubmit, initialValues, isLoading, isEditing, onC
             <BasicProductInfo form={form} />
             <ManufacturerInfo form={form} />
             <PricingSection form={form} onCalculateLeaseRate={calculateLeaseRate} />
+            <SalesOptionsField form={form} />
             <ShareableSwitch form={form} />
             <ProductDetails form={form} />
             

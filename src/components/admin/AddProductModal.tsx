@@ -60,6 +60,17 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
       return;
     }
 
+    // For non-admin manufacturers, check if they have at least one shop
+    if (!isAdmin && (!shops || shops.length === 0)) {
+      toast({
+        title: "Shop required",
+        description: "You need to create a virtual shop before adding products. Please go to 'Manage Virtual Shops' first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // For admins, require shop selection
     if (isAdmin && !selectedShop) {
       toast({
         title: "Shop selection required",
@@ -103,7 +114,8 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
         console.log("Generated public URL:", imageUrl);
       }
       
-      const shopId = isAdmin ? selectedShop : null;
+      // For manufacturers, use their first shop if not admin
+      const shopId = isAdmin ? selectedShop : (shops && shops.length > 0 ? shops[0].id : null);
 
       const productData = {
         name: values.name,
@@ -121,6 +133,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
         owner_id: user.id,
         shop_id: shopId,
         status: 'Available',
+        sales_option: values.sales_option,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -174,6 +187,14 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
             onShopSelect={setSelectedShop}
             loading={shopsLoading}
           />
+        )}
+
+        {!isAdmin && shops && shops.length > 0 && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Adding to shop:</strong> {shops[0].name} ({shops[0].country})
+            </p>
+          </div>
         )}
         
         <ProductForm 
