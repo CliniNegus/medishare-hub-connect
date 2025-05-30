@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -38,18 +37,41 @@ const Header = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [accountTypeModalOpen, setAccountTypeModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   
   const isActive = (path: string) => {
     return location.pathname === path;
   };
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/auth');
-    toast({
-      title: "Signed out successfully",
-      description: "You have been logged out of your account",
-    });
+    if (isSigningOut) return; // Prevent multiple clicks
+    
+    try {
+      setIsSigningOut(true);
+      console.log('Starting sign out process...');
+      
+      // Call the signOut method from AuthContext
+      await signOut();
+      
+      // Navigate to auth page
+      navigate('/auth');
+      
+      console.log('Sign out completed successfully');
+      
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out of your account",
+      });
+    } catch (error: any) {
+      console.error('Error during sign out:', error);
+      toast({
+        title: "Error signing out",
+        description: error.message || "There was a problem signing you out. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSigningOut(false);
+    }
   };
 
   const handleDeleteAccount = async () => {
@@ -173,10 +195,13 @@ const Header = () => {
                     variant="ghost" 
                     size="sm"
                     onClick={handleSignOut}
+                    disabled={isSigningOut}
                     className="hidden sm:flex items-center space-x-2 text-gray-700 hover:text-[#E02020] hover:bg-gray-50"
                   >
                     <LogOut className="h-4 w-4" />
-                    <span className="hidden md:inline">Sign Out</span>
+                    <span className="hidden md:inline">
+                      {isSigningOut ? "Signing out..." : "Sign Out"}
+                    </span>
                   </Button>
                   
                   {/* User Avatar with Dropdown */}
@@ -235,9 +260,12 @@ const Header = () => {
                         Change Account Type
                       </DropdownMenuItem>
                       
-                      <DropdownMenuItem onClick={handleSignOut}>
+                      <DropdownMenuItem 
+                        onClick={handleSignOut}
+                        disabled={isSigningOut}
+                      >
                         <LogOut className="h-4 w-4 mr-2" />
-                        Sign Out
+                        {isSigningOut ? "Signing out..." : "Sign Out"}
                       </DropdownMenuItem>
                       
                       <DropdownMenuSeparator />
@@ -339,10 +367,11 @@ const Header = () => {
                       setMobileMenuOpen(false);
                       handleSignOut();
                     }}
+                    disabled={isSigningOut}
                     className="w-full flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-[#E02020] hover:bg-gray-50"
                   >
                     <LogOut className="h-4 w-4" />
-                    <span>Sign Out</span>
+                    <span>{isSigningOut ? "Signing out..." : "Sign Out"}</span>
                   </button>
                 </div>
               </>

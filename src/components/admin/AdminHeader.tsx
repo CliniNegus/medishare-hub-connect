@@ -21,6 +21,7 @@ const AdminHeader = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isAddEquipmentModalOpen, setIsAddEquipmentModalOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   
   const getInitials = () => {
     if (profile?.full_name) {
@@ -45,6 +46,37 @@ const AdminHeader = () => {
     });
     // Optionally refresh the page or trigger a data refresh
     window.location.reload();
+  };
+
+  const handleSignOut = async () => {
+    if (isSigningOut) return; // Prevent multiple clicks
+    
+    try {
+      setIsSigningOut(true);
+      console.log('Starting sign out process from admin header...');
+      
+      // Call the signOut method from AuthContext
+      await signOut();
+      
+      // Navigate to auth page
+      navigate('/auth');
+      
+      console.log('Sign out completed successfully from admin header');
+      
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out of your account",
+      });
+    } catch (error: any) {
+      console.error('Error during sign out from admin header:', error);
+      toast({
+        title: "Error signing out",
+        description: error.message || "There was a problem signing you out. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSigningOut(false);
+    }
   };
 
   return (
@@ -110,11 +142,12 @@ const AdminHeader = () => {
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-gray-100" />
             <DropdownMenuItem 
-              onClick={signOut} 
+              onClick={handleSignOut} 
+              disabled={isSigningOut}
               className="text-[#E02020] cursor-pointer hover:bg-red-50 transition-colors duration-200 m-2 rounded-md"
             >
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
+              <span>{isSigningOut ? "Signing out..." : "Log out"}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

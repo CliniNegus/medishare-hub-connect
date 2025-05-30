@@ -9,6 +9,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 const FloatingActionButton = () => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const { toast } = useToast();
@@ -18,13 +19,35 @@ const FloatingActionButton = () => {
   if (!isMobile) return null;
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/auth');
-    toast({
-      title: "Signed out successfully",
-      description: "You have been logged out of your account",
-    });
-    setIsExpanded(false);
+    if (isSigningOut) return; // Prevent multiple clicks
+    
+    try {
+      setIsSigningOut(true);
+      console.log('Starting sign out process from FAB...');
+      setIsExpanded(false);
+      
+      // Call the signOut method from AuthContext
+      await signOut();
+      
+      // Navigate to auth page
+      navigate('/auth');
+      
+      console.log('Sign out completed successfully from FAB');
+      
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out of your account",
+      });
+    } catch (error: any) {
+      console.error('Error during sign out from FAB:', error);
+      toast({
+        title: "Error signing out",
+        description: error.message || "There was a problem signing you out. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSigningOut(false);
+    }
   };
 
   const actions = [
@@ -48,9 +71,10 @@ const FloatingActionButton = () => {
     },
     {
       icon: LogOut,
-      label: 'Sign Out',
+      label: isSigningOut ? 'Signing out...' : 'Sign Out',
       onClick: handleSignOut,
-      color: 'bg-red-500 hover:bg-red-600'
+      disabled: isSigningOut,
+      color: isSigningOut ? 'bg-gray-400' : 'bg-red-500 hover:bg-red-600'
     }
   ];
 
@@ -73,7 +97,10 @@ const FloatingActionButton = () => {
                 <Button
                   size="icon"
                   onClick={action.onClick}
-                  className={`h-12 w-12 rounded-full shadow-lg ${action.color} text-white`}
+                  disabled={action.disabled}
+                  className={`h-12 w-12 rounded-full shadow-lg ${action.color} text-white ${
+                    action.disabled ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
                   <Icon className="h-5 w-5" />
                 </Button>

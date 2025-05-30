@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { useState } from 'react';
 
 interface SidebarProps {
   onChangeAccountType?: () => void;
@@ -34,6 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onChangeAccountType }) => {
   const { role } = useUserRole();
   const { user, profile, signOut } = useAuth();
   const { toast } = useToast();
+  const [isSigningOut, setIsSigningOut] = useState(false);
   
   if (!user) return null;
 
@@ -50,12 +52,34 @@ const Sidebar: React.FC<SidebarProps> = ({ onChangeAccountType }) => {
   };
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/auth');
-    toast({
-      title: "Signed out successfully",
-      description: "You have been logged out of your account",
-    });
+    if (isSigningOut) return; // Prevent multiple clicks
+    
+    try {
+      setIsSigningOut(true);
+      console.log('Starting sign out process from sidebar...');
+      
+      // Call the signOut method from AuthContext
+      await signOut();
+      
+      // Navigate to auth page
+      navigate('/auth');
+      
+      console.log('Sign out completed successfully from sidebar');
+      
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out of your account",
+      });
+    } catch (error: any) {
+      console.error('Error during sign out from sidebar:', error);
+      toast({
+        title: "Error signing out",
+        description: error.message || "There was a problem signing you out. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSigningOut(false);
+    }
   };
 
   const getUserInitials = () => {
@@ -201,10 +225,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onChangeAccountType }) => {
             variant="ghost"
             size="sm"
             onClick={handleSignOut}
+            disabled={isSigningOut}
             className="w-full justify-start text-gray-700 hover:text-[#E02020] hover:bg-red-50"
           >
             <LogOut className="mr-3 h-4 w-4" />
-            Sign Out
+            {isSigningOut ? "Signing out..." : "Sign Out"}
           </Button>
         </div>
       </div>
