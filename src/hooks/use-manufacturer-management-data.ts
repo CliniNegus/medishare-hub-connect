@@ -110,28 +110,47 @@ export const useManufacturerManagementData = () => {
     if (!user) return;
 
     try {
-      const { data: leases, error } = await supabase
+      // First get leases with equipment info
+      const { data: leases, error: leasesError } = await supabase
         .from('leases')
         .select(`
           *,
-          equipment!inner(name, owner_id),
-          hospitals(name)
+          equipment!inner(name, owner_id)
         `)
         .eq('equipment.owner_id', user.id)
         .eq('status', 'active')
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (error) throw error;
+      if (leasesError) throw leasesError;
 
-      const paymentsData = (leases || []).map(lease => ({
-        id: lease.id,
-        amount: lease.monthly_payment || 0,
-        status: lease.status || 'pending',
-        created_at: lease.created_at,
-        equipment_name: lease.equipment?.name || 'Unknown Equipment',
-        hospital_name: lease.hospitals?.name || 'Unknown Hospital'
-      }));
+      // Then get hospital names for each lease
+      const paymentsData = await Promise.all(
+        (leases || []).map(async (lease) => {
+          let hospitalName = 'Unknown Hospital';
+          
+          if (lease.hospital_id) {
+            const { data: hospital, error: hospitalError } = await supabase
+              .from('hospitals')
+              .select('name')
+              .eq('id', lease.hospital_id)
+              .single();
+              
+            if (!hospitalError && hospital) {
+              hospitalName = hospital.name;
+            }
+          }
+
+          return {
+            id: lease.id,
+            amount: lease.monthly_payment || 0,
+            status: lease.status || 'pending',
+            created_at: lease.created_at,
+            equipment_name: lease.equipment?.name || 'Unknown Equipment',
+            hospital_name: hospitalName
+          };
+        })
+      );
 
       setPayments(paymentsData);
     } catch (error: any) {
