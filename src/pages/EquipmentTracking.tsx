@@ -2,190 +2,280 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Loader, RefreshCw } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RefreshCw, Settings, Bell, Zap } from "lucide-react";
 import { Layout } from "@/components/Layout";
-import IoTDeviceStatus from "@/components/tracking/IoTDeviceStatus";
-import UsageChart from "@/components/tracking/UsageChart";
-import { useIoTData } from "@/hooks/useIoTData";
-import { inventoryData } from "@/data/mockData";
+import { useRealTimeTracking } from "@/hooks/use-real-time-tracking";
+import ModernEquipmentCard from "@/components/tracking/ModernEquipmentCard";
+import RealTimeMetrics from "@/components/tracking/RealTimeMetrics";
+import IoTUsageTracker from "@/components/tracking/IoTUsageTracker";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const EquipmentTracking = () => {
-  const [selectedEquipment, setSelectedEquipment] = useState(inventoryData[0].id);
-  
-  // Use our IoT data hook
-  const { device, usageData, loading, error } = useIoTData(selectedEquipment);
-  
+  const { 
+    equipmentList, 
+    selectedEquipmentId, 
+    setSelectedEquipmentId,
+    analytics,
+    loading,
+    refetch 
+  } = useRealTimeTracking();
+
+  const selectedEquipment = equipmentList.find(eq => eq.id === selectedEquipmentId);
+
   const handleRefresh = () => {
-    // In a real application, this would trigger a refresh of the IoT data
-    window.location.reload();
+    refetch();
   };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="container mx-auto py-6 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <Skeleton className="h-8 w-48 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+            <Skeleton className="h-10 w-32" />
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="space-y-4">
+              {[1, 2, 3].map(i => (
+                <Skeleton key={i} className="h-32 w-full" />
+              ))}
+            </div>
+            <div className="lg:col-span-3 space-y-4">
+              <Skeleton className="h-96 w-full" />
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
   
   return (
     <Layout>
       <div className="container mx-auto py-6 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Equipment Tracking</h1>
-            <p className="text-gray-500">Monitor equipment status and usage in real-time</p>
+            <h1 className="text-3xl font-bold tracking-tight text-[#333333]">Equipment Tracking</h1>
+            <p className="text-gray-600 mt-1">Monitor your equipment performance and usage in real-time</p>
           </div>
-          <Button onClick={handleRefresh} className="self-start" variant="outline" size="sm">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh Data
-          </Button>
+          <div className="flex items-center space-x-2">
+            <Button onClick={handleRefresh} variant="outline" size="sm" className="border-[#E02020] text-[#E02020] hover:bg-[#E02020] hover:text-white">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh
+            </Button>
+            <Button variant="outline" size="sm">
+              <Settings className="h-4 w-4 mr-2" />
+              Settings
+            </Button>
+          </div>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1 space-y-6">
-            <Card>
-              <CardContent className="p-4">
-                <h2 className="text-lg font-semibold mb-4">Connected Equipment</h2>
-                <div className="space-y-2">
-                  {inventoryData.map(item => (
-                    <Button 
-                      key={item.id}
-                      variant={selectedEquipment === item.id ? "default" : "outline"}
-                      className="w-full justify-start"
-                      onClick={() => setSelectedEquipment(item.id)}
-                    >
-                      <div className="w-8 h-8 mr-2 bg-gray-100 rounded flex items-center justify-center">
-                        <img src={item.image} alt={item.name} className="w-6 h-6" />
-                      </div>
-                      <div className="text-left">
-                        <p className="font-medium">{item.name}</p>
-                        <p className="text-xs text-gray-500">ID: {item.sku}</p>
-                      </div>
-                    </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-            
-            {loading ? (
-              <div className="flex justify-center p-8">
-                <Loader className="h-8 w-8 animate-spin text-primary" />
+        {equipmentList.length === 0 ? (
+          <Card>
+            <CardContent className="p-12 text-center">
+              <div className="text-gray-400 mb-4">
+                <Zap className="h-16 w-16 mx-auto" />
               </div>
-            ) : error ? (
-              <div className="p-4 bg-red-50 text-red-600 rounded-md">
-                {error}
-              </div>
-            ) : device ? (
-              <IoTDeviceStatus 
-                deviceId={device.deviceId}
-                equipmentName={device.equipmentName}
-                status={device.status}
-                lastActive={new Date(device.lastActive).toLocaleString()}
-                batteryLevel={device.batteryLevel}
-                signalStrength={device.signalStrength}
-                location={device.location}
-                usageData={device.usageData}
-              />
-            ) : null}
-          </div>
-          
-          <div className="lg:col-span-2 space-y-6">
-            <Tabs defaultValue="realtime" className="w-full">
-              <TabsList className="mb-4">
-                <TabsTrigger value="realtime">Real-time Data</TabsTrigger>
-                <TabsTrigger value="daily">Daily Summary</TabsTrigger>
-                <TabsTrigger value="alerts">Alerts</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="realtime" className="space-y-6">
-                {loading ? (
-                  <div className="flex justify-center p-12">
-                    <Loader className="h-8 w-8 animate-spin text-primary" />
-                  </div>
-                ) : (
-                  <>
-                    <UsageChart 
-                      data={usageData} 
-                      title="Real-time Usage Metrics"
+              <h3 className="text-xl font-semibold text-[#333333] mb-2">No Equipment Found</h3>
+              <p className="text-gray-600 mb-6">You don't have any equipment registered for tracking yet.</p>
+              <Button className="bg-[#E02020] hover:bg-[#c01c1c] text-white">
+                Add Equipment
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="space-y-4">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg font-semibold text-[#333333]">Your Equipment</CardTitle>
+                  <p className="text-sm text-gray-600">{equipmentList.length} devices connected</p>
+                </CardHeader>
+                <CardContent className="pt-0 space-y-3 max-h-96 overflow-y-auto">
+                  {equipmentList.map(equipment => (
+                    <ModernEquipmentCard
+                      key={equipment.id}
+                      {...equipment}
+                      isSelected={selectedEquipmentId === equipment.id}
+                      onClick={() => setSelectedEquipmentId(equipment.id)}
                     />
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <Card>
-                        <CardContent className="p-4 text-center">
-                          <p className="text-sm text-gray-500">Current Status</p>
-                          <p className={`text-xl font-bold ${
-                            device?.status === 'online' ? 'text-green-600' : 
-                            device?.status === 'standby' ? 'text-yellow-600' : 'text-red-600'
-                          }`}>
-                            {device?.status.toUpperCase()}
-                          </p>
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardContent className="p-4 text-center">
-                          <p className="text-sm text-gray-500">Power Usage</p>
-                          <p className="text-xl font-bold">
-                            {usageData.length > 0 ? `${usageData[usageData.length - 1].powerUsage}W` : 'N/A'}
-                          </p>
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardContent className="p-4 text-center">
-                          <p className="text-sm text-gray-500">Temperature</p>
-                          <p className="text-xl font-bold">
-                            {usageData.length > 0 ? `${usageData[usageData.length - 1].temperature}°C` : 'N/A'}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </>
-                )}
-              </TabsContent>
-              
-              <TabsContent value="daily">
-                <Card>
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-medium mb-4">Daily Usage Summary</h3>
-                    <p className="text-gray-500">
-                      View detailed daily usage statistics for this equipment. This section would include
-                      aggregated data showing patterns of usage throughout the day.
-                    </p>
-                    <div className="h-64 flex items-center justify-center border rounded-md mt-4 bg-gray-50">
-                      <p className="text-gray-400">Daily usage chart would appear here</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="alerts">
-                <Card>
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-medium mb-4">System Alerts</h3>
-                    <div className="space-y-4">
-                      <div className="p-4 border rounded-md bg-yellow-50">
-                        <p className="font-medium text-yellow-800">Maintenance Due</p>
-                        <p className="text-sm text-yellow-700">
-                          Regular maintenance is scheduled for this equipment in 5 days.
-                        </p>
-                      </div>
-                      <div className="p-4 border rounded-md">
-                        <p className="font-medium">No Critical Alerts</p>
-                        <p className="text-sm text-gray-500">
-                          This equipment is currently operating within normal parameters.
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
             
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-medium mb-4">Integration Settings</h3>
-                <p className="text-gray-500 mb-4">
-                  Configure how this equipment connects to your IoT platform. You can set up alerts,
-                  adjust data collection intervals, and manage sensor configurations.
-                </p>
-                <Button variant="outline">Configure IoT Integration</Button>
-              </CardContent>
-            </Card>
+            <div className="lg:col-span-3 space-y-6">
+              {selectedEquipment && (
+                <>
+                  <Card className="border-t-4 border-t-[#E02020]">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="text-xl font-bold text-[#333333]">{selectedEquipment.name}</CardTitle>
+                          <p className="text-gray-600">{selectedEquipment.category} • {selectedEquipment.location}</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-1 text-green-600">
+                            <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <span className="text-sm font-medium">Live</span>
+                          </div>
+                          {selectedEquipment.remote_control_enabled && (
+                            <Button size="sm" className="bg-[#E02020] hover:bg-[#c01c1c] text-white">
+                              <Zap className="h-4 w-4 mr-1" />
+                              Remote Control
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </CardHeader>
+                  </Card>
+
+                  <Tabs defaultValue="metrics" className="w-full">
+                    <TabsList className="grid w-full grid-cols-4 bg-gray-100 p-1 rounded-lg">
+                      <TabsTrigger 
+                        value="metrics" 
+                        className="data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm"
+                      >
+                        Real-time Metrics
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="iot" 
+                        className="data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm"
+                      >
+                        IoT Data
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="alerts" 
+                        className="data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm"
+                      >
+                        Alerts
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="settings" 
+                        className="data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm"
+                      >
+                        Settings
+                      </TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="metrics" className="mt-6">
+                      <RealTimeMetrics 
+                        analytics={analytics} 
+                        equipmentName={selectedEquipment.name}
+                      />
+                    </TabsContent>
+                    
+                    <TabsContent value="iot" className="mt-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <IoTUsageTracker 
+                          equipmentId={selectedEquipment.id}
+                          pricePerUse={50}
+                        />
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="text-lg font-semibold text-[#333333]">Device Sensors</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-4">
+                              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span className="text-sm font-medium">Temperature</span>
+                                <span className="text-sm text-green-600">Normal (22°C)</span>
+                              </div>
+                              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span className="text-sm font-medium">Vibration</span>
+                                <span className="text-sm text-green-600">Normal</span>
+                              </div>
+                              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span className="text-sm font-medium">Power Draw</span>
+                                <span className="text-sm text-blue-600">85W</span>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="alerts" className="mt-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg font-semibold text-[#333333] flex items-center">
+                            <Bell className="h-5 w-5 mr-2" />
+                            Active Alerts
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            <div className="p-4 border border-yellow-200 bg-yellow-50 rounded-lg">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="font-medium text-yellow-800">Maintenance Due</p>
+                                  <p className="text-sm text-yellow-700">Regular maintenance is scheduled in 3 days</p>
+                                </div>
+                                <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded">Medium</span>
+                              </div>
+                            </div>
+                            
+                            <div className="p-4 border border-green-200 bg-green-50 rounded-lg">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="font-medium text-green-800">All Systems Normal</p>
+                                  <p className="text-sm text-green-700">Equipment is operating within normal parameters</p>
+                                </div>
+                                <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">Info</span>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                    
+                    <TabsContent value="settings" className="mt-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg font-semibold text-[#333333]">Equipment Settings</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-6">
+                            <div>
+                              <h4 className="font-medium mb-2">Monitoring Preferences</h4>
+                              <div className="space-y-2">
+                                <label className="flex items-center">
+                                  <input type="checkbox" className="mr-2" defaultChecked />
+                                  Real-time data collection
+                                </label>
+                                <label className="flex items-center">
+                                  <input type="checkbox" className="mr-2" defaultChecked />
+                                  Alert notifications
+                                </label>
+                                <label className="flex items-center">
+                                  <input type="checkbox" className="mr-2" />
+                                  Predictive maintenance
+                                </label>
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-medium mb-2">Data Retention</h4>
+                              <select className="w-full p-2 border rounded-md">
+                                <option>30 days</option>
+                                <option>90 days</option>
+                                <option>1 year</option>
+                              </select>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                  </Tabs>
+                </>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </Layout>
   );
