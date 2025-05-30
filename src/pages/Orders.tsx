@@ -6,7 +6,6 @@ import Header from '@/components/Header';
 import OrdersTable from '@/components/orders/OrdersTable';
 import OrderStats from '@/components/orders/OrderStats';
 import CreateOrderModal from '@/components/orders/CreateOrderModal';
-import { orderData } from '@/data/mockData';
 
 const Orders = () => {
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
@@ -40,13 +39,12 @@ const Orders = () => {
             </Button>
           </div>
 
-          <OrderStats orders={orderData} />
+          <OrderStats />
 
           <div className="mt-6">
             <h2 className="text-xl font-semibold mb-4">Recent Orders</h2>
             <OrdersTable 
               key={refreshKey}
-              orders={orderData} 
               onViewOrder={handleViewOrder} 
             />
           </div>
