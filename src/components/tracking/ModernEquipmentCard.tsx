@@ -2,7 +2,6 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Activity, MapPin, Clock, Zap } from "lucide-react";
 
 interface ModernEquipmentCardProps {
@@ -58,54 +57,54 @@ const ModernEquipmentCard: React.FC<ModernEquipmentCardProps> = ({
       }`}
       onClick={onClick}
     >
-      <CardContent className="p-5">
-        <div className="flex items-start space-x-4">
-          <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+      <CardContent className="p-6">
+        <div className="flex items-start space-x-5">
+          <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
             {image_url ? (
               <img src={image_url} alt={name} className="w-full h-full object-cover" />
             ) : (
-              <Activity className="h-7 w-7 text-gray-500" />
+              <Activity className="h-8 w-8 text-gray-500" />
             )}
           </div>
           
-          <div className="flex-1 min-w-0 space-y-3">
+          <div className="flex-1 min-w-0 space-y-4">
             <div className="flex items-start justify-between">
-              <h3 className="font-semibold text-[#333333] truncate text-base">{name}</h3>
-              <Badge className={`${getStatusColor(status)} text-xs font-medium ml-2 flex-shrink-0`}>
+              <h3 className="font-semibold text-[#333333] truncate text-lg">{name}</h3>
+              <Badge className={`${getStatusColor(status)} text-sm font-medium ml-3 flex-shrink-0`}>
                 {status}
               </Badge>
             </div>
             
-            <p className="text-sm text-gray-600 font-medium">{category}</p>
+            <p className="text-gray-600 font-medium">{category}</p>
             
-            <div className="space-y-2">
-              <div className="flex items-center text-xs text-gray-500">
-                <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
+            <div className="space-y-3">
+              <div className="flex items-center text-sm text-gray-500">
+                <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
                 <span className="truncate">{location}</span>
               </div>
               
-              <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center text-gray-500">
-                  <Clock className="h-3 w-3 mr-1" />
+                  <Clock className="h-4 w-4 mr-2" />
                   <span>{usage_hours}h used</span>
                 </div>
                 
                 {remote_control_enabled && (
                   <div className="flex items-center text-[#E02020]">
-                    <Zap className="h-3 w-3 mr-1" />
+                    <Zap className="h-4 w-4 mr-2" />
                     <span className="font-medium">Remote</span>
                   </div>
                 )}
               </div>
               
-              <div className="mt-3">
-                <div className="flex justify-between text-xs text-gray-500 mb-2">
+              <div className="mt-4">
+                <div className="flex justify-between text-sm text-gray-500 mb-3">
                   <span>Uptime</span>
                   <span className="font-medium">{uptime.toFixed(1)}%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
                   <div 
-                    className="bg-green-500 h-2 rounded-full transition-all duration-300" 
+                    className="bg-green-500 h-2.5 rounded-full transition-all duration-300" 
                     style={{ width: `${Math.min(uptime, 100)}%` }}
                   ></div>
                 </div>
