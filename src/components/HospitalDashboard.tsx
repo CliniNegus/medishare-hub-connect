@@ -19,6 +19,7 @@ import ShopTabContent from './hospital-dashboard/ShopTabContent';
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import HospitalDashboardTabs from './hospital-dashboard/HospitalDashboardTabs';
+import RecentOrdersSection from './hospital-dashboard/RecentOrdersSection';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -90,6 +91,10 @@ const HospitalDashboard = () => {
   const handleConfirmBooking = (date: Date, duration: number, notes: string) => {
     console.log('Booking confirmed:', { equipment: selectedEquipment?.name, date, duration, notes });
     // In a real app, this would send a request to the backend to create a booking
+  };
+
+  const handleViewAllOrders = () => {
+    setActiveTab("orders");
   };
 
   return (
@@ -201,6 +206,11 @@ const HospitalDashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Recent Orders Section */}
+        <div className="mb-8">
+          <RecentOrdersSection onViewAllOrders={handleViewAllOrders} />
+        </div>
 
         {/* Dashboard Tabs */}
         <Card className="shadow-lg border-0 mb-8">
