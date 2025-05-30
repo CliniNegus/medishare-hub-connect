@@ -11,23 +11,24 @@ import ClustersTab from './tabs/ClustersTab';
 import ShopTab from './tabs/ShopTab';
 import PaymentsTab from './tabs/PaymentsTab';
 import AnalyticsTab from './tabs/AnalyticsTab';
-
-import { 
-  leasedProducts, 
-  clusterLocations, 
-  paymentsReceived, 
-  shopProducts 
-} from './data/dashboardData';
+import { useManufacturerManagementData } from '@/hooks/use-manufacturer-management-data';
 
 const DashboardTabs = () => {
   const [activeTab, setActiveTab] = useState('products');
+  const { 
+    products, 
+    clusterLocations, 
+    payments, 
+    shopProducts, 
+    loading 
+  } = useManufacturerManagementData();
 
   const tabConfig = [
     {
       value: 'products',
       label: 'Products',
       icon: Package,
-      count: leasedProducts.length,
+      count: products.length,
     },
     {
       value: 'clusters',
@@ -45,7 +46,7 @@ const DashboardTabs = () => {
       value: 'payments',
       label: 'Payments',
       icon: CircleDollarSign,
-      count: paymentsReceived.length,
+      count: payments.length,
     },
     {
       value: 'analytics',
@@ -53,6 +54,20 @@ const DashboardTabs = () => {
       icon: BarChart2,
     },
   ];
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-[#333333] mb-2">Management Hub</h2>
+          <p className="text-gray-600">Manage your products, payments, and analytics from one place</p>
+        </div>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E02020]"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -71,7 +86,7 @@ const DashboardTabs = () => {
             >
               <tab.icon className="h-4 w-4" />
               <span className="hidden sm:inline">{tab.label}</span>
-              {tab.count && (
+              {tab.count !== undefined && (
                 <span className="ml-1 px-1.5 py-0.5 text-xs bg-gray-200 data-[state=active]:bg-[#E02020] data-[state=active]:text-white rounded-full">
                   {tab.count}
                 </span>
@@ -81,7 +96,7 @@ const DashboardTabs = () => {
         </TabsList>
 
         <TabsContent value="products" className="space-y-4 mt-6">
-          <ProductsTab leasedProducts={leasedProducts} />
+          <ProductsTab leasedProducts={products} />
         </TabsContent>
 
         <TabsContent value="clusters" className="space-y-4 mt-6">
@@ -93,7 +108,7 @@ const DashboardTabs = () => {
         </TabsContent>
 
         <TabsContent value="payments" className="space-y-4 mt-6">
-          <PaymentsTab paymentsReceived={paymentsReceived} />
+          <PaymentsTab paymentsReceived={payments} />
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4 mt-6">
