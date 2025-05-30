@@ -39,31 +39,32 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({ analytics, equipmentN
   const efficiencyTrend = currentEfficiency - previousEfficiency;
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="space-y-8">
+      {/* Metrics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         <Card className="border-l-4 border-l-[#E02020]">
-          <CardContent className="p-4">
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Usage</p>
-                <p className="text-2xl font-bold text-[#333333]">{totalUsage}h</p>
+                <p className="text-sm text-gray-600 mb-1">Total Usage</p>
+                <p className="text-3xl font-bold text-[#333333]">{totalUsage}h</p>
               </div>
-              <Activity className="h-8 w-8 text-[#E02020]" />
+              <Activity className="h-10 w-10 text-[#E02020]" />
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-l-4 border-l-green-500">
-          <CardContent className="p-4">
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Efficiency</p>
-                <div className="flex items-center space-x-1">
-                  <p className="text-2xl font-bold text-[#333333]">{averageEfficiency.toFixed(1)}%</p>
+                <p className="text-sm text-gray-600 mb-1">Efficiency</p>
+                <div className="flex items-center space-x-2">
+                  <p className="text-3xl font-bold text-[#333333]">{averageEfficiency.toFixed(1)}%</p>
                   {efficiencyTrend > 0 ? (
-                    <TrendingUp className="h-4 w-4 text-green-500" />
+                    <TrendingUp className="h-5 w-5 text-green-500" />
                   ) : (
-                    <TrendingDown className="h-4 w-4 text-red-500" />
+                    <TrendingDown className="h-5 w-5 text-red-500" />
                   )}
                 </div>
               </div>
@@ -72,47 +73,56 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({ analytics, equipmentN
         </Card>
 
         <Card className="border-l-4 border-l-blue-500">
-          <CardContent className="p-4">
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Revenue</p>
-                <p className="text-2xl font-bold text-[#333333]">${totalRevenue.toLocaleString()}</p>
+                <p className="text-sm text-gray-600 mb-1">Revenue</p>
+                <p className="text-3xl font-bold text-[#333333]">${totalRevenue.toLocaleString()}</p>
               </div>
-              <DollarSign className="h-8 w-8 text-blue-500" />
+              <DollarSign className="h-10 w-10 text-blue-500" />
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-l-4 border-l-yellow-500">
-          <CardContent className="p-4">
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Status</p>
+                <p className="text-sm text-gray-600 mb-1">Status</p>
                 <p className="text-lg font-semibold text-green-600">Online</p>
               </div>
-              <div className="h-3 w-3 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="h-4 w-4 bg-green-500 rounded-full animate-pulse"></div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-4">
             <CardTitle className="text-lg font-semibold text-[#333333]">Usage Trends</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-64">
+            <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
+                  <XAxis 
+                    dataKey="date" 
+                    tick={{ fontSize: 12, fill: '#666' }}
+                    tickLine={{ stroke: '#e0e0e0' }}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 12, fill: '#666' }}
+                    tickLine={{ stroke: '#e0e0e0' }}
+                  />
                   <Tooltip 
                     contentStyle={{ 
                       backgroundColor: 'white', 
                       border: '1px solid #E02020',
-                      borderRadius: '8px'
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
                     }}
                   />
                   <Area 
@@ -121,7 +131,7 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({ analytics, equipmentN
                     stroke="#E02020" 
                     fill="#E02020" 
                     fillOpacity={0.1}
-                    strokeWidth={2}
+                    strokeWidth={3}
                     name="Usage Hours"
                   />
                 </AreaChart>
@@ -131,21 +141,30 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({ analytics, equipmentN
         </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-4">
             <CardTitle className="text-lg font-semibold text-[#333333]">Efficiency Over Time</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-64">
+            <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} domain={[0, 100]} />
+                  <XAxis 
+                    dataKey="date" 
+                    tick={{ fontSize: 12, fill: '#666' }}
+                    tickLine={{ stroke: '#e0e0e0' }}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 12, fill: '#666' }}
+                    tickLine={{ stroke: '#e0e0e0' }}
+                    domain={[0, 100]} 
+                  />
                   <Tooltip 
                     contentStyle={{ 
                       backgroundColor: 'white', 
                       border: '1px solid #E02020',
-                      borderRadius: '8px'
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
                     }}
                     formatter={(value) => [`${Number(value).toFixed(1)}%`, 'Efficiency']}
                   />
@@ -154,8 +173,8 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({ analytics, equipmentN
                     dataKey="efficiency" 
                     stroke="#E02020" 
                     strokeWidth={3}
-                    dot={{ fill: '#E02020', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, stroke: '#E02020', strokeWidth: 2 }}
+                    dot={{ fill: '#E02020', strokeWidth: 2, r: 5 }}
+                    activeDot={{ r: 7, stroke: '#E02020', strokeWidth: 2 }}
                   />
                 </LineChart>
               </ResponsiveContainer>

@@ -30,7 +30,7 @@ const EquipmentTracking = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="container mx-auto py-6 space-y-6">
+        <div className="container mx-auto py-8 space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <Skeleton className="h-8 w-48 mb-2" />
@@ -39,13 +39,13 @@ const EquipmentTracking = () => {
             <Skeleton className="h-10 w-32" />
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="space-y-4">
               {[1, 2, 3].map(i => (
                 <Skeleton key={i} className="h-32 w-full" />
               ))}
             </div>
-            <div className="lg:col-span-3 space-y-4">
+            <div className="lg:col-span-2 space-y-4">
               <Skeleton className="h-96 w-full" />
             </div>
           </div>
@@ -56,14 +56,20 @@ const EquipmentTracking = () => {
   
   return (
     <Layout>
-      <div className="container mx-auto py-6 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="container mx-auto py-8 space-y-8">
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-[#333333]">Equipment Tracking</h1>
-            <p className="text-gray-600 mt-1">Monitor your equipment performance and usage in real-time</p>
+            <h1 className="text-3xl font-bold tracking-tight text-[#333333] mb-2">Equipment Tracking</h1>
+            <p className="text-gray-600">Monitor your equipment performance and usage in real-time</p>
           </div>
-          <div className="flex items-center space-x-2">
-            <Button onClick={handleRefresh} variant="outline" size="sm" className="border-[#E02020] text-[#E02020] hover:bg-[#E02020] hover:text-white">
+          <div className="flex items-center gap-3">
+            <Button 
+              onClick={handleRefresh} 
+              variant="outline" 
+              size="sm" 
+              className="border-[#E02020] text-[#E02020] hover:bg-[#E02020] hover:text-white"
+            >
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </Button>
@@ -76,50 +82,61 @@ const EquipmentTracking = () => {
         
         {equipmentList.length === 0 ? (
           <Card>
-            <CardContent className="p-12 text-center">
-              <div className="text-gray-400 mb-4">
-                <Zap className="h-16 w-16 mx-auto" />
+            <CardContent className="p-16 text-center">
+              <div className="text-gray-400 mb-6">
+                <Zap className="h-20 w-20 mx-auto" />
               </div>
-              <h3 className="text-xl font-semibold text-[#333333] mb-2">No Equipment Found</h3>
-              <p className="text-gray-600 mb-6">You don't have any equipment registered for tracking yet.</p>
+              <h3 className="text-xl font-semibold text-[#333333] mb-3">No Equipment Found</h3>
+              <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                You don't have any equipment registered for tracking yet.
+              </p>
               <Button className="bg-[#E02020] hover:bg-[#c01c1c] text-white">
                 Add Equipment
               </Button>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div className="space-y-4">
-              <Card>
-                <CardHeader className="pb-3">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Equipment List Sidebar */}
+            <div className="lg:col-span-1">
+              <Card className="h-fit">
+                <CardHeader className="pb-4">
                   <CardTitle className="text-lg font-semibold text-[#333333]">Your Equipment</CardTitle>
                   <p className="text-sm text-gray-600">{equipmentList.length} devices connected</p>
                 </CardHeader>
-                <CardContent className="pt-0 space-y-3 max-h-96 overflow-y-auto">
-                  {equipmentList.map(equipment => (
-                    <ModernEquipmentCard
-                      key={equipment.id}
-                      {...equipment}
-                      isSelected={selectedEquipmentId === equipment.id}
-                      onClick={() => setSelectedEquipmentId(equipment.id)}
-                    />
-                  ))}
+                <CardContent className="pt-0">
+                  <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                    {equipmentList.map(equipment => (
+                      <ModernEquipmentCard
+                        key={equipment.id}
+                        {...equipment}
+                        isSelected={selectedEquipmentId === equipment.id}
+                        onClick={() => setSelectedEquipmentId(equipment.id)}
+                      />
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             </div>
             
-            <div className="lg:col-span-3 space-y-6">
+            {/* Main Content Area */}
+            <div className="lg:col-span-2 space-y-8">
               {selectedEquipment && (
                 <>
+                  {/* Equipment Header */}
                   <Card className="border-t-4 border-t-[#E02020]">
                     <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <CardTitle className="text-xl font-bold text-[#333333]">{selectedEquipment.name}</CardTitle>
-                          <p className="text-gray-600">{selectedEquipment.category} • {selectedEquipment.location}</p>
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <CardTitle className="text-xl font-bold text-[#333333]">
+                            {selectedEquipment.name}
+                          </CardTitle>
+                          <p className="text-gray-600">
+                            {selectedEquipment.category} • {selectedEquipment.location}
+                          </p>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <div className="flex items-center space-x-1 text-green-600">
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2 text-green-600">
                             <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
                             <span className="text-sm font-medium">Live</span>
                           </div>
@@ -134,43 +151,44 @@ const EquipmentTracking = () => {
                     </CardHeader>
                   </Card>
 
+                  {/* Tabbed Content */}
                   <Tabs defaultValue="metrics" className="w-full">
-                    <TabsList className="grid w-full grid-cols-4 bg-gray-100 p-1 rounded-lg">
+                    <TabsList className="grid w-full grid-cols-4 bg-gray-50 p-1 rounded-lg h-12">
                       <TabsTrigger 
                         value="metrics" 
-                        className="data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm"
+                        className="data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm font-medium"
                       >
                         Real-time Metrics
                       </TabsTrigger>
                       <TabsTrigger 
                         value="iot" 
-                        className="data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm"
+                        className="data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm font-medium"
                       >
                         IoT Data
                       </TabsTrigger>
                       <TabsTrigger 
                         value="alerts" 
-                        className="data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm"
+                        className="data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm font-medium"
                       >
                         Alerts
                       </TabsTrigger>
                       <TabsTrigger 
                         value="settings" 
-                        className="data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm"
+                        className="data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm font-medium"
                       >
                         Settings
                       </TabsTrigger>
                     </TabsList>
                     
-                    <TabsContent value="metrics" className="mt-6">
+                    <TabsContent value="metrics" className="mt-8">
                       <RealTimeMetrics 
                         analytics={analytics} 
                         equipmentName={selectedEquipment.name}
                       />
                     </TabsContent>
                     
-                    <TabsContent value="iot" className="mt-6">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <TabsContent value="iot" className="mt-8">
+                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                         <IoTUsageTracker 
                           equipmentId={selectedEquipment.id}
                           pricePerUse={50}
@@ -181,17 +199,17 @@ const EquipmentTracking = () => {
                           </CardHeader>
                           <CardContent>
                             <div className="space-y-4">
-                              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                <span className="text-sm font-medium">Temperature</span>
-                                <span className="text-sm text-green-600">Normal (22°C)</span>
+                              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                                <span className="text-sm font-medium text-[#333333]">Temperature</span>
+                                <span className="text-sm text-green-600 font-medium">Normal (22°C)</span>
                               </div>
-                              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                <span className="text-sm font-medium">Vibration</span>
-                                <span className="text-sm text-green-600">Normal</span>
+                              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                                <span className="text-sm font-medium text-[#333333]">Vibration</span>
+                                <span className="text-sm text-green-600 font-medium">Normal</span>
                               </div>
-                              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                <span className="text-sm font-medium">Power Draw</span>
-                                <span className="text-sm text-blue-600">85W</span>
+                              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                                <span className="text-sm font-medium text-[#333333]">Power Draw</span>
+                                <span className="text-sm text-blue-600 font-medium">85W</span>
                               </div>
                             </div>
                           </CardContent>
@@ -199,33 +217,37 @@ const EquipmentTracking = () => {
                       </div>
                     </TabsContent>
                     
-                    <TabsContent value="alerts" className="mt-6">
+                    <TabsContent value="alerts" className="mt-8">
                       <Card>
                         <CardHeader>
                           <CardTitle className="text-lg font-semibold text-[#333333] flex items-center">
-                            <Bell className="h-5 w-5 mr-2" />
+                            <Bell className="h-5 w-5 mr-2 text-[#E02020]" />
                             Active Alerts
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <div className="space-y-4">
-                            <div className="p-4 border border-yellow-200 bg-yellow-50 rounded-lg">
+                          <div className="space-y-6">
+                            <div className="p-6 border border-yellow-200 bg-yellow-50 rounded-lg">
                               <div className="flex items-center justify-between">
                                 <div>
-                                  <p className="font-medium text-yellow-800">Maintenance Due</p>
+                                  <p className="font-medium text-yellow-800 mb-1">Maintenance Due</p>
                                   <p className="text-sm text-yellow-700">Regular maintenance is scheduled in 3 days</p>
                                 </div>
-                                <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded">Medium</span>
+                                <span className="text-xs bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full font-medium">
+                                  Medium
+                                </span>
                               </div>
                             </div>
                             
-                            <div className="p-4 border border-green-200 bg-green-50 rounded-lg">
+                            <div className="p-6 border border-green-200 bg-green-50 rounded-lg">
                               <div className="flex items-center justify-between">
                                 <div>
-                                  <p className="font-medium text-green-800">All Systems Normal</p>
+                                  <p className="font-medium text-green-800 mb-1">All Systems Normal</p>
                                   <p className="text-sm text-green-700">Equipment is operating within normal parameters</p>
                                 </div>
-                                <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">Info</span>
+                                <span className="text-xs bg-green-200 text-green-800 px-3 py-1 rounded-full font-medium">
+                                  Info
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -233,34 +255,34 @@ const EquipmentTracking = () => {
                       </Card>
                     </TabsContent>
                     
-                    <TabsContent value="settings" className="mt-6">
+                    <TabsContent value="settings" className="mt-8">
                       <Card>
                         <CardHeader>
                           <CardTitle className="text-lg font-semibold text-[#333333]">Equipment Settings</CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <div className="space-y-6">
+                          <div className="space-y-8">
                             <div>
-                              <h4 className="font-medium mb-2">Monitoring Preferences</h4>
-                              <div className="space-y-2">
-                                <label className="flex items-center">
-                                  <input type="checkbox" className="mr-2" defaultChecked />
-                                  Real-time data collection
+                              <h4 className="font-medium mb-4 text-[#333333]">Monitoring Preferences</h4>
+                              <div className="space-y-3">
+                                <label className="flex items-center space-x-3">
+                                  <input type="checkbox" className="mr-2 text-[#E02020]" defaultChecked />
+                                  <span className="text-sm">Real-time data collection</span>
                                 </label>
-                                <label className="flex items-center">
-                                  <input type="checkbox" className="mr-2" defaultChecked />
-                                  Alert notifications
+                                <label className="flex items-center space-x-3">
+                                  <input type="checkbox" className="mr-2 text-[#E02020]" defaultChecked />
+                                  <span className="text-sm">Alert notifications</span>
                                 </label>
-                                <label className="flex items-center">
-                                  <input type="checkbox" className="mr-2" />
-                                  Predictive maintenance
+                                <label className="flex items-center space-x-3">
+                                  <input type="checkbox" className="mr-2 text-[#E02020]" />
+                                  <span className="text-sm">Predictive maintenance</span>
                                 </label>
                               </div>
                             </div>
                             
                             <div>
-                              <h4 className="font-medium mb-2">Data Retention</h4>
-                              <select className="w-full p-2 border rounded-md">
+                              <h4 className="font-medium mb-4 text-[#333333]">Data Retention</h4>
+                              <select className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#E02020] focus:border-transparent">
                                 <option>30 days</option>
                                 <option>90 days</option>
                                 <option>1 year</option>
