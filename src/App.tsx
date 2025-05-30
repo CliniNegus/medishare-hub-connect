@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/toaster";
@@ -29,6 +28,7 @@ import ProductManagement from './pages/ProductManagement';
 import VirtualShops from './pages/VirtualShops';
 import ClientManagement from './pages/ClientManagement';
 import SystemManagement from './pages/SystemManagement';
+import EquipmentDetailsPage from './pages/EquipmentDetailsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -85,6 +85,14 @@ function App() {
                           <Layout>
                             <Inventory />
                           </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/equipment/:id" 
+                      element={
+                        <ProtectedRoute>
+                          <EquipmentDetailsPage />
                         </ProtectedRoute>
                       } 
                     />

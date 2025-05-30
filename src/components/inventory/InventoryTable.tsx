@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ items, onViewItem }) =>
   const [filter, setFilter] = useState<string>('all');
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const filteredItems = items.filter(item => 
     (item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -26,6 +28,11 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ items, onViewItem }) =>
      item.manufacturer.toLowerCase().includes(searchTerm.toLowerCase())) &&
     (filter === 'all' || item.category === filter)
   );
+
+  const handleViewDetails = (item: InventoryItem) => {
+    // Navigate to the equipment details page
+    navigate(`/equipment/${item.id}`);
+  };
 
   const handleEdit = async (item: InventoryItem) => {
     toast({
@@ -143,7 +150,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ items, onViewItem }) =>
                   <TableRow 
                     key={item.id} 
                     className="cursor-pointer hover:bg-gray-50 transition-colors"
-                    onClick={() => onViewItem(item.id)}
+                    onClick={() => handleViewDetails(item)}
                   >
                     <TableCell>
                       <div className="flex items-center gap-4">
@@ -215,7 +222,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ items, onViewItem }) =>
                           size="icon"
                           onClick={(e) => { 
                             e.stopPropagation(); 
-                            onViewItem(item.id);
+                            handleViewDetails(item);
                           }}
                           className="hover:bg-blue-50 hover:text-blue-600"
                         >
