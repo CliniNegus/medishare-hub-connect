@@ -129,7 +129,7 @@ const LeaseForm = ({ onSuccess, onCancel, userRole, userId }: LeaseFormProps) =>
         .insert({
           equipment_id: values.equipment_id,
           hospital_id: values.hospital_id,
-          investor_id: values.investor_id,
+          investor_id: values.investor_id || null, // Allow null for optional investor
           start_date: values.start_date.toISOString(),
           end_date: values.end_date.toISOString(),
           monthly_payment: parseFloat(values.monthly_payment),
@@ -226,17 +226,17 @@ const LeaseForm = ({ onSuccess, onCancel, userRole, userId }: LeaseFormProps) =>
               <FormItem>
                 <FormLabel>Investor (Optional)</FormLabel>
                 <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
+                  onValueChange={(value) => field.onChange(value === "none" ? "" : value)}
+                  defaultValue={field.value || "none"}
                   disabled={loading || userRole === 'investor'}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select investor" />
+                      <SelectValue placeholder="Select investor or leave empty" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="none">No Investor</SelectItem>
                     {investors.map((investor) => (
                       <SelectItem key={investor.id} value={investor.id}>
                         {investor.organization || investor.email}
