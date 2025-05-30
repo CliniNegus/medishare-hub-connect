@@ -13,7 +13,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
-import { format } from 'date-fns';
 import MaintenanceAlertsSection from './maintenance/MaintenanceAlertsSection';
 import ScheduleMaintenanceModal from './maintenance/ScheduleMaintenanceModal';
 import EditMaintenanceModal from './maintenance/EditMaintenanceModal';
@@ -44,6 +43,26 @@ const MaintenanceManagement = ({ maintenanceSchedule: propSchedule, maintenanceA
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedMaintenance, setSelectedMaintenance] = useState<Maintenance | null>(null);
   const { toast } = useToast();
+
+  // Safe date formatting function
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'No date';
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return 'Invalid date';
+      }
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid date';
+    }
+  };
 
   const fetchMaintenanceSchedule = async () => {
     try {
@@ -207,7 +226,7 @@ const MaintenanceManagement = ({ maintenanceSchedule: propSchedule, maintenanceA
                     <TableCell>
                       <div className="flex items-center space-x-1">
                         <Clock className="h-3 w-3 text-gray-500" />
-                        <span>{format(new Date(item.scheduled_date), 'MMM dd, yyyy')}</span>
+                        <span>{formatDate(item.scheduled_date)}</span>
                       </div>
                     </TableCell>
                     <TableCell>

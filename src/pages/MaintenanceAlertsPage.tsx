@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useNavigate } from 'react-router-dom';
 import { useMaintenanceAlerts } from '@/hooks/useMaintenanceAlerts';
-import { format } from 'date-fns';
 import ScheduleMaintenanceModal from '@/components/admin/maintenance/ScheduleMaintenanceModal';
 
 const MaintenanceAlertsPage = () => {
@@ -23,6 +22,26 @@ const MaintenanceAlertsPage = () => {
   const [selectedAlert, setSelectedAlert] = useState(null);
 
   const alertCounts = getAlertCounts();
+
+  // Safe date formatting function
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'No date';
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return 'Invalid date';
+      }
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid date';
+    }
+  };
 
   const handleFilterChange = () => {
     filterAlerts({
@@ -251,7 +270,7 @@ const MaintenanceAlertsPage = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {format(new Date(alert.created_at), 'MMM dd, yyyy')}
+                        {formatDate(alert.created_at)}
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">

@@ -9,9 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { CalendarDays, Clock, FileText, Calendar as CalendarIcon, Settings } from "lucide-react";
 import { EquipmentProps } from '../EquipmentCard';
-import { format, addDays } from 'date-fns';
+import { addDays } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface MaintenanceSchedulerProps {
   equipmentData: EquipmentProps[];
@@ -55,6 +55,20 @@ const MaintenanceScheduler: React.FC<MaintenanceSchedulerProps> = ({
     }
   ]);
 
+  // Safe date formatting function
+  const formatDate = (date: Date) => {
+    try {
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid date';
+    }
+  };
+
   const handleSchedule = () => {
     if (!selectedEquipmentId || !date) {
       toast({
@@ -81,7 +95,7 @@ const MaintenanceScheduler: React.FC<MaintenanceSchedulerProps> = ({
     
     toast({
       title: "Maintenance Scheduled",
-      description: `${equipment.name} maintenance scheduled for ${format(date, 'PPP')}`,
+      description: `${equipment.name} maintenance scheduled for ${formatDate(date)}`,
     });
 
     // Reset form
@@ -227,7 +241,7 @@ const MaintenanceScheduler: React.FC<MaintenanceSchedulerProps> = ({
                       <TableCell>
                         <div className="flex items-center">
                           <CalendarIcon className="h-4 w-4 mr-2 text-gray-500" />
-                          {format(item.date, 'PPP')}
+                          {formatDate(item.date)}
                         </div>
                       </TableCell>
                       <TableCell>
