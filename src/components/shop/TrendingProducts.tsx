@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ShoppingCart, ChevronLeft, ChevronRight, Star, TrendingUp } from "lucide-react";
+import { ShoppingCart, ChevronLeft, ChevronRight, Star, TrendingUp, Eye } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
 import ProductDetailsModal from './ProductDetailsModal';
 import { useTrendingProducts } from '@/hooks/use-trending-products';
@@ -32,14 +32,14 @@ const TrendingProducts = () => {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-gradient-to-br from-red-50 to-red-100 rounded-lg">
-              <TrendingUp className="h-5 w-5 text-red-600" />
+            <div className="p-3 bg-gradient-to-br from-red-50 to-red-100 rounded-xl">
+              <TrendingUp className="h-6 w-6 text-red-600" />
             </div>
             <div>
-              <Skeleton className="h-6 w-40 mb-1" />
+              <Skeleton className="h-6 w-40 mb-2" />
               <Skeleton className="h-4 w-64" />
             </div>
           </div>
@@ -48,7 +48,7 @@ const TrendingProducts = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {Array.from({ length: 4 }).map((_, idx) => (
             <Card key={idx} className="overflow-hidden border-0 shadow-lg">
-              <div className="h-48 bg-gray-100"></div>
+              <div className="h-48 bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse"></div>
               <CardContent className="p-5">
                 <Skeleton className="h-4 w-3/4 mb-2" />
                 <Skeleton className="h-4 w-1/2 mb-4" />
@@ -68,11 +68,11 @@ const TrendingProducts = () => {
   const visibleProducts = products.slice(currentIndex, currentIndex + 4);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+      <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-gradient-to-br from-red-50 to-red-100 rounded-lg">
-            <TrendingUp className="h-5 w-5 text-red-600" />
+          <div className="p-3 bg-gradient-to-br from-red-50 to-red-100 rounded-xl">
+            <TrendingUp className="h-6 w-6 text-red-600" />
           </div>
           <div>
             <h3 className="text-xl font-bold text-gray-900">Trending Products</h3>
@@ -86,7 +86,7 @@ const TrendingProducts = () => {
             size="icon" 
             onClick={handlePrevious} 
             disabled={currentIndex === 0}
-            className="h-10 w-10 rounded-full border-gray-200 hover:border-red-300 hover:bg-red-50"
+            className="h-10 w-10 rounded-full border-gray-200 hover:border-red-300 hover:bg-red-50 transition-all duration-300"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -95,7 +95,7 @@ const TrendingProducts = () => {
             size="icon" 
             onClick={handleNext} 
             disabled={currentIndex >= products.length - 4}
-            className="h-10 w-10 rounded-full border-gray-200 hover:border-red-300 hover:bg-red-50"
+            className="h-10 w-10 rounded-full border-gray-200 hover:border-red-300 hover:bg-red-50 transition-all duration-300"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -104,7 +104,7 @@ const TrendingProducts = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {visibleProducts.map((product) => (
-          <Card key={product.id} className="group overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <Card key={product.id} className="group overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white">
             <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
               <img 
                 src={product.image_url || "/placeholder.svg"} 
@@ -128,7 +128,7 @@ const TrendingProducts = () => {
               
               {product.stock_quantity <= 0 && (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                  <Badge variant="destructive" className="text-white">Out of Stock</Badge>
+                  <Badge variant="destructive" className="text-white shadow-lg">Out of Stock</Badge>
                 </div>
               )}
             </div>
@@ -165,14 +165,16 @@ const TrendingProducts = () => {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="h-9 px-3 border-gray-200 hover:border-red-300 hover:bg-red-50"
+                    className="h-9 px-3 border-gray-200 hover:border-red-300 hover:bg-red-50 transition-all duration-300"
                     onClick={() => handleViewDetails(product)}
                   >
+                    <Eye className="h-3 w-3 mr-1" />
                     View
                   </Button>
                   <Button 
                     size="sm" 
-                    className="h-9 px-3 bg-red-600 hover:bg-red-700 shadow-md"
+                    variant="primary-red"
+                    className="h-9 px-3 shadow-md hover:shadow-lg transition-all duration-300"
                     onClick={() => addToCart(product)}
                     disabled={product.stock_quantity <= 0}
                   >
