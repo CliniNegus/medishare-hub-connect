@@ -1,13 +1,17 @@
 
 import React from 'react';
-import { Building, Package, Activity, DollarSign, TrendingUp } from 'lucide-react';
+import { Building, Package, Activity, DollarSign, TrendingUp, Users, AlertTriangle, ShoppingCart } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 interface StatsProps {
   stats: {
     hospitals: number;
+    manufacturers: number;
+    investors: number;
     equipmentItems: number;
     activeLeases: number;
+    pendingOrders: number;
+    maintenanceAlerts: number;
     totalRevenue: number;
   };
 }
@@ -17,7 +21,7 @@ const AdminStatsCards = ({ stats }: StatsProps) => {
     {
       title: "Total Hospitals",
       value: stats.hospitals,
-      change: "+2 this month",
+      change: `${stats.hospitals} registered`,
       icon: Building,
       gradient: "from-blue-500 to-blue-600",
       bgGradient: "from-blue-50 to-blue-100",
@@ -25,26 +29,58 @@ const AdminStatsCards = ({ stats }: StatsProps) => {
     {
       title: "Equipment Items",
       value: stats.equipmentItems,
-      change: "+12 this month",
+      change: `${stats.activeLeases} active leases`,
       icon: Package,
       gradient: "from-green-500 to-green-600",
       bgGradient: "from-green-50 to-green-100",
     },
     {
+      title: "Manufacturers",
+      value: stats.manufacturers,
+      change: `${stats.investors} investors`,
+      icon: Users,
+      gradient: "from-purple-500 to-purple-600",
+      bgGradient: "from-purple-50 to-purple-100",
+    },
+    {
+      title: "Pending Orders",
+      value: stats.pendingOrders,
+      change: `${stats.maintenanceAlerts} maintenance alerts`,
+      icon: ShoppingCart,
+      gradient: "from-orange-500 to-orange-600",
+      bgGradient: "from-orange-50 to-orange-100",
+    },
+    {
       title: "Active Leases",
       value: stats.activeLeases,
-      change: "+7 this month",
+      change: "Currently active",
       icon: Activity,
       gradient: "from-[#E02020] to-[#c01010]",
       bgGradient: "from-red-50 to-red-100",
     },
     {
-      title: "Total Revenue",
+      title: "Maintenance Alerts",
+      value: stats.maintenanceAlerts,
+      change: "Require attention",
+      icon: AlertTriangle,
+      gradient: "from-yellow-500 to-yellow-600",
+      bgGradient: "from-yellow-50 to-yellow-100",
+    },
+    {
+      title: "Annual Revenue",
       value: `$${(stats.totalRevenue / 1000).toFixed(0)}k`,
-      change: "+8.2% from last month",
+      change: "From active leases",
       icon: DollarSign,
-      gradient: "from-purple-500 to-purple-600",
-      bgGradient: "from-purple-50 to-purple-100",
+      gradient: "from-emerald-500 to-emerald-600",
+      bgGradient: "from-emerald-50 to-emerald-100",
+    },
+    {
+      title: "Total Users",
+      value: stats.manufacturers + stats.investors + stats.hospitals,
+      change: "Platform users",
+      icon: Users,
+      gradient: "from-indigo-500 to-indigo-600",
+      bgGradient: "from-indigo-50 to-indigo-100",
     },
   ];
 

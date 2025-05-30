@@ -21,16 +21,16 @@ export const useEquipmentData = (activeTab: string, initialEquipment: Equipment[
           const { data } = await supabase
             .from('equipment')
             .select('*')
-            .limit(10);
+            .order('created_at', { ascending: false })
+            .limit(20);
           
           if (data) {
             const formattedData = data.map(item => ({
               id: item.id,
-              name: item.name,
-              // Use category as manufacturer since manufacturer field doesn't exist
-              manufacturer: item.category || 'Unknown',
-              status: item.status || 'Unknown',
-              location: 'Warehouse' // Default location
+              name: item.name || 'Unnamed Equipment',
+              manufacturer: item.manufacturer || item.category || 'Unknown Manufacturer',
+              status: item.status || 'Available',
+              location: item.location || 'Warehouse'
             }));
             
             setEquipment(formattedData);
@@ -41,8 +41,23 @@ export const useEquipmentData = (activeTab: string, initialEquipment: Equipment[
       };
       
       fetchEquipment();
+
+      // Set up real-time subscription for equipment tab
+      const channel = supabase
+        .channel('admin-equipment-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'equipment' }, () => {
+          fetchEquipment();
+        })
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    } else {
+      // Use initial equipment data for overview tab
+      setEquipment(initialEquipment);
     }
-  }, [activeTab]);
+  }, [activeTab, initialEquipment]);
 
   return { equipment };
 };

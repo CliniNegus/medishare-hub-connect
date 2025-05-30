@@ -4,6 +4,8 @@ import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
 import TabContent from '@/components/admin/TabContent';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
+import { useAdminDashboardData } from '@/hooks/useAdminDashboardData';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -11,39 +13,59 @@ const AdminDashboard = () => {
   // Initialize admin notifications
   useAdminNotifications();
 
-  // Sample data
-  const stats = {
-    hospitals: 28,
-    manufacturers: 12,
-    investors: 8,
-    equipmentItems: 145,
-    activeLeases: 87,
-    pendingOrders: 14,
-    maintenanceAlerts: 5,
-    totalRevenue: 1250000
-  };
+  // Fetch real-time dashboard data
+  const {
+    stats,
+    recentEquipment,
+    maintenanceSchedule,
+    recentTransactions,
+    loading
+  } = useAdminDashboardData();
 
-  const recentEquipment = [
-    { id: 'EQ001', name: 'MRI Scanner X9', manufacturer: 'MediTech', status: 'Leased', location: 'City Hospital' },
-    { id: 'EQ002', name: 'CT Scanner Ultra', manufacturer: 'HealthImage', status: 'Available', location: 'Warehouse' },
-    { id: 'EQ003', name: 'Portable X-Ray', manufacturer: 'RadiTech', status: 'Maintenance', location: 'Service Center' },
-    { id: 'EQ004', name: 'Ultrasound Machine', manufacturer: 'SonoHealth', status: 'Leased', location: 'County Clinic' },
-    { id: 'EQ005', name: 'Patient Monitor', manufacturer: 'VitalTech', status: 'Leased', location: 'Memorial Hospital' }
-  ];
-
-  const maintenanceSchedule = [
-    { id: 'MS001', equipment: 'MRI Scanner X9', location: 'City Hospital', date: '2025-04-20', type: 'Preventive' },
-    { id: 'MS002', equipment: 'CT Scanner Ultra', location: 'Warehouse', date: '2025-04-22', type: 'Calibration' },
-    { id: 'MS003', equipment: 'Portable X-Ray', location: 'Service Center', date: '2025-04-18', type: 'Repair' },
-    { id: 'MS004', equipment: 'Ultrasound Machine', location: 'County Clinic', date: '2025-04-25', type: 'Preventive' }
-  ];
-
-  const recentTransactions = [
-    { id: 'TR001', date: '2025-04-12', description: 'Equipment Lease Payment', amount: 12500, type: 'Income' },
-    { id: 'TR002', date: '2025-04-10', description: 'Maintenance Service Fee', amount: 1800, type: 'Income' },
-    { id: 'TR003', date: '2025-04-09', description: 'Investor Dividend Payment', amount: 5200, type: 'Expense' },
-    { id: 'TR004', date: '2025-04-07', description: 'New Equipment Purchase', amount: 78000, type: 'Expense' }
-  ];
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+        <div className="flex">
+          <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+          <div className="ml-64 flex-1">
+            <div className="min-h-screen">
+              <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
+                <AdminHeader />
+              </div>
+              
+              <main className="p-6">
+                <div className="space-y-6">
+                  {/* Loading skeleton for stats cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+                        <div className="flex items-center justify-between mb-4">
+                          <Skeleton className="h-4 w-24" />
+                          <Skeleton className="h-10 w-10 rounded-xl" />
+                        </div>
+                        <Skeleton className="h-8 w-16 mb-2" />
+                        <Skeleton className="h-4 w-20" />
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Loading skeleton for content */}
+                  <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+                    <Skeleton className="h-8 w-48 mb-4" />
+                    <div className="space-y-3">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Skeleton key={i} className="h-12 w-full" />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </main>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
