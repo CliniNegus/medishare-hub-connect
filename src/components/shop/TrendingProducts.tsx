@@ -2,18 +2,20 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useProducts, Product } from '@/hooks/use-products';
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
+import { ShoppingCart, ChevronLeft, ChevronRight, Star, TrendingUp } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
 import ProductDetailsModal from './ProductDetailsModal';
+import { useTrendingProducts } from '@/hooks/use-trending-products';
+import { Product } from '@/hooks/use-products';
 
 const TrendingProducts = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const { addToCart } = useCart();
-  const { products, loading } = useProducts({ featured: true });
+  const { products, loading } = useTrendingProducts();
   
   const handleViewDetails = (product: Product) => {
     setSelectedProduct(product);
@@ -30,16 +32,24 @@ const TrendingProducts = () => {
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold">Trending Products</h3>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-gradient-to-br from-red-50 to-red-100 rounded-lg">
+              <TrendingUp className="h-5 w-5 text-red-600" />
+            </div>
+            <div>
+              <Skeleton className="h-6 w-40 mb-1" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+          </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {Array.from({ length: 4 }).map((_, idx) => (
-            <Card key={idx} className="overflow-hidden">
-              <div className="h-40 bg-gray-100"></div>
-              <CardContent className="p-4">
+            <Card key={idx} className="overflow-hidden border-0 shadow-lg">
+              <div className="h-48 bg-gray-100"></div>
+              <CardContent className="p-5">
                 <Skeleton className="h-4 w-3/4 mb-2" />
                 <Skeleton className="h-4 w-1/2 mb-4" />
                 <Skeleton className="h-6 w-20" />
@@ -58,15 +68,25 @@ const TrendingProducts = () => {
   const visibleProducts = products.slice(currentIndex, currentIndex + 4);
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Trending Products</h3>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-gradient-to-br from-red-50 to-red-100 rounded-lg">
+            <TrendingUp className="h-5 w-5 text-red-600" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-gray-900">Trending Products</h3>
+            <p className="text-sm text-gray-600">Most popular items this week</p>
+          </div>
+        </div>
+        
         <div className="flex gap-2">
           <Button 
             variant="outline" 
             size="icon" 
             onClick={handlePrevious} 
             disabled={currentIndex === 0}
+            className="h-10 w-10 rounded-full border-gray-200 hover:border-red-300 hover:bg-red-50"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -75,45 +95,89 @@ const TrendingProducts = () => {
             size="icon" 
             onClick={handleNext} 
             disabled={currentIndex >= products.length - 4}
+            className="h-10 w-10 rounded-full border-gray-200 hover:border-red-300 hover:bg-red-50"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {visibleProducts.map((product) => (
-          <Card key={product.id} className="overflow-hidden">
-            <div className="h-40 bg-gray-100 relative">
+          <Card key={product.id} className="group overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
               <img 
                 src={product.image_url || "/placeholder.svg"} 
                 alt={product.name} 
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
+              
+              {product.is_featured && (
+                <Badge className="absolute top-3 left-3 bg-gradient-to-r from-red-600 to-red-700 border-0 shadow-md">
+                  <TrendingUp className="h-3 w-3 mr-1" />
+                  Trending
+                </Badge>
+              )}
+              
+              {product.stock_quantity <= 10 && product.stock_quantity > 0 && (
+                <Badge variant="outline" className="absolute top-3 right-3 bg-white/90 border-orange-200 text-orange-700">
+                  Low Stock
+                </Badge>
+              )}
+              
+              {product.stock_quantity <= 0 && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                  <Badge variant="destructive" className="text-white">Out of Stock</Badge>
+                </div>
+              )}
             </div>
-            <CardContent className="p-4">
-              <h4 className="font-medium mb-1 line-clamp-1">{product.name}</h4>
-              <p className="text-sm text-gray-500 mb-2 line-clamp-2">
-                {product.description}
-              </p>
-              <div className="flex justify-between items-center">
-                <span className="font-semibold text-red-600">${product.price}</span>
-                <div className="flex gap-1">
+            
+            <CardContent className="p-5 space-y-4">
+              <div className="space-y-2">
+                <h4 className="font-semibold text-gray-900 line-clamp-1 group-hover:text-red-600 transition-colors">
+                  {product.name}
+                </h4>
+                <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                  {product.description}
+                </p>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700 border-0">
+                  {product.category}
+                </Badge>
+                {product.rating && (
+                  <div className="flex items-center space-x-1">
+                    <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                    <span className="text-xs font-medium text-gray-700">{product.rating}</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex items-center justify-between pt-2">
+                <div className="space-y-1">
+                  <span className="text-xl font-bold text-red-600">${product.price}</span>
+                  <p className="text-xs text-gray-500">{product.manufacturer}</p>
+                </div>
+                
+                <div className="flex gap-2">
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="h-8 px-2"
+                    className="h-9 px-3 border-gray-200 hover:border-red-300 hover:bg-red-50"
                     onClick={() => handleViewDetails(product)}
                   >
-                    Details
+                    View
                   </Button>
                   <Button 
                     size="sm" 
-                    className="h-8 px-2 bg-red-600 hover:bg-red-700"
+                    className="h-9 px-3 bg-red-600 hover:bg-red-700 shadow-md"
                     onClick={() => addToCart(product)}
                     disabled={product.stock_quantity <= 0}
                   >
-                    <ShoppingCart className="h-3 w-3" />
+                    <ShoppingCart className="h-3 w-3 mr-1" />
+                    Add
                   </Button>
                 </div>
               </div>
