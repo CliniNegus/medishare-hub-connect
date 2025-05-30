@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin } from "lucide-react";
+import EnhancedClusterMap, { EnhancedClusterNode } from './equipment/EnhancedClusterMap';
 
 export interface ClusterNode {
   id: string;
@@ -23,46 +22,33 @@ const ClusterMap: React.FC<ClusterMapProps> = ({
   selectedNodeId,
   onSelectNode
 }) => {
+  // Transform basic cluster nodes to enhanced cluster nodes
+  const enhancedNodes: EnhancedClusterNode[] = nodes.map(node => ({
+    ...node,
+    type: node.type as 'hospital' | 'clinic',
+    availableCount: Math.floor(node.equipmentCount * 0.6), // 60% available
+    inUseCount: Math.floor(node.equipmentCount * 0.3), // 30% in use
+    maintenanceCount: Math.floor(node.equipmentCount * 0.1), // 10% maintenance
+    status: Math.random() > 0.8 ? 'partial' : 'operational' as 'operational' | 'partial' | 'offline',
+    address: `${node.name} Medical Center, Lagos State`,
+    contact: '+234 801 234 5678',
+    lastUpdated: new Date().toISOString(),
+  }));
+
+  const handleRefresh = () => {
+    console.log('Refreshing cluster data...');
+    // In a real app, this would fetch fresh data from the API
+  };
+
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg">Equipment Cluster Map</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="aspect-video bg-gray-100 rounded-md relative overflow-hidden">
-          {/* Placeholder for actual map implementation */}
-          <div className="absolute inset-0 bg-medical-light flex items-center justify-center">
-            <div className="text-center text-gray-500">
-              <MapPin className="h-12 w-12 mx-auto text-medical-primary opacity-70" />
-              <p className="text-sm mt-2">Interactive cluster map will appear here</p>
-            </div>
-          </div>
-          
-          <div className="absolute bottom-3 left-3 bg-white p-3 rounded-md shadow-md max-h-48 overflow-y-auto w-64">
-            <h3 className="font-medium text-sm mb-2">Cluster Locations</h3>
-            <ul className="space-y-2">
-              {nodes.map(node => (
-                <li 
-                  key={node.id}
-                  className={`text-sm p-2 rounded-md cursor-pointer hover:bg-gray-100 flex items-center justify-between ${
-                    selectedNodeId === node.id ? 'bg-blue-50 border border-blue-200' : ''
-                  }`}
-                  onClick={() => onSelectNode && onSelectNode(node.id)}
-                >
-                  <div className="flex items-center">
-                    <div className={`h-2 w-2 rounded-full mr-2 ${
-                      node.type === 'hospital' ? 'bg-medical-primary' : 'bg-medical-secondary'
-                    }`} />
-                    <span>{node.name}</span>
-                  </div>
-                  <span className="text-xs text-gray-500">{node.equipmentCount}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <EnhancedClusterMap
+      nodes={enhancedNodes}
+      selectedNodeId={selectedNodeId}
+      onSelectNode={onSelectNode}
+      centerLat={6.5244}
+      centerLng={3.3792}
+      onRefresh={handleRefresh}
+    />
   );
 };
 
