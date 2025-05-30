@@ -33,7 +33,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { role } = useUserRole();
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
   const [accountTypeModalOpen, setAccountTypeModalOpen] = useState(false);
@@ -79,6 +79,18 @@ const Header = () => {
     } finally {
       setIsDeleting(false);
     }
+  };
+
+  const getUserInitials = () => {
+    if (profile?.full_name) {
+      return profile.full_name
+        .split(' ')
+        .map((n: string) => n[0])
+        .join('')
+        .toUpperCase()
+        .substring(0, 2);
+    }
+    return user?.email?.substring(0, 2).toUpperCase() || 'U';
   };
 
   const navigationItems = [
@@ -139,39 +151,80 @@ const Header = () => {
             </nav>
             
             {/* Right Side Actions */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
               {user && (
                 <>
                   <UserRoleSelector />
                   <NotificationDropdown />
                   
-                  {/* Unified User Menu */}
+                  {/* Quick Settings Button */}
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => navigate('/profile')}
+                    className="hidden sm:flex items-center space-x-2 text-gray-700 hover:text-[#E02020] hover:bg-gray-50"
+                  >
+                    <Settings className="h-4 w-4" />
+                    <span className="hidden md:inline">Settings</span>
+                  </Button>
+                  
+                  {/* Quick Sign Out Button */}
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={handleSignOut}
+                    className="hidden sm:flex items-center space-x-2 text-gray-700 hover:text-[#E02020] hover:bg-gray-50"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span className="hidden md:inline">Sign Out</span>
+                  </Button>
+                  
+                  {/* User Avatar with Dropdown */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button 
                         variant="ghost" 
-                        size="sm"
-                        className="flex items-center space-x-2 text-gray-700 hover:text-[#E02020] hover:bg-gray-50"
+                        className="relative h-10 w-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 flex items-center justify-center transition-all duration-200 hover:shadow-md"
                       >
-                        <UserCircle className="h-5 w-5" />
-                        <span className="hidden sm:inline capitalize">{role}</span>
+                        <span className="font-semibold text-gray-700 text-sm">{getUserInitials()}</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuContent align="end" className="w-64 mr-4 mt-2 border-0 shadow-xl bg-white/95 backdrop-blur-md">
+                      <div className="p-4">
+                        <div className="flex flex-col space-y-2">
+                          <p className="text-base font-semibold leading-none text-[#333333]">
+                            {profile?.full_name || 'User'}
+                          </p>
+                          <p className="text-sm leading-none text-gray-500">
+                            {user?.email}
+                          </p>
+                          {profile?.organization && (
+                            <p className="text-xs leading-none text-gray-400 bg-gray-100 px-2 py-1 rounded-md inline-block">
+                              {profile.organization}
+                            </p>
+                          )}
+                          <div className="text-xs text-gray-400 capitalize">
+                            Role: {role}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <DropdownMenuSeparator className="bg-gray-100" />
+                      
                       <DropdownMenuItem onClick={() => navigate('/profile')}>
                         <UserCircle className="h-4 w-4 mr-2" />
                         Profile Management
                       </DropdownMenuItem>
                       
-                      <DropdownMenuItem onClick={() => navigate('/security-settings')}>
+                      <DropdownMenuItem onClick={() => navigate('/system')}>
                         <Settings className="h-4 w-4 mr-2" />
-                        Security Settings
+                        System Settings
                       </DropdownMenuItem>
                       
                       {role === 'admin' && (
                         <DropdownMenuItem onClick={() => navigate('/admin')}>
                           <LayoutDashboard className="h-4 w-4 mr-2" />
-                          Admin Settings
+                          Admin Dashboard
                         </DropdownMenuItem>
                       )}
                       
@@ -268,6 +321,32 @@ const Header = () => {
                 </Link>
               );
             })}
+            
+            {user && (
+              <>
+                <div className="border-t border-gray-200 pt-4 mt-4">
+                  <Link
+                    to="/profile"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-[#E02020] hover:bg-gray-50"
+                  >
+                    <Settings className="h-4 w-4" />
+                    <span>Settings</span>
+                  </Link>
+                  
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleSignOut();
+                    }}
+                    className="w-full flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-[#E02020] hover:bg-gray-50"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

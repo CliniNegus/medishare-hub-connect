@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import ChangeAccountTypeModal from './ChangeAccountTypeModal';
 import Sidebar from './navigation/Sidebar';
 import MobileNavigation from './navigation/MobileNavigation';
+import FloatingActionButton from './FloatingActionButton';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { HelpBar } from './help/HelpBar';
 import { TutorialProvider } from '@/contexts/TutorialContext';
@@ -68,6 +69,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         />
         
         {user && <HelpBar />}
+        {user && <FloatingActionButton />}
         
         <RoleDashboardTutorial />
       </div>
