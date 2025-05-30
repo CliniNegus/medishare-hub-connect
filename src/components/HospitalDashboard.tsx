@@ -19,9 +19,6 @@ import ShopTabContent from './hospital-dashboard/ShopTabContent';
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import HospitalDashboardTabs from './hospital-dashboard/HospitalDashboardTabs';
-import DashboardStatsSection from './hospital-dashboard/DashboardStatsSection';
-import RecentBookingsSection from './hospital-dashboard/RecentBookingsSection';
-import RecentOrdersSection from './hospital-dashboard/RecentOrdersSection';
 
 const HospitalDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -96,14 +93,67 @@ const HospitalDashboard = () => {
 
       {/* Main Content */}
       <div className="px-6 -mt-4 relative z-20">
-        {/* Quick Stats Overview - Now functional with real data */}
-        <DashboardStatsSection />
-
-        {/* Recent Activity Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <RecentBookingsSection />
-          <RecentOrdersSection />
-        </div>
+        {/* Quick Stats Overview */}
+        <Card className="mb-8 shadow-lg border-0">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-[#333333] flex items-center">
+                <Activity className="h-5 w-5 mr-2 text-[#E02020]" />
+                Hospital Overview
+              </h2>
+              <div className="flex items-center text-sm text-green-600 bg-green-50 px-3 py-1 rounded-full">
+                <TrendingUp className="h-4 w-4 mr-1" />
+                Equipment utilization: 87%
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-blue-600 font-medium">Available Equipment</p>
+                    <p className="text-2xl font-bold text-blue-800">24</p>
+                  </div>
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Activity className="h-5 w-5 text-blue-600" />
+                  </div>
+                </div>
+              </div>
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-green-600 font-medium">Active Bookings</p>
+                    <p className="text-2xl font-bold text-green-800">8</p>
+                  </div>
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <Activity className="h-5 w-5 text-green-600" />
+                  </div>
+                </div>
+              </div>
+              <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-purple-600 font-medium">Pending Orders</p>
+                    <p className="text-2xl font-bold text-purple-800">3</p>
+                  </div>
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Activity className="h-5 w-5 text-purple-600" />
+                  </div>
+                </div>
+              </div>
+              <div className="bg-[#E02020]/10 p-4 rounded-lg border border-[#E02020]/20">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-[#E02020] font-medium">Monthly Savings</p>
+                    <p className="text-2xl font-bold text-[#E02020]">$12.5k</p>
+                  </div>
+                  <div className="p-2 bg-[#E02020]/10 rounded-lg">
+                    <TrendingUp className="h-5 w-5 text-[#E02020]" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Dashboard Tabs */}
         <Card className="shadow-lg border-0 mb-8">
