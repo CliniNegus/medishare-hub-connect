@@ -10,7 +10,7 @@ import BookingsTabContent from './BookingsTabContent';
 import TherapyTabContent from './TherapyTabContent';
 import FinancingTabContent from './FinancingTabContent';
 import ShopTabContent from './ShopTabContent';
-import DashboardContent from '../dashboard/DashboardContent';
+import HospitalAnalyticsTab from './HospitalAnalyticsTab';
 import { EquipmentProps } from '../EquipmentCard';
 import { ClusterNode } from '../ClusterMap';
 
@@ -140,17 +140,7 @@ const HospitalDashboardTabs: React.FC<HospitalDashboardTabsProps> = ({
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4 mt-6">
-          <DashboardContent 
-            activeTab={activeTab}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            equipmentData={equipmentData}
-            clusterNodes={clusterNodes}
-            selectedClusterNode={selectedClusterNode}
-            setSelectedClusterNode={setSelectedClusterNode}
-            onBookEquipment={onBookEquipment}
-            recentTransactions={recentTransactions}
-          />
+          <HospitalAnalyticsTab />
         </TabsContent>
 
         <TabsContent value="therapy" className="space-y-4 mt-6">
