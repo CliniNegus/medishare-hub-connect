@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, Clock, Wrench, Eye, Calendar } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -24,6 +23,23 @@ interface MaintenanceAlert {
   scheduled_maintenance_date?: string;
 }
 
+// Type for raw data from Supabase
+interface RawMaintenanceAlert {
+  id: string;
+  equipment_id?: string;
+  equipment_name: string;
+  location: string;
+  issue_type: string;
+  issue_description: string;
+  urgency: string;
+  status: string;
+  last_service_date?: string;
+  created_at: string;
+  updated_at: string;
+  resolved_at?: string;
+  scheduled_maintenance_date?: string;
+}
+
 const MaintenanceAlertsSection = () => {
   const [alerts, setAlerts] = useState<MaintenanceAlert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,6 +47,27 @@ const MaintenanceAlertsSection = () => {
   const [selectedAlert, setSelectedAlert] = useState<MaintenanceAlert | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Helper function to safely convert raw data to typed alerts
+  const convertToMaintenanceAlert = (rawAlert: RawMaintenanceAlert): MaintenanceAlert => {
+    // Define valid values for each enum field
+    const validIssueTypes = ['calibration_overdue', 'preventive_maintenance', 'error_codes', 'inspection_required', 'repair_needed'];
+    const validUrgencies = ['low', 'medium', 'high', 'critical'];
+    const validStatuses = ['pending', 'scheduled', 'in_progress', 'resolved'];
+
+    return {
+      ...rawAlert,
+      issue_type: validIssueTypes.includes(rawAlert.issue_type) 
+        ? rawAlert.issue_type as MaintenanceAlert['issue_type']
+        : 'repair_needed', // fallback
+      urgency: validUrgencies.includes(rawAlert.urgency)
+        ? rawAlert.urgency as MaintenanceAlert['urgency']
+        : 'medium', // fallback
+      status: validStatuses.includes(rawAlert.status)
+        ? rawAlert.status as MaintenanceAlert['status']
+        : 'pending' // fallback
+    };
+  };
 
   const fetchMaintenanceAlerts = async () => {
     try {
@@ -43,7 +80,9 @@ const MaintenanceAlertsSection = () => {
 
       if (error) throw error;
 
-      setAlerts(data || []);
+      // Convert raw data to properly typed alerts
+      const typedAlerts = (data || []).map(convertToMaintenanceAlert);
+      setAlerts(typedAlerts);
     } catch (error: any) {
       console.error('Error fetching maintenance alerts:', error);
       toast({
