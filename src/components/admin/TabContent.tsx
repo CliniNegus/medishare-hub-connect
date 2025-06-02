@@ -39,9 +39,9 @@ const TabContent = ({
       case 'users':
         return <UserManagement />;
       case 'equipment':
-        return <EquipmentManagement />;
+        return <EquipmentManagement recentEquipment={recentEquipment} />;
       case 'financial':
-        return <FinancialManagement />;
+        return <FinancialManagement stats={stats} recentTransactions={recentTransactions} />;
       case 'maintenance':
         return <MaintenanceManagement />;
       case 'support':
