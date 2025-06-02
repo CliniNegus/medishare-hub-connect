@@ -7,8 +7,8 @@ import FinancialManagement from './FinancialManagement';
 import MaintenanceManagement from './MaintenanceManagement';
 import { SupportRequestsPanel } from './SupportRequestsPanel';
 import SettingsPanel from './SettingsPanel';
-import { OverviewTabContent } from './tabs/OverviewTabContent';
-import { ShopTabContent } from './tabs/ShopTabContent';
+import OverviewTabContent from './tabs/OverviewTabContent';
+import ShopTabContent from './tabs/ShopTabContent';
 
 interface TabContentProps {
   activeTab: string;
