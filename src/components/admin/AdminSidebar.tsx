@@ -1,15 +1,9 @@
 
 import React from 'react';
-import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 import { 
-  LayoutDashboard, 
-  Users, 
-  Package, 
-  Settings, 
-  DollarSign, 
-  Wrench,
-  MessageCircle,
-  FileText
+  Users, Package, Bell, Calendar, Settings, 
+  FileText, BarChart2, Clock, DollarSign, LogOut, Home
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -18,44 +12,101 @@ interface AdminSidebarProps {
 }
 
 const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
+  const navigate = useNavigate();
+
   const menuItems = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'users', label: 'User Management', icon: Users },
+    { id: 'overview', label: 'Dashboard', icon: BarChart2 },
     { id: 'equipment', label: 'Equipment', icon: Package },
-    { id: 'financial', label: 'Financial', icon: DollarSign },
-    { id: 'maintenance', label: 'Maintenance', icon: Wrench },
-    { id: 'support', label: 'Support Requests', icon: MessageCircle },
-    { id: 'shop', label: 'Shop Management', icon: FileText },
+    { id: 'users', label: 'Users', icon: Users },
+    { id: 'maintenance', label: 'Maintenance', icon: Clock },
+    { id: 'finance', label: 'Finance', icon: DollarSign },
+    { id: 'shop', label: 'Medical Shop', icon: Package },
+  ];
+
+  const secondaryItems = [
     { id: 'settings', label: 'Settings', icon: Settings },
+    { action: () => navigate('/dashboard'), label: 'User Dashboard', icon: Home },
+    { action: () => navigate('/'), label: 'Sign Out', icon: LogOut },
   ];
 
   return (
-    <div className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-20">
-      <div className="p-6 border-b border-gray-200">
-        <h1 className="text-2xl font-bold text-red-600">CliniBuilds</h1>
-        <p className="text-sm text-gray-500 mt-1">Admin Dashboard</p>
+    <div className="w-64 bg-gradient-to-b from-[#333333] to-black text-white h-screen fixed left-0 top-0 z-20 shadow-2xl">
+      {/* Logo Section with enhanced design */}
+      <div className="p-6 border-b border-gray-700/50 bg-gradient-to-r from-[#E02020]/10 to-transparent">
+        <div className="flex items-center">
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#E02020] to-[#c01010] mr-3 flex items-center justify-center shadow-lg">
+            <BarChart2 className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-white">CliniBuilds</h1>
+            <p className="text-xs text-gray-300">Admin Panel</p>
+          </div>
+        </div>
       </div>
-      
-      <nav className="mt-6">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={cn(
-                "w-full flex items-center px-6 py-3 text-left hover:bg-gray-50 transition-colors",
-                activeTab === item.id 
-                  ? "bg-red-50 text-red-600 border-r-2 border-red-600" 
-                  : "text-gray-700"
-              )}
-            >
-              <Icon className="h-5 w-5 mr-3" />
-              {item.label}
-            </button>
-          );
-        })}
+
+      {/* Main Navigation */}
+      <nav className="flex-1 p-4">
+        <div className="space-y-2">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center p-3 rounded-xl transition-all duration-200 group ${
+                  isActive 
+                    ? 'bg-gradient-to-r from-[#E02020] to-[#c01010] text-white shadow-lg transform scale-105' 
+                    : 'hover:bg-white/10 text-gray-300 hover:text-white hover:transform hover:scale-105'
+                }`}
+              >
+                <Icon className={`h-5 w-5 mr-3 transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                <span className="font-medium">{item.label}</span>
+                {isActive && (
+                  <div className="ml-auto w-2 h-2 bg-white rounded-full animate-pulse" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Secondary Navigation */}
+        <div className="pt-8 mt-8 border-t border-gray-700/50">
+          <div className="space-y-2">
+            {secondaryItems.map((item, index) => {
+              const Icon = item.icon;
+              const isActive = 'id' in item && activeTab === item.id;
+              
+              return (
+                <button
+                  key={index}
+                  onClick={() => {
+                    if ('action' in item) {
+                      item.action();
+                    } else if ('id' in item) {
+                      setActiveTab(item.id);
+                    }
+                  }}
+                  className={`w-full flex items-center p-3 rounded-xl transition-all duration-200 group ${
+                    isActive 
+                      ? 'bg-gradient-to-r from-[#E02020] to-[#c01010] text-white shadow-lg' 
+                      : 'hover:bg-white/10 text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <Icon className="h-5 w-5 mr-3 transition-transform duration-200 group-hover:scale-110" />
+                  <span className="font-medium">{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </nav>
+
+      {/* Bottom decoration */}
+      <div className="p-4">
+        <div className="h-1 bg-gradient-to-r from-[#E02020] to-[#c01010] rounded-full opacity-50" />
+      </div>
     </div>
   );
 };
