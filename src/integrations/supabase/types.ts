@@ -839,90 +839,43 @@ export type Database = {
         }
         Relationships: []
       }
-      support_conversations: {
-        Row: {
-          created_at: string
-          id: string
-          message: string
-          sender_id: string
-          sender_type: string
-          support_request_id: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          message: string
-          sender_id: string
-          sender_type: string
-          support_request_id: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          message?: string
-          sender_id?: string
-          sender_type?: string
-          support_request_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "support_conversations_support_request_id_fkey"
-            columns: ["support_request_id"]
-            isOneToOne: false
-            referencedRelation: "support_requests"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       support_requests: {
         Row: {
           admin_id: string | null
           admin_response: string | null
-          assigned_admin_id: string | null
           created_at: string
-          file_url: string | null
           id: string
           message: string
           priority: string | null
           resolved_at: string | null
           status: string | null
           subject: string
-          tags: string[] | null
           updated_at: string
           user_id: string
         }
         Insert: {
           admin_id?: string | null
           admin_response?: string | null
-          assigned_admin_id?: string | null
           created_at?: string
-          file_url?: string | null
           id?: string
           message: string
           priority?: string | null
           resolved_at?: string | null
           status?: string | null
           subject: string
-          tags?: string[] | null
           updated_at?: string
           user_id: string
         }
         Update: {
           admin_id?: string | null
           admin_response?: string | null
-          assigned_admin_id?: string | null
           created_at?: string
-          file_url?: string | null
           id?: string
           message?: string
           priority?: string | null
           resolved_at?: string | null
           status?: string | null
           subject?: string
-          tags?: string[] | null
           updated_at?: string
           user_id?: string
         }
