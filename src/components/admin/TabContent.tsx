@@ -1,74 +1,72 @@
 
 import React from 'react';
-import EquipmentManagement from './equipment/EquipmentManagement';
+import AdminStatsCards from './AdminStatsCards';
 import UserManagement from './UserManagement';
-import MaintenanceManagement from './MaintenanceManagement';
+import EquipmentManagement from './EquipmentManagement';
 import FinancialManagement from './FinancialManagement';
+import MaintenanceManagement from './MaintenanceManagement';
+import { SupportRequestsPanel } from './SupportRequestsPanel';
 import SettingsPanel from './SettingsPanel';
-import PredictiveAnalytics from './analytics/PredictiveAnalytics';
-import OverviewTabContent from './tabs/OverviewTabContent';
-import ShopTabContent from './tabs/ShopTabContent';
-import { useEquipmentData } from './hooks/useEquipmentData';
+import { OverviewTabContent } from './tabs/OverviewTabContent';
+import { ShopTabContent } from './tabs/ShopTabContent';
 
 interface TabContentProps {
   activeTab: string;
-  stats: {
-    hospitals: number;
-    manufacturers: number;
-    investors: number;
-    equipmentItems: number;
-    activeLeases: number;
-    pendingOrders: number;
-    maintenanceAlerts: number;
-    totalRevenue: number;
-  };
+  stats: any;
   recentEquipment: any[];
   maintenanceSchedule: any[];
   recentTransactions: any[];
 }
 
-const TabContent: React.FC<TabContentProps> = ({
-  activeTab,
-  stats,
-  recentEquipment: initialEquipment,
-  maintenanceSchedule,
-  recentTransactions,
-}) => {
-  const { equipment } = useEquipmentData(activeTab, initialEquipment);
+const TabContent = ({ 
+  activeTab, 
+  stats, 
+  recentEquipment, 
+  maintenanceSchedule, 
+  recentTransactions 
+}: TabContentProps) => {
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return (
+          <OverviewTabContent
+            stats={stats}
+            recentEquipment={recentEquipment}
+            maintenanceSchedule={maintenanceSchedule}
+            recentTransactions={recentTransactions}
+          />
+        );
+      case 'users':
+        return <UserManagement />;
+      case 'equipment':
+        return <EquipmentManagement />;
+      case 'financial':
+        return <FinancialManagement />;
+      case 'maintenance':
+        return <MaintenanceManagement />;
+      case 'support':
+        return <SupportRequestsPanel />;
+      case 'shop':
+        return <ShopTabContent />;
+      case 'settings':
+        return <SettingsPanel />;
+      default:
+        return (
+          <OverviewTabContent
+            stats={stats}
+            recentEquipment={recentEquipment}
+            maintenanceSchedule={maintenanceSchedule}
+            recentTransactions={recentTransactions}
+          />
+        );
+    }
+  };
 
-  switch (activeTab) {
-    case 'overview':
-      return (
-        <OverviewTabContent 
-          stats={stats}
-          recentEquipment={equipment}
-          maintenanceSchedule={maintenanceSchedule}
-          recentTransactions={recentTransactions}
-        />
-      );
-    case 'equipment':
-      return <EquipmentManagement />;
-    case 'users':
-      return <UserManagement stats={stats} />;
-    case 'maintenance':
-      return <MaintenanceManagement 
-        maintenanceSchedule={maintenanceSchedule} 
-        maintenanceAlerts={stats.maintenanceAlerts} 
-      />;
-    case 'finance':
-      return <FinancialManagement 
-        stats={stats} 
-        recentTransactions={recentTransactions} 
-      />;
-    case 'analytics':
-      return <PredictiveAnalytics />;
-    case 'settings':
-      return <SettingsPanel />;
-    case 'shop':
-      return <ShopTabContent />;
-    default:
-      return null;
-  }
+  return (
+    <div className="space-y-6">
+      {renderContent()}
+    </div>
+  );
 };
 
 export default TabContent;
