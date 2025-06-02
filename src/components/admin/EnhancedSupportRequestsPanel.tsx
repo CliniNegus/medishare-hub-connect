@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,15 +10,31 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Search, Filter, Reply, Eye, CheckCircle, Clock, AlertTriangle, Users } from 'lucide-react';
-import type { SupportRequest } from '@/types/support';
 
-interface EnhancedSupportRequest extends SupportRequest {
+interface SupportRequestData {
+  id: string;
+  user_id: string;
+  subject: string;
+  message: string;
+  created_at: string;
+  updated_at: string;
+  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  priority: 'low' | 'normal' | 'high' | 'urgent';
+  admin_response?: string;
+  admin_id?: string;
+  resolved_at?: string;
+  tags?: string[];
+  assigned_admin_id?: string;
+  file_url?: string;
+}
+
+interface EnhancedSupportRequest extends SupportRequestData {
   profiles?: {
     email: string;
     full_name: string;
     role: string;
     organization: string;
-  };
+  } | null;
 }
 
 interface Conversation {
@@ -52,7 +67,12 @@ export function EnhancedSupportRequestsPanel() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as EnhancedSupportRequest[];
+      
+      // Safely handle the data transformation
+      return (data || []).map((item: any) => ({
+        ...item,
+        profiles: Array.isArray(item.profiles) ? item.profiles[0] || null : item.profiles || null
+      })) as EnhancedSupportRequest[];
     }
   });
 
@@ -74,7 +94,11 @@ export function EnhancedSupportRequestsPanel() {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ id, status, adminResponse }: { id: string; status: string; adminResponse?: string }) => {
+    mutationFn: async ({ id, status, adminResponse }: { 
+      id: string; 
+      status: 'open' | 'in_progress' | 'resolved' | 'closed'; 
+      adminResponse?: string 
+    }) => {
       const updateData: any = { 
         status,
         updated_at: new Date().toISOString()
@@ -221,7 +245,7 @@ export function EnhancedSupportRequestsPanel() {
           <div className="flex gap-2">
             <Select
               value={selectedRequest.status}
-              onValueChange={(status) => {
+              onValueChange={(status: 'open' | 'in_progress' | 'resolved' | 'closed') => {
                 updateStatusMutation.mutate({ id: selectedRequest.id, status });
                 setSelectedRequest({ ...selectedRequest, status });
               }}
@@ -253,7 +277,7 @@ export function EnhancedSupportRequestsPanel() {
                     {selectedRequest.priority?.toUpperCase()}
                   </Badge>
                   <Badge variant="outline">
-                    {getRoleIcon(selectedRequest.profiles?.role)} {selectedRequest.profiles?.role}
+                    {getRoleIcon(selectedRequest.profiles?.role || '')} {selectedRequest.profiles?.role}
                   </Badge>
                 </div>
               </div>
@@ -472,7 +496,7 @@ export function EnhancedSupportRequestsPanel() {
                       {request.priority?.toUpperCase()}
                     </Badge>
                     <Badge variant="outline">
-                      {getRoleIcon(request.profiles?.role)} {request.profiles?.role}
+                      {getRoleIcon(request.profiles?.role || '')} {request.profiles?.role}
                     </Badge>
                   </div>
                   <p className="text-gray-600 mb-3 line-clamp-2">{request.message}</p>
