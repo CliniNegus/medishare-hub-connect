@@ -8,16 +8,26 @@ import {
   Briefcase, DollarSign, Building, FilePlus, BarChart2,
   Calendar, FileSpreadsheet, HelpCircle, Check, X, 
   Map, Hospital, Users, AlertCircle, FileText, LogOut, UserCog,
-  Sparkles, Activity, Target, Clock
+  Sparkles, Activity, Target, Clock, Bell
 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from 'react-router-dom';
 import ChangeAccountTypeModal from "@/components/ChangeAccountTypeModal";
 import InvestmentForm from "@/components/investment/InvestmentForm";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import InvestorWallet from "@/components/InvestorWallet";
 
 interface Investment {
@@ -220,6 +230,7 @@ const InvestorDashboard = () => {
 
   const { profile, user, signOut } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchInvestments = async () => {
@@ -281,16 +292,18 @@ const InvestorDashboard = () => {
     console.log(`Rejected request: ${requestId}`);
   }, []);
 
-  const handleSignOut = useCallback(async (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleSignOut = useCallback(async () => {
     try {
+      console.log('Signing out investor...');
       await signOut();
+      navigate('/auth');
       toast({
-        title: "Logged out successfully",
-        description: "You have been signed out of your account",
+        title: "Signed out successfully",
+        description: "You have been logged out of your account",
         duration: 3000,
       });
     } catch (error: any) {
+      console.error('Error signing out:', error);
       toast({
         title: "Error signing out",
         description: error.message,
@@ -298,10 +311,9 @@ const InvestorDashboard = () => {
         duration: 5000,
       });
     }
-  }, [signOut, toast]);
+  }, [signOut, toast, navigate]);
 
-  const handleChangeAccountType = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleChangeAccountType = useCallback(() => {
     setChangeAccountTypeOpen(true);
   }, []);
 
@@ -351,208 +363,274 @@ const InvestorDashboard = () => {
     }
   };
 
+  const getUserInitials = () => {
+    if (profile?.full_name) {
+      return profile.full_name
+        .split(' ')
+        .map((n: string) => n[0])
+        .join('')
+        .toUpperCase()
+        .substring(0, 2);
+    }
+    return user?.email?.substring(0, 2).toUpperCase() || 'I';
+  };
+
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
-      {/* Hero Section with Gradient Background */}
+      {/* Modern Hero Section with Streamlined Navbar */}
       <div className="relative bg-gradient-to-r from-[#E02020] to-[#c01c1c] text-white">
-        <div className="absolute inset-0 bg-black opacity-10"></div>
-        <div className="relative z-10 px-6 py-8">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative z-10 px-6 py-6">
           <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-3xl lg:text-4xl font-bold">Investor Dashboard</h1>
-                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                    <Sparkles className="h-3 w-3 mr-1" />
-                    Premium
-                  </Badge>
-                </div>
-                <div className="space-y-1">
+            <div className="flex justify-between items-center">
+              {/* Left Section - Brand and Welcome */}
+              <div className="flex items-center space-x-6">
+                <div>
+                  <div className="flex items-center gap-3 mb-1">
+                    <h1 className="text-2xl lg:text-3xl font-bold text-white">Investor Hub</h1>
+                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      Premium
+                    </Badge>
+                  </div>
                   {profile && (
-                    <p className="text-white/90 text-lg">
+                    <p className="text-white/90">
                       Welcome back, {profile.full_name || user?.email?.split('@')[0]}
                     </p>
                   )}
                   {profile?.organization && (
-                    <p className="text-white/75 flex items-center">
-                      <Building className="h-4 w-4 mr-1" />
+                    <p className="text-white/75 text-sm flex items-center mt-1">
+                      <Building className="h-3 w-3 mr-1" />
                       {profile.organization}
                     </p>
                   )}
                 </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                <Button 
-                  variant="outline" 
-                  className="bg-white/10 border-white/30 text-white hover:bg-white hover:text-[#E02020] transition-all duration-200 backdrop-blur-sm"
-                  onClick={handleChangeAccountType}
+              {/* Right Section - Actions and User Menu */}
+              <div className="flex items-center space-x-4">
+                {/* Quick Action - New Investment */}
+                <div className="hidden md:flex">
+                  <Dialog open={investmentDialogOpen} onOpenChange={setInvestmentDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button 
+                        className="bg-white text-[#E02020] hover:bg-white/90 font-medium"
+                        onClick={() => {
+                          setDialogTabValue('investment-form');
+                          setInvestmentDialogOpen(true);
+                        }}
+                      >
+                        <FilePlus className="mr-2 h-4 w-4" />
+                        New Investment
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl">
+                      <DialogHeader>
+                        <DialogTitle>New Investment</DialogTitle>
+                        <DialogDescription>
+                          Create a new investment or browse investment opportunities.
+                        </DialogDescription>
+                      </DialogHeader>
+                      
+                      <div className="py-4">
+                        <Tabs defaultValue={dialogTabValue} value={dialogTabValue} onValueChange={setDialogTabValue} className="w-full">
+                          <TabsList className="mb-4">
+                            <TabsTrigger value="investment-form">
+                              <FilePlus className="h-4 w-4 mr-2" />
+                              Create Investment
+                            </TabsTrigger>
+                            <TabsTrigger value="requests">
+                              <FileText className="h-4 w-4 mr-2" />
+                              Funding Requests
+                            </TabsTrigger>
+                            <TabsTrigger value="clusters">
+                              <Map className="h-4 w-4 mr-2" />
+                              Hospital Clusters
+                            </TabsTrigger>
+                          </TabsList>
+                          
+                          <TabsContent value="investment-form">
+                            <InvestmentForm 
+                              onSuccess={handleInvestmentSuccess}
+                              onCancel={() => setInvestmentDialogOpen(false)}
+                            />
+                          </TabsContent>
+                          
+                          <TabsContent value="requests">
+                            <Card>
+                              <CardContent className="p-0">
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow>
+                                      <TableHead>Hospital</TableHead>
+                                      <TableHead>Equipment</TableHead>
+                                      <TableHead>Amount</TableHead>
+                                      <TableHead>Term</TableHead>
+                                      <TableHead>Expected ROI</TableHead>
+                                      <TableHead>Date</TableHead>
+                                      <TableHead>Actions</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {fundingRequests.map((request) => (
+                                      <TableRow key={request.id}>
+                                        <TableCell>
+                                          <div>
+                                            <div className="font-medium">{request.hospital}</div>
+                                            <div className="text-xs text-gray-500">{request.cluster}</div>
+                                          </div>
+                                        </TableCell>
+                                        <TableCell>{request.equipment}</TableCell>
+                                        <TableCell>${request.amount.toLocaleString()}</TableCell>
+                                        <TableCell>{request.term}</TableCell>
+                                        <TableCell>
+                                          <span className="text-green-600 font-medium">{request.expectedRoi}%</span>
+                                        </TableCell>
+                                        <TableCell>{request.date}</TableCell>
+                                        <TableCell>
+                                          <div className="flex space-x-2">
+                                            <Button 
+                                              size="sm" 
+                                              className="bg-green-600 hover:bg-green-700"
+                                              onClick={(e) => handleApproveRequest(request.id, e)}
+                                            >
+                                              <Check className="h-4 w-4 mr-1" />
+                                              Approve
+                                            </Button>
+                                            <Button 
+                                              size="sm" 
+                                              variant="outline"
+                                              className="text-red-600 border-red-200 hover:bg-red-50"
+                                              onClick={(e) => handleRejectRequest(request.id, e)}
+                                            >
+                                              <X className="h-4 w-4 mr-1" />
+                                              Reject
+                                            </Button>
+                                          </div>
+                                        </TableCell>
+                                      </TableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              </CardContent>
+                            </Card>
+                          </TabsContent>
+                          
+                          <TabsContent value="clusters">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {hospitalClusters.map((cluster) => (
+                                <Card key={cluster.id} className="overflow-hidden">
+                                  <CardHeader className="pb-2">
+                                    <CardTitle>{cluster.name}</CardTitle>
+                                    <CardDescription>{cluster.location} • {cluster.hospitals} hospitals</CardDescription>
+                                  </CardHeader>
+                                  <CardContent>
+                                    <div className="space-y-2">
+                                      <div>
+                                        <div className="text-sm font-medium">Equipment Needs:</div>
+                                        <ul className="text-sm list-disc list-inside">
+                                          {cluster.equipmentNeeds.map((need, idx) => (
+                                            <li key={idx}>{need}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                      <div className="flex justify-between items-center pt-2">
+                                        <div>
+                                          <div className="text-sm font-medium">Predicted Value:</div>
+                                          <div className="text-xl font-bold text-green-600">${cluster.predictedValue.toLocaleString()}</div>
+                                        </div>
+                                        <Button 
+                                          onClick={() => {
+                                            setDialogTabValue('investment-form');
+                                            toast({
+                                              title: "Cluster Selected",
+                                              description: `Preparing investment for ${cluster.name}`,
+                                            });
+                                          }}
+                                          className="bg-[#E02020] hover:bg-[#C01010] text-white"
+                                        >
+                                          Invest in Cluster
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              ))}
+                            </div>
+                          </TabsContent>
+                        </Tabs>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
+                {/* Notifications */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-white/10 p-2"
                 >
-                  <UserCog className="mr-2 h-4 w-4" />
-                  Account Settings
+                  <Bell className="h-5 w-5" />
                 </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="bg-white/10 border-white/30 text-white hover:bg-white hover:text-[#E02020] transition-all duration-200 backdrop-blur-sm"
-                  onClick={handleSignOut}
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </Button>
-                
-                <Dialog open={investmentDialogOpen} onOpenChange={setInvestmentDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button 
-                      onClick={(e) => {
-                        e.preventDefault(); 
+
+                {/* User Menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                      <Avatar className="h-10 w-10 border-2 border-white/20">
+                        <AvatarImage src="" alt="User" />
+                        <AvatarFallback className="bg-white text-[#E02020] font-semibold">
+                          {getUserInitials()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-64" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium">
+                          {profile?.full_name || 'Investor'}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {user?.email}
+                        </p>
+                        <p className="text-xs text-gray-400 capitalize">
+                          Investor Account
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    
+                    {/* Mobile Actions */}
+                    <div className="md:hidden">
+                      <DropdownMenuItem onClick={() => {
                         setDialogTabValue('investment-form');
                         setInvestmentDialogOpen(true);
-                      }}
-                      className="bg-white text-[#E02020] hover:bg-white/90 font-semibold shadow-lg"
-                    >
-                      <FilePlus className="mr-2 h-4 w-4" />
-                      New Investment
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl">
-                    <DialogHeader>
-                      <DialogTitle>New Investment</DialogTitle>
-                      <DialogDescription>
-                        Create a new investment or browse investment opportunities.
-                      </DialogDescription>
-                    </DialogHeader>
-                    
-                    <div className="py-4">
-                      <Tabs defaultValue={dialogTabValue} value={dialogTabValue} onValueChange={setDialogTabValue} className="w-full">
-                        <TabsList className="mb-4">
-                          <TabsTrigger value="investment-form">
-                            <FilePlus className="h-4 w-4 mr-2" />
-                            Create Investment
-                          </TabsTrigger>
-                          <TabsTrigger value="requests">
-                            <FileText className="h-4 w-4 mr-2" />
-                            Funding Requests
-                          </TabsTrigger>
-                          <TabsTrigger value="clusters">
-                            <Map className="h-4 w-4 mr-2" />
-                            Hospital Clusters
-                          </TabsTrigger>
-                        </TabsList>
-                        
-                        <TabsContent value="investment-form">
-                          <InvestmentForm 
-                            onSuccess={handleInvestmentSuccess}
-                            onCancel={() => setInvestmentDialogOpen(false)}
-                          />
-                        </TabsContent>
-                        
-                        <TabsContent value="requests">
-                          <Card>
-                            <CardContent className="p-0">
-                              <Table>
-                                <TableHeader>
-                                  <TableRow>
-                                    <TableHead>Hospital</TableHead>
-                                    <TableHead>Equipment</TableHead>
-                                    <TableHead>Amount</TableHead>
-                                    <TableHead>Term</TableHead>
-                                    <TableHead>Expected ROI</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Actions</TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {fundingRequests.map((request) => (
-                                    <TableRow key={request.id}>
-                                      <TableCell>
-                                        <div>
-                                          <div className="font-medium">{request.hospital}</div>
-                                          <div className="text-xs text-gray-500">{request.cluster}</div>
-                                        </div>
-                                      </TableCell>
-                                      <TableCell>{request.equipment}</TableCell>
-                                      <TableCell>${request.amount.toLocaleString()}</TableCell>
-                                      <TableCell>{request.term}</TableCell>
-                                      <TableCell>
-                                        <span className="text-green-600 font-medium">{request.expectedRoi}%</span>
-                                      </TableCell>
-                                      <TableCell>{request.date}</TableCell>
-                                      <TableCell>
-                                        <div className="flex space-x-2">
-                                          <Button 
-                                            size="sm" 
-                                            className="bg-green-600 hover:bg-green-700"
-                                            onClick={(e) => handleApproveRequest(request.id, e)}
-                                          >
-                                            <Check className="h-4 w-4 mr-1" />
-                                            Approve
-                                          </Button>
-                                          <Button 
-                                            size="sm" 
-                                            variant="outline"
-                                            className="text-red-600 border-red-200 hover:bg-red-50"
-                                            onClick={(e) => handleRejectRequest(request.id, e)}
-                                          >
-                                            <X className="h-4 w-4 mr-1" />
-                                            Reject
-                                          </Button>
-                                        </div>
-                                      </TableCell>
-                                    </TableRow>
-                                  ))}
-                                </TableBody>
-                              </Table>
-                            </CardContent>
-                          </Card>
-                        </TabsContent>
-                        
-                        <TabsContent value="clusters">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {hospitalClusters.map((cluster) => (
-                              <Card key={cluster.id} className="overflow-hidden">
-                                <CardHeader className="pb-2">
-                                  <CardTitle>{cluster.name}</CardTitle>
-                                  <CardDescription>{cluster.location} • {cluster.hospitals} hospitals</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                  <div className="space-y-2">
-                                    <div>
-                                      <div className="text-sm font-medium">Equipment Needs:</div>
-                                      <ul className="text-sm list-disc list-inside">
-                                        {cluster.equipmentNeeds.map((need, idx) => (
-                                          <li key={idx}>{need}</li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                    <div className="flex justify-between items-center pt-2">
-                                      <div>
-                                        <div className="text-sm font-medium">Predicted Value:</div>
-                                        <div className="text-xl font-bold text-green-600">${cluster.predictedValue.toLocaleString()}</div>
-                                      </div>
-                                      <Button 
-                                        onClick={() => {
-                                          setDialogTabValue('investment-form');
-                                          toast({
-                                            title: "Cluster Selected",
-                                            description: `Preparing investment for ${cluster.name}`,
-                                          });
-                                        }}
-                                        className="bg-[#E02020] hover:bg-[#C01010] text-white"
-                                      >
-                                        Invest in Cluster
-                                      </Button>
-                                    </div>
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            ))}
-                          </div>
-                        </TabsContent>
-                      </Tabs>
+                      }}>
+                        <FilePlus className="mr-2 h-4 w-4" />
+                        <span>New Investment</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                     </div>
-                  </DialogContent>
-                </Dialog>
+
+                    <DropdownMenuItem onClick={() => navigate('/profile')}>
+                      <Users className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleChangeAccountType}>
+                      <UserCog className="mr-2 h-4 w-4" />
+                      <span>Account Settings</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={handleSignOut}
+                      className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Sign Out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useUserRole } from '@/contexts/UserRoleContext';
@@ -52,16 +51,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onChangeAccountType }) => {
   };
 
   const handleSignOut = async () => {
-    if (isSigningOut) return; // Prevent multiple clicks
+    if (isSigningOut) return;
     
     try {
       setIsSigningOut(true);
       console.log('Starting sign out process from sidebar...');
       
-      // Call the signOut method from AuthContext
       await signOut();
-      
-      // Navigate to auth page
       navigate('/auth');
       
       console.log('Sign out completed successfully from sidebar');
