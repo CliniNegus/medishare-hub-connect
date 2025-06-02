@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useUserRole } from '@/contexts/UserRoleContext';
@@ -20,7 +19,6 @@ import {
   User,
   LogOut,
   UserCog,
-  MessageCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -167,12 +165,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onChangeAccountType }) => {
         <Link to="/shop" className={getLinkClass('/shop')}>
           <ShoppingBag className="mr-3 h-5 w-5" />
           Shop
-        </Link>
-
-        {/* Support Link for all authenticated users */}
-        <Link to="/support" className={getLinkClass('/support')}>
-          <MessageCircle className="mr-3 h-5 w-5" />
-          Support
         </Link>
 
         {['admin', 'hospital', 'manufacturer', 'investor'].includes(role) && (
