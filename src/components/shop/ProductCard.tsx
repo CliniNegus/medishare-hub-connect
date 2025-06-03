@@ -58,7 +58,7 @@ const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
           )}
         </div>
         <div className="flex justify-between items-center mt-2">
-          <div className="font-bold text-red-600">${product.price}</div>
+          <div className="font-bold text-red-600">Ksh {product.price.toLocaleString()}</div>
           <div className="flex gap-1">
             <Button 
               size="sm" 

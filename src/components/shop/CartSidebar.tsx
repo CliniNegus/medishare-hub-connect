@@ -59,7 +59,7 @@ const CartSidebar = () => {
                       <X className="h-4 w-4" />
                     </button>
                   </div>
-                  <div className="text-red-600 font-bold mt-1">${item.price}</div>
+                  <div className="text-red-600 font-bold mt-1">Ksh {item.price.toLocaleString()}</div>
                   <div className="flex items-center mt-2">
                     <Button 
                       variant="outline" 
@@ -90,7 +90,7 @@ const CartSidebar = () => {
         <div className="p-4 border-t">
           <div className="flex justify-between mb-4">
             <span className="font-medium">Total</span>
-            <span className="font-bold">${totalPrice.toFixed(2)}</span>
+            <span className="font-bold">Ksh {totalPrice.toLocaleString()}</span>
           </div>
           <Button 
             className="w-full bg-red-600 hover:bg-red-700"

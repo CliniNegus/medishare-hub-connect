@@ -41,8 +41,8 @@ export const ProductList = ({ products, onEdit, onDelete, onAdd }: ProductListPr
                 <TableHead>Name</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Condition</TableHead>
-                <TableHead>Price ($)</TableHead>
-                <TableHead>Lease Rate ($)</TableHead>
+                <TableHead>Price (Ksh)</TableHead>
+                <TableHead>Lease Rate (Ksh)</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -53,8 +53,8 @@ export const ProductList = ({ products, onEdit, onDelete, onAdd }: ProductListPr
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{product.category || 'N/A'}</TableCell>
                   <TableCell>{product.condition || 'N/A'}</TableCell>
-                  <TableCell>${product.price?.toLocaleString() || 'N/A'}</TableCell>
-                  <TableCell>${product.lease_rate?.toLocaleString() || 'N/A'}</TableCell>
+                  <TableCell>Ksh {product.price?.toLocaleString() || 'N/A'}</TableCell>
+                  <TableCell>Ksh {product.lease_rate?.toLocaleString() || 'N/A'}</TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded-full text-xs ${
                       product.status === 'Available' ? 'bg-green-100 text-green-800' :

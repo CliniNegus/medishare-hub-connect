@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -232,7 +231,7 @@ const PublicShop = () => {
                     </CardContent>
                     
                     <CardFooter className="p-4 flex items-center justify-between">
-                      <span className="font-bold text-xl text-red-600">${product.price}</span>
+                      <span className="font-bold text-xl text-red-600">Ksh {product.price.toLocaleString()}</span>
                       <div className="flex gap-2">
                         <Button 
                           variant="outline"

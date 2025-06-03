@@ -88,7 +88,7 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
             <span className="text-gray-500">Per Use:</span>
             <div className="flex items-center font-medium">
               <DollarSign className="h-3 w-3 mr-1 text-red-500" />
-              <span>${pricePerUse.toFixed(2)}</span>
+              <span>Ksh {pricePerUse.toLocaleString()}</span>
             </div>
           </div>
           
@@ -97,7 +97,7 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
               <span className="text-gray-500">Purchase:</span>
               <div className="flex items-center font-medium">
                 <ShoppingCart className="h-3 w-3 mr-1 text-red-500" />
-                <span>${purchasePrice.toLocaleString()}</span>
+                <span>Ksh {purchasePrice.toLocaleString()}</span>
               </div>
             </div>
           )}
@@ -107,7 +107,7 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
               <span className="text-gray-500">Lease/mo:</span>
               <div className="flex items-center font-medium">
                 <Calculator className="h-3 w-3 mr-1 text-red-500" />
-                <span>${leaseRate.toLocaleString()}</span>
+                <span>Ksh {leaseRate.toLocaleString()}</span>
               </div>
             </div>
           )}

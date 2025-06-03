@@ -27,7 +27,7 @@ export const PricingSection = ({ form, onCalculateLeaseRate }: PricingSectionPro
         name="price"
         render={({ field }) => (
           <FormItem className="flex-1">
-            <FormLabel>Purchase Price ($)</FormLabel>
+            <FormLabel>Purchase Price (Ksh)</FormLabel>
             <div className="flex items-center">
               <FormControl>
                 <Input type="number" {...field} />
@@ -53,7 +53,7 @@ export const PricingSection = ({ form, onCalculateLeaseRate }: PricingSectionPro
         name="lease_rate"
         render={({ field }) => (
           <FormItem className="flex-1">
-            <FormLabel>Monthly Lease Rate ($)</FormLabel>
+            <FormLabel>Monthly Lease Rate (Ksh)</FormLabel>
             <FormControl>
               <Input 
                 type="number" 

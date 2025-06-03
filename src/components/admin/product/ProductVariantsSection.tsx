@@ -86,7 +86,7 @@ export const ProductVariantsSection = ({ form, variants, onVariantsChange }: Pro
                   size="sm"
                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 w-4" />
                 </Button>
               </div>
 
@@ -122,7 +122,7 @@ export const ProductVariantsSection = ({ form, variants, onVariantsChange }: Pro
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <FormLabel className="text-[#333333]">Price (₦)</FormLabel>
+                  <FormLabel className="text-[#333333]">Price (Ksh)</FormLabel>
                   <Input
                     type="number"
                     placeholder="0.00"

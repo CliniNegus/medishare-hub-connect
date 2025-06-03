@@ -71,7 +71,7 @@ const ProductDetailsModal = ({ product, open, onClose }: ProductDetailsModalProp
               )}
             </div>
             
-            <div className="font-bold text-red-600 text-xl mb-2">${product.price}</div>
+            <div className="font-bold text-red-600 text-xl mb-2">Ksh {product.price.toLocaleString()}</div>
             
             <p className="text-sm text-gray-600 mb-4">
               {product.description || "No description available for this product."}

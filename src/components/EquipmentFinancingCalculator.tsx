@@ -11,8 +11,8 @@ import { useToast } from "@/components/ui/use-toast";
 
 const EquipmentFinancingCalculator = () => {
   const { toast } = useToast();
-  const [equipmentCost, setEquipmentCost] = useState(10000);
-  const [downPayment, setDownPayment] = useState(2000);
+  const [equipmentCost, setEquipmentCost] = useState(500000); // Default in Ksh
+  const [downPayment, setDownPayment] = useState(100000); // Default in Ksh
   const [term, setTerm] = useState(36); // months
   const [interestRate, setInterestRate] = useState(5); // percentage
 
@@ -70,7 +70,7 @@ const EquipmentFinancingCalculator = () => {
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="equipmentCost">Equipment Cost ($)</Label>
+              <Label htmlFor="equipmentCost">Equipment Cost (Ksh)</Label>
               <Input 
                 id="equipmentCost" 
                 type="number" 
@@ -79,7 +79,7 @@ const EquipmentFinancingCalculator = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="downPayment">Down Payment ($)</Label>
+              <Label htmlFor="downPayment">Down Payment (Ksh)</Label>
               <Input 
                 id="downPayment" 
                 type="number" 
@@ -117,15 +117,15 @@ const EquipmentFinancingCalculator = () => {
           <div className="bg-gray-100 p-4 rounded-md space-y-3">
             <div className="flex justify-between">
               <span className="font-medium">Monthly Payment:</span>
-              <span className="font-bold">${monthlyPayment.toFixed(2)}</span>
+              <span className="font-bold">Ksh {monthlyPayment.toLocaleString()}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-medium">Total Payment:</span>
-              <span>${totalPayment.toFixed(2)}</span>
+              <span>Ksh {totalPayment.toLocaleString()}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-medium">Total Interest:</span>
-              <span>${totalInterest.toFixed(2)}</span>
+              <span>Ksh {totalInterest.toLocaleString()}</span>
             </div>
           </div>
 

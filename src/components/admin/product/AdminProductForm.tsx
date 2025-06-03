@@ -162,7 +162,7 @@ export const AdminProductForm = ({ onSubmit, initialValues, isLoading, onCancel 
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[#333333]">Price (₦) *</FormLabel>
+                  <FormLabel className="text-[#333333]">Price (Ksh) *</FormLabel>
                   <FormControl>
                     <Input 
                       type="number" 
