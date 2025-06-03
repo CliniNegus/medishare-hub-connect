@@ -18,12 +18,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from '@/integrations/supabase/client';
+import PaystackPaymentButton from './payment/PaystackPaymentButton';
 
 interface PurchaseModalProps {
   isOpen: boolean;
   equipmentName: string;
   equipmentPrice: number;
+  equipmentId: string;
   onClose: () => void;
   onConfirm: (paymentMethod: string, shippingAddress: string, notes: string) => void;
   location?: string;
@@ -34,12 +35,13 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({
   isOpen,
   equipmentName,
   equipmentPrice,
+  equipmentId,
   onClose,
   onConfirm,
   location = "Not specified",
   manufacturer = "Not specified"
 }) => {
-  const [paymentMethod, setPaymentMethod] = useState<string>("credit-card");
+  const [paymentMethod, setPaymentMethod] = useState<string>("paystack");
   const [shippingAddress, setShippingAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,38 +50,21 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({
   const { user } = useAuth();
   const { toast } = useToast();
   
-  const handleConfirm = () => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to purchase equipment",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (!shippingAddress) {
-      toast({
-        title: "Shipping address required",
-        description: "Please enter a shipping address",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
-    try {
-      onConfirm(paymentMethod, shippingAddress, notes);
-      // Reset form values
-      setPaymentMethod("credit-card");
-      setShippingAddress("");
-      setNotes("");
-    } catch (error) {
-      console.error('Error during purchase confirmation:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handlePaystackSuccess = (reference: string) => {
+    toast({
+      title: "Payment Initiated",
+      description: "You will be redirected to complete your payment",
+    });
+    onConfirm(paymentMethod, shippingAddress, notes);
+    onClose();
+  };
+
+  const handlePaystackError = (error: string) => {
+    toast({
+      title: "Payment Error",
+      description: error,
+      variant: "destructive",
+    });
   };
   
   const handleDialogClose = () => {
@@ -115,7 +100,7 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({
                   <p className="text-sm text-gray-600">Located at <span className="font-medium">{location}</span></p>
                   <div className="flex items-center mt-2">
                     <DollarSign className="h-4 w-4 text-[#E02020] mr-1" />
-                    <span className="text-lg font-bold">${equipmentPrice?.toLocaleString()}</span>
+                    <span className="text-lg font-bold">₦{equipmentPrice?.toLocaleString()}</span>
                   </div>
                 </div>
               </div>
@@ -168,6 +153,7 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({
                   type="button" 
                   className="w-full mt-4 bg-[#E02020] hover:bg-[#c01010]"
                   onClick={() => setActiveTab("payment")}
+                  disabled={!shippingAddress.trim()}
                 >
                   Continue to Payment
                 </Button>
@@ -181,31 +167,16 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({
                   <div className="grid grid-cols-1 gap-2">
                     <div
                       className={`flex items-center p-3 border rounded-md cursor-pointer ${
-                        paymentMethod === "credit-card" ? "border-[#E02020] bg-red-50" : "border-gray-200"
+                        paymentMethod === "paystack" ? "border-[#E02020] bg-red-50" : "border-gray-200"
                       }`}
-                      onClick={() => setPaymentMethod("credit-card")}
+                      onClick={() => setPaymentMethod("paystack")}
                     >
                       <div className="bg-[#E0202010] p-2 rounded-full mr-3">
                         <CreditCard className="h-4 w-4 text-[#E02020]" />
                       </div>
                       <div>
-                        <div className="font-medium">Credit/Debit Card</div>
-                        <div className="text-sm text-gray-500">Visa, Mastercard, AMEX</div>
-                      </div>
-                    </div>
-                    
-                    <div
-                      className={`flex items-center p-3 border rounded-md cursor-pointer ${
-                        paymentMethod === "bank-transfer" ? "border-[#E02020] bg-red-50" : "border-gray-200"
-                      }`}
-                      onClick={() => setPaymentMethod("bank-transfer")}
-                    >
-                      <div className="bg-[#E0202010] p-2 rounded-full mr-3">
-                        <DollarSign className="h-4 w-4 text-[#E02020]" />
-                      </div>
-                      <div>
-                        <div className="font-medium">Bank Transfer</div>
-                        <div className="text-sm text-gray-500">Direct bank payment</div>
+                        <div className="font-medium">Paystack</div>
+                        <div className="text-sm text-gray-500">Secure payment with Visa, Mastercard, Bank Transfer</div>
                       </div>
                     </div>
                   </div>
@@ -223,7 +194,7 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({
                     
                     <div className="flex justify-between">
                       <span className="text-gray-600">Equipment Price:</span>
-                      <span className="font-medium">${equipmentPrice?.toLocaleString()}</span>
+                      <span className="font-medium">₦{equipmentPrice?.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Shipping:</span>
@@ -231,7 +202,7 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({
                     </div>
                     <div className="flex justify-between font-bold text-[#E02020]">
                       <span>Total price:</span>
-                      <span>${equipmentPrice?.toLocaleString()}</span>
+                      <span>₦{equipmentPrice?.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -244,13 +215,19 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({
                   >
                     Back
                   </Button>
-                  <Button 
-                    className="flex-1 bg-[#E02020] hover:bg-[#c01010]"
-                    onClick={handleConfirm}
-                    disabled={!shippingAddress || isSubmitting}
+                  
+                  <PaystackPaymentButton
+                    amount={equipmentPrice}
+                    equipmentId={equipmentId}
+                    equipmentName={equipmentName}
+                    shippingAddress={shippingAddress}
+                    notes={notes}
+                    onSuccess={handlePaystackSuccess}
+                    onError={handlePaystackError}
+                    className="flex-1"
                   >
-                    {isSubmitting ? "Processing..." : "Complete Purchase"}
-                  </Button>
+                    Complete Purchase
+                  </PaystackPaymentButton>
                 </div>
               </div>
             </TabsContent>

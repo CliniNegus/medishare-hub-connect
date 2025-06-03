@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -108,53 +107,22 @@ const EquipmentDetailsPage = () => {
 
     if (!equipment) return;
 
-    try {
-      const orderData = {
-        equipment_id: id,
-        user_id: user.id,
-        amount: equipment.price,
-        payment_method: paymentMethod,
-        shipping_address: shippingAddress,
-        notes: notes,
-        status: 'pending'
-      };
-      
-      const { data, error } = await supabase.functions.invoke('create-order', {
-        body: { order: orderData }
-      });
+    // The actual payment and order creation is now handled by the PaystackPaymentButton
+    // This function is called after successful payment initiation
+    console.log('Purchase initiated for:', {
+      equipment: equipment.name,
+      amount: equipment.price,
+      paymentMethod,
+      shippingAddress,
+      notes
+    });
 
-      if (error) throw error;
-
-      await supabase
-        .from('equipment')
-        .update({ status: 'sold' })
-        .eq('id', id);
-
-      toast({
-        title: "Purchase successful",
-        description: `You have purchased ${equipment?.name}. Check your email for confirmation.`,
-      });
-      
-      setPurchaseModalOpen(false);
-
-      const { data: updatedEquipment, error: equipmentError } = await supabase
-        .from('equipment')
-        .select('*')
-        .eq('id', id)
-        .single();
-        
-      if (!equipmentError) {
-        setEquipment(updatedEquipment as EquipmentDetails);
-      }
-
-    } catch (error: any) {
-      console.error('Error creating purchase:', error);
-      toast({
-        title: "Purchase failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "Purchase initiated",
+      description: "Your purchase is being processed. You will be redirected to complete payment.",
+    });
+    
+    setPurchaseModalOpen(false);
   };
 
   const createBooking = async (date: Date, duration: number, notes: string) => {
@@ -389,7 +357,7 @@ const EquipmentDetailsPage = () => {
                       <span className="text-sm text-gray-500 mb-2">Purchase Price</span>
                       <div className="flex items-center">
                         <DollarSign className="h-6 w-6 mr-2 text-red-500" />
-                        <span className="text-2xl font-bold text-gray-800">${equipment?.price?.toLocaleString() || 'N/A'}</span>
+                        <span className="text-2xl font-bold text-gray-800">₦{equipment?.price?.toLocaleString() || 'N/A'}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -401,7 +369,7 @@ const EquipmentDetailsPage = () => {
                       <span className="text-sm text-gray-500 mb-2">Monthly Lease Rate</span>
                       <div className="flex items-center">
                         <Calculator className="h-6 w-6 mr-2 text-red-500" />
-                        <span className="text-2xl font-bold text-gray-800">${equipment?.lease_rate?.toLocaleString() || 'N/A'}</span>
+                        <span className="text-2xl font-bold text-gray-800">₦{equipment?.lease_rate?.toLocaleString() || 'N/A'}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -413,7 +381,7 @@ const EquipmentDetailsPage = () => {
                       <span className="text-sm text-gray-500 mb-2">Per Use Price</span>
                       <div className="flex items-center">
                         <Clock className="h-6 w-6 mr-2 text-red-500" />
-                        <span className="text-2xl font-bold text-gray-800">${perUsePrice?.toFixed(2) || 'N/A'}</span>
+                        <span className="text-2xl font-bold text-gray-800">₦{perUsePrice?.toFixed(2) || 'N/A'}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -491,6 +459,7 @@ const EquipmentDetailsPage = () => {
         isOpen={purchaseModalOpen}
         equipmentName={equipment?.name || ''}
         equipmentPrice={equipment?.price || 0}
+        equipmentId={id || ''}
         onClose={() => setPurchaseModalOpen(false)}
         onConfirm={handlePurchase}
         location={equipment?.location}
