@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
-import { Calendar, LogOut, Plus, Bell } from 'lucide-react';
+import { Calendar, LogOut, Plus, Bell, Package } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import AddEquipmentModal from '@/components/admin/equipment/AddEquipmentModal';
+import AddProductModal from '@/components/admin/AddProductModal';
 import { useToast } from '@/hooks/use-toast';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { 
@@ -21,6 +22,7 @@ const AdminHeader = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isAddEquipmentModalOpen, setIsAddEquipmentModalOpen] = useState(false);
+  const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   
   const getInitials = () => {
@@ -39,10 +41,23 @@ const AdminHeader = () => {
     setIsAddEquipmentModalOpen(true);
   };
 
+  const handleAddProductClick = () => {
+    setIsAddProductModalOpen(true);
+  };
+
   const handleEquipmentAdded = () => {
     toast({
       title: "Equipment Added",
       description: "The equipment has been successfully added to the inventory",
+    });
+    // Optionally refresh the page or trigger a data refresh
+    window.location.reload();
+  };
+
+  const handleProductAdded = () => {
+    toast({
+      title: "Product Added",
+      description: "The product has been successfully added to the shop",
     });
     // Optionally refresh the page or trigger a data refresh
     window.location.reload();
@@ -93,13 +108,22 @@ const AdminHeader = () => {
       
       {/* Right side - Actions with enhanced design */}
       <div className="flex items-center space-x-3">
-        {/* Add Equipment Button with enhanced styling */}
+        {/* Add Equipment Button */}
         <Button 
           className="bg-gradient-to-r from-[#E02020] to-[#c01010] hover:from-[#c01010] hover:to-[#a00808] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
           onClick={handleAddEquipmentClick}
         >
           <Plus className="mr-2 h-4 w-4" />
           Add Equipment
+        </Button>
+
+        {/* Add Product Button */}
+        <Button 
+          className="bg-gradient-to-r from-[#333333] to-[#1a1a1a] hover:from-[#1a1a1a] hover:to-[#000000] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+          onClick={handleAddProductClick}
+        >
+          <Package className="mr-2 h-4 w-4" />
+          Add Product
         </Button>
         
         {/* Notification Bell with modern styling */}
@@ -158,6 +182,14 @@ const AdminHeader = () => {
         open={isAddEquipmentModalOpen}
         onOpenChange={setIsAddEquipmentModalOpen}
         onEquipmentAdded={handleEquipmentAdded}
+      />
+
+      {/* Product Modal */}
+      <AddProductModal
+        open={isAddProductModalOpen}
+        onOpenChange={setIsAddProductModalOpen}
+        isAdmin={true}
+        onProductAdded={handleProductAdded}
       />
     </header>
   );
