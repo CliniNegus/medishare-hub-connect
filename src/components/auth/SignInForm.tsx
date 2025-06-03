@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CardContent, CardFooter } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Eye, EyeOff, Mail, Lock, Shield } from "lucide-react";
+import { useEmailVerification } from "@/hooks/useEmailVerification";
+import EmailVerificationAlert from "@/components/auth/EmailVerificationAlert";
 
 interface SignInFormProps {
   onSuccess: () => void;
