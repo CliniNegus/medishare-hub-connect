@@ -25,6 +25,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
   const [validating, setValidating] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordValidationMessage, setPasswordValidationMessage] = useState<string | null>(null);
+  const [emailPending, setEmailPending] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+  const [pendingFullName, setPendingFullName] = useState<string | null>(null);
 
   const validatePassword = async (password: string) => {
     try {
@@ -94,11 +97,12 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
         return;
       }
 
-      // Sign up the user
+      // Sign up the user with email confirmation disabled initially
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo: `${window.location.origin}/auth`,
           data: {
             full_name: fullName,
             organization: organization,
@@ -112,13 +116,48 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
         onError(signUpError.message);
         throw signUpError;
       }
-      
-      toast({
-        title: "Account created",
-        description: "Please check your email to confirm your account.",
-      });
-      
-      onSuccess();
+
+      if (data.user) {
+        // Send custom verification email
+        try {
+          const { data: emailData, error: emailError } = await supabase.functions.invoke('send-verification-email', {
+            body: {
+              email,
+              fullName,
+              ipAddress: null,
+              userAgent: navigator.userAgent,
+            },
+          });
+
+          if (emailError || !emailData?.success) {
+            console.error("Email send error:", emailError);
+            // Don't fail the signup, but show a warning
+            toast({
+              title: "Account created",
+              description: "Account created but verification email failed to send. Please contact support.",
+              variant: "destructive",
+            });
+          } else {
+            // Set pending verification state
+            setEmailPending(true);
+            setPendingEmail(email);
+            setPendingFullName(fullName);
+            
+            toast({
+              title: "Account created successfully!",
+              description: "Please check your email to verify your account before signing in.",
+            });
+          }
+        } catch (emailErr) {
+          console.error("Email send error:", emailErr);
+          toast({
+            title: "Account created",
+            description: "Account created but verification email failed to send. Please try resending from the login page.",
+          });
+        }
+        
+        onSuccess();
+      }
     } catch (error: any) {
       console.error("Full signup error:", error);
       toast({

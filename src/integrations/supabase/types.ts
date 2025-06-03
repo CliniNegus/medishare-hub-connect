@@ -106,6 +106,48 @@ export type Database = {
           },
         ]
       }
+      email_verification_log: {
+        Row: {
+          attempt_count: number | null
+          created_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          ip_address: unknown | null
+          sent_at: string | null
+          token_hash: string
+          user_agent: string | null
+          user_id: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          attempt_count?: number | null
+          created_at?: string | null
+          email: string
+          expires_at: string
+          id?: string
+          ip_address?: unknown | null
+          sent_at?: string | null
+          token_hash: string
+          user_agent?: string | null
+          user_id?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          attempt_count?: number | null
+          created_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          sent_at?: string | null
+          token_hash?: string
+          user_agent?: string | null
+          user_id?: string | null
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       equipment: {
         Row: {
           category: string | null
@@ -793,6 +835,7 @@ export type Database = {
           bio: string | null
           created_at: string
           email: string
+          email_verified_at: string | null
           full_name: string | null
           id: string
           is_new_user: boolean | null
@@ -803,12 +846,15 @@ export type Database = {
           phone: string | null
           role: string | null
           updated_at: string
+          verification_attempts: number | null
+          verification_token_sent_at: string | null
           website: string | null
         }
         Insert: {
           bio?: string | null
           created_at?: string
           email: string
+          email_verified_at?: string | null
           full_name?: string | null
           id: string
           is_new_user?: boolean | null
@@ -819,12 +865,15 @@ export type Database = {
           phone?: string | null
           role?: string | null
           updated_at?: string
+          verification_attempts?: number | null
+          verification_token_sent_at?: string | null
           website?: string | null
         }
         Update: {
           bio?: string | null
           created_at?: string
           email?: string
+          email_verified_at?: string | null
           full_name?: string | null
           id?: string
           is_new_user?: boolean | null
@@ -835,6 +884,8 @@ export type Database = {
           phone?: string | null
           role?: string | null
           updated_at?: string
+          verification_attempts?: number | null
+          verification_token_sent_at?: string | null
           website?: string | null
         }
         Relationships: []
@@ -1041,6 +1092,15 @@ export type Database = {
         }
         Returns: string
       }
+      create_email_verification: {
+        Args: {
+          user_email: string
+          token_hash_param: string
+          ip_address_param?: unknown
+          user_agent_param?: string
+        }
+        Returns: string
+      }
       create_order: {
         Args: { order_data: Json }
         Returns: {
@@ -1056,8 +1116,16 @@ export type Database = {
           user_id: string | null
         }[]
       }
+      generate_verification_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_email_verified: {
+        Args: { user_email: string }
         Returns: boolean
       }
       log_security_event: {
@@ -1075,6 +1143,10 @@ export type Database = {
       }
       validate_email: {
         Args: { email_input: string }
+        Returns: boolean
+      }
+      verify_email_token: {
+        Args: { token_hash_param: string }
         Returns: boolean
       }
     }

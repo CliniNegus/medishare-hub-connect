@@ -29,6 +29,9 @@ const SignInForm: React.FC<SignInFormProps> = ({
   const [showMfaVerification, setShowMfaVerification] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
   const [userId, setUserId] = useState<string | null>(null);
+  const [showEmailVerificationAlert, setShowEmailVerificationAlert] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  const { checkEmailVerified } = useEmailVerification();
 
   // Clear form fields when component mounts
   useEffect(() => {
@@ -41,6 +44,21 @@ const SignInForm: React.FC<SignInFormProps> = ({
     
     try {
       setLoading(true);
+      
+      // First check if email is verified
+      const isEmailVerified = await checkEmailVerified(email);
+      
+      if (!isEmailVerified) {
+        setUnverifiedEmail(email);
+        setShowEmailVerificationAlert(true);
+        toast({
+          title: "Email verification required",
+          description: "Please verify your email address before signing in.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -133,6 +151,34 @@ const SignInForm: React.FC<SignInFormProps> = ({
       setLoading(false);
     }
   };
+
+  if (showEmailVerificationAlert && unverifiedEmail) {
+    return (
+      <div className="space-y-4">
+        <EmailVerificationAlert 
+          email={unverifiedEmail}
+          onVerificationSent={() => {
+            toast({
+              title: "Verification email sent",
+              description: "Please check your email and click the verification link.",
+            });
+          }}
+        />
+        <div className="text-center">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setShowEmailVerificationAlert(false);
+              setUnverifiedEmail(null);
+            }}
+            className="w-full"
+          >
+            Back to Sign In
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (showMfaVerification) {
     return (
