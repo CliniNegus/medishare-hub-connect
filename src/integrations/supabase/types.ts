@@ -839,43 +839,120 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_log: {
+        Row: {
+          created_at: string | null
+          event_details: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      support_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          sender_id: string
+          sender_type: string
+          support_request_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          sender_id: string
+          sender_type: string
+          support_request_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          sender_id?: string
+          sender_type?: string
+          support_request_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_conversations_support_request_id_fkey"
+            columns: ["support_request_id"]
+            isOneToOne: false
+            referencedRelation: "support_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_requests: {
         Row: {
           admin_id: string | null
           admin_response: string | null
+          assigned_admin_id: string | null
           created_at: string
+          file_url: string | null
           id: string
           message: string
           priority: string | null
           resolved_at: string | null
           status: string | null
           subject: string
+          tags: string[] | null
           updated_at: string
           user_id: string
         }
         Insert: {
           admin_id?: string | null
           admin_response?: string | null
+          assigned_admin_id?: string | null
           created_at?: string
+          file_url?: string | null
           id?: string
           message: string
           priority?: string | null
           resolved_at?: string | null
           status?: string | null
           subject: string
+          tags?: string[] | null
           updated_at?: string
           user_id: string
         }
         Update: {
           admin_id?: string | null
           admin_response?: string | null
+          assigned_admin_id?: string | null
           created_at?: string
+          file_url?: string | null
           id?: string
           message?: string
           priority?: string | null
           resolved_at?: string | null
           status?: string | null
           subject?: string
+          tags?: string[] | null
           updated_at?: string
           user_id?: string
         }
@@ -952,6 +1029,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_auth_rate_limit: {
+        Args: { user_email: string }
+        Returns: boolean
+      }
       create_admin_user: {
         Args: {
           admin_email: string
@@ -979,9 +1060,22 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      log_security_event: {
+        Args: {
+          event_type_param: string
+          event_details_param?: Json
+          ip_address_param?: unknown
+          user_agent_param?: string
+        }
+        Returns: undefined
+      }
       update_user_last_active: {
         Args: { user_uuid: string }
         Returns: undefined
+      }
+      validate_email: {
+        Args: { email_input: string }
+        Returns: boolean
       }
     }
     Enums: {
