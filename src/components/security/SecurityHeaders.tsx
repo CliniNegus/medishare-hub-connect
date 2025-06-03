@@ -89,17 +89,20 @@ export const useSecurityMonitoring = () => {
     if (process.env.NODE_ENV === 'production') {
       const originalConsole = { ...console };
       
-      // Override console methods to detect usage
-      Object.keys(console).forEach((key) => {
-        if (typeof console[key as keyof Console] === 'function') {
-          (console as any)[key] = (...args: any[]) => {
+      // Override specific console methods to detect usage
+      const consoleMethods = ['log', 'warn', 'error', 'info', 'debug'] as const;
+      
+      consoleMethods.forEach((method) => {
+        if (typeof console[method] === 'function') {
+          const originalMethod = console[method];
+          console[method] = (...args: any[]) => {
             // In production, limit console output and log security events
-            if (key === 'warn' || key === 'error') {
-              originalConsole[key as keyof Console](...args);
+            if (method === 'warn' || method === 'error') {
+              originalMethod.apply(console, args);
             }
             
             // Could log this as a security event
-            // logSecurityEvent('console_access', { method: key });
+            // logSecurityEvent('console_access', { method });
           };
         }
       });
