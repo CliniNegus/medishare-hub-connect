@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ProductVariantsSection } from './ProductVariantsSection';
 
 const productSchema = z.object({
   name: z.string().min(1, "Product name is required"),
@@ -22,12 +23,20 @@ const productSchema = z.object({
   is_disposable: z.boolean().optional(),
   sku: z.string().optional(),
   weight: z.number().optional(),
+  has_variants: z.boolean().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
 
+interface ProductVariant {
+  dimension_name: string;
+  dimension_value: string;
+  price: number;
+  stock_quantity: number;
+}
+
 interface AdminProductFormProps {
-  onSubmit: (values: ProductFormValues) => Promise<void>;
+  onSubmit: (values: ProductFormValues & { variants?: ProductVariant[] }) => Promise<void>;
   initialValues?: Partial<ProductFormValues>;
   isLoading: boolean;
   onCancel?: () => void;
@@ -45,6 +54,9 @@ const categories = [
 ];
 
 export const AdminProductForm = ({ onSubmit, initialValues, isLoading, onCancel }: AdminProductFormProps) => {
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
+  const [hasVariants, setHasVariants] = useState(false);
+
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -59,14 +71,22 @@ export const AdminProductForm = ({ onSubmit, initialValues, isLoading, onCancel 
       is_disposable: true,
       sku: '',
       weight: 0,
+      has_variants: false,
       ...initialValues
     },
   });
 
   const handleFormSubmit = async (values: ProductFormValues) => {
     try {
-      await onSubmit(values);
+      const submitData = {
+        ...values,
+        has_variants: hasVariants,
+        variants: hasVariants ? variants : undefined
+      };
+      await onSubmit(submitData);
       form.reset();
+      setVariants([]);
+      setHasVariants(false);
     } catch (error: any) {
       console.error("Form submission error:", error);
     }
@@ -134,65 +154,68 @@ export const AdminProductForm = ({ onSubmit, initialValues, isLoading, onCancel 
           )}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-[#333333]">Price (₦) *</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    placeholder="0.00"
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        {/* Base Product Pricing - Only show if no variants */}
+        {!hasVariants && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[#333333]">Price (₦) *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="0.00"
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="stock_quantity"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-[#333333]">Stock Quantity *</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    placeholder="0"
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="stock_quantity"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[#333333]">Stock Quantity *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="0"
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="weight"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-[#333333]">Weight (kg)</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    step="0.01"
-                    placeholder="0.00"
-                    {...field}
-                    onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+            <FormField
+              control={form.control}
+              name="weight"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[#333333]">Weight (kg)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      step="0.01"
+                      placeholder="0.00"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
@@ -238,16 +261,29 @@ export const AdminProductForm = ({ onSubmit, initialValues, isLoading, onCancel 
           )}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+            <div className="space-y-0.5">
+              <FormLabel className="text-base text-[#333333]">Has Variants</FormLabel>
+              <div className="text-sm text-gray-500">
+                Enable different sizes, colors, or dimensions
+              </div>
+            </div>
+            <Switch
+              checked={hasVariants}
+              onCheckedChange={setHasVariants}
+            />
+          </div>
+
           <FormField
             control={form.control}
             name="is_featured"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="flex flex-row items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
                   <FormLabel className="text-base text-[#333333]">Featured Product</FormLabel>
                   <div className="text-sm text-gray-500">
-                    Display this product prominently in the shop
+                    Display prominently in the shop
                   </div>
                 </div>
                 <FormControl>
@@ -256,7 +292,7 @@ export const AdminProductForm = ({ onSubmit, initialValues, isLoading, onCancel 
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>
-              </FormItem>
+              </div>
             )}
           />
 
@@ -264,11 +300,11 @@ export const AdminProductForm = ({ onSubmit, initialValues, isLoading, onCancel 
             control={form.control}
             name="is_disposable"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="flex flex-row items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
                   <FormLabel className="text-base text-[#333333]">Disposable Item</FormLabel>
                   <div className="text-sm text-gray-500">
-                    Mark if this is a single-use disposable product
+                    Single-use disposable product
                   </div>
                 </div>
                 <FormControl>
@@ -277,10 +313,19 @@ export const AdminProductForm = ({ onSubmit, initialValues, isLoading, onCancel 
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>
-              </FormItem>
+              </div>
             )}
           />
         </div>
+
+        {/* Product Variants Section */}
+        {hasVariants && (
+          <ProductVariantsSection
+            form={form}
+            variants={variants}
+            onVariantsChange={setVariants}
+          />
+        )}
         
         <div className="flex justify-end space-x-2 pt-4">
           {onCancel && (

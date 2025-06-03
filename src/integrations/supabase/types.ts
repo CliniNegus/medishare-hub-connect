@@ -770,12 +770,58 @@ export type Database = {
           },
         ]
       }
+      product_variants: {
+        Row: {
+          created_at: string
+          dimension_name: string
+          dimension_value: string
+          id: string
+          is_active: boolean
+          price: number
+          product_id: string
+          stock_quantity: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dimension_name: string
+          dimension_value: string
+          id?: string
+          is_active?: boolean
+          price: number
+          product_id: string
+          stock_quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dimension_name?: string
+          dimension_value?: string
+          id?: string
+          is_active?: boolean
+          price?: number
+          product_id?: string
+          stock_quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
+          base_price: number | null
           category: string | null
           created_at: string
           description: string | null
           dimensions: Json | null
+          has_variants: boolean | null
           id: string
           image_url: string | null
           is_disposable: boolean | null
@@ -791,10 +837,12 @@ export type Database = {
           weight: number | null
         }
         Insert: {
+          base_price?: number | null
           category?: string | null
           created_at?: string
           description?: string | null
           dimensions?: Json | null
+          has_variants?: boolean | null
           id?: string
           image_url?: string | null
           is_disposable?: boolean | null
@@ -810,10 +858,12 @@ export type Database = {
           weight?: number | null
         }
         Update: {
+          base_price?: number | null
           category?: string | null
           created_at?: string
           description?: string | null
           dimensions?: Json | null
+          has_variants?: boolean | null
           id?: string
           image_url?: string | null
           is_disposable?: boolean | null
