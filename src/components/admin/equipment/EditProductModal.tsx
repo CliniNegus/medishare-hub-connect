@@ -68,7 +68,6 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
           onSubmit={handleSubmit}
           initialValues={product}
           isLoading={false}
-          isEditing={true}
           onCancel={() => onOpenChange(false)}
         />
       </DialogContent>

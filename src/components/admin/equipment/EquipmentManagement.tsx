@@ -6,13 +6,27 @@ import EquipmentHeader from './EquipmentHeader';
 import EquipmentTable from './EquipmentTable';
 import EquipmentCategories from './EquipmentCategories';
 import ProductManagementSection from './ProductManagementSection';
+import { useEquipmentManagement } from '@/hooks/useEquipmentManagement';
+import AddEquipmentModal from './AddEquipmentModal';
 
 const EquipmentManagement = () => {
   const [activeTab, setActiveTab] = useState('equipment');
+  const [showAddEquipmentModal, setShowAddEquipmentModal] = useState(false);
+  
+  const { equipment, loading, updateEquipment } = useEquipmentManagement();
+
+  const handleAddEquipmentClick = () => {
+    setShowAddEquipmentModal(true);
+  };
+
+  const handleEquipmentAdded = () => {
+    setShowAddEquipmentModal(false);
+    // Refresh equipment list if needed
+  };
 
   return (
     <div className="space-y-6">
-      <EquipmentHeader />
+      <EquipmentHeader onAddEquipmentClick={handleAddEquipmentClick} />
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-1 rounded-lg">
@@ -40,7 +54,11 @@ const EquipmentManagement = () => {
         </TabsList>
 
         <TabsContent value="equipment" className="mt-6">
-          <EquipmentTable />
+          <EquipmentTable 
+            equipment={equipment}
+            loading={loading}
+            onUpdateEquipment={updateEquipment}
+          />
         </TabsContent>
 
         <TabsContent value="products" className="mt-6">
@@ -51,6 +69,13 @@ const EquipmentManagement = () => {
           <EquipmentCategories />
         </TabsContent>
       </Tabs>
+
+      {/* Add Equipment Modal */}
+      <AddEquipmentModal
+        open={showAddEquipmentModal}
+        onOpenChange={setShowAddEquipmentModal}
+        onEquipmentAdded={handleEquipmentAdded}
+      />
     </div>
   );
 };
