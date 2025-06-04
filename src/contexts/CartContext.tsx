@@ -11,7 +11,7 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (item: { id: string; name: string; price: number; image_url?: string | null }) => void;
+  addToCart: (item: { id: string; name: string; price: number; image_url?: string | null; quantity?: number }) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -27,15 +27,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
-  const addToCart = (item: { id: string; name: string; price: number; image_url?: string | null }) => {
+  const addToCart = (item: { id: string; name: string; price: number; image_url?: string | null; quantity?: number }) => {
+    const quantityToAdd = item.quantity || 1;
+    
     setItems(currentItems => {
       const existingItemIndex = currentItems.findIndex(cartItem => cartItem.id === item.id);
       if (existingItemIndex > -1) {
         const updatedItems = [...currentItems];
-        updatedItems[existingItemIndex].quantity += 1;
+        updatedItems[existingItemIndex].quantity += quantityToAdd;
         return updatedItems;
       } else {
-        return [...currentItems, { ...item, quantity: 1 }];
+        return [...currentItems, { ...item, quantity: quantityToAdd }];
       }
     });
     setIsOpen(true);
