@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Eye, Search, Star, TrendingUp, Filter } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CartProvider } from '@/contexts/CartContext';
 import CartSidebar from '@/components/shop/CartSidebar';
 import ProductDetailsModal from '@/components/shop/ProductDetailsModal';
@@ -21,6 +22,7 @@ const PublicShop = () => {
   const { toast } = useToast();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const navigate = useNavigate();
   
   const filterOptions: ProductFilterOptions = {
     category: category === 'all' ? undefined : category,
@@ -32,7 +34,8 @@ const PublicShop = () => {
   const { products, loading, uniqueCategories } = useProducts(filterOptions);
   const { addToCart } = useCart();
 
-  const handleGuestPurchase = () => {
+  const handleGuestPurchase = (e: React.MouseEvent) => {
+    e.stopPropagation();
     toast({
       title: "Account Required",
       description: "Please create an account or sign in to complete your purchase.",
@@ -40,9 +43,14 @@ const PublicShop = () => {
     });
   };
 
-  const handleViewDetails = (product: Product) => {
+  const handleViewDetails = (e: React.MouseEvent, product: Product) => {
+    e.stopPropagation();
     setSelectedProduct(product);
     setModalOpen(true);
+  };
+
+  const handleProductClick = (product: Product) => {
+    navigate(`/product/${product.id}`);
   };
 
   return (
@@ -174,7 +182,11 @@ const PublicShop = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {products.map(product => (
-                  <Card key={product.id} className="group overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white">
+                  <Card 
+                    key={product.id} 
+                    className="group overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white cursor-pointer"
+                    onClick={() => handleProductClick(product)}
+                  >
                     <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
                       <img 
                         src={product.image_url || "/placeholder.svg"} 
@@ -236,7 +248,7 @@ const PublicShop = () => {
                         <Button 
                           variant="outline"
                           size="sm"
-                          onClick={() => handleViewDetails(product)}
+                          onClick={(e) => handleViewDetails(e, product)}
                           className="border-gray-200 hover:border-red-300 hover:bg-red-50"
                         >
                           <Eye className="h-4 w-4 mr-1" />

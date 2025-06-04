@@ -9,6 +9,7 @@ import { useCart } from '@/contexts/CartContext';
 import ProductDetailsModal from './ProductDetailsModal';
 import { useTrendingProducts } from '@/hooks/use-trending-products';
 import { Product } from '@/hooks/use-products';
+import { useNavigate } from 'react-router-dom';
 
 const TrendingProducts = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -16,10 +17,15 @@ const TrendingProducts = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const { addToCart } = useCart();
   const { products, loading } = useTrendingProducts();
+  const navigate = useNavigate();
   
   const handleViewDetails = (product: Product) => {
     setSelectedProduct(product);
     setModalOpen(true);
+  };
+
+  const handleCardClick = (product: Product) => {
+    navigate(`/product/${product.id}`);
   };
   
   const handlePrevious = () => {
@@ -104,7 +110,11 @@ const TrendingProducts = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {visibleProducts.map((product) => (
-          <Card key={product.id} className="group overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white">
+          <Card 
+            key={product.id} 
+            className="group overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white cursor-pointer"
+            onClick={() => handleCardClick(product)}
+          >
             <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
               <img 
                 src={product.image_url || "/placeholder.svg"} 
@@ -157,7 +167,7 @@ const TrendingProducts = () => {
               
               <div className="flex items-center justify-between pt-2">
                 <div className="space-y-1">
-                  <span className="text-xl font-bold text-red-600">${product.price}</span>
+                  <span className="text-xl font-bold text-red-600">Ksh {product.price.toLocaleString()}</span>
                   <p className="text-xs text-gray-500">{product.manufacturer}</p>
                 </div>
                 
@@ -166,7 +176,10 @@ const TrendingProducts = () => {
                     variant="outline" 
                     size="sm" 
                     className="h-9 px-3 border-gray-200 hover:border-red-300 hover:bg-red-50 transition-all duration-300"
-                    onClick={() => handleViewDetails(product)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleViewDetails(product);
+                    }}
                   >
                     <Eye className="h-3 w-3 mr-1" />
                     View
@@ -175,7 +188,10 @@ const TrendingProducts = () => {
                     size="sm" 
                     variant="primary-red"
                     className="h-9 px-3 shadow-md hover:shadow-lg transition-all duration-300"
-                    onClick={() => addToCart(product)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(product);
+                    }}
                     disabled={product.stock_quantity <= 0}
                   >
                     <ShoppingCart className="h-3 w-3 mr-1" />

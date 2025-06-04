@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { Product } from "@/hooks/use-products";
+import { useNavigate } from 'react-router-dom';
 
 interface ProductCardProps {
   product: Product;
@@ -14,9 +15,11 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
   const { addToCart } = useCart();
+  const navigate = useNavigate();
   const inStock = product.stock_quantity > 0;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (inStock) {
       addToCart({
         id: product.id,
@@ -27,8 +30,21 @@ const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
     }
   };
 
+  const handleViewDetails = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onViewDetails(product);
+  };
+
+  const handleCardClick = () => {
+    navigate(`/product/${product.id}`);
+  };
+
   return (
-    <Card key={product.id} className="border border-gray-200 hover:border-red-300 transition-colors">
+    <Card 
+      key={product.id} 
+      className="border border-gray-200 hover:border-red-300 transition-colors cursor-pointer"
+      onClick={handleCardClick}
+    >
       <div className="relative h-40 bg-gray-100 flex items-center justify-center">
         <img 
           src={product.image_url || "/placeholder.svg"} 
@@ -64,7 +80,7 @@ const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
               size="sm" 
               variant="outline"
               className="border-gray-200"
-              onClick={() => onViewDetails(product)}
+              onClick={handleViewDetails}
             >
               <Eye className="h-3 w-3" />
             </Button>

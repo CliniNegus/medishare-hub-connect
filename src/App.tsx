@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/toaster";
@@ -29,6 +30,8 @@ import VirtualShops from './pages/VirtualShops';
 import ClientManagement from './pages/ClientManagement';
 import SystemManagement from './pages/SystemManagement';
 import EquipmentDetailsPage from './pages/EquipmentDetailsPage';
+import ProductDetailsPage from './pages/ProductDetailsPage';
+import PublicShop from './pages/PublicShop';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,6 +53,8 @@ function App() {
                 <Router>
                   <Routes>
                     <Route path="/" element={<Index />} />
+                    <Route path="/shop" element={<PublicShop />} />
+                    <Route path="/product/:id" element={<ProductDetailsPage />} />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/admin-auth" element={<AdminAuth />} />
                     <Route 
@@ -177,7 +182,7 @@ function App() {
                       } 
                     />
                     <Route 
-                      path="/shop" 
+                      path="/internal-shop" 
                       element={
                         <ProtectedRoute>
                           <MedicalShop />
