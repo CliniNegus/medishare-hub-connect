@@ -5,10 +5,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Package, Search, Filter, Share2, Edit, Trash2, Eye } from "lucide-react";
+import { Package, Search, Filter, Share2, Eye } from "lucide-react";
 import { InventoryItem } from '@/models/inventory';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 interface InventoryTableProps {
   items: InventoryItem[];
@@ -18,7 +17,6 @@ interface InventoryTableProps {
 const InventoryTable: React.FC<InventoryTableProps> = ({ items, onViewItem }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<string>('all');
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -32,47 +30,6 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ items, onViewItem }) =>
   const handleViewDetails = (item: InventoryItem) => {
     // Navigate to the equipment details page
     navigate(`/equipment/${item.id}`);
-  };
-
-  const handleEdit = async (item: InventoryItem) => {
-    toast({
-      title: "Edit Item",
-      description: `Editing ${item.name}...`,
-    });
-    // Here you would implement edit functionality
-  };
-
-  const handleDelete = async (item: InventoryItem) => {
-    if (!confirm(`Are you sure you want to delete ${item.name}?`)) return;
-    
-    try {
-      setIsDeleting(item.id);
-      
-      const { error } = await supabase
-        .from('equipment')
-        .delete()
-        .eq('id', item.id);
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Item Deleted",
-        description: `${item.name} has been deleted successfully`,
-      });
-      
-      // Reload the page to refresh data
-      window.location.reload();
-      
-    } catch (error: any) {
-      console.error('Error deleting item:', error);
-      toast({
-        title: "Delete Failed",
-        description: error.message || "Failed to delete item",
-        variant: "destructive",
-      });
-    } finally {
-      setIsDeleting(null);
-    }
   };
 
   const handleShare = (item: InventoryItem) => {
@@ -239,35 +196,6 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ items, onViewItem }) =>
                           className="hover:bg-green-50 hover:text-green-600"
                         >
                           <Share2 className="h-4 w-4" />
-                        </Button>
-                        
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={(e) => { 
-                            e.stopPropagation(); 
-                            handleEdit(item);
-                          }}
-                          className="hover:bg-yellow-50 hover:text-yellow-600"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={(e) => { 
-                            e.stopPropagation(); 
-                            handleDelete(item);
-                          }}
-                          disabled={isDeleting === item.id}
-                          className="hover:bg-red-50 hover:text-red-600"
-                        >
-                          {isDeleting === item.id ? (
-                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-600 border-t-transparent" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
                         </Button>
                       </div>
                     </TableCell>
