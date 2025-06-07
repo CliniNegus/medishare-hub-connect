@@ -1,14 +1,9 @@
 
+# This is your Supabase project's configuration file.
+# https://supabase.io/docs/reference/config
+
 project_id = "bqgipoqlxizdpryguzac"
 
-[auth]
-otp_expiry = 180 # 3 minutes in seconds
-
-[functions.validate-password]
-verify_jwt = false
-
-[functions.handle-payment]
+[functions]
+[functions.send-system-email]
 verify_jwt = true
-
-[functions.verify-payment]
-verify_jwt = false

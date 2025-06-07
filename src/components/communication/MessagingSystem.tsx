@@ -1,246 +1,148 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MessageCircle, Send } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { MessageCircle, Send, RefreshCw, Loader } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { format } from 'date-fns';
 
-interface Message {
+interface SystemMessage {
   id: string;
   sender_id: string;
   recipient_id: string;
+  recipient_role: string;
+  subject: string;
   content: string;
-  read: boolean;
+  message_type: string;
+  priority: string;
+  status: string;
+  read_at: string | null;
   created_at: string;
-  sender?: {
-    full_name: string | null;
-    email: string;
-  };
+  sender_email?: string;
+  recipient_email?: string;
 }
-
-interface Contact {
-  id: string;
-  full_name: string | null;
-  email: string;
-  role: string | null;
-  organization: string | null;
-  unreadCount: number;
-  lastMessage?: string;
-  lastMessageTime?: string;
-}
-
-// Mock data for contacts and messages
-const mockContacts: Contact[] = [
-  {
-    id: 'contact-1',
-    full_name: 'Jane Smith',
-    email: 'jane@hospital.com',
-    role: 'Hospital Admin',
-    organization: 'General Hospital',
-    unreadCount: 2,
-    lastMessage: 'When will the shipment arrive?',
-    lastMessageTime: new Date().toISOString()
-  },
-  {
-    id: 'contact-2',
-    full_name: 'John Doe',
-    email: 'john@manufacturer.com',
-    role: 'Manufacturer Rep',
-    organization: 'Medical Devices Inc',
-    unreadCount: 0,
-    lastMessage: 'The order has been processed.',
-    lastMessageTime: new Date(Date.now() - 3600000).toISOString()
-  }
-];
-
-const mockMessages: Record<string, Message[]> = {
-  'contact-1': [
-    {
-      id: 'msg1',
-      sender_id: 'user-id',
-      recipient_id: 'contact-1',
-      content: 'Hello, do you have any questions about the equipment?',
-      read: true,
-      created_at: new Date(Date.now() - 7200000).toISOString()
-    },
-    {
-      id: 'msg2',
-      sender_id: 'contact-1',
-      recipient_id: 'user-id',
-      content: 'Yes, when will the shipment arrive?',
-      read: false,
-      created_at: new Date().toISOString(),
-      sender: {
-        full_name: 'Jane Smith',
-        email: 'jane@hospital.com'
-      }
-    }
-  ],
-  'contact-2': [
-    {
-      id: 'msg3',
-      sender_id: 'contact-2',
-      recipient_id: 'user-id',
-      content: 'I have a question about your order.',
-      read: true,
-      created_at: new Date(Date.now() - 86400000).toISOString(),
-      sender: {
-        full_name: 'John Doe',
-        email: 'john@manufacturer.com'
-      }
-    },
-    {
-      id: 'msg4',
-      sender_id: 'user-id',
-      recipient_id: 'contact-2',
-      content: 'What do you need to know?',
-      read: true,
-      created_at: new Date(Date.now() - 82800000).toISOString()
-    },
-    {
-      id: 'msg5',
-      sender_id: 'contact-2',
-      recipient_id: 'user-id',
-      content: 'The order has been processed.',
-      read: true,
-      created_at: new Date(Date.now() - 3600000).toISOString(),
-      sender: {
-        full_name: 'John Doe',
-        email: 'john@manufacturer.com'
-      }
-    }
-  ]
-};
 
 const MessagingSystem = () => {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [sendingMessage, setSendingMessage] = useState(false);
+  const [messages, setMessages] = useState<SystemMessage[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+  
+  // Form state
+  const [recipientType, setRecipientType] = useState('role');
+  const [recipientId, setRecipientId] = useState('');
+  const [recipientRole, setRecipientRole] = useState('');
+  const [subject, setSubject] = useState('');
+  const [content, setContent] = useState('');
+  const [messageType, setMessageType] = useState('direct');
+  const [priority, setPriority] = useState('normal');
 
   useEffect(() => {
-    if (!user) return;
-    fetchContacts();
+    if (user) {
+      fetchMessages();
+    }
   }, [user]);
 
-  const fetchContacts = async () => {
-    if (!user) return;
-    
+  const fetchMessages = async () => {
     try {
       setLoading(true);
       
-      // Use mock data instead of database queries
-      setContacts(mockContacts);
-      
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching contacts:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load your contacts',
-        variant: 'destructive',
-      });
-      setLoading(false);
-    }
-  };
+      const { data: messagesData, error } = await supabase
+        .from('system_messages')
+        .select(`
+          *,
+          sender:profiles!system_messages_sender_id_fkey(email),
+          recipient:profiles!system_messages_recipient_id_fkey(email)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(50);
 
-  const fetchMessages = async (contactId: string) => {
-    if (!user || !contactId) return;
-    
-    try {
-      setLoading(true);
-      
-      // Use mock data
-      setMessages(mockMessages[contactId] || []);
-      
-      setLoading(false);
-      
-      // Mark messages as read (in a real app, would update DB)
-      if (mockMessages[contactId]) {
-        // In a real implementation, this would update the database
-        // Update contact list to reflect read messages
-        setContacts(prev => 
-          prev.map(contact => 
-            contact.id === contactId 
-              ? { ...contact, unreadCount: 0 } 
-              : contact
-          )
-        );
-      }
+      if (error) throw error;
+
+      const formattedMessages = messagesData?.map(msg => ({
+        ...msg,
+        sender_email: msg.sender?.email || 'Unknown',
+        recipient_email: msg.recipient?.email || 'Role-based message'
+      })) || [];
+
+      setMessages(formattedMessages);
     } catch (error) {
       console.error('Error fetching messages:', error);
       toast({
         title: 'Error',
-        description: 'Failed to load conversation',
+        description: 'Failed to load system messages',
         variant: 'destructive',
       });
+    } finally {
       setLoading(false);
     }
   };
 
   const sendMessage = async () => {
-    if (!user || !selectedContact || !newMessage.trim()) return;
-    
+    if (!subject.trim() || !content.trim()) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please fill in subject and content',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (recipientType === 'user' && !recipientId) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please select a recipient',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (recipientType === 'role' && !recipientRole) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please select a recipient role',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
-      setSendingMessage(true);
-      
-      // Create a new message object
-      const newMessageObj: Message = {
-        id: `msg-${Date.now()}`,
-        sender_id: user.id,
-        recipient_id: selectedContact.id,
-        content: newMessage.trim(),
-        read: false,
-        created_at: new Date().toISOString()
-      };
-      
-      // Add to local messages
-      setMessages(prev => [...prev, newMessageObj]);
-      
-      // Update contact with new last message
-      setContacts(prev => 
-        prev.map(contact => 
-          contact.id === selectedContact.id 
-            ? { 
-                ...contact, 
-                lastMessage: newMessage.trim(),
-                lastMessageTime: new Date().toISOString()
-              } 
-            : contact
-        )
-      );
-      
-      setNewMessage('');
-      setSendingMessage(false);
-      
-      // Simulate a response after a short delay
-      if (selectedContact.id === 'contact-1') {
-        setTimeout(() => {
-          const responseMessage: Message = {
-            id: `msg-${Date.now() + 1}`,
-            sender_id: selectedContact.id,
-            recipient_id: user.id,
-            content: 'Thanks for the update!',
-            read: false,
-            created_at: new Date().toISOString(),
-            sender: {
-              full_name: selectedContact.full_name,
-              email: selectedContact.email
-            }
-          };
-          
-          setMessages(prev => [...prev, responseMessage]);
-        }, 3000);
-      }
+      setSending(true);
+
+      const { data, error } = await supabase.rpc('send_system_message', {
+        recipient_id_param: recipientType === 'user' ? recipientId : null,
+        recipient_role_param: recipientType === 'role' ? recipientRole : null,
+        subject_param: subject,
+        content_param: content,
+        message_type_param: messageType,
+        priority_param: priority
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Message Sent',
+        description: 'System message has been sent successfully',
+      });
+
+      // Reset form
+      setRecipientId('');
+      setRecipientRole('');
+      setSubject('');
+      setContent('');
+      setMessageType('direct');
+      setPriority('normal');
+
+      // Refresh messages
+      fetchMessages();
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
@@ -248,23 +150,21 @@ const MessagingSystem = () => {
         description: 'Failed to send message',
         variant: 'destructive',
       });
-      setSendingMessage(false);
+    } finally {
+      setSending(false);
     }
   };
 
-  const selectContact = (contact: Contact) => {
-    setSelectedContact(contact);
-    fetchMessages(contact.id);
-  };
-
-  const formatMessageDate = (dateString: string) => {
-    const messageDate = new Date(dateString);
-    const today = new Date();
-    
-    if (messageDate.toDateString() === today.toDateString()) {
-      return format(messageDate, 'h:mm a');
-    } else {
-      return format(messageDate, 'MMM d, h:mm a');
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'bg-red-100 text-red-800';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'low':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -272,8 +172,8 @@ const MessagingSystem = () => {
     return (
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Messaging</CardTitle>
-          <CardDescription>Please sign in to use the messaging system</CardDescription>
+          <CardTitle>System Messaging</CardTitle>
+          <CardDescription>Please sign in to access messaging system</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -282,141 +182,178 @@ const MessagingSystem = () => {
   return (
     <Card className="w-full h-[600px] flex flex-col">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center">
-          <MessageCircle className="mr-2 h-5 w-5 text-red-600" />
-          Messaging System
-        </CardTitle>
+        <div className="flex justify-between items-center">
+          <div className="flex items-center">
+            <MessageCircle className="mr-2 h-5 w-5 text-red-600" />
+            <CardTitle>System Messaging</CardTitle>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchMessages}
+            disabled={loading}
+          >
+            <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
         <CardDescription>
-          Communicate with hospitals, manufacturers, and investors
+          Send messages to users or user groups
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 p-0 overflow-hidden">
-        <div className="flex h-full">
-          {/* Contacts sidebar */}
-          <div className="w-1/3 border-r border-gray-200 h-full flex flex-col">
-            <div className="p-3 font-medium border-b border-gray-200">
-              Contacts
+      <CardContent className="flex-1 p-4 pt-2 overflow-hidden flex flex-col">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+          {/* Send Message Form */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Send New Message</h3>
+            
+            <div className="space-y-2">
+              <Label>Recipient Type</Label>
+              <Select value={recipientType} onValueChange={setRecipientType}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="role">Send to Role</SelectItem>
+                  <SelectItem value="user">Send to Specific User</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <ScrollArea className="flex-1">
-              {contacts.length === 0 ? (
-                <div className="p-4 text-center text-gray-500">
-                  No conversations yet
-                </div>
-              ) : (
-                contacts.map(contact => (
-                  <div 
-                    key={contact.id}
-                    className={`p-3 flex items-start gap-3 hover:bg-gray-100 cursor-pointer ${selectedContact?.id === contact.id ? 'bg-gray-100' : ''}`}
-                    onClick={() => selectContact(contact)}
-                  >
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-red-100 text-red-800">
-                        {(contact.full_name?.charAt(0) || contact.email.charAt(0)).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-center">
-                        <p className="font-medium truncate">
-                          {contact.full_name || contact.email}
-                        </p>
-                        {contact.lastMessageTime && (
-                          <span className="text-xs text-gray-500">
-                            {formatMessageDate(contact.lastMessageTime)}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-gray-500 truncate">
-                        {contact.role && `${contact.role} · `}
-                        {contact.lastMessage || 'No messages yet'}
-                      </p>
-                    </div>
-                    {contact.unreadCount > 0 && (
-                      <div className="bg-red-600 text-white text-xs rounded-full h-5 min-w-5 flex items-center justify-center px-1">
-                        {contact.unreadCount}
-                      </div>
-                    )}
-                  </div>
-                ))
-              )}
-            </ScrollArea>
-          </div>
-          
-          {/* Messages area */}
-          <div className="w-2/3 flex flex-col h-full">
-            {selectedContact ? (
-              <>
-                <div className="p-3 font-medium border-b border-gray-200 flex items-center">
-                  <Avatar className="h-8 w-8 mr-2">
-                    <AvatarFallback className="bg-red-100 text-red-800">
-                      {(selectedContact.full_name?.charAt(0) || selectedContact.email.charAt(0)).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p>{selectedContact.full_name || selectedContact.email}</p>
-                    <p className="text-xs text-gray-500">{selectedContact.role || 'User'}</p>
-                  </div>
-                </div>
-                
-                <ScrollArea className="flex-1 p-4">
-                  {messages.length === 0 ? (
-                    <div className="h-full flex items-center justify-center text-gray-500">
-                      No messages yet. Start the conversation!
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {messages.map(message => (
-                        <div 
-                          key={message.id}
-                          className={`flex ${message.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
-                        >
-                          <div 
-                            className={`max-w-[70%] p-3 rounded-lg ${
-                              message.sender_id === user.id 
-                                ? 'bg-red-600 text-white' 
-                                : 'bg-gray-100 text-gray-800'
-                            }`}
-                          >
-                            <p>{message.content}</p>
-                            <p className={`text-xs mt-1 ${message.sender_id === user.id ? 'text-red-100' : 'text-gray-500'}`}>
-                              {formatMessageDate(message.created_at)}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </ScrollArea>
-                
-                <div className="p-3 border-t border-gray-200">
-                  <div className="flex gap-2">
-                    <Textarea 
-                      placeholder="Type your message..."
-                      value={newMessage}
-                      onChange={e => setNewMessage(e.target.value)}
-                      className="min-h-[60px] resize-none"
-                      onKeyDown={e => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          sendMessage();
-                        }
-                      }}
-                    />
-                    <Button 
-                      className="bg-red-600 hover:bg-red-700"
-                      onClick={sendMessage}
-                      disabled={!newMessage.trim() || sendingMessage}
-                    >
-                      <Send className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-500 flex-col">
-                <MessageCircle className="h-12 w-12 mb-2 text-gray-300" />
-                <p>Select a contact to start messaging</p>
+
+            {recipientType === 'role' && (
+              <div className="space-y-2">
+                <Label>Recipient Role</Label>
+                <Select value={recipientRole} onValueChange={setRecipientRole}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="hospital">Hospitals</SelectItem>
+                    <SelectItem value="manufacturer">Manufacturers</SelectItem>
+                    <SelectItem value="investor">Investors</SelectItem>
+                    <SelectItem value="admin">Admins</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             )}
+
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-2">
+                <Label>Message Type</Label>
+                <Select value={messageType} onValueChange={setMessageType}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="direct">Direct</SelectItem>
+                    <SelectItem value="broadcast">Broadcast</SelectItem>
+                    <SelectItem value="announcement">Announcement</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Priority</Label>
+                <Select value={priority} onValueChange={setPriority}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="normal">Normal</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="subject">Subject</Label>
+              <Input
+                id="subject"
+                value={subject}
+                onChange={e => setSubject(e.target.value)}
+                placeholder="Enter message subject"
+                disabled={sending}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="content">Message Content</Label>
+              <Textarea
+                id="content"
+                value={content}
+                onChange={e => setContent(e.target.value)}
+                placeholder="Enter your message..."
+                rows={6}
+                disabled={sending}
+              />
+            </div>
+
+            <Button
+              onClick={sendMessage}
+              disabled={sending}
+              className="w-full bg-red-600 hover:bg-red-700"
+            >
+              {sending ? (
+                <>
+                  <Loader className="h-4 w-4 mr-2 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Send Message
+                </>
+              )}
+            </Button>
+          </div>
+
+          {/* Message History */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Recent Messages</h3>
+            <div className="border rounded-lg overflow-hidden h-[400px] overflow-y-auto">
+              {loading ? (
+                <div className="flex items-center justify-center h-full">
+                  <Loader className="h-6 w-6 animate-spin text-red-600" />
+                </div>
+              ) : messages.length === 0 ? (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  <MessageCircle className="h-12 w-12 text-gray-300 mb-2 mr-2" />
+                  <p>No messages sent yet</p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Subject</TableHead>
+                      <TableHead>Recipient</TableHead>
+                      <TableHead>Priority</TableHead>
+                      <TableHead>Date</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {messages.map(message => (
+                      <TableRow key={message.id}>
+                        <TableCell className="font-medium max-w-[150px] truncate">
+                          {message.subject}
+                        </TableCell>
+                        <TableCell className="max-w-[100px] truncate">
+                          {message.recipient_email || `All ${message.recipient_role}s`}
+                        </TableCell>
+                        <TableCell>
+                          <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getPriorityColor(message.priority)}`}>
+                            {message.priority}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          {format(new Date(message.created_at), 'MMM d, HH:mm')}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </div>
           </div>
         </div>
       </CardContent>

@@ -9,6 +9,75 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      archived_data: {
+        Row: {
+          archived_at: string
+          archived_by: string
+          data: Json
+          id: string
+          reason: string | null
+          record_id: string
+          table_name: string
+        }
+        Insert: {
+          archived_at?: string
+          archived_by: string
+          data: Json
+          id?: string
+          reason?: string | null
+          record_id: string
+          table_name: string
+        }
+        Update: {
+          archived_at?: string
+          archived_by?: string
+          data?: Json
+          id?: string
+          reason?: string | null
+          record_id?: string
+          table_name?: string
+        }
+        Relationships: []
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          new_values: Json | null
+          old_values: Json | null
+          resource_id: string | null
+          resource_type: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          resource_id?: string | null
+          resource_type: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          resource_id?: string | null
+          resource_type?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           created_at: string
@@ -105,6 +174,81 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      data_backups: {
+        Row: {
+          backup_type: string
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          file_path: string | null
+          file_size: string | null
+          id: string
+          name: string
+          status: string | null
+        }
+        Insert: {
+          backup_type: string
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          file_path?: string | null
+          file_size?: string | null
+          id?: string
+          name: string
+          status?: string | null
+        }
+        Update: {
+          backup_type?: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          file_path?: string | null
+          file_size?: string | null
+          id?: string
+          name?: string
+          status?: string | null
+        }
+        Relationships: []
+      }
+      email_templates: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          is_active: boolean | null
+          name: string
+          subject: string
+          template_type: string
+          updated_at: string
+          variables: Json | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          subject: string
+          template_type: string
+          updated_at?: string
+          variables?: Json | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          subject?: string
+          template_type?: string
+          updated_at?: string
+          variables?: Json | null
+        }
+        Relationships: []
       }
       email_verification_log: {
         Row: {
@@ -1059,6 +1203,51 @@ export type Database = {
         }
         Relationships: []
       }
+      system_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          message_type: string | null
+          priority: string | null
+          read_at: string | null
+          recipient_id: string | null
+          recipient_role: string | null
+          sender_id: string
+          status: string | null
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          message_type?: string | null
+          priority?: string | null
+          read_at?: string | null
+          recipient_id?: string | null
+          recipient_role?: string | null
+          sender_id: string
+          status?: string | null
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          message_type?: string | null
+          priority?: string | null
+          read_at?: string | null
+          recipient_id?: string | null
+          recipient_role?: string | null
+          sender_id?: string
+          status?: string | null
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
@@ -1130,6 +1319,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      archive_old_data: {
+        Args: {
+          table_name_param: string
+          cutoff_date: string
+          reason_param?: string
+        }
+        Returns: number
+      }
       check_auth_rate_limit: {
         Args: { user_email: string }
         Returns: boolean
@@ -1140,6 +1337,10 @@ export type Database = {
           admin_password: string
           full_name?: string
         }
+        Returns: string
+      }
+      create_data_backup: {
+        Args: { name_param: string; backup_type_param: string }
         Returns: string
       }
       create_email_verification: {
@@ -1178,6 +1379,16 @@ export type Database = {
         Args: { user_email: string }
         Returns: boolean
       }
+      log_audit_event: {
+        Args: {
+          action_param: string
+          resource_type_param: string
+          resource_id_param?: string
+          old_values_param?: Json
+          new_values_param?: Json
+        }
+        Returns: string
+      }
       log_security_event: {
         Args: {
           event_type_param: string
@@ -1186,6 +1397,17 @@ export type Database = {
           user_agent_param?: string
         }
         Returns: undefined
+      }
+      send_system_message: {
+        Args: {
+          recipient_id_param: string
+          recipient_role_param: string
+          subject_param: string
+          content_param: string
+          message_type_param?: string
+          priority_param?: string
+        }
+        Returns: string
       }
       update_user_last_active: {
         Args: { user_uuid: string }

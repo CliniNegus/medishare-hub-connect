@@ -1,33 +1,53 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Bell, CheckCheck, Archive, Mail } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { format } from 'date-fns';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Bell, Send, RefreshCw, Loader, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
 
-interface Notification {
-  id: string;
-  user_id: string;
+interface NotificationPayload {
+  user_id?: string;
+  role?: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
-  read: boolean;
-  action_url?: string | null;
+  type: string;
+  action_url?: string;
+}
+
+interface NotificationRecord {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
   created_at: string;
+  user_id: string;
+  read: boolean;
+  user_email?: string;
 }
 
 const NotificationSystem = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('all');
+  const [sending, setSending] = useState(false);
+  
+  // Form state
+  const [recipientType, setRecipientType] = useState('role');
+  const [recipientRole, setRecipientRole] = useState('');
+  const [recipientId, setRecipientId] = useState('');
+  const [title, setTitle] = useState('');
+  const [message, setMessage] = useState('');
+  const [notificationType, setNotificationType] = useState('info');
+  const [actionUrl, setActionUrl] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -36,28 +56,27 @@ const NotificationSystem = () => {
   }, [user]);
 
   const fetchNotifications = async () => {
-    if (!user) return;
-    
     try {
       setLoading(true);
       
       const { data, error } = await supabase
         .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .select(`
+          *,
+          user:profiles!notifications_user_id_fkey(email)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(50);
 
       if (error) throw error;
 
-      // Type cast the data to ensure it matches our interface
-      const typedNotifications: Notification[] = (data || []).map(notification => ({
+      const formattedNotifications = data?.map(notification => ({
         ...notification,
-        type: notification.type as 'info' | 'success' | 'warning' | 'error'
-      }));
+        user_email: notification.user?.email || 'Unknown'
+      })) || [];
 
-      setNotifications(typedNotifications);
-      setUnreadCount(typedNotifications.filter(n => !n.read).length);
-    } catch (error: any) {
+      setNotifications(formattedNotifications);
+    } catch (error) {
       console.error('Error fetching notifications:', error);
       toast({
         title: 'Error',
@@ -69,94 +88,165 @@ const NotificationSystem = () => {
     }
   };
 
-  const markAsRead = async (notificationId: string) => {
-    if (!user) return;
-    
-    try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ read: true, updated_at: new Date().toISOString() })
-        .eq('id', notificationId)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-      
-      setNotifications(prev => 
-        prev.map(notification => 
-          notification.id === notificationId 
-            ? { ...notification, read: true } 
-            : notification
-        )
-      );
-      
-      setUnreadCount(count => Math.max(0, count - 1));
-    } catch (error: any) {
-      console.error('Error marking notification as read:', error);
+  const sendNotification = async () => {
+    if (!title.trim() || !message.trim()) {
       toast({
-        title: 'Error',
-        description: 'Failed to update notification',
+        title: 'Validation Error',
+        description: 'Please fill in title and message',
         variant: 'destructive',
       });
+      return;
+    }
+
+    if (recipientType === 'user' && !recipientId) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please select a recipient',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (recipientType === 'role' && !recipientRole) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please select a recipient role',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setSending(true);
+
+      // Log audit event
+      await supabase.rpc('log_audit_event', {
+        action_param: 'SEND_NOTIFICATION',
+        resource_type_param: 'notification',
+        resource_id_param: null,
+        new_values_param: JSON.stringify({
+          title,
+          message,
+          type: notificationType,
+          recipient_type: recipientType,
+          recipient: recipientType === 'user' ? recipientId : recipientRole
+        })
+      });
+
+      if (recipientType === 'user') {
+        // Send to specific user
+        await sendToUser(recipientId);
+      } else {
+        // Send to role
+        await sendToRole(recipientRole);
+      }
+
+      toast({
+        title: 'Notification Sent',
+        description: 'Notification has been sent successfully',
+      });
+
+      // Reset form
+      setTitle('');
+      setMessage('');
+      setNotificationType('info');
+      setActionUrl('');
+      setRecipientId('');
+
+      // Refresh notifications
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to send notification',
+        variant: 'destructive',
+      });
+    } finally {
+      setSending(false);
     }
   };
 
-  const markAllAsRead = async () => {
-    if (!user) return;
-    
-    try {
-      const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
-      
-      if (unreadIds.length === 0) return;
+  const sendToUser = async (userId: string) => {
+    const notification: NotificationPayload = {
+      user_id: userId,
+      title,
+      message,
+      type: notificationType,
+      action_url: actionUrl || undefined
+    };
 
+    const { error } = await supabase
+      .from('notifications')
+      .insert([notification]);
+
+    if (error) throw error;
+  };
+
+  const sendToRole = async (role: string) => {
+    // Get users with selected role
+    const { data: users, error } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('role', role);
+
+    if (error) throw error;
+
+    // Send notification to each user
+    if (users && users.length > 0) {
+      const notifications = users.map(u => ({
+        user_id: u.id,
+        title,
+        message,
+        type: notificationType,
+        action_url: actionUrl || undefined
+      }));
+
+      const { error: insertError } = await supabase
+        .from('notifications')
+        .insert(notifications);
+
+      if (insertError) throw insertError;
+    }
+  };
+
+  const deleteNotification = async (notificationId: string) => {
+    try {
       const { error } = await supabase
         .from('notifications')
-        .update({ read: true, updated_at: new Date().toISOString() })
-        .in('id', unreadIds)
-        .eq('user_id', user.id);
+        .delete()
+        .eq('id', notificationId);
 
       if (error) throw error;
-      
-      setNotifications(prev => 
-        prev.map(notification => ({ ...notification, read: true }))
-      );
-      
-      setUnreadCount(0);
-      
+
       toast({
         title: 'Success',
-        description: 'All notifications marked as read',
+        description: 'Notification deleted successfully',
       });
-    } catch (error: any) {
-      console.error('Error marking all notifications as read:', error);
+
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error deleting notification:', error);
       toast({
         title: 'Error',
-        description: 'Failed to update notifications',
+        description: 'Failed to delete notification',
         variant: 'destructive',
       });
     }
   };
 
-  const getFilteredNotifications = () => {
-    switch (activeTab) {
-      case 'unread':
-        return notifications.filter(n => !n.read);
-      case 'read':
-        return notifications.filter(n => n.read);
-      default:
-        return notifications;
-    }
-  };
-
-  const getNotificationIcon = (type: string) => {
+  const getTypeColor = (type: string) => {
     switch (type) {
+      case 'info':
+        return 'bg-blue-100 text-blue-800';
       case 'success':
-        return <CheckCheck className="h-5 w-5 text-green-500" />;
+        return 'bg-green-100 text-green-800';
       case 'warning':
-        return <Bell className="h-5 w-5 text-amber-500" />;
+        return 'bg-yellow-100 text-yellow-800';
       case 'error':
-        return <Bell className="h-5 w-5 text-red-500" />;
+        return 'bg-red-100 text-red-800';
       default:
-        return <Mail className="h-5 w-5 text-blue-500" />;
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -164,8 +254,8 @@ const NotificationSystem = () => {
     return (
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Notifications</CardTitle>
-          <CardDescription>Please sign in to view your notifications</CardDescription>
+          <CardTitle>Notification System</CardTitle>
+          <CardDescription>Please sign in to access notification system</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -177,99 +267,185 @@ const NotificationSystem = () => {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <Bell className="mr-2 h-5 w-5 text-red-600" />
-            <CardTitle>Notifications</CardTitle>
-            {unreadCount > 0 && (
-              <Badge variant="destructive" className="ml-2 bg-red-600">
-                {unreadCount} new
-              </Badge>
-            )}
+            <CardTitle>Notification System</CardTitle>
           </div>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
-            onClick={markAllAsRead}
-            disabled={unreadCount === 0}
+            onClick={fetchNotifications}
+            disabled={loading}
           >
-            Mark all as read
+            <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
           </Button>
         </div>
         <CardDescription>
-          Stay updated with important events and messages
+          Send and manage system notifications
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 p-0 overflow-hidden">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <div className="px-4 pt-2 border-b">
-            <TabsList className="w-full grid grid-cols-3">
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="unread" className="relative">
-                Unread
-                {unreadCount > 0 && (
-                  <Badge className="ml-1 h-5 min-w-5 bg-red-600 absolute -top-2 -right-2 flex items-center justify-center text-[10px]">
-                    {unreadCount}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="read">Read</TabsTrigger>
-            </TabsList>
+      <CardContent className="flex-1 p-4 pt-2 overflow-hidden flex flex-col">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+          {/* Create Notification Form */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Create Notification</h3>
+            
+            <div className="space-y-2">
+              <Label>Recipient Type</Label>
+              <Select value={recipientType} onValueChange={setRecipientType}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="role">Send to Role</SelectItem>
+                  <SelectItem value="user">Send to Specific User</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {recipientType === 'role' && (
+              <div className="space-y-2">
+                <Label>Recipient Role</Label>
+                <Select value={recipientRole} onValueChange={setRecipientRole}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="hospital">Hospitals</SelectItem>
+                    <SelectItem value="manufacturer">Manufacturers</SelectItem>
+                    <SelectItem value="investor">Investors</SelectItem>
+                    <SelectItem value="admin">Admins</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label>Notification Type</Label>
+              <Select value={notificationType} onValueChange={setNotificationType}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="info">Information</SelectItem>
+                  <SelectItem value="success">Success</SelectItem>
+                  <SelectItem value="warning">Warning</SelectItem>
+                  <SelectItem value="error">Error</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="title">Notification Title</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="Enter notification title"
+                disabled={sending}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="message">Notification Message</Label>
+              <Textarea
+                id="message"
+                value={message}
+                onChange={e => setMessage(e.target.value)}
+                placeholder="Enter your notification message..."
+                rows={3}
+                disabled={sending}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="actionUrl">Action URL (Optional)</Label>
+              <Input
+                id="actionUrl"
+                value={actionUrl}
+                onChange={e => setActionUrl(e.target.value)}
+                placeholder="e.g., /dashboard/orders"
+                disabled={sending}
+              />
+            </div>
+
+            <Button
+              onClick={sendNotification}
+              disabled={sending}
+              className="w-full bg-red-600 hover:bg-red-700"
+            >
+              {sending ? (
+                <>
+                  <Loader className="h-4 w-4 mr-2 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Send Notification
+                </>
+              )}
+            </Button>
           </div>
-          
-          <TabsContent value={activeTab} className="flex-1 overflow-hidden mt-0">
-            <ScrollArea className="h-full px-4">
+
+          {/* Notifications List */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Recent Notifications</h3>
+            <div className="border rounded-lg overflow-hidden h-[400px] overflow-y-auto">
               {loading ? (
-                <div className="flex justify-center p-4">Loading notifications...</div>
-              ) : getFilteredNotifications().length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-[400px] text-gray-500">
+                <div className="flex items-center justify-center h-full">
+                  <Loader className="h-6 w-6 animate-spin text-red-600" />
+                </div>
+              ) : notifications.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-gray-500">
                   <Bell className="h-12 w-12 text-gray-300 mb-2" />
-                  <p>No notifications found</p>
+                  <p>No notifications sent yet</p>
                 </div>
               ) : (
-                <div className="space-y-2 py-2">
-                  {getFilteredNotifications().map(notification => (
-                    <div 
-                      key={notification.id}
-                      className={`p-3 rounded-lg border ${notification.read ? 'bg-white' : 'bg-gray-50'}`}
-                    >
-                      <div className="flex justify-between">
-                        <div className="flex items-start gap-3">
-                          {getNotificationIcon(notification.type)}
-                          <div>
-                            <p className="font-medium">{notification.title}</p>
-                            <p className="text-sm text-gray-600">{notification.message}</p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {format(new Date(notification.created_at), 'MMM d, yyyy h:mm a')}
-                            </p>
-                            {notification.action_url && (
-                              <Button
-                                variant="link"
-                                className="p-0 h-auto text-red-600"
-                                asChild
-                              >
-                                <a href={notification.action_url} target="_blank" rel="noopener noreferrer">
-                                  View details
-                                </a>
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                        {!notification.read && (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Recipient</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {notifications.map(notification => (
+                      <TableRow key={notification.id}>
+                        <TableCell className="font-medium max-w-[120px] truncate">
+                          {notification.title}
+                        </TableCell>
+                        <TableCell>
+                          <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getTypeColor(notification.type)}`}>
+                            {notification.type}
+                          </span>
+                        </TableCell>
+                        <TableCell className="max-w-[100px] truncate">
+                          {notification.user_email}
+                        </TableCell>
+                        <TableCell>
+                          {format(new Date(notification.created_at), 'MMM d, HH:mm')}
+                        </TableCell>
+                        <TableCell>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="text-gray-500 hover:text-gray-900 h-8 px-2"
-                            onClick={() => markAsRead(notification.id)}
+                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                            onClick={() => deleteNotification(notification.id)}
                           >
-                            Mark as read
+                            <Trash2 className="h-4 w-4" />
                           </Button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               )}
-            </ScrollArea>
-          </TabsContent>
-        </Tabs>
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
