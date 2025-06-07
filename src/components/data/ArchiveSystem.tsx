@@ -59,19 +59,34 @@ const ArchiveSystem = () => {
       
       const { data, error } = await supabase
         .from('archived_data')
-        .select(`
-          *,
-          archived_user:profiles!archived_data_archived_by_fkey(email)
-        `)
+        .select('*')
         .order('archived_at', { ascending: false })
         .limit(50);
 
       if (error) throw error;
 
-      const formattedData = data?.map(item => ({
-        ...item,
-        user_email: item.archived_user?.email || 'Unknown'
-      })) || [];
+      // Fetch user emails separately
+      const formattedData = await Promise.all(
+        (data || []).map(async (item) => {
+          let userEmail = 'Unknown';
+
+          if (item.archived_by) {
+            const { data: userProfile } = await supabase
+              .from('profiles')
+              .select('email')
+              .eq('id', item.archived_by)
+              .single();
+            if (userProfile) {
+              userEmail = userProfile.email;
+            }
+          }
+
+          return {
+            ...item,
+            user_email: userEmail
+          };
+        })
+      );
 
       setArchivedData(formattedData);
     } catch (error) {

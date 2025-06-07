@@ -57,21 +57,49 @@ const MessagingSystem = () => {
       
       const { data: messagesData, error } = await supabase
         .from('system_messages')
-        .select(`
-          *,
-          sender:profiles!system_messages_sender_id_fkey(email),
-          recipient:profiles!system_messages_recipient_id_fkey(email)
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(50);
 
       if (error) throw error;
 
-      const formattedMessages = messagesData?.map(msg => ({
-        ...msg,
-        sender_email: msg.sender?.email || 'Unknown',
-        recipient_email: msg.recipient?.email || 'Role-based message'
-      })) || [];
+      // Fetch sender and recipient emails separately
+      const formattedMessages = await Promise.all(
+        (messagesData || []).map(async (msg) => {
+          let senderEmail = 'Unknown';
+          let recipientEmail = 'Role-based message';
+
+          // Fetch sender email
+          if (msg.sender_id) {
+            const { data: senderProfile } = await supabase
+              .from('profiles')
+              .select('email')
+              .eq('id', msg.sender_id)
+              .single();
+            if (senderProfile) {
+              senderEmail = senderProfile.email;
+            }
+          }
+
+          // Fetch recipient email if it's a direct message
+          if (msg.recipient_id) {
+            const { data: recipientProfile } = await supabase
+              .from('profiles')
+              .select('email')
+              .eq('id', msg.recipient_id)
+              .single();
+            if (recipientProfile) {
+              recipientEmail = recipientProfile.email;
+            }
+          }
+
+          return {
+            ...msg,
+            sender_email: senderEmail,
+            recipient_email: recipientEmail
+          };
+        })
+      );
 
       setMessages(formattedMessages);
     } catch (error) {

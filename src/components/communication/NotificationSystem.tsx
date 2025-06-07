@@ -13,15 +13,6 @@ import { Bell, Send, RefreshCw, Loader, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
-interface NotificationPayload {
-  user_id?: string;
-  role?: string;
-  title: string;
-  message: string;
-  type: string;
-  action_url?: string;
-}
-
 interface NotificationRecord {
   id: string;
   title: string;
@@ -61,19 +52,34 @@ const NotificationSystem = () => {
       
       const { data, error } = await supabase
         .from('notifications')
-        .select(`
-          *,
-          user:profiles!notifications_user_id_fkey(email)
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(50);
 
       if (error) throw error;
 
-      const formattedNotifications = data?.map(notification => ({
-        ...notification,
-        user_email: notification.user?.email || 'Unknown'
-      })) || [];
+      // Fetch user emails separately
+      const formattedNotifications = await Promise.all(
+        (data || []).map(async (notification) => {
+          let userEmail = 'Unknown';
+
+          if (notification.user_id) {
+            const { data: userProfile } = await supabase
+              .from('profiles')
+              .select('email')
+              .eq('id', notification.user_id)
+              .single();
+            if (userProfile) {
+              userEmail = userProfile.email;
+            }
+          }
+
+          return {
+            ...notification,
+            user_email: userEmail
+          };
+        })
+      );
 
       setNotifications(formattedNotifications);
     } catch (error) {
@@ -168,12 +174,12 @@ const NotificationSystem = () => {
   };
 
   const sendToUser = async (userId: string) => {
-    const notification: NotificationPayload = {
+    const notification = {
       user_id: userId,
       title,
       message,
       type: notificationType,
-      action_url: actionUrl || undefined
+      action_url: actionUrl || null
     };
 
     const { error } = await supabase
@@ -199,7 +205,7 @@ const NotificationSystem = () => {
         title,
         message,
         type: notificationType,
-        action_url: actionUrl || undefined
+        action_url: actionUrl || null
       }));
 
       const { error: insertError } = await supabase
