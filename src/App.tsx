@@ -192,7 +192,7 @@ function App() {
                     <Route 
                       path="/system" 
                       element={
-                        <ProtectedRoute>
+                        <ProtectedRoute allowedRoles={['admin', 'hospital', 'manufacturer', 'investor']}>
                           <Layout>
                             <SystemManagement />
                           </Layout>

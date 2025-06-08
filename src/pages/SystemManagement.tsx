@@ -24,7 +24,7 @@ const LazyChatSupport = lazy(() => import('@/components/communication/ChatSuppor
 
 const SystemManagement = () => {
   const { user } = useAuth();
-  const { isRoleAuthorized } = useUserRole();
+  const { role } = useUserRole();
   const { toast } = useToast();
   const { logAuditEvent } = useSystemManagement();
   const [activeTab, setActiveTab] = useState('communication');
@@ -40,25 +40,6 @@ const SystemManagement = () => {
       );
     }
   }, [user]);
-  
-  // Check if user is authorized to view this page
-  if (!isRoleAuthorized(['admin'])) {
-    return (
-      <Layout>
-        <div className="container mx-auto py-10">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-red-600">Access Denied</CardTitle>
-              <CardDescription>
-                You do not have permission to access system management features.
-                Please contact your administrator.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
-      </Layout>
-    );
-  }
   
   return (
     <Layout>
@@ -97,10 +78,12 @@ const SystemManagement = () => {
                       <Bell className="h-4 w-4 mr-2" />
                       Notifications
                     </TabsTrigger>
-                    <TabsTrigger value="emails" className="rounded-none">
-                      <FileText className="h-4 w-4 mr-2" />
-                      Email Templates
-                    </TabsTrigger>
+                    {role === 'admin' && (
+                      <TabsTrigger value="emails" className="rounded-none">
+                        <FileText className="h-4 w-4 mr-2" />
+                        Email Templates
+                      </TabsTrigger>
+                    )}
                     <TabsTrigger value="support" className="rounded-none">
                       <MessageCircle className="h-4 w-4 mr-2" />
                       Support Chat
@@ -121,12 +104,14 @@ const SystemManagement = () => {
                     />
                   </TabsContent>
                   
-                  <TabsContent value="emails" className="pt-6 pb-6">
-                    <LazyComponent 
-                      component={LazyEmailTemplateEditor}
-                      fallback={<div className="h-[600px] animate-pulse bg-gray-100 rounded-lg"></div>}
-                    />
-                  </TabsContent>
+                  {role === 'admin' && (
+                    <TabsContent value="emails" className="pt-6 pb-6">
+                      <LazyComponent 
+                        component={LazyEmailTemplateEditor}
+                        fallback={<div className="h-[600px] animate-pulse bg-gray-100 rounded-lg"></div>}
+                      />
+                    </TabsContent>
+                  )}
                   
                   <TabsContent value="support" className="pt-6 pb-6">
                     <LazyComponent 
@@ -140,10 +125,12 @@ const SystemManagement = () => {
               <TabsContent value="data" className="mt-0 pt-0">
                 <Tabs value={activeDataTab} onValueChange={setActiveDataTab} className="w-full">
                   <TabsList className="w-full grid grid-cols-4 rounded-none border-b">
-                    <TabsTrigger value="backup" className="rounded-none">
-                      <Database className="h-4 w-4 mr-2" />
-                      Backup & Recovery
-                    </TabsTrigger>
+                    {role === 'admin' && (
+                      <TabsTrigger value="backup" className="rounded-none">
+                        <Database className="h-4 w-4 mr-2" />
+                        Backup & Recovery
+                      </TabsTrigger>
+                    )}
                     <TabsTrigger value="export" className="rounded-none">
                       <FileText className="h-4 w-4 mr-2" />
                       Data Export
@@ -152,18 +139,22 @@ const SystemManagement = () => {
                       <ClipboardCheck className="h-4 w-4 mr-2" />
                       Audit Logs
                     </TabsTrigger>
-                    <TabsTrigger value="archive" className="rounded-none">
-                      <Archive className="h-4 w-4 mr-2" />
-                      Archive System
-                    </TabsTrigger>
+                    {role === 'admin' && (
+                      <TabsTrigger value="archive" className="rounded-none">
+                        <Archive className="h-4 w-4 mr-2" />
+                        Archive System
+                      </TabsTrigger>
+                    )}
                   </TabsList>
                   
-                  <TabsContent value="backup" className="pt-6 pb-6">
-                    <LazyComponent 
-                      component={LazyDataBackupSystem}
-                      fallback={<div className="h-[600px] animate-pulse bg-gray-100 rounded-lg"></div>}
-                    />
-                  </TabsContent>
+                  {role === 'admin' && (
+                    <TabsContent value="backup" className="pt-6 pb-6">
+                      <LazyComponent 
+                        component={LazyDataBackupSystem}
+                        fallback={<div className="h-[600px] animate-pulse bg-gray-100 rounded-lg"></div>}
+                      />
+                    </TabsContent>
+                  )}
                   
                   <TabsContent value="export" className="pt-6 pb-6">
                     <LazyComponent 
@@ -179,12 +170,14 @@ const SystemManagement = () => {
                     />
                   </TabsContent>
                   
-                  <TabsContent value="archive" className="pt-6 pb-6">
-                    <LazyComponent 
-                      component={LazyArchiveSystem}
-                      fallback={<div className="h-[600px] animate-pulse bg-gray-100 rounded-lg"></div>}
-                    />
-                  </TabsContent>
+                  {role === 'admin' && (
+                    <TabsContent value="archive" className="pt-6 pb-6">
+                      <LazyComponent 
+                        component={LazyArchiveSystem}
+                        fallback={<div className="h-[600px] animate-pulse bg-gray-100 rounded-lg"></div>}
+                      />
+                    </TabsContent>
+                  )}
                 </Tabs>
               </TabsContent>
             </Tabs>
