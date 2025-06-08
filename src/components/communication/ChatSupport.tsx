@@ -6,54 +6,28 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MessageCircle, ChevronUp, Send, X, User, Mail } from 'lucide-react';
+import { MessageCircle, ChevronUp, Send, X, User, Mail, Loader } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-
-interface SupportMessage {
-  id: string;
-  user_id: string | null;
-  user_email: string | null;
-  user_name: string | null;
-  message: string;
-  is_from_user: boolean;
-  created_at: string;
-}
-
-// Mock data for support messages
-const mockSupportMessages: SupportMessage[] = [
-  {
-    id: '1',
-    user_id: '123',
-    user_email: 'user@example.com',
-    user_name: 'John Doe',
-    message: 'Hello, I need help with my order',
-    is_from_user: true,
-    created_at: new Date().toISOString()
-  },
-  {
-    id: '2',
-    user_id: '123',
-    user_email: 'user@example.com',
-    user_name: 'Support Team',
-    message: 'Hi John, how can I help you today?',
-    is_from_user: false,
-    created_at: new Date().toISOString()
-  }
-];
+import { useSupportChat } from '@/hooks/useSupportChat';
 
 const ChatSupport = () => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [sending, setSending] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  const {
+    messages,
+    currentRequest,
+    loading,
+    sending,
+    sendMessage
+  } = useSupportChat();
   
   useEffect(() => {
     if (user) {
@@ -63,40 +37,13 @@ const ChatSupport = () => {
   }, [user, profile]);
   
   useEffect(() => {
-    if (isOpen && user) {
-      fetchMessages();
-    }
-  }, [isOpen, user]);
-  
-  useEffect(() => {
     // Scroll to bottom whenever messages change
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
   
-  const fetchMessages = async () => {
-    if (!user) return;
-    
-    try {
-      setLoading(true);
-      
-      // Use mock data instead of Supabase query
-      setMessages(mockSupportMessages);
-      
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching support messages:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load support chat history',
-        variant: 'destructive',
-      });
-      setLoading(false);
-    }
-  };
-  
-  const sendMessage = async () => {
+  const handleSendMessage = async () => {
     if (!message.trim()) return;
     
     if (!user && (!name.trim() || !email.trim())) {
@@ -108,47 +55,18 @@ const ChatSupport = () => {
       return;
     }
     
-    try {
-      setSending(true);
-      
-      const newMessage: SupportMessage = {
-        id: `temp-${Date.now()}`,
-        user_id: user?.id || null,
-        user_email: user?.email || email,
-        user_name: profile?.full_name || name,
-        message: message.trim(),
-        is_from_user: true,
-        created_at: new Date().toISOString(),
-      };
-      
-      // Add new message to state
-      setMessages(prev => [...prev, newMessage]);
-      setMessage('');
-      
-      // Simulate support team response
-      setTimeout(() => {
-        const supportResponse: SupportMessage = {
-          id: `temp-${Date.now() + 1}`,
-          user_id: user?.id || null,
-          user_email: user?.email || email,
-          user_name: 'Support Team',
-          message: 'Thank you for your message. Our support team will get back to you as soon as possible.',
-          is_from_user: false,
-          created_at: new Date().toISOString(),
-        };
-        
-        setMessages(prev => [...prev, supportResponse]);
-      }, 1000);
-      
-      setSending(false);
-    } catch (error) {
-      console.error('Error sending support message:', error);
+    if (!user) {
       toast({
-        title: 'Error',
-        description: 'Failed to send message',
+        title: 'Authentication Required',
+        description: 'Please sign in to use the support chat',
         variant: 'destructive',
       });
-      setSending(false);
+      return;
+    }
+    
+    const success = await sendMessage(message);
+    if (success) {
+      setMessage('');
     }
   };
   
@@ -170,7 +88,7 @@ const ChatSupport = () => {
       {!isOpen && (
         <div className="fixed bottom-6 right-6 z-50">
           <Button
-            className="h-12 w-12 rounded-full bg-red-600 hover:bg-red-700 shadow-lg"
+            className="h-12 w-12 rounded-full bg-[#E02020] hover:bg-red-700 shadow-lg"
             onClick={() => setIsOpen(true)}
           >
             <MessageCircle className="h-6 w-6" />
@@ -190,7 +108,7 @@ const ChatSupport = () => {
           <Card className={`w-full h-full shadow-xl flex flex-col ${isMinimized ? 'rounded-full' : 'rounded-lg'}`}>
             {isMinimized ? (
               <Button
-                className="h-12 w-auto px-4 bg-red-600 hover:bg-red-700 rounded-full flex items-center"
+                className="h-12 w-auto px-4 bg-[#E02020] hover:bg-red-700 rounded-full flex items-center"
                 onClick={toggleChat}
               >
                 <MessageCircle className="h-5 w-5 mr-2" />
@@ -201,7 +119,7 @@ const ChatSupport = () => {
                 <CardHeader className="py-3 px-4 flex flex-row items-center justify-between space-y-0 border-b">
                   <div>
                     <CardTitle className="text-md flex items-center">
-                      <MessageCircle className="h-4 w-4 mr-2 text-red-600" />
+                      <MessageCircle className="h-4 w-4 mr-2 text-[#E02020]" />
                       Support Chat
                     </CardTitle>
                     <CardDescription className="text-xs mt-1">
@@ -260,7 +178,10 @@ const ChatSupport = () => {
                   
                   <ScrollArea className="flex-1">
                     {loading ? (
-                      <div className="flex justify-center p-4">Loading messages...</div>
+                      <div className="flex justify-center items-center p-4">
+                        <Loader className="h-6 w-6 animate-spin text-[#E02020]" />
+                        <span className="ml-2">Loading messages...</span>
+                      </div>
                     ) : messages.length === 0 ? (
                       <div className="h-full flex items-center justify-center text-gray-500 flex-col">
                         <MessageCircle className="h-10 w-10 mb-2 text-gray-300" />
@@ -273,21 +194,21 @@ const ChatSupport = () => {
                         {messages.map((msg) => (
                           <div 
                             key={msg.id}
-                            className={`flex ${msg.is_from_user ? 'justify-end' : 'justify-start'}`}
+                            className={`flex ${msg.sender_type === 'user' ? 'justify-end' : 'justify-start'}`}
                           >
                             <div 
                               className={`max-w-[80%] p-3 rounded-lg ${
-                                msg.is_from_user 
-                                  ? 'bg-red-600 text-white' 
+                                msg.sender_type === 'user' 
+                                  ? 'bg-[#E02020] text-white' 
                                   : 'bg-gray-100 text-gray-800'
                               }`}
                             >
-                              {!msg.is_from_user && (
+                              {msg.sender_type !== 'user' && (
                                 <p className="text-xs font-medium mb-1">Support Team</p>
                               )}
                               <p className="text-sm">{msg.message}</p>
-                              <p className={`text-xs mt-1 ${msg.is_from_user ? 'text-red-100' : 'text-gray-500'}`}>
-                                {msg.created_at ? format(new Date(msg.created_at), 'h:mm a') : format(new Date(), 'h:mm a')}
+                              <p className={`text-xs mt-1 ${msg.sender_type === 'user' ? 'text-red-100' : 'text-gray-500'}`}>
+                                {format(new Date(msg.created_at), 'h:mm a')}
                               </p>
                             </div>
                           </div>
@@ -307,16 +228,21 @@ const ChatSupport = () => {
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                           e.preventDefault();
-                          sendMessage();
+                          handleSendMessage();
                         }
                       }}
+                      disabled={sending || loading}
                     />
                     <Button 
-                      className="bg-red-600 hover:bg-red-700 h-9 w-9 p-0"
-                      onClick={sendMessage}
-                      disabled={!message.trim() || sending}
+                      className="bg-[#E02020] hover:bg-red-700 h-9 w-9 p-0"
+                      onClick={handleSendMessage}
+                      disabled={!message.trim() || sending || loading || !user}
                     >
-                      <Send className="h-4 w-4" />
+                      {sending ? (
+                        <Loader className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Send className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </CardFooter>
