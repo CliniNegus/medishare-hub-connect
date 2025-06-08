@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -31,7 +30,7 @@ interface SupportRequestWithProfile {
   profiles: {
     email: string;
     full_name: string;
-  };
+  } | null;
 }
 
 export function SupportRequestsPanel() {
@@ -53,7 +52,14 @@ export function SupportRequestsPanel() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as SupportRequestWithProfile[];
+      
+      // Type the data properly
+      return (data || []).map(item => ({
+        ...item,
+        status: item.status as 'open' | 'in_progress' | 'resolved' | 'closed',
+        priority: item.priority as 'low' | 'normal' | 'high' | 'urgent',
+        profiles: Array.isArray(item.profiles) ? item.profiles[0] : item.profiles
+      })) as SupportRequestWithProfile[];
     }
   });
 
@@ -66,7 +72,13 @@ export function SupportRequestsPanel() {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setMessages(data || []);
+      
+      const typedMessages: SupportMessage[] = (data || []).map(msg => ({
+        ...msg,
+        sender_type: msg.sender_type as 'user' | 'admin'
+      }));
+      
+      setMessages(typedMessages);
     } catch (error) {
       console.error('Error fetching messages:', error);
       toast({
@@ -101,7 +113,12 @@ export function SupportRequestsPanel() {
 
       if (error) throw error;
 
-      setMessages(prev => [...prev, data]);
+      const typedMessage: SupportMessage = {
+        ...data,
+        sender_type: data.sender_type as 'user' | 'admin'
+      };
+      
+      setMessages(prev => [...prev, typedMessage]);
       setNewMessage('');
 
       // Update request status to in_progress if it was open
@@ -233,7 +250,7 @@ export function SupportRequestsPanel() {
                       </div>
                       <div className="flex items-center text-xs text-gray-500 mb-2">
                         <User className="h-3 w-3 mr-1" />
-                        {request.profiles?.full_name || request.profiles?.email}
+                        {request.profiles?.full_name || request.profiles?.email || 'Unknown User'}
                       </div>
                       <div className="flex items-center text-xs text-gray-500">
                         <Clock className="h-3 w-3 mr-1" />

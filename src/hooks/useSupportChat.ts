@@ -55,7 +55,12 @@ export function useSupportChat() {
       }
 
       if (existingRequest) {
-        setCurrentRequest(existingRequest);
+        const typedRequest: SupportRequest = {
+          ...existingRequest,
+          status: existingRequest.status as 'open' | 'in_progress' | 'resolved' | 'closed',
+          priority: existingRequest.priority as 'low' | 'normal' | 'high' | 'urgent'
+        };
+        setCurrentRequest(typedRequest);
         await fetchMessages(existingRequest.id);
       } else {
         // Create new support request
@@ -73,7 +78,12 @@ export function useSupportChat() {
 
         if (createError) throw createError;
 
-        setCurrentRequest(newRequest);
+        const typedRequest: SupportRequest = {
+          ...newRequest,
+          status: newRequest.status as 'open' | 'in_progress' | 'resolved' | 'closed',
+          priority: newRequest.priority as 'low' | 'normal' | 'high' | 'urgent'
+        };
+        setCurrentRequest(typedRequest);
         setMessages([]);
       }
     } catch (error) {
@@ -99,7 +109,12 @@ export function useSupportChat() {
 
       if (error) throw error;
 
-      setMessages(data || []);
+      const typedMessages: SupportMessage[] = (data || []).map(msg => ({
+        ...msg,
+        sender_type: msg.sender_type as 'user' | 'admin'
+      }));
+
+      setMessages(typedMessages);
     } catch (error) {
       console.error('Error fetching messages:', error);
       toast({
@@ -130,8 +145,12 @@ export function useSupportChat() {
 
       if (error) throw error;
 
-      // Update local state immediately
-      setMessages(prev => [...prev, data]);
+      // Update local state immediately with properly typed message
+      const typedMessage: SupportMessage = {
+        ...data,
+        sender_type: data.sender_type as 'user' | 'admin'
+      };
+      setMessages(prev => [...prev, typedMessage]);
 
       return true;
     } catch (error) {
@@ -162,10 +181,14 @@ export function useSupportChat() {
           filter: `support_request_id=eq.${currentRequest.id}`
         },
         (payload) => {
-          const newMessage = payload.new as SupportMessage;
+          const newMessage = payload.new as any;
           // Only add message if it's not from the current user (to avoid duplicates)
           if (newMessage.sender_id !== user?.id) {
-            setMessages(prev => [...prev, newMessage]);
+            const typedMessage: SupportMessage = {
+              ...newMessage,
+              sender_type: newMessage.sender_type as 'user' | 'admin'
+            };
+            setMessages(prev => [...prev, typedMessage]);
           }
         }
       )
