@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -104,7 +103,16 @@ const AuditLogs = () => {
 
       if (error) throw error;
       
-      setLogs(data || []);
+      // Properly type cast the data to match our AuditLog interface
+      const typedLogs: AuditLog[] = (data || []).map(log => ({
+        ...log,
+        ip_address: log.ip_address?.toString() || '',
+        user_agent: log.user_agent || '',
+        resource_id: log.resource_id || '',
+        user_id: log.user_id || ''
+      }));
+      
+      setLogs(typedLogs);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching audit logs:', error);
@@ -147,7 +155,7 @@ const AuditLogs = () => {
           log.resource_type,
           log.resource_id || '',
           log.user_id || '',
-          log.ip_address || ''
+          log.ip_address?.toString() || ''
         ].join(','))
       ].join('\n');
 
