@@ -53,12 +53,43 @@ const ActiveUsersTable = () => {
     
     const date = new Date(dateString);
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
     
-    if (diffInHours < 1) return 'Just now';
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
     if (diffInHours < 24) return `${diffInHours}h ago`;
-    if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays}d ago`;
+    
     return date.toLocaleDateString();
+  };
+
+  const getActivityStatus = (dateString: string | null) => {
+    if (!dateString) return 'offline';
+    
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 5) return 'online';
+    if (diffInMinutes < 30) return 'away';
+    return 'offline';
+  };
+
+  const getActivityStatusColor = (status: string) => {
+    switch (status) {
+      case 'online':
+        return 'bg-green-500';
+      case 'away':
+        return 'bg-yellow-500';
+      case 'offline':
+        return 'bg-gray-500';
+      default:
+        return 'bg-gray-500';
+    }
   };
 
   const getRoleBadgeColor = (role: string | null) => {
@@ -142,7 +173,7 @@ const ActiveUsersTable = () => {
                 onClick={() => handleSort('last_active')}
               >
                 <div className="flex items-center space-x-1">
-                  <span>Last Active</span>
+                  <span>Activity Status</span>
                   {getSortIcon('last_active')}
                 </div>
               </TableHead>
@@ -166,73 +197,85 @@ const ActiveUsersTable = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              users.map((user) => (
-                <TableRow key={user.id} className="hover:bg-gray-50">
-                  <TableCell className="font-medium">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
-                            {user.id.substring(0, 8)}...
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="font-mono text-xs">{user.id}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </TableCell>
-                  <TableCell>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <div className="space-y-1">
-                            <div className="font-medium">
-                              {user.full_name || 'No name'}
+              users.map((user) => {
+                const activityStatus = getActivityStatus(user.last_active);
+                return (
+                  <TableRow key={user.id} className="hover:bg-gray-50">
+                    <TableCell className="font-medium">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                              {user.id.substring(0, 8)}...
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="font-mono text-xs">{user.id}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
+                    <TableCell>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <div className="space-y-1">
+                              <div className="font-medium">
+                                {user.full_name || 'No name'}
+                              </div>
                             </div>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{user.email}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getRoleBadgeColor(user.role)}>
-                      {user.role || 'No role'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{user.organization || 'Not specified'}</TableCell>
-                  <TableCell>
-                    <span className="text-sm text-gray-600">
-                      {formatLastActive(user.last_active)}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleViewUser(user)}
-                        className="hover:bg-blue-50 hover:border-blue-300"
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        View
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleEditUser(user)}
-                        className="hover:bg-[#E02020]/5 hover:border-[#E02020]/30"
-                      >
-                        <Edit className="h-4 w-4 mr-1" />
-                        Edit
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{user.email}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getRoleBadgeColor(user.role)}>
+                        {user.role || 'No role'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{user.organization || 'Not specified'}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <div 
+                          className={`w-2 h-2 rounded-full ${getActivityStatusColor(activityStatus)}`}
+                          title={activityStatus}
+                        />
+                        <span className="text-sm text-gray-600 capitalize">
+                          {activityStatus}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          ({formatLastActive(user.last_active)})
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleViewUser(user)}
+                          className="hover:bg-blue-50 hover:border-blue-300"
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEditUser(user)}
+                          className="hover:bg-[#E02020]/5 hover:border-[#E02020]/30"
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          Edit
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>

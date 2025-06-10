@@ -32,6 +32,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setLastActivity(Date.now());
   };
 
+  // Function to update user's last_active timestamp in database
+  const updateUserActivity = async () => {
+    if (user) {
+      try {
+        await supabase.rpc('update_user_last_active', { user_uuid: user.id });
+      } catch (error) {
+        console.error('Error updating user activity:', error);
+      }
+    }
+  };
+
   // Setup session timeout
   useEffect(() => {
     if (!user) return;
@@ -69,7 +80,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, [user, sessionTimeoutMinutes, lastActivity]);
 
-  // Setup activity listeners
+  // Setup activity listeners and periodic activity updates
   useEffect(() => {
     if (!user) return;
 
@@ -78,16 +89,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     const handleActivity = () => {
       resetActivityTimer();
+      updateUserActivity(); // Update database on activity
     };
 
     activityEvents.forEach(event => {
       window.addEventListener(event, handleActivity);
     });
 
+    // Set up periodic activity updates (every 2 minutes)
+    const activityUpdateInterval = setInterval(updateUserActivity, 2 * 60 * 1000);
+
     return () => {
       activityEvents.forEach(event => {
         window.removeEventListener(event, handleActivity);
       });
+      clearInterval(activityUpdateInterval);
     };
   }, [user]);
 
@@ -102,6 +118,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setProfile(null);
         } else if (event === 'SIGNED_IN' && newSession?.user) {
           fetchProfile(newSession.user.id);
+          // Update activity on sign in
+          updateUserActivity();
         }
       }
     );
@@ -113,6 +131,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (currentSession?.user) {
         fetchProfile(currentSession.user.id);
+        // Update activity for existing session
+        updateUserActivity();
       }
       
       setLoading(false);

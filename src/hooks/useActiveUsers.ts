@@ -85,6 +85,55 @@ export const useActiveUsers = () => {
     }
   };
 
+  // Set up real-time subscription for profile updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('profiles-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles'
+        },
+        (payload) => {
+          console.log('Profile change detected:', payload);
+          // Refresh users when any profile changes
+          fetchUsers();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [searchTerm, sortField, sortDirection]);
+
+  // Set up periodic user activity updates
+  useEffect(() => {
+    // Update current user's last_active timestamp periodically
+    const updateUserActivity = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.rpc('update_user_last_active', { user_uuid: user.id });
+        }
+      } catch (error) {
+        console.error('Error updating user activity:', error);
+      }
+    };
+
+    // Update activity immediately
+    updateUserActivity();
+
+    // Set up interval to update activity every 5 minutes
+    const activityInterval = setInterval(updateUserActivity, 5 * 60 * 1000);
+
+    return () => {
+      clearInterval(activityInterval);
+    };
+  }, []);
+
   useEffect(() => {
     fetchUsers();
   }, [searchTerm, sortField, sortDirection]);
