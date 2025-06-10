@@ -16,13 +16,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 interface AuditLog {
   id: string;
   action: string;
-  entity_type: string;
-  entity_id: string;
+  resource_type: string;
+  resource_id: string;
   user_id: string;
-  user_email: string;
-  details: string;
   ip_address: string;
-  timestamp: string;
+  user_agent: string;
+  old_values: any;
+  new_values: any;
+  created_at: string;
 }
 
 const AuditLogs = () => {
@@ -32,7 +33,7 @@ const AuditLogs = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [actionFilter, setActionFilter] = useState('all');
-  const [entityFilter, setEntityFilter] = useState('all');
+  const [resourceFilter, setResourceFilter] = useState('all');
   const [dateRange, setDateRange] = useState('7days');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -42,59 +43,26 @@ const AuditLogs = () => {
     if (user) {
       fetchLogs();
     }
-  }, [user, page, actionFilter, entityFilter, dateRange]);
+  }, [user, page, actionFilter, resourceFilter, dateRange]);
 
   const fetchLogs = async () => {
     try {
       setLoading(true);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Generate mock data
-      const mockLogs: AuditLog[] = [];
-      const actions = ['create', 'update', 'delete', 'login', 'logout', 'export', 'import'];
-      const entities = ['equipment', 'user', 'lease', 'maintenance', 'payment', 'backup', 'hospital'];
-      
-      const getRandomDate = () => {
-        const now = new Date();
-        const daysAgo = Math.floor(Math.random() * 30); // Random date within 30 days
-        now.setDate(now.getDate() - daysAgo);
-        return now.toISOString();
-      };
-      
-      // Generate 100 random logs
-      for (let i = 0; i < 100; i++) {
-        const action = actions[Math.floor(Math.random() * actions.length)];
-        const entity = entities[Math.floor(Math.random() * entities.length)];
-        
-        mockLogs.push({
-          id: `log-${i}`,
-          action,
-          entity_type: entity,
-          entity_id: `${entity}-${Math.floor(Math.random() * 1000)}`,
-          user_id: `user-${Math.floor(Math.random() * 20)}`,
-          user_email: `user${Math.floor(Math.random() * 20)}@example.com`,
-          details: `${action} operation on ${entity}`,
-          ip_address: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
-          timestamp: getRandomDate()
-        });
-      }
-      
-      // Sort by timestamp, newest first
-      mockLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-      
+      let query = supabase
+        .from('audit_logs')
+        .select('*')
+        .order('created_at', { ascending: false });
+
       // Apply filters
-      let filteredLogs = mockLogs;
-      
       if (actionFilter !== 'all') {
-        filteredLogs = filteredLogs.filter(log => log.action === actionFilter);
+        query = query.eq('action', actionFilter);
       }
-      
-      if (entityFilter !== 'all') {
-        filteredLogs = filteredLogs.filter(log => log.entity_type === entityFilter);
+
+      if (resourceFilter !== 'all') {
+        query = query.eq('resource_type', resourceFilter);
       }
-      
+
       if (dateRange !== 'all') {
         const now = new Date();
         let cutoffDate = new Date();
@@ -111,30 +79,32 @@ const AuditLogs = () => {
             break;
         }
         
-        filteredLogs = filteredLogs.filter(log => new Date(log.timestamp) > cutoffDate);
+        if (dateRange !== 'all') {
+          query = query.gte('created_at', cutoffDate.toISOString());
+        }
       }
-      
+
       if (searchTerm) {
-        const term = searchTerm.toLowerCase();
-        filteredLogs = filteredLogs.filter(log => 
-          log.action.toLowerCase().includes(term) ||
-          log.entity_type.toLowerCase().includes(term) ||
-          log.entity_id.toLowerCase().includes(term) ||
-          log.user_email.toLowerCase().includes(term) ||
-          log.details.toLowerCase().includes(term)
-        );
+        query = query.or(`action.ilike.%${searchTerm}%,resource_type.ilike.%${searchTerm}%,resource_id.ilike.%${searchTerm}%`);
       }
-      
+
       // Calculate pagination
-      const totalItems = filteredLogs.length;
+      const { count } = await supabase
+        .from('audit_logs')
+        .select('*', { count: 'exact', head: true });
+
+      const totalItems = count || 0;
       setTotalPages(Math.ceil(totalItems / itemsPerPage));
-      
+
       // Get page of items
-      const startIndex = (page - 1) * itemsPerPage;
-      const endIndex = startIndex + itemsPerPage;
-      const paginatedLogs = filteredLogs.slice(startIndex, endIndex);
+      const startRange = (page - 1) * itemsPerPage;
+      const endRange = startRange + itemsPerPage - 1;
       
-      setLogs(paginatedLogs);
+      const { data, error } = await query.range(startRange, endRange);
+
+      if (error) throw error;
+      
+      setLogs(data || []);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching audit logs:', error);
@@ -153,34 +123,76 @@ const AuditLogs = () => {
     fetchLogs();
   };
 
-  const exportLogs = () => {
-    toast({
-      title: 'Export Started',
-      description: 'Audit logs export is being prepared',
-    });
-    
-    // Simulate export process
-    setTimeout(() => {
+  const exportLogs = async () => {
+    try {
+      toast({
+        title: 'Export Started',
+        description: 'Audit logs export is being prepared',
+      });
+
+      const { data, error } = await supabase
+        .from('audit_logs')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Convert to CSV
+      const headers = ['Date', 'Action', 'Resource Type', 'Resource ID', 'User ID', 'IP Address'];
+      const csvContent = [
+        headers.join(','),
+        ...(data || []).map(log => [
+          format(new Date(log.created_at), 'yyyy-MM-dd HH:mm:ss'),
+          log.action,
+          log.resource_type,
+          log.resource_id || '',
+          log.user_id || '',
+          log.ip_address || ''
+        ].join(','))
+      ].join('\n');
+
+      // Download CSV
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `audit-logs-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
       toast({
         title: 'Export Complete',
-        description: 'Audit logs export is ready for download',
+        description: 'Audit logs have been exported successfully',
       });
-    }, 2000);
+    } catch (error) {
+      console.error('Error exporting logs:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to export audit logs',
+        variant: 'destructive',
+      });
+    }
   };
 
   const getLogActionColor = (action: string) => {
-    switch (action) {
+    switch (action.toLowerCase()) {
       case 'create':
+      case 'create_backup':
         return 'bg-green-100 text-green-800';
       case 'update':
+      case 'update_settings':
         return 'bg-blue-100 text-blue-800';
       case 'delete':
         return 'bg-red-100 text-red-800';
       case 'login':
       case 'logout':
+      case 'page_access':
+      case 'system_page_access':
         return 'bg-purple-100 text-purple-800';
-      case 'export':
-      case 'import':
+      case 'send_message':
+      case 'archive_data':
         return 'bg-yellow-100 text-yellow-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -257,30 +269,30 @@ const AuditLogs = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Actions</SelectItem>
-                    <SelectItem value="create">Create</SelectItem>
-                    <SelectItem value="update">Update</SelectItem>
-                    <SelectItem value="delete">Delete</SelectItem>
-                    <SelectItem value="login">Login</SelectItem>
-                    <SelectItem value="logout">Logout</SelectItem>
-                    <SelectItem value="export">Export</SelectItem>
-                    <SelectItem value="import">Import</SelectItem>
+                    <SelectItem value="CREATE">Create</SelectItem>
+                    <SelectItem value="UPDATE">Update</SelectItem>
+                    <SelectItem value="DELETE">Delete</SelectItem>
+                    <SelectItem value="LOGIN">Login</SelectItem>
+                    <SelectItem value="LOGOUT">Logout</SelectItem>
+                    <SelectItem value="PAGE_ACCESS">Page Access</SelectItem>
+                    <SelectItem value="SEND_MESSAGE">Send Message</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="w-32">
-                <Select value={entityFilter} onValueChange={setEntityFilter}>
+                <Select value={resourceFilter} onValueChange={setResourceFilter}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Entity" />
+                    <SelectValue placeholder="Resource" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Entities</SelectItem>
+                    <SelectItem value="all">All Resources</SelectItem>
                     <SelectItem value="equipment">Equipment</SelectItem>
                     <SelectItem value="user">User</SelectItem>
                     <SelectItem value="lease">Lease</SelectItem>
                     <SelectItem value="maintenance">Maintenance</SelectItem>
                     <SelectItem value="payment">Payment</SelectItem>
-                    <SelectItem value="backup">Backup</SelectItem>
-                    <SelectItem value="hospital">Hospital</SelectItem>
+                    <SelectItem value="data_backup">Backup</SelectItem>
+                    <SelectItem value="system_settings">Settings</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -321,8 +333,8 @@ const AuditLogs = () => {
                   <TableRow>
                     <TableHead>Timestamp</TableHead>
                     <TableHead>Action</TableHead>
-                    <TableHead>Entity</TableHead>
-                    <TableHead>User</TableHead>
+                    <TableHead>Resource</TableHead>
+                    <TableHead>User ID</TableHead>
                     <TableHead>Details</TableHead>
                     <TableHead>IP Address</TableHead>
                   </TableRow>
@@ -331,7 +343,7 @@ const AuditLogs = () => {
                   {logs.map(log => (
                     <TableRow key={log.id}>
                       <TableCell className="whitespace-nowrap">
-                        {format(new Date(log.timestamp), 'MMM d, yyyy HH:mm:ss')}
+                        {format(new Date(log.created_at), 'MMM d, yyyy HH:mm:ss')}
                       </TableCell>
                       <TableCell>
                         <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getLogActionColor(log.action)}`}>
@@ -339,16 +351,16 @@ const AuditLogs = () => {
                         </span>
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium">{log.entity_type}</div>
-                        <div className="text-xs text-gray-500">{log.entity_id}</div>
+                        <div className="font-medium">{log.resource_type}</div>
+                        <div className="text-xs text-gray-500">{log.resource_id || 'N/A'}</div>
                       </TableCell>
                       <TableCell className="max-w-[150px] truncate">
-                        {log.user_email}
+                        {log.user_id || 'System'}
                       </TableCell>
                       <TableCell className="max-w-[200px] truncate">
-                        {log.details}
+                        {log.new_values ? JSON.stringify(log.new_values) : 'No details'}
                       </TableCell>
-                      <TableCell>{log.ip_address}</TableCell>
+                      <TableCell>{log.ip_address || 'N/A'}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
