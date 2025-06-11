@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,19 +23,19 @@ const dashboardShowcases: ShowcaseItem[] = [
   {
     title: "Hospital Dashboard",
     description: "Manage inventory, track equipment usage, and handle equipment requests all in one place.",
-    imageSrc: "https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/hospital-dashboard.jpg",
+    imageSrc: "https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/landingpage/hospital-dashboard.jpg",
     alt: "Hospital Dashboard Interface"
   },
   {
     title: "Manufacturer Dashboard",
     description: "Monitor equipment distribution, manage virtual shops, and track real-time usage metrics.",
-    imageSrc: "https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/manufacturer-dashboard.jpg",
+    imageSrc: "https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/landingpage/manufacturer-dashboard.jpg",
     alt: "Manufacturer Dashboard Interface"
   },
   {
     title: "Investor Dashboard",
     description: "Track investments, monitor ROI, and discover new opportunities in the medical equipment space.",
-    imageSrc: "https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/investor-dashboard.jpg",
+    imageSrc: "https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/landingpage/investor-dashboard.jpg",
     alt: "Investor Dashboard Interface"
   }
 ];
