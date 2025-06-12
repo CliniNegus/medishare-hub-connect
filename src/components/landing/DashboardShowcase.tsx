@@ -30,6 +30,9 @@ const DashboardShowcase: React.FC = () => {
   useEffect(() => {
     const fetchShowcaseData = async () => {
       try {
+        setLoading(true);
+        console.log('Fetching platform showcase data...');
+        
         const { data, error } = await supabase
           .from('platform_showcases')
           .select('*')
@@ -41,6 +44,8 @@ const DashboardShowcase: React.FC = () => {
           return;
         }
 
+        console.log('Fetched showcase data:', data);
+
         const formattedData: ShowcaseItem[] = data.map(item => ({
           title: item.title,
           description: item.description,
@@ -48,6 +53,7 @@ const DashboardShowcase: React.FC = () => {
           alt: item.alt_text
         }));
 
+        console.log('Formatted showcase data:', formattedData);
         setShowcaseItems(formattedData);
       } catch (error) {
         console.error('Error fetching showcase data:', error);
@@ -60,7 +66,7 @@ const DashboardShowcase: React.FC = () => {
   }, []);
 
   // Update the current index when the carousel slides change
-  useCallback(() => {
+  useEffect(() => {
     if (!carouselApi) return;
     
     const onSelect = () => {
@@ -117,8 +123,11 @@ const DashboardShowcase: React.FC = () => {
                         alt={item.alt}
                         className="w-full h-full object-cover"
                         loading="lazy"
+                        onLoad={() => {
+                          console.log('Image loaded successfully:', item.imageSrc);
+                        }}
                         onError={(e) => {
-                          console.log('Image failed to load:', item.imageSrc);
+                          console.error('Image failed to load:', item.imageSrc);
                           e.currentTarget.style.display = 'none';
                         }}
                       />
