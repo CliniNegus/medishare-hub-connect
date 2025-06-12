@@ -2,7 +2,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import OptimizedImage from '@/components/OptimizedImage';
 import { cn } from "@/lib/utils";
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -113,11 +112,15 @@ const DashboardShowcase: React.FC = () => {
                 <div className="flex flex-col md:flex-row gap-6">
                   <div className="md:w-3/5">
                     <div className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 aspect-[16/9]">
-                      <OptimizedImage 
+                      <img 
                         src={item.imageSrc}
                         alt={item.alt}
-                        height={400}
                         className="w-full h-full object-cover"
+                        loading="lazy"
+                        onError={(e) => {
+                          console.log('Image failed to load:', item.imageSrc);
+                          e.currentTarget.style.display = 'none';
+                        }}
                       />
                     </div>
                   </div>
