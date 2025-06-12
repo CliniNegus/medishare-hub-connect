@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import { Eye, EyeOff, Mail, Lock, Shield } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Shield, ArrowRight } from "lucide-react";
 import { useEmailVerification } from "@/hooks/useEmailVerification";
 import EmailVerificationAlert from "@/components/auth/EmailVerificationAlert";
 
@@ -185,15 +186,17 @@ const SignInForm: React.FC<SignInFormProps> = ({
   if (showMfaVerification) {
     return (
       <form onSubmit={(e) => { e.preventDefault(); handleVerifyMfa(); }}>
-        <CardContent className="space-y-6 pt-6">
-          <div className="text-center space-y-2">
-            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Shield className="h-8 w-8 text-clinibuilds-red" />
+        <CardContent className="space-y-8 pt-6 px-8">
+          <div className="text-center space-y-4">
+            <div className="w-20 h-20 bg-gradient-to-br from-red-50 to-red-100 rounded-full flex items-center justify-center mx-auto mb-6 ring-4 ring-red-50">
+              <Shield className="h-10 w-10 text-[#E02020]" />
             </div>
-            <h3 className="text-xl font-semibold text-clinibuilds-dark">Two-Factor Authentication</h3>
-            <p className="text-sm text-gray-500">
-              Enter the 6-digit code from your authenticator app
-            </p>
+            <div className="space-y-2">
+              <h3 className="text-2xl font-bold text-[#333333]">Two-Factor Authentication</h3>
+              <p className="text-sm text-gray-600">
+                Enter the 6-digit code from your authenticator app
+              </p>
+            </div>
           </div>
           
           <div className="flex justify-center">
@@ -202,13 +205,13 @@ const SignInForm: React.FC<SignInFormProps> = ({
               onChange={setMfaCode} 
               maxLength={6}
               render={({ slots }) => (
-                <InputOTPGroup className="gap-2">
+                <InputOTPGroup className="gap-3">
                   {slots.map((slot, index) => (
                     <InputOTPSlot 
                       key={index} 
                       {...slot} 
                       index={index}
-                      className="w-12 h-12 text-lg border-2 border-gray-200 focus:border-clinibuilds-red rounded-lg"
+                      className="w-14 h-14 text-xl font-bold border-2 border-gray-200 focus:border-[#E02020] rounded-xl transition-all duration-200 hover:border-gray-300"
                     />
                   ))}
                 </InputOTPGroup>
@@ -220,16 +223,26 @@ const SignInForm: React.FC<SignInFormProps> = ({
             <Button 
               type="submit" 
               disabled={mfaCode.length !== 6 || loading}
-              className="w-full h-12 bg-clinibuilds-red hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-200"
+              className="w-full h-14 bg-gradient-to-r from-[#E02020] to-[#c01010] hover:from-[#c01010] hover:to-[#a00808] text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              {loading ? "Verifying..." : "Verify Code"}
+              {loading ? (
+                <div className="flex items-center space-x-3">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Verifying...</span>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <span>Verify Code</span>
+                  <ArrowRight className="h-5 w-5" />
+                </div>
+              )}
             </Button>
             <Button 
               type="button" 
               variant="outline" 
               onClick={() => setShowMfaVerification(false)}
               disabled={loading}
-              className="w-full h-12 border-2 border-gray-200 hover:bg-gray-50 rounded-lg transition-all duration-200"
+              className="w-full h-12 border-2 border-gray-200 hover:bg-gray-50 rounded-xl transition-all duration-200 font-semibold"
             >
               Back to Login
             </Button>
@@ -240,33 +253,33 @@ const SignInForm: React.FC<SignInFormProps> = ({
   }
 
   return (
-    <form onSubmit={handleSignIn} className="space-y-6">
-      <CardContent className="space-y-6 pt-6">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium text-clinibuilds-dark">
+    <form onSubmit={handleSignIn} className="space-y-0">
+      <CardContent className="space-y-8 pt-6 px-8">
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <Label htmlFor="email" className="text-sm font-bold text-[#333333] flex items-center gap-2">
+              <Mail className="h-4 w-4 text-[#E02020]" />
               Email Address
             </Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <div className="relative group">
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter your email"
+                placeholder="Enter your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="pl-10 h-12 border-2 border-gray-200 focus:border-clinibuilds-red rounded-lg transition-all duration-200"
+                className="h-14 pl-4 pr-4 border-2 border-gray-200 focus:border-[#E02020] rounded-xl transition-all duration-300 text-base font-medium placeholder:text-gray-400 bg-white/80 backdrop-blur-sm hover:bg-white focus:bg-white group-hover:border-gray-300"
               />
             </div>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm font-medium text-clinibuilds-dark">
+          <div className="space-y-3">
+            <Label htmlFor="password" className="text-sm font-bold text-[#333333] flex items-center gap-2">
+              <Lock className="h-4 w-4 text-[#E02020]" />
               Password
             </Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <div className="relative group">
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
@@ -274,12 +287,12 @@ const SignInForm: React.FC<SignInFormProps> = ({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="pl-10 pr-10 h-12 border-2 border-gray-200 focus:border-clinibuilds-red rounded-lg transition-all duration-200"
+                className="h-14 pl-4 pr-14 border-2 border-gray-200 focus:border-[#E02020] rounded-xl transition-all duration-300 text-base font-medium placeholder:text-gray-400 bg-white/80 backdrop-blur-sm hover:bg-white focus:bg-white group-hover:border-gray-300"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#E02020] transition-colors duration-200 p-1"
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
@@ -290,28 +303,31 @@ const SignInForm: React.FC<SignInFormProps> = ({
                 variant="link" 
                 type="button" 
                 onClick={onForgotPassword}
-                className="text-sm text-clinibuilds-red hover:text-red-700 p-0 h-auto font-medium transition-colors"
+                className="text-sm text-[#E02020] hover:text-[#c01010] p-0 h-auto font-semibold transition-colors duration-200 underline-offset-4 hover:underline"
               >
-                Forgot password?
+                Forgot your password?
               </Button>
             </div>
           </div>
         </div>
       </CardContent>
       
-      <CardFooter className="pb-6">
+      <CardFooter className="pb-8 px-8">
         <Button 
           type="submit" 
-          className="w-full h-12 bg-clinibuilds-red hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
+          className="w-full h-14 bg-gradient-to-r from-[#E02020] to-[#c01010] hover:from-[#c01010] hover:to-[#a00808] text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105" 
           disabled={loading}
         >
           {loading ? (
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              <span>Signing in...</span>
+            <div className="flex items-center space-x-3">
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Signing you in...</span>
             </div>
           ) : (
-            "Sign In"
+            <div className="flex items-center space-x-2">
+              <span>Sign In</span>
+              <ArrowRight className="h-5 w-5" />
+            </div>
           )}
         </Button>
       </CardFooter>

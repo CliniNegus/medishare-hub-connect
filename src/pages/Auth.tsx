@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +10,7 @@ import SignUpForm from '@/components/auth/SignUpForm';
 import PasswordResetForm from '@/components/auth/PasswordResetForm';
 import EmailConfirmationAlert from '@/components/auth/EmailConfirmationAlert';
 import ErrorAlert from '@/components/auth/ErrorAlert';
-import { Hospital, Factory, PiggyBank, ShieldAlert } from "lucide-react";
+import { Hospital, Factory, PiggyBank, ShieldAlert, Sparkles } from "lucide-react";
 import { UserRole } from '@/contexts/UserRoleContext';
 
 const Auth = () => {
@@ -99,66 +100,86 @@ const Auth = () => {
   };
 
   const roleIcons = {
-    hospital: <Hospital className="h-8 w-8 mb-3 text-clinibuilds-red" />,
-    manufacturer: <Factory className="h-8 w-8 mb-3 text-clinibuilds-red" />,
-    investor: <PiggyBank className="h-8 w-8 mb-3 text-clinibuilds-red" />,
-    admin: <ShieldAlert className="h-8 w-8 mb-3 text-clinibuilds-red" />
+    hospital: <Hospital className="h-6 w-6 text-[#E02020]" />,
+    manufacturer: <Factory className="h-6 w-6 text-[#E02020]" />,
+    investor: <PiggyBank className="h-6 w-6 text-[#E02020]" />,
+    admin: <ShieldAlert className="h-6 w-6 text-[#E02020]" />
   };
 
   const roleDescriptions = {
-    hospital: 'For healthcare facilities needing equipment',
-    manufacturer: 'For equipment suppliers and manufacturers',
-    investor: 'For financing medical equipment',
-    admin: 'For platform administrators'
+    hospital: 'Healthcare facilities needing equipment',
+    manufacturer: 'Equipment suppliers and manufacturers',
+    investor: 'Financing medical equipment solutions',
+    admin: 'Platform administrators'
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md">
-        <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
-          <CardHeader className="space-y-4 text-center pb-2">
-            <div className="w-16 h-16 bg-gradient-to-br from-clinibuilds-red to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-2">
-              <Hospital className="h-8 w-8 text-white" />
-            </div>
-            <div className="space-y-2">
-              <CardTitle className="text-2xl font-bold text-clinibuilds-dark">
-                CliniBuilds Platform
-              </CardTitle>
-              <CardDescription className="text-gray-600">
-                Medical Equipment Sharing & Management
-              </CardDescription>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center px-4 py-8">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-[#E02020]/5 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-[#E02020]/5 to-transparent rounded-full blur-3xl"></div>
+      </div>
+      
+      <div className="relative w-full max-w-md z-10">
+        <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-md overflow-hidden">
+          {/* Header with modern gradient */}
+          <CardHeader className="space-y-6 text-center pb-8 bg-gradient-to-br from-white to-gray-50/50">
+            <div className="relative">
+              <div className="w-20 h-20 bg-gradient-to-br from-[#E02020] to-[#c01010] rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Hospital className="h-10 w-10 text-white" />
+                <div className="absolute -top-1 -right-1">
+                  <Sparkles className="h-5 w-5 text-[#E02020] animate-pulse" />
+                </div>
+              </div>
+              <div className="space-y-3">
+                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-[#333333] to-[#666666] bg-clip-text text-transparent">
+                  CliniBuilds
+                </CardTitle>
+                <CardDescription className="text-base text-gray-600 font-medium">
+                  Medical Equipment Sharing & Management Platform
+                </CardDescription>
+              </div>
             </div>
           </CardHeader>
           
+          {/* Alert messages */}
           {unconfirmedEmail && (
-            <EmailConfirmationAlert 
-              email={unconfirmedEmail}
-              onResendConfirmation={resendConfirmationEmail}
-              loading={loading}
-            />
+            <div className="px-6 pb-2">
+              <EmailConfirmationAlert 
+                email={unconfirmedEmail}
+                onResendConfirmation={resendConfirmationEmail}
+                loading={loading}
+              />
+            </div>
           )}
 
           {errorMessage && !unconfirmedEmail && (
-            <ErrorAlert message={errorMessage} />
+            <div className="px-6 pb-2">
+              <ErrorAlert message={errorMessage} />
+            </div>
           )}
           
+          {/* Modern tabs */}
           <Tabs defaultValue="signin" value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mx-6 mb-6 bg-gray-100 p-1 rounded-lg">
-              <TabsTrigger 
-                value="signin" 
-                className="rounded-md font-medium transition-all duration-200 data-[state=active]:bg-white data-[state=active]:text-clinibuilds-red data-[state=active]:shadow-sm"
-              >
-                Sign In
-              </TabsTrigger>
-              <TabsTrigger 
-                value="signup"
-                className="rounded-md font-medium transition-all duration-200 data-[state=active]:bg-white data-[state=active]:text-clinibuilds-red data-[state=active]:shadow-sm"
-              >
-                Sign Up
-              </TabsTrigger>
-            </TabsList>
+            <div className="px-6 pb-6">
+              <TabsList className="grid w-full grid-cols-2 bg-gray-100/80 p-1.5 rounded-2xl backdrop-blur-sm">
+                <TabsTrigger 
+                  value="signin" 
+                  className="rounded-xl font-semibold transition-all duration-300 data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-md data-[state=active]:scale-105"
+                >
+                  Sign In
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="signup"
+                  className="rounded-xl font-semibold transition-all duration-300 data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-md data-[state=active]:scale-105"
+                >
+                  Sign Up
+                </TabsTrigger>
+              </TabsList>
+            </div>
             
-            <TabsContent value="signin">
+            <TabsContent value="signin" className="mt-0">
               <SignInForm 
                 onSuccess={handleSignInSuccess}
                 onEmailNotConfirmed={handleEmailNotConfirmed}
@@ -167,28 +188,46 @@ const Auth = () => {
               />
             </TabsContent>
             
-            <TabsContent value="signup">
-              <div className="px-6 mb-6">
-                <h3 className="text-lg font-semibold text-clinibuilds-dark mb-4">Select Account Type</h3>
+            <TabsContent value="signup" className="mt-0">
+              {/* Modern role selector */}
+              <div className="px-6 mb-8">
+                <h3 className="text-lg font-bold text-[#333333] mb-4 text-center">Choose Your Account Type</h3>
                 <div className="grid grid-cols-3 gap-3">
                   {['hospital', 'manufacturer', 'investor'].map((role) => (
                     <div 
                       key={role}
                       onClick={() => setSelectedRole(role as UserRole)}
-                      className={`flex flex-col items-center justify-center p-4 rounded-xl cursor-pointer transition-all duration-200 ${
+                      className={`relative group cursor-pointer transition-all duration-300 ${
                         selectedRole === role 
-                          ? 'bg-red-50 border-2 border-clinibuilds-red shadow-md transform scale-105' 
-                          : 'bg-white border-2 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                          ? 'transform scale-105' 
+                          : 'hover:scale-102'
                       }`}
                     >
-                      {roleIcons[role as UserRole]}
-                      <span className="text-sm font-semibold text-clinibuilds-dark">
-                        {role.charAt(0).toUpperCase() + role.slice(1)}
-                      </span>
+                      <div className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all duration-300 ${
+                        selectedRole === role 
+                          ? 'bg-gradient-to-br from-red-50 to-red-100/50 border-[#E02020] shadow-lg' 
+                          : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300 hover:shadow-md'
+                      }`}>
+                        <div className={`mb-3 transition-all duration-300 ${
+                          selectedRole === role ? 'transform scale-110' : ''
+                        }`}>
+                          {roleIcons[role as UserRole]}
+                        </div>
+                        <span className={`text-sm font-bold transition-all duration-300 ${
+                          selectedRole === role ? 'text-[#E02020]' : 'text-[#333333]'
+                        }`}>
+                          {role.charAt(0).toUpperCase() + role.slice(1)}
+                        </span>
+                        {selectedRole === role && (
+                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#E02020] rounded-full flex items-center justify-center">
+                            <div className="w-2 h-2 bg-white rounded-full"></div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
-                <p className="text-sm text-gray-500 mt-3 text-center">
+                <p className="text-sm text-gray-500 mt-4 text-center font-medium">
                   {roleDescriptions[selectedRole]}
                 </p>
               </div>
@@ -201,7 +240,7 @@ const Auth = () => {
             </TabsContent>
             
             {showPasswordReset && (
-              <TabsContent value="passwordReset">
+              <TabsContent value="passwordReset" className="mt-0">
                 <PasswordResetForm 
                   onSuccess={handleResetSuccess}
                   onError={handleError}
@@ -210,6 +249,13 @@ const Auth = () => {
             )}
           </Tabs>
         </Card>
+        
+        {/* Footer */}
+        <div className="text-center mt-8">
+          <p className="text-sm text-gray-500">
+            © 2024 CliniBuilds. Secure healthcare equipment management.
+          </p>
+        </div>
       </div>
     </div>
   );
