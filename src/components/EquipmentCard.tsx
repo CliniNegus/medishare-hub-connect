@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, DollarSign, ShoppingCart, Clock, Calculator } from "lucide-react";
+import { Calendar, MapPin } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
 export interface EquipmentProps {
@@ -29,9 +29,6 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
   location,
   cluster,
   status,
-  pricePerUse,
-  purchasePrice,
-  leaseRate,
   nextAvailable,
   onBook
 }) => {
@@ -82,36 +79,6 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
             <span>Available: {nextAvailable}</span>
           </div>
         )}
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-1 mt-2">
-          <div className="flex flex-col text-xs">
-            <span className="text-gray-500">Per Use:</span>
-            <div className="flex items-center font-medium">
-              <DollarSign className="h-3 w-3 mr-1 text-red-500" />
-              <span>Ksh {pricePerUse.toLocaleString()}</span>
-            </div>
-          </div>
-          
-          {purchasePrice && (
-            <div className="flex flex-col text-xs">
-              <span className="text-gray-500">Purchase:</span>
-              <div className="flex items-center font-medium">
-                <ShoppingCart className="h-3 w-3 mr-1 text-red-500" />
-                <span>Ksh {purchasePrice.toLocaleString()}</span>
-              </div>
-            </div>
-          )}
-          
-          {leaseRate && (
-            <div className="flex flex-col text-xs">
-              <span className="text-gray-500">Lease/mo:</span>
-              <div className="flex items-center font-medium">
-                <Calculator className="h-3 w-3 mr-1 text-red-500" />
-                <span>Ksh {leaseRate.toLocaleString()}</span>
-              </div>
-            </div>
-          )}
-        </div>
       </CardContent>
       <CardFooter>
         <Button 
