@@ -1,445 +1,322 @@
 
 import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CreditCard, Check, Calendar, Lock, DollarSign, User, ClipboardCheck, FileText } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { CreditCard, Smartphone, Building, CheckCircle, Clock, XCircle, RefreshCw } from "lucide-react";
 import { EquipmentProps } from '../EquipmentCard';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useFinancialData } from '@/hooks/useFinancialData';
 
 interface PaymentProcessingProps {
   equipmentData: EquipmentProps[];
 }
 
-interface PaymentMethod {
-  id: string;
-  type: 'credit_card' | 'bank_transfer' | 'invoice';
-  label: string;
-  info: string;
-  cardNumber?: string;
-  expiry?: string;
-  cvv?: string;
-  name?: string;
-}
-
 const PaymentProcessing: React.FC<PaymentProcessingProps> = ({ equipmentData }) => {
   const { toast } = useToast();
-  const [selectedEquipment, setSelectedEquipment] = useState<string>("");
-  const [amount, setAmount] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<string>("card_1");
-  const [cardNumber, setCardNumber] = useState<string>("");
-  const [cardName, setCardName] = useState<string>("");
-  const [expiryDate, setExpiryDate] = useState<string>("");
-  const [cvv, setCvv] = useState<string>("");
-  const [newCardFormVisible, setNewCardFormVisible] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [saveCard, setSaveCard] = useState<boolean>(false);
-  
-  // Mock saved payment methods
-  const savedPaymentMethods: PaymentMethod[] = [
-    { 
-      id: 'card_1', 
-      type: 'credit_card', 
-      label: 'Visa ending in 4242', 
-      info: 'Expires 12/25',
-      cardNumber: '•••• •••• •••• 4242',
-      expiry: '12/25',
-      name: 'Hospital Admin'
-    },
-    { 
-      id: 'bank_1', 
-      type: 'bank_transfer', 
-      label: 'ACH Transfer - Main Account', 
-      info: 'Account ending in 9876' 
-    },
-    { 
-      id: 'invoice_1', 
-      type: 'invoice', 
-      label: 'Monthly Invoice', 
-      info: 'Net 30 terms' 
-    }
+  const { user } = useAuth();
+  const { transactions, refreshData } = useFinancialData();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentForm, setPaymentForm] = useState({
+    amount: '',
+    paymentMethod: '',
+    reference: '',
+    description: '',
+    equipmentId: ''
+  });
+
+  const paymentMethods = [
+    { id: 'bank_transfer', name: 'Bank Transfer', icon: Building, description: 'Direct bank payment' },
+    { id: 'mobile_money', name: 'Mobile Money', icon: Smartphone, description: 'M-Pesa, Airtel Money' },
+    { id: 'card', name: 'Credit/Debit Card', icon: CreditCard, description: 'Visa, Mastercard' }
   ];
-  
-  const handleSubmitPayment = () => {
-    if (!selectedEquipment || !amount || (!paymentMethod && !newCardFormVisible)) {
+
+  const handleInputChange = (field: string, value: string) => {
+    setPaymentForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const generateReference = () => {
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 1000);
+    return `PAY-${timestamp}-${random}`;
+  };
+
+  const processPayment = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to process payments.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!paymentForm.amount || !paymentForm.paymentMethod) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields",
-        variant: "destructive"
+        description: "Please fill in amount and payment method.",
+        variant: "destructive",
       });
       return;
     }
+
+    setIsProcessing(true);
     
-    if (newCardFormVisible && (!cardNumber || !cardName || !expiryDate || !cvv)) {
-      toast({
-        title: "Missing Card Information",
-        description: "Please fill in all card details",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setLoading(true);
-    
-    // Simulate payment processing
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const reference = paymentForm.reference || generateReference();
       
-      toast({
-        title: "Payment Successful",
-        description: `Successfully processed payment of $${amount} for ${
-          equipmentData.find(eq => eq.id === selectedEquipment)?.name || "equipment"
-        }`,
-      });
-      
-      if (newCardFormVisible && saveCard) {
-        toast({
-          title: "Card Saved",
-          description: "Your payment method has been saved for future use",
+      // Create transaction record
+      const { error } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: user.id,
+          reference: reference,
+          amount: parseFloat(paymentForm.amount),
+          currency: 'KES',
+          status: 'pending',
+          metadata: {
+            payment_method: paymentForm.paymentMethod,
+            description: paymentForm.description,
+            equipment_id: paymentForm.equipmentId || null
+          }
         });
-      }
-      
-      // Reset form
-      setAmount("");
-      if (newCardFormVisible) {
-        setCardNumber("");
-        setCardName("");
-        setExpiryDate("");
-        setCvv("");
-        setNewCardFormVisible(false);
-      }
-    }, 2000);
-  };
-  
-  const formatCardNumber = (input: string) => {
-    // Remove non-digits
-    const digitsOnly = input.replace(/\D/g, '');
-    
-    // Add spaces every 4 digits
-    const formatted = digitsOnly.replace(/(\d{4})(?=\d)/g, '$1 ');
-    
-    // Limit to 19 characters (16 digits + 3 spaces)
-    return formatted.slice(0, 19);
-  };
-  
-  const formatExpiryDate = (input: string) => {
-    // Remove non-digits
-    const digitsOnly = input.replace(/\D/g, '');
-    
-    // Format as MM/YY
-    if (digitsOnly.length > 2) {
-      return `${digitsOnly.slice(0, 2)}/${digitsOnly.slice(2, 4)}`;
+
+      if (error) throw error;
+
+      // Simulate payment processing
+      setTimeout(async () => {
+        // Update transaction status to success
+        const { error: updateError } = await supabase
+          .from('transactions')
+          .update({ status: 'success' })
+          .eq('reference', reference);
+
+        if (updateError) {
+          console.error('Error updating transaction:', updateError);
+        }
+
+        setIsProcessing(false);
+        toast({
+          title: "Payment Processed",
+          description: `Payment of Ksh ${parseFloat(paymentForm.amount).toLocaleString()} has been processed successfully.`,
+        });
+
+        // Reset form
+        setPaymentForm({
+          amount: '',
+          paymentMethod: '',
+          reference: '',
+          description: '',
+          equipmentId: ''
+        });
+
+        // Refresh data
+        refreshData();
+      }, 3000);
+
+    } catch (error: any) {
+      setIsProcessing(false);
+      console.error('Error processing payment:', error);
+      toast({
+        title: "Payment Failed",
+        description: error.message || "Failed to process payment. Please try again.",
+        variant: "destructive",
+      });
     }
-    
-    return digitsOnly;
   };
-  
-  const getEquipmentAmount = () => {
-    const equipment = equipmentData.find(eq => eq.id === selectedEquipment);
-    if (!equipment) return "";
-    
-    // Use pricePerUse * 100 as a mock price
-    return (equipment.pricePerUse * 100).toFixed(2);
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'success': return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case 'pending': return <Clock className="h-4 w-4 text-yellow-600" />;
+      case 'failed': return <XCircle className="h-4 w-4 text-red-600" />;
+      default: return <Clock className="h-4 w-4 text-gray-600" />;
+    }
   };
-  
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'success': return 'bg-green-100 text-green-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'failed': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2">
-        <Card className="border-red-200">
-          <CardHeader className="bg-red-50 border-b border-red-200">
-            <CardTitle className="text-red-800">Process a Payment</CardTitle>
-            <CardDescription>
-              Enter payment details to process a transaction
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="equipment">Equipment</Label>
-                  <Select 
-                    value={selectedEquipment} 
-                    onValueChange={(value) => {
-                      setSelectedEquipment(value);
-                      setAmount(getEquipmentAmount());
-                    }}
-                  >
-                    <SelectTrigger id="equipment">
-                      <SelectValue placeholder="Select equipment" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {equipmentData.map(equipment => (
-                        <SelectItem key={equipment.id} value={equipment.id}>
-                          {equipment.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label htmlFor="amount">Amount</Label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">$</span>
-                    <Input 
-                      id="amount" 
-                      placeholder="0.00" 
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                      className="pl-8"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="description">Payment Description</Label>
-                  <Input 
-                    id="description" 
-                    placeholder="e.g. Equipment rental payment"
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <Label>Payment Method</Label>
-                  <div className="space-y-3 mt-2">
-                    {!newCardFormVisible && savedPaymentMethods.map(method => (
-                      <div 
-                        key={method.id}
-                        className={`p-3 border rounded-md ${
-                          paymentMethod === method.id ? 'border-red-400 bg-red-50' : 'border-gray-200'
-                        } cursor-pointer`}
-                        onClick={() => setPaymentMethod(method.id)}
-                      >
-                        <div className="flex items-start">
-                          <div className="flex-shrink-0 mt-0.5">
-                            {method.type === 'credit_card' ? (
-                              <CreditCard className="h-5 w-5 text-red-600" />
-                            ) : method.type === 'bank_transfer' ? (
-                              <DollarSign className="h-5 w-5 text-red-600" />
-                            ) : (
-                              <FileText className="h-5 w-5 text-red-600" />
-                            )}
-                          </div>
-                          <div className="ml-3 flex-1">
-                            <div className="font-medium">{method.label}</div>
-                            <div className="text-xs text-gray-500">{method.info}</div>
-                          </div>
-                          {paymentMethod === method.id && (
-                            <Check className="h-5 w-5 text-green-600" />
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                    
-                    {!newCardFormVisible && (
-                      <Button 
-                        variant="outline" 
-                        className="w-full justify-start border-dashed border-red-200 text-red-600 hover:bg-red-50"
-                        onClick={() => {
-                          setNewCardFormVisible(true);
-                          setPaymentMethod('');
-                        }}
-                      >
-                        <CreditCard className="h-4 w-4 mr-2" />
-                        Add new payment method
-                      </Button>
-                    )}
-                    
-                    {newCardFormVisible && (
-                      <div className="border border-red-200 rounded-md p-4 bg-red-50">
-                        <div className="flex justify-between items-center mb-4">
-                          <h4 className="font-medium text-red-800">New Credit Card</h4>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-8 px-2 text-gray-500"
-                            onClick={() => {
-                              setNewCardFormVisible(false);
-                              setPaymentMethod('card_1');
-                            }}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                        
-                        <div className="space-y-3">
-                          <div>
-                            <Label htmlFor="card-number">Card Number</Label>
-                            <div className="relative">
-                              <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-                              <Input 
-                                id="card-number" 
-                                placeholder="0000 0000 0000 0000" 
-                                value={cardNumber}
-                                onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                                className="pl-10"
-                              />
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <Label htmlFor="card-name">Cardholder Name</Label>
-                            <div className="relative">
-                              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-                              <Input 
-                                id="card-name" 
-                                placeholder="Name on card" 
-                                value={cardName}
-                                onChange={(e) => setCardName(e.target.value)}
-                                className="pl-10"
-                              />
-                            </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <Label htmlFor="expiry">Expiry Date</Label>
-                              <div className="relative">
-                                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-                                <Input 
-                                  id="expiry" 
-                                  placeholder="MM/YY" 
-                                  value={expiryDate}
-                                  onChange={(e) => setExpiryDate(formatExpiryDate(e.target.value))}
-                                  className="pl-10"
-                                  maxLength={5}
-                                />
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <Label htmlFor="cvv">CVV</Label>
-                              <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-                                <Input 
-                                  id="cvv" 
-                                  type="password" 
-                                  placeholder="123" 
-                                  value={cvv}
-                                  onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                                  className="pl-10"
-                                  maxLength={4}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center space-x-2 pt-2">
-                            <input
-                              type="checkbox"
-                              id="save-card"
-                              className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
-                              checked={saveCard}
-                              onChange={() => setSaveCard(!saveCard)}
-                            />
-                            <Label htmlFor="save-card" className="text-sm">Save this card for future payments</Label>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Payment Form */}
+      <Card className="border-[#E02020]/20">
+        <CardHeader className="bg-[#E02020]/5 border-b border-[#E02020]/20">
+          <CardTitle className="text-[#333333] flex items-center">
+            <CreditCard className="h-5 w-5 mr-2 text-[#E02020]" />
+            Process New Payment
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="amount">Amount (Ksh) *</Label>
+              <Input
+                id="amount"
+                type="number"
+                placeholder="Enter amount"
+                value={paymentForm.amount}
+                onChange={(e) => handleInputChange('amount', e.target.value)}
+                className="mt-1"
+              />
             </div>
             
-            <div className="pt-4 border-t border-gray-200">
-              <Button 
-                className="bg-red-600 hover:bg-red-700 text-white"
-                onClick={handleSubmitPayment}
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <CreditCard className="h-4 w-4 mr-2" />
-                    Process Payment
-                  </>
-                )}
-              </Button>
+            <div>
+              <Label htmlFor="reference">Reference (Optional)</Label>
+              <Input
+                id="reference"
+                placeholder="Auto-generated if empty"
+                value={paymentForm.reference}
+                onChange={(e) => handleInputChange('reference', e.target.value)}
+                className="mt-1"
+              />
             </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <div>
-        <Card className="border-red-200">
-          <CardHeader className="bg-red-50 border-b border-red-200">
-            <CardTitle className="text-red-800">Payment Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="p-6 space-y-4">
-            {selectedEquipment ? (
+          </div>
+
+          <div>
+            <Label htmlFor="paymentMethod">Payment Method *</Label>
+            <Select value={paymentForm.paymentMethod} onValueChange={(value) => handleInputChange('paymentMethod', value)}>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Select payment method" />
+              </SelectTrigger>
+              <SelectContent>
+                {paymentMethods.map((method) => (
+                  <SelectItem key={method.id} value={method.id}>
+                    <div className="flex items-center">
+                      <method.icon className="h-4 w-4 mr-2" />
+                      <div>
+                        <div className="font-medium">{method.name}</div>
+                        <div className="text-xs text-gray-500">{method.description}</div>
+                      </div>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="equipment">Related Equipment (Optional)</Label>
+            <Select value={paymentForm.equipmentId} onValueChange={(value) => handleInputChange('equipmentId', value)}>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Select equipment" />
+              </SelectTrigger>
+              <SelectContent>
+                {equipmentData.map((equipment) => (
+                  <SelectItem key={equipment.id} value={equipment.id}>
+                    {equipment.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              placeholder="Payment description or notes"
+              value={paymentForm.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              className="mt-1"
+              rows={3}
+            />
+          </div>
+
+          <Button 
+            className="w-full bg-[#E02020] hover:bg-[#c01c1c]" 
+            onClick={processPayment}
+            disabled={isProcessing || !paymentForm.amount || !paymentForm.paymentMethod}
+          >
+            {isProcessing ? (
               <>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500">Equipment</h4>
-                  <p className="font-medium">
-                    {equipmentData.find(eq => eq.id === selectedEquipment)?.name || "Selected Equipment"}
-                  </p>
-                </div>
-                
-                <div className="pt-3 border-t border-gray-100">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm">Subtotal</span>
-                    <span>{amount ? `$${parseFloat(amount).toFixed(2)}` : '-'}</span>
-                  </div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm">Tax</span>
-                    <span>{amount ? `$${(parseFloat(amount) * 0.07).toFixed(2)}` : '-'}</span>
-                  </div>
-                  <div className="flex justify-between items-center font-medium pt-2 border-t border-gray-100">
-                    <span>Total</span>
-                    <span className="text-red-600">
-                      {amount ? `$${(parseFloat(amount) * 1.07).toFixed(2)}` : '-'}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="pt-3 border-t border-gray-100">
-                  <h4 className="text-sm font-medium text-gray-500 mb-2">Payment Method</h4>
-                  {paymentMethod ? (
-                    <div className="flex items-center">
-                      <CreditCard className="h-4 w-4 mr-2 text-red-600" />
-                      <span>
-                        {savedPaymentMethods.find(m => m.id === paymentMethod)?.label || "Selected Method"}
-                      </span>
-                    </div>
-                  ) : newCardFormVisible ? (
-                    <div className="flex items-center">
-                      <CreditCard className="h-4 w-4 mr-2 text-red-600" />
-                      <span>New Credit Card</span>
-                    </div>
-                  ) : (
-                    <span className="text-gray-400">No payment method selected</span>
-                  )}
-                </div>
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                Processing Payment...
               </>
             ) : (
-              <div className="text-center py-8 text-gray-500">
-                Select equipment to see payment summary
-              </div>
+              <>
+                <CreditCard className="h-4 w-4 mr-2" />
+                Process Payment
+              </>
             )}
-            
-            <div className="bg-green-50 border border-green-200 rounded-md p-3 mt-4">
-              <div className="flex items-start">
-                <ClipboardCheck className="h-5 w-5 text-green-600 mt-0.5 mr-2" />
-                <div className="text-sm text-green-700">
-                  This payment will be securely processed. Your payment information is encrypted and protected.
-                </div>
-              </div>
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Recent Transactions */}
+      <Card className="border-[#E02020]/20">
+        <CardHeader className="bg-[#E02020]/5 border-b border-[#E02020]/20">
+          <CardTitle className="text-[#333333]">Recent Transactions</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          {transactions.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <CreditCard className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+              <p>No transactions found</p>
+              <p className="text-sm text-gray-400">Processed payments will appear here</p>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          ) : (
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {transactions.slice(0, 10).map((transaction) => (
+                <div key={transaction.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                  <div className="flex items-center">
+                    {getStatusIcon(transaction.status)}
+                    <div className="ml-3">
+                      <p className="font-medium text-[#333333]">{transaction.reference}</p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(transaction.created_at).toLocaleDateString()} • {transaction.currency}
+                      </p>
+                      {transaction.metadata?.description && (
+                        <p className="text-xs text-gray-400 mt-1">{transaction.metadata.description}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-[#E02020]">
+                      Ksh {(transaction.amount * (transaction.currency === 'KES' ? 1 : 130)).toLocaleString()}
+                    </p>
+                    <Badge className={`text-xs ${getStatusColor(transaction.status)}`}>
+                      {transaction.status.toUpperCase()}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Payment Methods Info */}
+      <Card className="border-[#E02020]/20 lg:col-span-2">
+        <CardHeader>
+          <CardTitle className="text-[#333333]">Available Payment Methods</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {paymentMethods.map((method) => (
+              <div key={method.id} className="border rounded-lg p-4 text-center hover:shadow-md transition-shadow">
+                <method.icon className="h-8 w-8 text-[#E02020] mx-auto mb-2" />
+                <h3 className="font-semibold text-[#333333] mb-1">{method.name}</h3>
+                <p className="text-sm text-gray-600 mb-3">{method.description}</p>
+                <Badge className="bg-green-100 text-green-800">Available</Badge>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
