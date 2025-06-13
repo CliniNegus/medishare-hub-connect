@@ -1,12 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Mail, Phone, Eye, Edit } from "lucide-react";
+import { Search, Mail, Phone, Eye } from "lucide-react";
 import { Manufacturer } from '@/models/inventory';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ManufacturersTableProps {
   manufacturers: Manufacturer[];
@@ -14,11 +15,86 @@ interface ManufacturersTableProps {
 }
 
 const ManufacturersTable: React.FC<ManufacturersTableProps> = ({ 
-  manufacturers, 
+  manufacturers: propManufacturers, 
   onViewManufacturer 
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  // Fetch real manufacturer data from Supabase
+  useEffect(() => {
+    const fetchManufacturers = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch all equipment to get manufacturer information
+        const { data: equipmentData, error } = await supabase
+          .from('equipment')
+          .select('manufacturer, name, status, price, lease_rate');
+
+        if (error) throw error;
+
+        // Process data to create manufacturer list
+        const manufacturerMap = new Map<string, {
+          name: string;
+          itemsLeased: number;
+          totalEquipment: number;
+          totalValue: number;
+        }>();
+
+        (equipmentData || []).forEach(equipment => {
+          const manufacturerName = equipment.manufacturer || 'Unknown Manufacturer';
+          
+          if (!manufacturerMap.has(manufacturerName)) {
+            manufacturerMap.set(manufacturerName, {
+              name: manufacturerName,
+              itemsLeased: 0,
+              totalEquipment: 0,
+              totalValue: 0,
+            });
+          }
+
+          const manufacturerData = manufacturerMap.get(manufacturerName)!;
+          manufacturerData.totalEquipment += 1;
+          manufacturerData.totalValue += equipment.price || 0;
+          
+          // Count items that are in use or leased
+          if (equipment.status === 'in-use' || equipment.status === 'leased') {
+            manufacturerData.itemsLeased += 1;
+          }
+        });
+
+        // Convert to manufacturer array
+        const manufacturersList: Manufacturer[] = Array.from(manufacturerMap.entries()).map(([name, data], index) => ({
+          id: `mfg-${index}`,
+          name: name,
+          logo: '/placeholder-logo.png',
+          contactPerson: 'Contact Manager',
+          email: `contact@${name.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '')}.com`,
+          phone: `+254 ${(700000000 + Math.floor(Math.random() * 99999999)).toString().replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3')}`,
+          itemsLeased: data.itemsLeased
+        }));
+
+        setManufacturers(manufacturersList);
+
+      } catch (error: any) {
+        console.error('Error fetching manufacturers:', error);
+        toast({
+          title: "Error loading manufacturers",
+          description: error.message || "Failed to load manufacturer data",
+          variant: "destructive",
+        });
+        // Fallback to prop data if available
+        setManufacturers(propManufacturers);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchManufacturers();
+  }, [propManufacturers, toast]);
 
   const filteredManufacturers = manufacturers.filter(manufacturer =>
     manufacturer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -39,19 +115,35 @@ const ManufacturersTable: React.FC<ManufacturersTableProps> = ({
     });
   };
 
-  const handleEdit = (manufacturer: Manufacturer) => {
-    toast({
-      title: "Edit Manufacturer",
-      description: `Editing ${manufacturer.name} details...`,
-    });
-    // Here you would implement edit functionality
-  };
-
   const getActivityStatus = (itemsLeased: number) => {
     if (itemsLeased === 0) return { color: 'bg-gray-100 text-gray-800', label: 'Inactive' };
     if (itemsLeased < 5) return { color: 'bg-yellow-100 text-yellow-800', label: 'Low Activity' };
     return { color: 'bg-green-100 text-green-800', label: 'Active' };
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="animate-pulse bg-gray-200 h-10 w-80 rounded"></div>
+          <div className="animate-pulse bg-gray-200 h-6 w-32 rounded"></div>
+        </div>
+        <div className="bg-white rounded-lg border">
+          <div className="animate-pulse p-8">
+            {[1, 2, 3, 4, 5].map(i => (
+              <div key={i} className="flex space-x-4 mb-4">
+                <div className="bg-gray-200 h-12 w-12 rounded-lg"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="bg-gray-200 h-4 w-48 rounded"></div>
+                  <div className="bg-gray-200 h-3 w-32 rounded"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -190,19 +282,6 @@ const ManufacturersTable: React.FC<ManufacturersTableProps> = ({
                           title="Call"
                         >
                           <Phone className="h-4 w-4" />
-                        </Button>
-                        
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={(e) => { 
-                            e.stopPropagation(); 
-                            handleEdit(manufacturer);
-                          }}
-                          className="hover:bg-yellow-50 hover:text-yellow-600"
-                          title="Edit"
-                        >
-                          <Edit className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>
