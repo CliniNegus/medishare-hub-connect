@@ -74,11 +74,11 @@ const LeaseDetailsDialog = ({ open, onClose, lease }: LeaseDetailsDialogProps) =
             </div>
             <div>
               <h4 className="text-sm font-medium text-gray-500">Monthly Payment</h4>
-              <p className="text-base font-medium">${lease.monthly_payment?.toLocaleString() || "0"}</p>
+              <p className="text-base font-medium">Ksh {lease.monthly_payment?.toLocaleString() || "0"}</p>
             </div>
             <div>
               <h4 className="text-sm font-medium text-gray-500">Total Value</h4>
-              <p className="text-base font-medium">${lease.total_value?.toLocaleString() || "0"}</p>
+              <p className="text-base font-medium">Ksh {lease.total_value?.toLocaleString() || "0"}</p>
             </div>
           </div>
           

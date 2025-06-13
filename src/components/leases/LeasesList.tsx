@@ -106,7 +106,7 @@ const LeasesList = ({ leases, loading, onRefresh, userRole }: LeasesListProps) =
               <TableCell>{formatDate(lease.start_date)}</TableCell>
               <TableCell>{formatDate(lease.end_date)}</TableCell>
               <TableCell>{getTimeRemaining(lease.end_date)}</TableCell>
-              <TableCell>${lease.monthly_payment?.toLocaleString() || "0"}</TableCell>
+              <TableCell>Ksh {lease.monthly_payment?.toLocaleString() || "0"}</TableCell>
               <TableCell>
                 <span className={`px-2 py-1 rounded-full text-xs
                   ${lease.status === 'active' ? 'bg-green-100 text-green-800' : 

@@ -33,7 +33,7 @@ const InventoryStats: React.FC<InventoryStatsProps> = ({ items }) => {
     },
     {
       title: "Total Value",
-      value: `$${totalValue.toLocaleString()}`,
+      value: `Ksh ${totalValue.toLocaleString()}`,
       change: "+8.2%",
       changeType: "positive" as const,
       icon: DollarSign,
