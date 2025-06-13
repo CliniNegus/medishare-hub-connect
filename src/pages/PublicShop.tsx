@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,17 +35,6 @@ const PublicShopContent = () => {
   
   const { products, loading, uniqueCategories } = useProducts(filterOptions);
   const { addToCart, setIsOpen, totalItems } = useCart();
-
-  const handleGuestPurchase = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!user) {
-      toast({
-        title: "Account Required",
-        description: "Please create an account or sign in to complete your purchase.",
-        variant: "default",
-      });
-    }
-  };
 
   const handleViewCart = () => {
     if (!user) {
@@ -265,27 +255,15 @@ const PublicShopContent = () => {
                     
                     <CardFooter className="p-4 flex items-center justify-between">
                       <span className="font-bold text-xl text-red-600">Ksh {product.price.toLocaleString()}</span>
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => handleViewDetails(e, product)}
-                          className="border-gray-200 hover:border-red-300 hover:bg-red-50"
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          Details
-                        </Button>
-                        <Button 
-                          onClick={handleGuestPurchase}
-                          disabled={product.stock_quantity <= 0}
-                          variant="primary-red"
-                          size="sm"
-                          className="shadow-md hover:shadow-lg transition-all duration-300"
-                        >
-                          <ShoppingCart className="h-4 w-4 mr-1" />
-                          Buy
-                        </Button>
-                      </div>
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => handleViewDetails(e, product)}
+                        className="border-gray-200 hover:border-red-300 hover:bg-red-50"
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        Details
+                      </Button>
                     </CardFooter>
                   </Card>
                 ))}
