@@ -1,10 +1,10 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ShoppingCart, ChevronLeft, ChevronRight, Star, TrendingUp, Eye } from "lucide-react";
-import { useCart } from '@/contexts/CartContext';
+import { ChevronLeft, ChevronRight, Star, TrendingUp, Eye } from "lucide-react";
 import ProductDetailsModal from './ProductDetailsModal';
 import { useTrendingProducts } from '@/hooks/use-trending-products';
 import { Product } from '@/hooks/use-products';
@@ -14,7 +14,6 @@ const TrendingProducts = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const { addToCart } = useCart();
   const { products, loading } = useTrendingProducts();
   const navigate = useNavigate();
   
@@ -182,19 +181,6 @@ const TrendingProducts = () => {
                   >
                     <Eye className="h-3 w-3 mr-1" />
                     View
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="primary-red"
-                    className="h-9 px-3 shadow-md hover:shadow-lg transition-all duration-300"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      addToCart(product);
-                    }}
-                    disabled={product.stock_quantity <= 0}
-                  >
-                    <ShoppingCart className="h-3 w-3 mr-1" />
-                    Add
                   </Button>
                 </div>
               </div>
