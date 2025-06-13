@@ -145,7 +145,7 @@ const HospitalAnalyticsTab: React.FC = () => {
             <CardTitle className="text-sm font-medium text-gray-500">Revenue</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-[#E02020]">${analytics.revenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-[#E02020]">Ksh {analytics.revenue.toLocaleString()}</div>
             <p className="text-xs text-gray-500">Total from bookings</p>
           </CardContent>
         </Card>

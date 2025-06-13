@@ -18,7 +18,7 @@ const TherapyTabContent: React.FC<TherapyTabContentProps> = ({ equipmentData }) 
           <p className="text-sm text-gray-500 mb-2">Usage-based payment model</p>
           <p className="text-xs text-gray-500 mb-3">No upfront costs, immediate access</p>
           <div className="flex justify-between items-center mt-4">
-            <span className="font-medium text-red-600">${equipment.pricePerUse}/use</span>
+            <span className="font-medium text-red-600">Ksh {equipment.pricePerUse}/use</span>
             <Button size="sm" variant="outline">Learn More</Button>
           </div>
         </div>

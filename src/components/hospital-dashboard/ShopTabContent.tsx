@@ -15,7 +15,7 @@ const ShopTabContent: React.FC = () => (
           <h3 className="font-medium text-sm">Disposable Item {idx + 1}</h3>
           <p className="text-xs text-gray-500 mb-3">Pack of 100 units</p>
           <div className="flex justify-between items-center mt-4">
-            <span className="font-medium text-red-600">${(49 + idx * 10).toFixed(2)}</span>
+            <span className="font-medium text-red-600">Ksh {(49 + idx * 10).toFixed(2)}</span>
             <Button size="sm" variant="outline">Add to Cart</Button>
           </div>
         </div>

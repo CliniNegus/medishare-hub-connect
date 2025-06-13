@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { EquipmentProps } from '../EquipmentCard';
 import { Button } from "@/components/ui/button";
@@ -229,7 +228,7 @@ const BookingsTabContent: React.FC<BookingsTabContentProps> = ({
                       <div className="flex items-center justify-between mt-4">
                         <div className="flex items-center text-sm text-gray-600">
                           <Users className="h-4 w-4 mr-1" />
-                          Cost: ${booking.price_paid?.toLocaleString() || '0'}
+                          Cost: Ksh {booking.price_paid?.toLocaleString() || '0'}
                         </div>
                         <div className="flex space-x-2">
                           <Button variant="outline" size="sm" className="border-[#E02020] text-[#E02020] hover:bg-[#E02020] hover:text-white">
@@ -281,7 +280,7 @@ const BookingsTabContent: React.FC<BookingsTabContentProps> = ({
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <h3 className="font-semibold text-[#333333]">{equipment.name}</h3>
-                          <p className="text-sm text-[#E02020] font-medium">${equipment.pricePerUse} per use</p>
+                          <p className="text-sm text-[#E02020] font-medium">Ksh {equipment.pricePerUse} per use</p>
                         </div>
                         <div className="flex items-center">
                           <Star className="h-4 w-4 text-yellow-400 fill-current" />
@@ -365,7 +364,7 @@ const BookingsTabContent: React.FC<BookingsTabContentProps> = ({
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Total Spent</span>
                   <span className="font-semibold text-[#E02020]">
-                    ${bookings.reduce((sum, booking) => sum + (booking.price_paid || 0), 0).toLocaleString()}
+                    Ksh {bookings.reduce((sum, booking) => sum + (booking.price_paid || 0), 0).toLocaleString()}
                   </span>
                 </div>
               </div>
