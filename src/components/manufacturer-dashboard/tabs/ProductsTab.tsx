@@ -93,7 +93,7 @@ const ProductsTab: React.FC<ProductsTabProps> = ({ leasedProducts }) => {
                       <DollarSign className="h-3 w-3 mr-1" />
                       Sale Price
                     </span>
-                    <span className="font-medium">${product.price.toLocaleString()}</span>
+                    <span className="font-medium">Ksh {product.price.toLocaleString()}</span>
                   </div>
                 )}
                 {product.lease_rate && (
@@ -102,7 +102,7 @@ const ProductsTab: React.FC<ProductsTabProps> = ({ leasedProducts }) => {
                       <DollarSign className="h-3 w-3 mr-1" />
                       Lease Rate
                     </span>
-                    <span className="font-medium">${product.lease_rate}/month</span>
+                    <span className="font-medium">Ksh {product.lease_rate}/month</span>
                   </div>
                 )}
                 {product.location && (

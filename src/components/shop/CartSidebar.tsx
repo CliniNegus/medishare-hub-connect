@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from "@/components/ui/button";
@@ -188,7 +187,6 @@ const CartSidebar = () => {
         ) : (
           <div className="space-y-4">
             {!showCheckoutForm ? (
-              // Cart items display
               <>
                 {items.map(item => (
                   <div key={item.id} className="flex border-b pb-4">
@@ -231,7 +229,6 @@ const CartSidebar = () => {
                 ))}
               </>
             ) : (
-              // Checkout form
               <div className="space-y-4">
                 <div className="border-b pb-4">
                   <h3 className="font-semibold text-lg mb-2">Checkout Details</h3>

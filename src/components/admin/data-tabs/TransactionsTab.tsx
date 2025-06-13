@@ -32,7 +32,7 @@ const TransactionsTab: React.FC<TransactionsTabProps> = ({ transactions }) => {
             <TableCell className="font-medium">{item.id}</TableCell>
             <TableCell>{item.date}</TableCell>
             <TableCell>{item.description}</TableCell>
-            <TableCell>${item.amount.toLocaleString()}</TableCell>
+            <TableCell>Ksh {item.amount.toLocaleString()}</TableCell>
             <TableCell>
               <span className={`px-2 py-1 rounded-full text-xs 
                 ${item.type === 'Income' ? 'bg-green-100 text-green-800' : 

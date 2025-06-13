@@ -22,10 +22,7 @@ const TransactionsTab: React.FC<TransactionsTabProps> = ({ transactions }) => {
 
   // Format currency
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
+    return `Ksh ${amount.toLocaleString()}`;
   };
 
   return (

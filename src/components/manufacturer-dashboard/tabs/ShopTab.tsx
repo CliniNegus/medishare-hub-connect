@@ -100,7 +100,7 @@ const ShopTab: React.FC<ShopTabProps> = ({ shopProducts }) => {
               <DollarSign className="h-8 w-8 text-[#E02020] mr-3" />
               <div>
                 <p className="text-sm text-gray-600">Total Revenue</p>
-                <p className="text-2xl font-bold text-[#333333]">${totalRevenue.toFixed(2)}</p>
+                <p className="text-2xl font-bold text-[#333333]">Ksh {totalRevenue.toFixed(2)}</p>
               </div>
             </div>
           </CardContent>
@@ -133,7 +133,7 @@ const ShopTab: React.FC<ShopTabProps> = ({ shopProducts }) => {
                 </div>
                 <div>
                   <span className="text-gray-600">Revenue:</span>
-                  <span className="ml-2 font-medium text-[#E02020]">${product.revenue.toFixed(2)}</span>
+                  <span className="ml-2 font-medium text-[#E02020]">Ksh {product.revenue.toFixed(2)}</span>
                 </div>
               </div>
             </CardContent>

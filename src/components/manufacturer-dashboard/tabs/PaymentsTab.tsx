@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -60,7 +59,7 @@ const PaymentsTab: React.FC<PaymentsTabProps> = ({ paymentsReceived }) => {
         <h3 className="text-lg font-semibold text-[#333333]">Payment Overview</h3>
         <div className="flex items-center space-x-4">
           <div className="text-sm text-gray-600">
-            Total Monthly Revenue: <span className="font-semibold text-[#E02020]">${totalRevenue.toLocaleString()}</span>
+            Total Monthly Revenue: <span className="font-semibold text-[#E02020]">Ksh {totalRevenue.toLocaleString()}</span>
           </div>
         </div>
       </div>
@@ -71,7 +70,7 @@ const PaymentsTab: React.FC<PaymentsTabProps> = ({ paymentsReceived }) => {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-medium text-[#333333]">
-                  ${payment.amount.toLocaleString()}/month
+                  Ksh {payment.amount.toLocaleString()}/month
                 </CardTitle>
                 <Badge className={getStatusBadgeColor(payment.status)}>
                   {payment.status}
