@@ -32,12 +32,39 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ items, onViewItem }) =>
     navigate(`/equipment/${item.id}`);
   };
 
-  const handleShare = (item: InventoryItem) => {
-    toast({
-      title: "Share Item",
-      description: `Sharing ${item.name} details...`,
-    });
-    // Here you would implement share functionality
+  const handleShare = async (item: InventoryItem) => {
+    try {
+      // Create shareable content
+      const shareData = {
+        title: `${item.name} - Medical Equipment`,
+        text: `Check out this medical equipment: ${item.name} by ${item.manufacturer}. Price: Ksh ${item.price.toLocaleString()}`,
+        url: window.location.origin + `/equipment/${item.id}`
+      };
+
+      // Check if Web Share API is available
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+        toast({
+          title: "Shared Successfully",
+          description: `${item.name} has been shared successfully.`,
+        });
+      } else {
+        // Fallback: Copy to clipboard
+        const shareText = `${shareData.title}\n${shareData.text}\n${shareData.url}`;
+        await navigator.clipboard.writeText(shareText);
+        toast({
+          title: "Copied to Clipboard",
+          description: `${item.name} details copied to clipboard for sharing.`,
+        });
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      toast({
+        title: "Share Failed",
+        description: "Unable to share at this time. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getStockStatus = (currentStock: number) => {
@@ -162,11 +189,11 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ items, onViewItem }) =>
                     <TableCell className="text-right">
                       <div className="flex flex-col items-end gap-1">
                         <span className="font-semibold text-[#333333]">
-                          ${item.price.toLocaleString()}
+                          Ksh {item.price.toLocaleString()}
                         </span>
                         {item.leasingPrice > 0 && (
                           <span className="text-xs text-gray-500">
-                            Lease: ${item.leasingPrice}/mo
+                            Lease: Ksh {item.leasingPrice}/mo
                           </span>
                         )}
                       </div>
@@ -213,7 +240,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ items, onViewItem }) =>
             Showing {filteredItems.length} of {items.length} items
           </span>
           <span>
-            Total value: ${filteredItems.reduce((sum, item) => sum + (item.price * item.currentStock), 0).toLocaleString()}
+            Total value: Ksh {filteredItems.reduce((sum, item) => sum + (item.price * item.currentStock), 0).toLocaleString()}
           </span>
         </div>
       )}
