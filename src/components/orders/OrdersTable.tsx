@@ -185,7 +185,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ onViewOrder }) => {
                       {order.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right font-medium">${order.amount.toLocaleString()}</TableCell>
+                  <TableCell className="text-right font-medium">Ksh {order.amount.toLocaleString()}</TableCell>
                   <TableCell className="text-center capitalize">{order.payment_method}</TableCell>
                   <TableCell className="text-center text-sm">{new Date(order.created_at).toLocaleDateString()}</TableCell>
                   <TableCell className="text-right">

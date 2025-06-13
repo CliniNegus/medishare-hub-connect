@@ -78,7 +78,7 @@ const RecentOrdersSection: React.FC = () => {
                   </div>
                   <div className="flex items-center text-gray-600">
                     <DollarSign className="h-4 w-4 mr-2" />
-                    ${order.amount?.toLocaleString() || '0'}
+                    Ksh {order.amount?.toLocaleString() || '0'}
                   </div>
                 </div>
                 
