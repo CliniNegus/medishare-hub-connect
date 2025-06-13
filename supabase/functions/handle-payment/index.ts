@@ -25,8 +25,17 @@ interface PaymentRequest {
     user_id: string;
     equipment_id?: string;
     equipment_name?: string;
+    cart_items?: Array<{
+      id: string;
+      name: string;
+      price: number;
+      quantity: number;
+      total: number;
+    }>;
     shipping_address?: string;
     notes?: string;
+    item_count?: number;
+    order_type?: string;
   };
 }
 
@@ -36,7 +45,6 @@ serve(async (req) => {
   }
 
   try {
-    // Get authorization header
     const authHeader = req.headers.get("authorization");
     console.log('Authorization header present:', !!authHeader);
 
@@ -54,7 +62,8 @@ serve(async (req) => {
       amount,
       email,
       reference: metadata.reference,
-      equipment_id: metadata.equipment_id
+      order_type: metadata.order_type,
+      item_count: metadata.item_count
     });
 
     // Validate required fields
@@ -62,36 +71,65 @@ serve(async (req) => {
       throw new Error('Missing required payment fields');
     }
 
-    // Convert amount to kobo (Paystack expects amount in kobo)
-    const amountInKobo = Math.round(amount * 100);
+    // Convert amount to cents (Paystack expects amount in kobo for NGN, cents for other currencies)
+    const amountInCents = Math.round(amount * 100);
+
+    // Create callback URL for payment verification
+    const callbackUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/verify-payment`;
 
     const paymentData = {
-      amount: amountInKobo,
+      amount: amountInCents,
       email,
       reference: metadata.reference,
-      currency: 'NGN',
-      callback_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/verify-payment`,
+      currency: 'KES', // Kenyan Shillings
+      callback_url: callbackUrl,
       metadata: {
         ...metadata,
         custom_fields: [
           {
-            display_name: "Equipment ID",
-            variable_name: "equipment_id",
-            value: metadata.equipment_id || ""
+            display_name: "Order Type",
+            variable_name: "order_type",
+            value: metadata.order_type || "purchase"
           },
           {
-            display_name: "Equipment Name", 
-            variable_name: "equipment_name",
-            value: metadata.equipment_name || ""
+            display_name: "User ID",
+            variable_name: "user_id",
+            value: metadata.user_id || ""
           }
         ]
       }
     };
 
+    // Add equipment specific fields if present
+    if (metadata.equipment_id) {
+      paymentData.metadata.custom_fields.push(
+        {
+          display_name: "Equipment ID",
+          variable_name: "equipment_id",
+          value: metadata.equipment_id
+        },
+        {
+          display_name: "Equipment Name", 
+          variable_name: "equipment_name",
+          value: metadata.equipment_name || ""
+        }
+      );
+    }
+
+    // Add cart specific fields if present
+    if (metadata.cart_items && metadata.cart_items.length > 0) {
+      paymentData.metadata.custom_fields.push({
+        display_name: "Items Count",
+        variable_name: "items_count",
+        value: metadata.item_count?.toString() || metadata.cart_items.length.toString()
+      });
+    }
+
     console.log('Sending to Paystack:', {
-      amount: amountInKobo,
+      amount: amountInCents,
       email,
-      reference: metadata.reference
+      reference: metadata.reference,
+      currency: 'KES'
     });
 
     // Initialize payment with Paystack
