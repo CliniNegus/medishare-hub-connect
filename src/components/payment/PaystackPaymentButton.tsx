@@ -71,7 +71,7 @@ const PaystackPaymentButton = ({
           amount,
           user_id: user.id,
           reference,
-          currency: 'NGN',
+          currency: 'KES',
           status: 'pending',
           metadata: { 
             email: user.email,
