@@ -2,205 +2,30 @@
 import React, { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from "@/components/ui/button";
-import { X, Plus, Minus, ShoppingBag } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { useCartPayment } from '@/hooks/useCartPayment';
+import CartItems from './CartItems';
+import CartCheckoutForm from './CartCheckoutForm';
+import CartSummary from './CartSummary';
+import EmptyCartState from './EmptyCartState';
 
 const CartSidebar = () => {
   const { items, isOpen, setIsOpen, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
   const { toast } = useToast();
   const { user } = useAuth();
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [shippingAddress, setShippingAddress] = useState('');
   const [notes, setNotes] = useState('');
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
 
-  // Handle visibility change to detect when user returns from Paystack
-  React.useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden && isProcessingPayment) {
-        // User returned to the page while payment was in progress
-        setTimeout(() => {
-          setIsProcessingPayment(false);
-          console.log('Cart payment process reset due to page visibility change');
-        }, 2000);
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [isProcessingPayment]);
-
-  // Handle page focus to detect when user returns
-  React.useEffect(() => {
-    const handleFocus = () => {
-      if (isProcessingPayment) {
-        // User returned to the page, check if there's a payment result in URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const reference = urlParams.get('reference');
-        const status = urlParams.get('status');
-        
-        if (reference || status) {
-          // There's payment info in URL, let the verification process handle it
-          return;
-        }
-        
-        // No payment info in URL, likely a cancellation
-        setTimeout(() => {
-          setIsProcessingPayment(false);
-          toast({
-            title: "Payment Cancelled",
-            description: "Cart payment was not completed. You can try again.",
-            variant: "destructive",
-          });
-        }, 1000);
-      }
-    };
-
-    window.addEventListener('focus', handleFocus);
-    
-    return () => {
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, [isProcessingPayment, toast]);
-
-  const handleInitiatePayment = async () => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to complete your purchase",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!shippingAddress.trim()) {
-      toast({
-        title: "Shipping address required",
-        description: "Please provide a shipping address",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (items.length === 0) {
-      toast({
-        title: "Cart is empty",
-        description: "Please add items to your cart before checking out",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setIsProcessingPayment(true);
-
-      // Generate a unique reference for the transaction
-      const reference = `cb_cart_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-      console.log('Initiating cart payment with data:', {
-        totalPrice,
-        itemCount: items.length,
-        reference,
-        email: user.email
-      });
-
-      // Prepare cart items for metadata
-      const cartItems = items.map(item => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        total: item.price * item.quantity
-      }));
-
-      // Create transaction record first
-      const { error: dbError } = await supabase
-        .from('transactions')
-        .insert({
-          amount: totalPrice,
-          user_id: user.id,
-          reference,
-          currency: 'KES',
-          status: 'pending',
-          metadata: { 
-            email: user.email,
-            cart_items: cartItems,
-            shipping_address: shippingAddress,
-            notes: notes,
-            item_count: totalItems,
-            order_type: 'cart_checkout'
-          }
-        });
-
-      if (dbError) {
-        console.error('Database error:', dbError);
-        throw new Error('Failed to create transaction record');
-      }
-
-      // Initialize payment with Paystack
-      const { data, error } = await supabase.functions.invoke('handle-payment', {
-        body: { 
-          amount: totalPrice,
-          email: user.email,
-          metadata: {
-            reference,
-            user_id: user.id,
-            cart_items: cartItems,
-            shipping_address: shippingAddress,
-            notes: notes,
-            item_count: totalItems,
-            order_type: 'cart_checkout'
-          }
-        }
-      });
-
-      if (error) {
-        console.error('Payment initialization error:', error);
-        throw new Error(error.message || 'Failed to initialize payment');
-      }
-
-      console.log('Payment initialization response:', data);
-
-      if (!data || !data.status) {
-        throw new Error('Invalid payment response from Paystack');
-      }
-
-      if (!data.data?.authorization_url) {
-        throw new Error('No authorization URL received from Paystack');
-      }
-
-      // Store payment reference in sessionStorage to track it
-      sessionStorage.setItem('paystack_payment_reference', reference);
-      sessionStorage.setItem('paystack_payment_timestamp', Date.now().toString());
-
-      // Store pending transaction info and redirect to Paystack
-      toast({
-        title: "Payment Initiated",
-        description: "Redirecting to Paystack for payment...",
-      });
-
-      // Redirect to Paystack checkout
-      window.location.href = data.data.authorization_url;
-
-    } catch (error: any) {
-      console.error('Payment error:', error);
-      setIsProcessingPayment(false);
-      toast({
-        title: "Payment Failed",
-        description: error.message || "Could not process payment",
-        variant: "destructive",
-      });
-    }
-  };
+  const { isProcessingPayment, handleInitiatePayment } = useCartPayment({
+    items,
+    totalPrice,
+    totalItems,
+    shippingAddress,
+    notes
+  });
 
   const handleCheckout = () => {
     if (!user) {
@@ -235,147 +60,40 @@ const CartSidebar = () => {
       
       <div className="flex-1 overflow-y-auto p-4">
         {items.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-gray-500">
-            <ShoppingBag className="h-12 w-12 mb-2" />
-            <p className="text-lg font-medium">Your cart is empty</p>
-            <p className="text-sm">Add some products to your cart</p>
-          </div>
+          <EmptyCartState />
         ) : (
           <div className="space-y-4">
             {!showCheckoutForm ? (
-              <>
-                {items.map(item => (
-                  <div key={item.id} className="flex border-b pb-4">
-                    <div className="h-20 w-20 bg-gray-100 rounded flex-shrink-0">
-                      <img 
-                        src={item.image_url || "/placeholder.svg"} 
-                        alt={item.name} 
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <div className="ml-4 flex-1">
-                      <div className="flex justify-between">
-                        <h3 className="font-medium">{item.name}</h3>
-                        <button onClick={() => removeFromCart(item.id)} className="text-gray-400 hover:text-red-600">
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                      <div className="text-red-600 font-bold mt-1">Ksh {item.price.toLocaleString()}</div>
-                      <div className="flex items-center mt-2">
-                        <Button 
-                          variant="outline" 
-                          size="icon" 
-                          className="h-7 w-7 rounded-full"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        >
-                          <Minus className="h-3 w-3" />
-                        </Button>
-                        <span className="mx-3 min-w-8 text-center">{item.quantity}</span>
-                        <Button 
-                          variant="outline" 
-                          size="icon" 
-                          className="h-7 w-7 rounded-full"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        >
-                          <Plus className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </>
+              <CartItems 
+                items={items}
+                removeFromCart={removeFromCart}
+                updateQuantity={updateQuantity}
+              />
             ) : (
-              <div className="space-y-4">
-                <div className="border-b pb-4">
-                  <h3 className="font-semibold text-lg mb-2">Checkout Details</h3>
-                  <div className="text-sm text-gray-600">
-                    {totalItems} item(s) • Ksh {totalPrice.toLocaleString()}
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="shipping-address">Shipping Address *</Label>
-                    <Textarea
-                      id="shipping-address"
-                      placeholder="Enter your full shipping address"
-                      value={shippingAddress}
-                      onChange={(e) => setShippingAddress(e.target.value)}
-                      className="mt-1"
-                      rows={3}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="notes">Order Notes (Optional)</Label>
-                    <Textarea
-                      id="notes"
-                      placeholder="Any special instructions or notes"
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      className="mt-1"
-                      rows={2}
-                    />
-                  </div>
-                </div>
-              </div>
+              <CartCheckoutForm
+                totalItems={totalItems}
+                totalPrice={totalPrice}
+                shippingAddress={shippingAddress}
+                notes={notes}
+                onShippingAddressChange={setShippingAddress}
+                onNotesChange={setNotes}
+              />
             )}
           </div>
         )}
       </div>
       
       {items.length > 0 && (
-        <div className="p-4 border-t bg-gray-50">
-          <div className="flex justify-between mb-4">
-            <span className="font-medium">Total</span>
-            <span className="font-bold text-lg">Ksh {totalPrice.toLocaleString()}</span>
-          </div>
-          
-          {!showCheckoutForm ? (
-            <div className="space-y-2">
-              <Button 
-                className="w-full bg-red-600 hover:bg-red-700"
-                onClick={handleCheckout}
-              >
-                Proceed to Checkout
-              </Button>
-              <Button 
-                variant="outline"
-                className="w-full"
-                onClick={clearCart}
-              >
-                Clear Cart
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <Button 
-                className="w-full bg-red-600 hover:bg-red-700"
-                onClick={handleInitiatePayment}
-                disabled={isProcessingPayment || !shippingAddress.trim()}
-              >
-                {isProcessingPayment ? (
-                  <div className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processing Payment...
-                  </div>
-                ) : (
-                  'Pay with Paystack'
-                )}
-              </Button>
-              <Button 
-                variant="outline"
-                className="w-full"
-                onClick={() => setShowCheckoutForm(false)}
-              >
-                Back to Cart
-              </Button>
-            </div>
-          )}
-        </div>
+        <CartSummary
+          totalPrice={totalPrice}
+          showCheckoutForm={showCheckoutForm}
+          isProcessingPayment={isProcessingPayment}
+          shippingAddress={shippingAddress}
+          onCheckout={handleCheckout}
+          onInitiatePayment={handleInitiatePayment}
+          onBackToCart={() => setShowCheckoutForm(false)}
+          onClearCart={clearCart}
+        />
       )}
     </div>
   );
