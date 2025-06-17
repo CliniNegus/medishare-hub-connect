@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
 
@@ -48,9 +47,9 @@ serve(async (req) => {
     const authHeader = req.headers.get("authorization");
     console.log('Authorization header present:', !!authHeader);
 
-    const PAYSTACK_SECRET_KEY = Deno.env.get('PAYSTACK_SECRET_KEY');
+    const PAYSTACK_SECRET_KEY = Deno.env.get('PAYSTACK_SECRET_KEY_2');
     if (!PAYSTACK_SECRET_KEY) {
-      console.error('PAYSTACK_SECRET_KEY environment variable not found');
+      console.error('PAYSTACK_SECRET_KEY_2 environment variable not found');
       throw new Error('Payment service not configured');
     }
 
