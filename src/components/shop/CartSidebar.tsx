@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,58 @@ const CartSidebar = () => {
   const [shippingAddress, setShippingAddress] = useState('');
   const [notes, setNotes] = useState('');
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+
+  // Handle visibility change to detect when user returns from Paystack
+  React.useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isProcessingPayment) {
+        // User returned to the page while payment was in progress
+        setTimeout(() => {
+          setIsProcessingPayment(false);
+          console.log('Cart payment process reset due to page visibility change');
+        }, 2000);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isProcessingPayment]);
+
+  // Handle page focus to detect when user returns
+  React.useEffect(() => {
+    const handleFocus = () => {
+      if (isProcessingPayment) {
+        // User returned to the page, check if there's a payment result in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const reference = urlParams.get('reference');
+        const status = urlParams.get('status');
+        
+        if (reference || status) {
+          // There's payment info in URL, let the verification process handle it
+          return;
+        }
+        
+        // No payment info in URL, likely a cancellation
+        setTimeout(() => {
+          setIsProcessingPayment(false);
+          toast({
+            title: "Payment Cancelled",
+            description: "Cart payment was not completed. You can try again.",
+            variant: "destructive",
+          });
+        }, 1000);
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [isProcessingPayment, toast]);
 
   const handleInitiatePayment = async () => {
     if (!user) {
@@ -125,6 +178,10 @@ const CartSidebar = () => {
         throw new Error('No authorization URL received from Paystack');
       }
 
+      // Store payment reference in sessionStorage to track it
+      sessionStorage.setItem('paystack_payment_reference', reference);
+      sessionStorage.setItem('paystack_payment_timestamp', Date.now().toString());
+
       // Store pending transaction info and redirect to Paystack
       toast({
         title: "Payment Initiated",
@@ -136,13 +193,12 @@ const CartSidebar = () => {
 
     } catch (error: any) {
       console.error('Payment error:', error);
+      setIsProcessingPayment(false);
       toast({
         title: "Payment Failed",
         description: error.message || "Could not process payment",
         variant: "destructive",
       });
-    } finally {
-      setIsProcessingPayment(false);
     }
   };
 

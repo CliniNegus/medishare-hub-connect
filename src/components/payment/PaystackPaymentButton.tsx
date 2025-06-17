@@ -32,6 +32,60 @@ const PaystackPaymentButton = ({
   const { user } = useAuth();
   const [loading, setLoading] = React.useState(false);
 
+  // Handle visibility change to detect when user returns from Paystack
+  React.useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && loading) {
+        // User returned to the page while payment was in progress
+        // Reset loading state after a short delay to allow for successful redirects
+        setTimeout(() => {
+          setLoading(false);
+          console.log('Payment process reset due to page visibility change');
+        }, 2000);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [loading]);
+
+  // Handle page focus to detect when user returns
+  React.useEffect(() => {
+    const handleFocus = () => {
+      if (loading) {
+        // User returned to the page, check if there's a payment result in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const reference = urlParams.get('reference');
+        const status = urlParams.get('status');
+        
+        if (reference || status) {
+          // There's payment info in URL, let the verification process handle it
+          return;
+        }
+        
+        // No payment info in URL, likely a cancellation
+        setTimeout(() => {
+          setLoading(false);
+          toast({
+            title: "Payment Cancelled",
+            description: "Payment was not completed. You can try again.",
+            variant: "destructive",
+          });
+          onError?.("Payment was cancelled by user");
+        }, 1000);
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [loading, toast, onError]);
+
   const handlePayment = async () => {
     if (!user) {
       toast({
@@ -118,20 +172,23 @@ const PaystackPaymentButton = ({
         throw new Error('No authorization URL received from Paystack');
       }
 
+      // Store payment reference in sessionStorage to track it
+      sessionStorage.setItem('paystack_payment_reference', reference);
+      sessionStorage.setItem('paystack_payment_timestamp', Date.now().toString());
+
       // Redirect to Paystack checkout
       window.location.href = data.data.authorization_url;
 
       onSuccess?.(reference);
     } catch (error: any) {
       console.error('Payment error:', error);
+      setLoading(false);
       toast({
         title: "Payment Failed",
         description: error.message || "Could not process payment",
         variant: "destructive",
       });
       onError?.(error.message);
-    } finally {
-      setLoading(false);
     }
   };
 
