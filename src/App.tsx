@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { TutorialProvider } from '@/contexts/TutorialContext';
-import { UserRoleProvider } from '@/contexts/UserRoleProvider';
+import { UserRoleProvider } from '@/contexts/UserRoleContext';
 import { CartProvider } from '@/contexts/CartContext';
 import { Toaster } from '@/components/ui/toaster';
 import { Toaster as SonnerToaster } from '@/components/ui/sonner';
