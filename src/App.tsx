@@ -1,9 +1,10 @@
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { TutorialProvider } from '@/contexts/TutorialContext';
-import { UserRoleProvider } from '@/contexts/UserRoleContext';
+import { UserRoleProvider } from '@/contexts/UserRoleProvider';
 import { CartProvider } from '@/contexts/CartContext';
 import { Toaster } from '@/components/ui/toaster';
 import { Toaster as SonnerToaster } from '@/components/ui/sonner';
@@ -16,10 +17,10 @@ import PublicShop from '@/pages/PublicShop';
 import PaymentSuccess from '@/pages/PaymentSuccess';
 import PaymentFailed from '@/pages/PaymentFailed';
 import PaymentCancelled from '@/pages/PaymentCancelled';
-import EquipmentForm from '@/pages/EquipmentForm';
+import AddEquipmentPage from '@/pages/AddEquipmentPage';
 import EquipmentDetails from '@/pages/EquipmentDetails';
 import EditEquipment from '@/pages/EditEquipment';
-import OrdersPage from '@/pages/OrdersPage';
+import Orders from '@/pages/Orders';
 import UsersPage from '@/pages/UsersPage';
 import CategoriesPage from '@/pages/CategoriesPage';
 import SettingsPage from '@/pages/SettingsPage';
@@ -28,7 +29,7 @@ import ContactPage from '@/pages/ContactPage';
 import AboutUsPage from '@/pages/AboutUsPage';
 import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage';
 import TermsOfServicePage from '@/pages/TermsOfServicePage';
-import NotFoundPage from '@/pages/NotFoundPage';
+import NotFound from '@/pages/NotFound';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -59,10 +60,10 @@ function App() {
                       <Route path="/payment-success" element={<PaymentSuccess />} />
                       <Route path="/payment-failed" element={<PaymentFailed />} />
                       <Route path="/payment-cancelled" element={<PaymentCancelled />} />
-                      <Route path="/equipment/create" element={<EquipmentForm />} />
+                      <Route path="/equipment/create" element={<AddEquipmentPage />} />
                       <Route path="/equipment/:id" element={<EquipmentDetails />} />
                       <Route path="/equipment/:id/edit" element={<EditEquipment />} />
-                      <Route path="/orders" element={<OrdersPage />} />
+                      <Route path="/orders" element={<Orders />} />
                       <Route path="/users" element={<UsersPage />} />
                       <Route path="/categories" element={<CategoriesPage />} />
                       <Route path="/settings" element={<SettingsPage />} />
@@ -71,7 +72,7 @@ function App() {
                       <Route path="/about-us" element={<AboutUsPage />} />
                       <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                       <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-                      <Route path="*" element={<NotFoundPage />} />
+                      <Route path="*" element={<NotFound />} />
                     </Routes>
                   </div>
                 </Router>
