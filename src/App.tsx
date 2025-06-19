@@ -30,6 +30,16 @@ import AboutUsPage from '@/pages/AboutUsPage';
 import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage';
 import TermsOfServicePage from '@/pages/TermsOfServicePage';
 import NotFound from '@/pages/NotFound';
+import Inventory from '@/pages/Inventory';
+import Financing from '@/pages/Financing';
+import Leases from '@/pages/Leases';
+import HospitalLocations from '@/pages/HospitalLocations';
+import Tracking from '@/pages/Tracking';
+import Products from '@/pages/Products';
+import VirtualShops from '@/pages/VirtualShops';
+import Clients from '@/pages/Clients';
+import System from '@/pages/System';
+import Profile from '@/pages/Profile';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -59,7 +69,7 @@ function App() {
                       <Route path="/shop" element={<PublicShop />} />
                       <Route path="/payment-success" element={<PaymentSuccess />} />
                       <Route path="/payment-failed" element={<PaymentFailed />} />
-                      <Route path="/payment-cancelled" element={<PaymentCancelled />} />
+                      <Route path="/payment-cancelled" element={<PaymentCancellement />} />
                       <Route path="/equipment/create" element={<AddEquipmentPage />} />
                       <Route path="/equipment/:id" element={<EquipmentDetails />} />
                       <Route path="/equipment/:id/edit" element={<EditEquipment />} />
@@ -72,6 +82,16 @@ function App() {
                       <Route path="/about-us" element={<AboutUsPage />} />
                       <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                       <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+                      <Route path="/inventory" element={<Inventory />} />
+                      <Route path="/financing" element={<Financing />} />
+                      <Route path="/leases" element={<Leases />} />
+                      <Route path="/hospital-locations" element={<HospitalLocations />} />
+                      <Route path="/tracking" element={<Tracking />} />
+                      <Route path="/products" element={<Products />} />
+                      <Route path="/virtual-shops" element={<VirtualShops />} />
+                      <Route path="/clients" element={<Clients />} />
+                      <Route path="/system" element={<System />} />
+                      <Route path="/profile" element={<Profile />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </div>

@@ -3,16 +3,16 @@ import React from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const Inventory = () => {
+const Clients = () => {
   return (
     <Layout>
       <div className="container mx-auto py-8">
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-[#E02020]">Inventory Management</CardTitle>
+            <CardTitle className="text-2xl font-bold text-[#E02020]">Clients</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-500">Inventory management functionality will be implemented soon.</p>
+            <p className="text-gray-500">Client management functionality will be implemented soon.</p>
           </CardContent>
         </Card>
       </div>
@@ -20,4 +20,4 @@ const Inventory = () => {
   );
 };
 
-export default Inventory;
+export default Clients;
