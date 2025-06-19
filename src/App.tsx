@@ -32,6 +32,7 @@ import SystemManagement from './pages/SystemManagement';
 import EquipmentDetailsPage from './pages/EquipmentDetailsPage';
 import ProductDetailsPage from './pages/ProductDetailsPage';
 import PublicShop from './pages/PublicShop';
+import PaymentCancelled from './pages/PaymentCancelled';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -55,6 +56,7 @@ function App() {
                     <Route path="/" element={<Index />} />
                     <Route path="/shop" element={<PublicShop />} />
                     <Route path="/product/:id" element={<ProductDetailsPage />} />
+                    <Route path="/payment-cancelled" element={<PaymentCancelled />} />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/admin-auth" element={<AdminAuth />} />
                     <Route 
