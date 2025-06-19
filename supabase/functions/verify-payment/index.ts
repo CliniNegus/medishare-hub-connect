@@ -143,44 +143,109 @@ serve(async (req) => {
           console.error('Failed to update transaction:', updateError);
         }
 
-        // Try to update equipment status if equipment_id is available
-        if (result.data.metadata?.equipment_id) {
-          const { error: equipmentError } = await supabase
-            .from('equipment')
-            .update({ status: 'sold' })
-            .eq('id', result.data.metadata.equipment_id);
+        // Handle different order types
+        const orderType = result.data.metadata?.order_type;
+        
+        if (orderType === 'cart_checkout') {
+          // Handle cart checkout orders
+          const cartItems = result.data.metadata?.cart_items || [];
+          const userId = result.data.metadata?.user_id;
+          
+          if (userId && cartItems.length > 0) {
+            // Create order record for cart checkout
+            const orderData = {
+              user_id: userId,
+              amount: result.data.amount / 100, // Convert from kobo to naira
+              payment_method: 'paystack',
+              shipping_address: result.data.metadata.shipping_address || '',
+              notes: result.data.metadata.notes || '',
+              status: 'paid',
+              transaction_reference: reference,
+              order_type: 'cart_checkout',
+              item_count: result.data.metadata.item_count || cartItems.length,
+              cart_items: cartItems,
+              metadata: {
+                paystack_reference: result.data.reference,
+                payment_channel: result.data.channel,
+                customer_email: result.data.customer.email
+              }
+            };
 
-          if (equipmentError) {
-            console.error('Failed to update equipment status:', equipmentError);
-          } else {
-            console.log('Equipment status updated to sold');
+            const { error: orderError } = await supabase
+              .from('orders')
+              .insert(orderData);
+
+            if (orderError) {
+              console.error('Failed to create cart order:', orderError);
+            } else {
+              console.log('Cart order created successfully');
+            }
+
+            // Update product stock quantities
+            for (const item of cartItems) {
+              const { error: stockError } = await supabase
+                .from('products')
+                .update({ 
+                  stock_quantity: supabase.rpc('greatest', [0, supabase.raw(`stock_quantity - ${item.quantity}`)])
+                })
+                .eq('id', item.id);
+
+              if (stockError) {
+                console.error(`Failed to update stock for product ${item.id}:`, stockError);
+              }
+            }
+          }
+        } else {
+          // Handle single equipment purchase
+          if (result.data.metadata?.equipment_id) {
+            const { error: equipmentError } = await supabase
+              .from('equipment')
+              .update({ status: 'sold' })
+              .eq('id', result.data.metadata.equipment_id);
+
+            if (equipmentError) {
+              console.error('Failed to update equipment status:', equipmentError);
+            } else {
+              console.log('Equipment status updated to sold');
+            }
+          }
+
+          // Create order record for single equipment
+          if (result.data.metadata?.equipment_id && result.data.metadata?.user_id) {
+            const orderData = {
+              equipment_id: result.data.metadata.equipment_id,
+              user_id: result.data.metadata.user_id,
+              amount: result.data.amount / 100, // Convert from kobo to naira
+              payment_method: 'paystack',
+              shipping_address: result.data.metadata.shipping_address || '',
+              notes: result.data.metadata.notes || '',
+              status: 'paid',
+              transaction_reference: reference,
+              order_type: 'single_equipment',
+              item_count: 1,
+              metadata: {
+                equipment_name: result.data.metadata.equipment_name,
+                paystack_reference: result.data.reference,
+                payment_channel: result.data.channel,
+                customer_email: result.data.customer.email
+              }
+            };
+
+            const { error: orderError } = await supabase
+              .from('orders')
+              .insert(orderData);
+
+            if (orderError) {
+              console.error('Failed to create equipment order:', orderError);
+            } else {
+              console.log('Equipment order created successfully');
+            }
           }
         }
 
-        // Create order record
-        if (result.data.metadata?.equipment_id && result.data.metadata?.user_id) {
-          const orderData = {
-            equipment_id: result.data.metadata.equipment_id,
-            user_id: result.data.metadata.user_id,
-            amount: result.data.amount / 100, // Convert from kobo to naira
-            payment_method: 'paystack',
-            shipping_address: result.data.metadata.shipping_address || '',
-            notes: result.data.metadata.notes || '',
-            status: 'paid',
-            transaction_reference: reference
-          };
-
-          const { error: orderError } = await supabase
-            .from('orders')
-            .insert(orderData);
-
-          if (orderError) {
-            console.error('Failed to create order:', orderError);
-          } else {
-            console.log('Order created successfully');
-          }
-        }
-
+        // Redirect to success page with order details
+        const successUrl = `${supabaseUrl.replace('/functions/v1/verify-payment', '')}/payment-success?reference=${reference}&amount=${result.data.amount}&type=${orderType || 'equipment'}`;
+        
         return new Response(`
           <!DOCTYPE html>
           <html>
@@ -194,7 +259,13 @@ serve(async (req) => {
               .button { display: inline-block; background-color: #E02020; color: white; text-decoration: none; padding: 15px 30px; border-radius: 5px; margin-top: 30px; font-weight: bold; }
               .checkmark { font-size: 64px; color: #28a745; margin-bottom: 20px; }
               .details { background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0; text-align: left; }
+              .redirect-notice { color: #666; font-size: 14px; margin-top: 20px; }
             </style>
+            <script>
+              setTimeout(() => {
+                window.location.href = '${successUrl}';
+              }, 3000);
+            </script>
           </head>
           <body>
             <div class="container">
@@ -211,9 +282,13 @@ serve(async (req) => {
                   Amount: ₦${(result.data.amount / 100).toLocaleString()}<br>
                   Status: ${result.data.status}<br>
                   ${result.data.metadata?.equipment_name ? `Equipment: ${result.data.metadata.equipment_name}<br>` : ''}
+                  ${orderType === 'cart_checkout' ? `Items: ${result.data.metadata?.item_count || 0}<br>` : ''}
                 </div>
                 <p>You will receive an email confirmation shortly.</p>
-                <a href="${supabaseUrl.replace('/functions/v1/verify-payment', '')}/dashboard" class="button">Go to Dashboard</a>
+                <div class="redirect-notice">
+                  You will be redirected to your order confirmation page in 3 seconds...
+                </div>
+                <a href="${successUrl}" class="button">View Order Details</a>
               </div>
             </div>
           </body>
@@ -261,7 +336,7 @@ serve(async (req) => {
                 <h2>Payment Failed</h2>
                 <p>Your payment could not be processed. Please try again.</p>
                 <p><strong>Reference:</strong> ${reference}</p>
-                <a href="${supabaseUrl.replace('/functions/v1/verify-payment', '')}/dashboard" class="button">Back to Dashboard</a>
+                <a href="${supabaseUrl.replace('/functions/v1/verify-payment', '')}/payment-cancelled" class="button">Try Again</a>
               </div>
             </div>
           </body>

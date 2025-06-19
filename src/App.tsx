@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/toaster";
@@ -33,6 +32,7 @@ import EquipmentDetailsPage from './pages/EquipmentDetailsPage';
 import ProductDetailsPage from './pages/ProductDetailsPage';
 import PublicShop from './pages/PublicShop';
 import PaymentCancelled from './pages/PaymentCancelled';
+import PaymentSuccess from './pages/PaymentSuccess';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -57,6 +57,7 @@ function App() {
                     <Route path="/shop" element={<PublicShop />} />
                     <Route path="/product/:id" element={<ProductDetailsPage />} />
                     <Route path="/payment-cancelled" element={<PaymentCancelled />} />
+                    <Route path="/payment-success" element={<PaymentSuccess />} />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/admin-auth" element={<AdminAuth />} />
                     <Route 
