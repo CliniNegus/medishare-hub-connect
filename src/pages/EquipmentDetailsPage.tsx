@@ -357,7 +357,7 @@ const EquipmentDetailsPage = () => {
                       <span className="text-sm text-gray-500 mb-2">Purchase Price</span>
                       <div className="flex items-center">
                         <DollarSign className="h-6 w-6 mr-2 text-red-500" />
-                        <span className="text-2xl font-bold text-gray-800">Ksh {equipment?.price?.toLocaleString() || 'N/A'}</span>
+                        <span className="text-2xl font-bold text-gray-800">KES {equipment?.price?.toLocaleString() || 'N/A'}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -369,7 +369,7 @@ const EquipmentDetailsPage = () => {
                       <span className="text-sm text-gray-500 mb-2">Monthly Lease Rate</span>
                       <div className="flex items-center">
                         <Calculator className="h-6 w-6 mr-2 text-red-500" />
-                        <span className="text-2xl font-bold text-gray-800">Ksh {equipment?.lease_rate?.toLocaleString() || 'N/A'}</span>
+                        <span className="text-2xl font-bold text-gray-800">KES {equipment?.lease_rate?.toLocaleString() || 'N/A'}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -381,7 +381,7 @@ const EquipmentDetailsPage = () => {
                       <span className="text-sm text-gray-500 mb-2">Per Use Price</span>
                       <div className="flex items-center">
                         <Clock className="h-6 w-6 mr-2 text-red-500" />
-                        <span className="text-2xl font-bold text-gray-800">Ksh {perUsePrice?.toFixed(2) || 'N/A'}</span>
+                        <span className="text-2xl font-bold text-gray-800">KES {perUsePrice?.toFixed(2) || 'N/A'}</span>
                       </div>
                     </div>
                   </CardContent>

@@ -100,7 +100,7 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({
                   <p className="text-sm text-gray-600">Located at <span className="font-medium">{location}</span></p>
                   <div className="flex items-center mt-2">
                     <DollarSign className="h-4 w-4 text-[#E02020] mr-1" />
-                    <span className="text-lg font-bold">₦{equipmentPrice?.toLocaleString()}</span>
+                    <span className="text-lg font-bold">KES {equipmentPrice?.toLocaleString()}</span>
                   </div>
                 </div>
               </div>
@@ -194,7 +194,7 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({
                     
                     <div className="flex justify-between">
                       <span className="text-gray-600">Equipment Price:</span>
-                      <span className="font-medium">₦{equipmentPrice?.toLocaleString()}</span>
+                      <span className="font-medium">KES {equipmentPrice?.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Shipping:</span>
@@ -202,7 +202,7 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({
                     </div>
                     <div className="flex justify-between font-bold text-[#E02020]">
                       <span>Total price:</span>
-                      <span>₦{equipmentPrice?.toLocaleString()}</span>
+                      <span>KES {equipmentPrice?.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>

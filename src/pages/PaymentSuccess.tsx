@@ -166,7 +166,7 @@ const PaymentSuccess = () => {
               
               <div className="flex justify-between">
                 <span className="text-gray-600">Total Amount:</span>
-                <span className="font-semibold text-lg">₦{orderDetails.amount.toLocaleString()}</span>
+                <span className="font-semibold text-lg">KES {orderDetails.amount.toLocaleString()}</span>
               </div>
               
               {orderDetails.createdAt && (
@@ -193,8 +193,8 @@ const PaymentSuccess = () => {
                       <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium">₦{(item.price * item.quantity).toLocaleString()}</p>
-                      <p className="text-sm text-gray-600">₦{item.price.toLocaleString()} each</p>
+                      <p className="font-medium">KES {(item.price * item.quantity).toLocaleString()}</p>
+                      <p className="text-sm text-gray-600">KES {item.price.toLocaleString()} each</p>
                     </div>
                   </div>
                 ))}
