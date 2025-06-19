@@ -79,11 +79,17 @@ const PaymentSuccess = () => {
           console.error('Error fetching order details:', orderError);
         }
 
+        // Helper function to safely access metadata properties
+        const getMetadataProperty = (metadata: any, key: string) => {
+          if (!metadata || typeof metadata !== 'object') return null;
+          return metadata[key];
+        };
+
         // Update order details with available information
         setOrderDetails(prev => ({
           ...prev!,
-          items: transaction?.metadata?.cart_items || [],
-          equipmentName: transaction?.metadata?.equipment_name || order?.equipment_id,
+          items: getMetadataProperty(transaction?.metadata, 'cart_items') || [],
+          equipmentName: getMetadataProperty(transaction?.metadata, 'equipment_name') || order?.equipment_id,
           createdAt: order?.created_at || transaction?.created_at
         }));
 
