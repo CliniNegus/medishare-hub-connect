@@ -58,7 +58,7 @@ export function buildPaymentData(request: PaymentRequest, callbackUrl: string) {
         {
           display_name: "Order Type",
           variable_name: "order_type",
-          value: request.metadata.order_type || "purchase"
+          value: request.metadata.order_type || "single_equipment"
         },
         {
           display_name: "User ID",
