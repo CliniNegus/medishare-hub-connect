@@ -27,37 +27,6 @@ export const usePaystackPayment = ({
   const { user } = useAuth();
   const [loading, setLoading] = React.useState(false);
 
-  // Check for payment result on component mount
-  React.useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const reference = urlParams.get('reference');
-    const status = urlParams.get('status');
-    
-    if (reference && status && loading) {
-      // Payment completed, redirect based on status
-      if (status === 'success') {
-        toast({
-          title: "Payment Successful",
-          description: "Your payment has been processed successfully.",
-        });
-        onSuccess?.(reference);
-        setTimeout(() => {
-          window.location.href = '/payment-success';
-        }, 1500);
-      } else {
-        toast({
-          title: "Payment Failed",
-          description: "Your payment could not be processed.",
-          variant: "destructive",
-        });
-        onError?.("Payment failed");
-        setTimeout(() => {
-          window.location.href = '/payment-failed';
-        }, 1500);
-      }
-    }
-  }, [loading, toast, onSuccess, onError]);
-
   const handlePayment = async () => {
     if (!user) {
       toast({
@@ -147,19 +116,6 @@ export const usePaystackPayment = ({
       // Store payment reference in sessionStorage to track it
       sessionStorage.setItem('paystack_payment_reference', reference);
       sessionStorage.setItem('paystack_payment_timestamp', Date.now().toString());
-
-      toast({
-        title: "Payment Initiated",
-        description: "Redirecting to Paystack for payment...",
-      });
-
-      // Set a timeout to detect if user doesn't complete payment
-      setTimeout(() => {
-        if (loading) {
-          console.log('Payment timeout detected for individual payment');
-          // The cancellation hook will handle the actual detection
-        }
-      }, 300000); // 5 minutes timeout
 
       // Redirect to Paystack checkout
       window.location.href = data.data.authorization_url;

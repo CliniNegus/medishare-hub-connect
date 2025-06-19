@@ -22,20 +22,9 @@ export const useCartPayment = ({ items, totalPrice, totalItems, shippingAddress,
   React.useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden && isProcessingPayment) {
-        // Check if there's payment info in URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const reference = urlParams.get('reference');
-        const status = urlParams.get('status');
-        
-        if (reference || status) {
-          // There's payment info, let verification handle it
-          return;
-        }
-        
-        // No payment info, likely cancelled - wait a bit then reset
         setTimeout(() => {
           setIsProcessingPayment(false);
-          console.log('Cart payment process reset due to page visibility change - no payment info detected');
+          console.log('Cart payment process reset due to page visibility change');
         }, 2000);
       }
     };
@@ -56,11 +45,9 @@ export const useCartPayment = ({ items, totalPrice, totalItems, shippingAddress,
         const status = urlParams.get('status');
         
         if (reference || status) {
-          // Payment completed, let the verification process handle it
           return;
         }
         
-        // No payment info in URL, likely a cancellation
         setTimeout(() => {
           setIsProcessingPayment(false);
           toast({
@@ -68,11 +55,6 @@ export const useCartPayment = ({ items, totalPrice, totalItems, shippingAddress,
             description: "Cart payment was not completed. You can try again.",
             variant: "destructive",
           });
-          
-          // Redirect to payment cancelled page
-          setTimeout(() => {
-            window.location.href = '/payment-cancelled';
-          }, 1500);
         }, 1000);
       }
     };
@@ -82,35 +64,6 @@ export const useCartPayment = ({ items, totalPrice, totalItems, shippingAddress,
     return () => {
       window.removeEventListener('focus', handleFocus);
     };
-  }, [isProcessingPayment, toast]);
-
-  // Check for payment result on component mount
-  React.useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const reference = urlParams.get('reference');
-    const status = urlParams.get('status');
-    
-    if (reference && status && isProcessingPayment) {
-      // Payment completed, redirect based on status
-      if (status === 'success') {
-        toast({
-          title: "Payment Successful",
-          description: "Your payment has been processed successfully.",
-        });
-        setTimeout(() => {
-          window.location.href = '/payment-success';
-        }, 1500);
-      } else {
-        toast({
-          title: "Payment Failed",
-          description: "Your payment could not be processed.",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = '/payment-failed';
-        }, 1500);
-      }
-    }
   }, [isProcessingPayment, toast]);
 
   const handleInitiatePayment = async () => {
@@ -222,14 +175,6 @@ export const useCartPayment = ({ items, totalPrice, totalItems, shippingAddress,
         title: "Payment Initiated",
         description: "Redirecting to Paystack for payment...",
       });
-
-      // Set a timeout to detect if user doesn't complete payment
-      setTimeout(() => {
-        if (isProcessingPayment) {
-          console.log('Payment timeout detected, checking if user returned without completing payment');
-          // The focus/visibility handlers will handle the actual cancellation detection
-        }
-      }, 300000); // 5 minutes timeout
 
       window.location.href = data.data.authorization_url;
 

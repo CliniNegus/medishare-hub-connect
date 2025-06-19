@@ -9,20 +9,10 @@ export const usePaymentCancellation = (loading: boolean, onError?: (error: strin
   React.useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden && loading) {
-        // Check if there's payment info in URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const reference = urlParams.get('reference');
-        const status = urlParams.get('status');
-        
-        if (reference || status) {
-          // There's payment info, let verification handle it
-          return;
-        }
-        
         // User returned to the page while payment was in progress
         // Reset loading state after a short delay to allow for successful redirects
         setTimeout(() => {
-          console.log('Payment process reset due to page visibility change - no payment info detected');
+          console.log('Payment process reset due to page visibility change');
         }, 2000);
       }
     };
@@ -56,11 +46,6 @@ export const usePaymentCancellation = (loading: boolean, onError?: (error: strin
             variant: "destructive",
           });
           onError?.("Payment was cancelled by user");
-          
-          // Redirect to payment cancelled page
-          setTimeout(() => {
-            window.location.href = '/payment-cancelled';
-          }, 1500);
         }, 1000);
       }
     };

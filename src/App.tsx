@@ -1,51 +1,43 @@
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { TutorialProvider } from '@/contexts/TutorialContext';
-import { UserRoleProvider } from '@/contexts/UserRoleContext';
-import { CartProvider } from '@/contexts/CartContext';
-import { Toaster } from '@/components/ui/toaster';
-import { Toaster as SonnerToaster } from '@/components/ui/sonner';
-import Index from '@/pages/Index';
-import Auth from '@/pages/Auth';
-import Dashboard from '@/components/Dashboard';
-import AdminDashboard from '@/pages/AdminDashboard';
-import AdminAuth from '@/pages/AdminAuth';
-import PublicShop from '@/pages/PublicShop';
-import PaymentSuccess from '@/pages/PaymentSuccess';
-import PaymentFailed from '@/pages/PaymentFailed';
-import PaymentCancelled from '@/pages/PaymentCancelled';
-import AddEquipmentPage from '@/pages/AddEquipmentPage';
-import EquipmentDetails from '@/pages/EquipmentDetails';
-import EditEquipment from '@/pages/EditEquipment';
-import Orders from '@/pages/Orders';
-import UsersPage from '@/pages/UsersPage';
-import CategoriesPage from '@/pages/CategoriesPage';
-import SettingsPage from '@/pages/SettingsPage';
-import TutorialPage from '@/pages/TutorialPage';
-import ContactPage from '@/pages/ContactPage';
-import AboutUsPage from '@/pages/AboutUsPage';
-import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage';
-import TermsOfServicePage from '@/pages/TermsOfServicePage';
-import NotFound from '@/pages/NotFound';
-import Inventory from '@/pages/Inventory';
-import Financing from '@/pages/Financing';
-import Leases from '@/pages/Leases';
-import HospitalLocations from '@/pages/HospitalLocations';
-import Tracking from '@/pages/Tracking';
-import Products from '@/pages/Products';
-import VirtualShops from '@/pages/VirtualShops';
-import Clients from '@/pages/Clients';
-import System from '@/pages/System';
-import Profile from '@/pages/Profile';
+import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from './contexts/AuthContext';
+import { UserRoleProvider } from './contexts/UserRoleContext';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { CartProvider } from './contexts/CartContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Layout from './components/Layout';
+import ErrorBoundary from './components/ErrorBoundary';
+
+// Page imports
+import Index from './pages/Index';
+import Auth from './pages/Auth';
+import AdminAuth from './pages/AdminAuth';
+import Dashboard from './components/Dashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import MaintenanceAlertsPage from './pages/MaintenanceAlertsPage';
+import Orders from './pages/Orders';
+import MedicalShop from './pages/MedicalShop';
+import ProfileManagement from './pages/ProfileManagement';
+import Inventory from './pages/Inventory';
+import FinancingCalculator from './pages/FinancingCalculator';
+import LeaseManagement from './pages/LeaseManagement';
+import HospitalLocations from './pages/HospitalLocations';
+import EquipmentTracking from './pages/EquipmentTracking';
+import ProductManagement from './pages/ProductManagement';
+import VirtualShops from './pages/VirtualShops';
+import ClientManagement from './pages/ClientManagement';
+import SystemManagement from './pages/SystemManagement';
+import EquipmentDetailsPage from './pages/EquipmentDetailsPage';
+import ProductDetailsPage from './pages/ProductDetailsPage';
+import PublicShop from './pages/PublicShop';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      refetchOnWindowFocus: false,
     },
   },
 });
@@ -53,56 +45,176 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AuthProvider>
-          <UserRoleProvider>
+      <AuthProvider>
+        <UserRoleProvider>
+          <ThemeProvider>
             <CartProvider>
-              <TutorialProvider>
+              <ErrorBoundary>
                 <Router>
-                  <div className="min-h-screen bg-background">
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/auth" element={<Auth />} />
-                      <Route path="/admin-auth" element={<AdminAuth />} />
-                      <Route path="/dashboard" element={<Dashboard />} />
-                      <Route path="/admin" element={<AdminDashboard />} />
-                      <Route path="/shop" element={<PublicShop />} />
-                      <Route path="/payment-success" element={<PaymentSuccess />} />
-                      <Route path="/payment-failed" element={<PaymentFailed />} />
-                      <Route path="/payment-cancelled" element={<PaymentCancelled />} />
-                      <Route path="/equipment/create" element={<AddEquipmentPage />} />
-                      <Route path="/equipment/:id" element={<EquipmentDetails />} />
-                      <Route path="/equipment/:id/edit" element={<EditEquipment />} />
-                      <Route path="/orders" element={<Orders />} />
-                      <Route path="/users" element={<UsersPage />} />
-                      <Route path="/categories" element={<CategoriesPage />} />
-                      <Route path="/settings" element={<SettingsPage />} />
-                      <Route path="/tutorial" element={<TutorialPage />} />
-                      <Route path="/contact" element={<ContactPage />} />
-                      <Route path="/about-us" element={<AboutUsPage />} />
-                      <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-                      <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-                      <Route path="/inventory" element={<Inventory />} />
-                      <Route path="/financing" element={<Financing />} />
-                      <Route path="/leases" element={<Leases />} />
-                      <Route path="/hospital-locations" element={<HospitalLocations />} />
-                      <Route path="/tracking" element={<Tracking />} />
-                      <Route path="/products" element={<Products />} />
-                      <Route path="/virtual-shops" element={<VirtualShops />} />
-                      <Route path="/clients" element={<Clients />} />
-                      <Route path="/system" element={<System />} />
-                      <Route path="/profile" element={<Profile />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </div>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/shop" element={<PublicShop />} />
+                    <Route path="/product/:id" element={<ProductDetailsPage />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/admin-auth" element={<AdminAuth />} />
+                    <Route 
+                      path="/dashboard" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <Dashboard />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin" 
+                      element={
+                        <ProtectedRoute requireAdmin>
+                          <AdminDashboard />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/maintenance-alerts" 
+                      element={
+                        <ProtectedRoute requireAdmin>
+                          <MaintenanceAlertsPage />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/inventory" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <Inventory />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/equipment/:id" 
+                      element={
+                        <ProtectedRoute>
+                          <EquipmentDetailsPage />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/orders" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <Orders />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/financing" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <FinancingCalculator />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/leases" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <LeaseManagement />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/hospital-locations" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <HospitalLocations />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/tracking" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <EquipmentTracking />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/products" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <ProductManagement />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/virtual-shops" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <VirtualShops />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/clients" 
+                      element={
+                        <ProtectedRoute>
+                          <Layout>
+                            <ClientManagement />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/internal-shop" 
+                      element={
+                        <ProtectedRoute>
+                          <MedicalShop />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/system" 
+                      element={
+                        <ProtectedRoute allowedRoles={['admin', 'hospital', 'manufacturer', 'investor']}>
+                          <Layout>
+                            <SystemManagement />
+                          </Layout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/profile" 
+                      element={
+                        <ProtectedRoute>
+                          <ProfileManagement />
+                        </ProtectedRoute>
+                      } 
+                    />
+                  </Routes>
+                  <Toaster />
                 </Router>
-                <Toaster />
-                <SonnerToaster />
-              </TutorialProvider>
+              </ErrorBoundary>
             </CartProvider>
-          </UserRoleProvider>
-        </AuthProvider>
-      </ThemeProvider>
+          </ThemeProvider>
+        </UserRoleProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
