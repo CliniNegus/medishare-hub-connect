@@ -195,6 +195,39 @@ serve(async (req) => {
               }
             }
           }
+        } else if (orderType === 'booking') {
+          // Handle equipment booking
+          if (result.data.metadata?.equipment_id && result.data.metadata?.user_id) {
+            const bookingData = {
+              equipment_id: result.data.metadata.equipment_id,
+              user_id: result.data.metadata.user_id,
+              start_time: new Date().toISOString(), // This should be parsed from booking_details
+              end_time: new Date(Date.now() + 3600000).toISOString(), // This should be calculated based on duration
+              price_paid: result.data.amount / 100,
+              notes: result.data.metadata.notes || '',
+              status: 'confirmed'
+            };
+
+            const { error: bookingError } = await supabase
+              .from('bookings')
+              .insert(bookingData);
+
+            if (bookingError) {
+              console.error('Failed to create booking:', bookingError);
+            } else {
+              console.log('Booking created successfully');
+              
+              // Update equipment status to in-use
+              const { error: equipmentError } = await supabase
+                .from('equipment')
+                .update({ status: 'in-use' })
+                .eq('id', result.data.metadata.equipment_id);
+
+              if (equipmentError) {
+                console.error('Failed to update equipment status:', equipmentError);
+              }
+            }
+          }
         } else {
           // Handle single equipment purchase
           if (result.data.metadata?.equipment_id) {
@@ -279,10 +312,11 @@ serve(async (req) => {
                 <div class="details">
                   <strong>Payment Details:</strong><br>
                   Reference: ${result.data.reference}<br>
-                  Amount: ₦${(result.data.amount / 100).toLocaleString()}<br>
+                  Amount: KES ${(result.data.amount / 100).toLocaleString()}<br>
                   Status: ${result.data.status}<br>
                   ${result.data.metadata?.equipment_name ? `Equipment: ${result.data.metadata.equipment_name}<br>` : ''}
                   ${orderType === 'cart_checkout' ? `Items: ${result.data.metadata?.item_count || 0}<br>` : ''}
+                  ${orderType === 'booking' ? `Booking: ${result.data.metadata?.booking_details || 'Equipment booking'}<br>` : ''}
                 </div>
                 <p>You will receive an email confirmation shortly.</p>
                 <div class="redirect-notice">

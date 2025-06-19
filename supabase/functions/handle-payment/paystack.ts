@@ -94,5 +94,14 @@ export function buildPaymentData(request: PaymentRequest, callbackUrl: string) {
     });
   }
 
+  // Add booking specific fields if present
+  if (request.metadata.order_type === 'booking') {
+    paymentData.metadata.custom_fields.push({
+      display_name: "Booking Details",
+      variable_name: "booking_details",
+      value: request.metadata.booking_details || ""
+    });
+  }
+
   return paymentData;
 }

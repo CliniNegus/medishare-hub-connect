@@ -19,17 +19,19 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CalendarIcon, Clock, MapPin, Info } from "lucide-react";
+import { CalendarIcon, Clock, MapPin, Info, CreditCard } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import PaystackPaymentButton from './payment/PaystackPaymentButton';
 
 interface BookingModalProps {
   isOpen: boolean;
   equipmentName: string;
+  equipmentId: string;
   pricePerUse: number;
   onClose: () => void;
   onConfirm: (date: Date, duration: number, notes: string) => void;
@@ -41,6 +43,7 @@ interface BookingModalProps {
 const BookingModal: React.FC<BookingModalProps> = ({
   isOpen,
   equipmentName,
+  equipmentId,
   pricePerUse,
   onClose,
   onConfirm,
@@ -58,44 +61,29 @@ const BookingModal: React.FC<BookingModalProps> = ({
   const { user } = useAuth();
   const { toast } = useToast();
   
-  const handleConfirm = () => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to book equipment",
-        variant: "destructive",
-      });
-      return;
-    }
+  const totalPrice = pricePerUse * duration;
+  
+  const handlePaystackSuccess = (reference: string) => {
+    toast({
+      title: "Payment Successful",
+      description: "Your booking payment has been processed successfully",
+    });
     
-    if (!date) {
-      toast({
-        title: "Date required",
-        description: "Please select a date for your booking",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
-    // Create a new date with the selected time
-    const bookingDate = new Date(date);
-    const [hours, minutes] = timeSlot.split(':').map(Number);
-    bookingDate.setHours(hours, minutes, 0, 0);
-    
-    try {
+    if (date) {
+      const bookingDate = new Date(date);
+      const [hours, minutes] = timeSlot.split(':').map(Number);
+      bookingDate.setHours(hours, minutes, 0, 0);
       onConfirm(bookingDate, duration, notes);
-      // Reset form values
-      setDate(new Date());
-      setTimeSlot('09:00');
-      setDuration(1);
-      setNotes("");
-    } catch (error) {
-      console.error('Error during booking confirmation:', error);
-    } finally {
-      setIsSubmitting(false);
     }
+    onClose();
+  };
+
+  const handlePaystackError = (error: string) => {
+    toast({
+      title: "Payment Error",
+      description: error,
+      variant: "destructive",
+    });
   };
   
   const handleDialogClose = () => {
@@ -156,6 +144,10 @@ const BookingModal: React.FC<BookingModalProps> = ({
               <TabsTrigger value="details" className="flex-1">
                 <Info className="mr-2 h-4 w-4" />
                 Details
+              </TabsTrigger>
+              <TabsTrigger value="payment" className="flex-1">
+                <CreditCard className="mr-2 h-4 w-4" />
+                Payment
               </TabsTrigger>
             </TabsList>
             
@@ -270,11 +262,11 @@ const BookingModal: React.FC<BookingModalProps> = ({
                     
                     <div className="flex justify-between">
                       <span className="text-gray-600">Price per hour:</span>
-                      <span className="font-medium">${pricePerUse.toFixed(2)}</span>
+                      <span className="font-medium">KES {pricePerUse.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between font-bold text-[#E02020]">
                       <span>Total price:</span>
-                      <span>${(pricePerUse * duration).toFixed(2)}</span>
+                      <span>KES {totalPrice.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -289,11 +281,78 @@ const BookingModal: React.FC<BookingModalProps> = ({
                   </Button>
                   <Button 
                     className="flex-1 bg-[#E02020] hover:bg-[#c01010]"
-                    onClick={handleConfirm}
-                    disabled={!date || isSubmitting}
+                    onClick={() => setActiveTab("payment")}
+                    disabled={!date}
                   >
-                    {isSubmitting ? "Processing..." : "Confirm Booking"}
+                    Continue to Payment
                   </Button>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="payment" className="space-y-4 mt-2">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-[#333333] font-medium">Payment Method</Label>
+                  <div className="grid grid-cols-1 gap-2">
+                    <div className="flex items-center p-3 border border-[#E02020] bg-red-50 rounded-md">
+                      <div className="bg-[#E0202010] p-2 rounded-full mr-3">
+                        <CreditCard className="h-4 w-4 text-[#E02020]" />
+                      </div>
+                      <div>
+                        <div className="font-medium">Paystack</div>
+                        <div className="text-sm text-gray-500">Secure payment with Visa, Mastercard, Bank Transfer</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 mt-6">
+                  <h3 className="font-medium text-[#333333] mb-3">Booking Summary</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Equipment:</span>
+                      <span className="font-medium">{equipmentName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Duration:</span>
+                      <span className="font-medium">{duration} hour{duration > 1 ? 's' : ''}</span>
+                    </div>
+                    
+                    <Separator className="my-2" />
+                    
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Price per hour:</span>
+                      <span className="font-medium">KES {pricePerUse.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-[#E02020]">
+                      <span>Total price:</span>
+                      <span>KES {totalPrice.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex space-x-3 pt-2">
+                  <Button 
+                    variant="outline" 
+                    className="flex-1" 
+                    onClick={() => setActiveTab("details")}
+                  >
+                    Back
+                  </Button>
+                  
+                  <PaystackPaymentButton
+                    amount={totalPrice}
+                    equipmentId={equipmentId}
+                    equipmentName={`${equipmentName} - Booking`}
+                    shippingAddress={`Booking for ${duration} hour(s) on ${date?.toLocaleDateString()} at ${timeSlot}`}
+                    notes={notes}
+                    onSuccess={handlePaystackSuccess}
+                    onError={handlePaystackError}
+                    className="flex-1"
+                  >
+                    Complete Booking
+                  </PaystackPaymentButton>
                 </div>
               </div>
             </TabsContent>

@@ -92,7 +92,21 @@ const EquipmentDetailsPage = () => {
 
     if (!equipment) return;
 
-    createBooking(date, duration, notes);
+    // The actual payment and booking creation is now handled by the PaystackPaymentButton
+    // This function is called after successful payment
+    console.log('Booking payment successful for:', {
+      equipment: equipment.name,
+      date: date.toISOString(),
+      duration,
+      notes
+    });
+
+    toast({
+      title: "Booking successful",
+      description: `You have successfully booked ${equipment?.name} for ${duration} hour(s)`,
+    });
+    
+    setBookingModalOpen(false);
   };
 
   const handlePurchase = async (paymentMethod: string, shippingAddress: string, notes: string) => {
@@ -447,6 +461,7 @@ const EquipmentDetailsPage = () => {
       <BookingModal
         isOpen={bookingModalOpen}
         equipmentName={equipment?.name || ''}
+        equipmentId={id || ''}
         pricePerUse={perUsePrice}
         onClose={() => setBookingModalOpen(false)}
         onConfirm={handleBooking}
