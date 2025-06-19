@@ -69,7 +69,7 @@ function App() {
                       <Route path="/shop" element={<PublicShop />} />
                       <Route path="/payment-success" element={<PaymentSuccess />} />
                       <Route path="/payment-failed" element={<PaymentFailed />} />
-                      <Route path="/payment-cancelled" element={<PaymentCancellement />} />
+                      <Route path="/payment-cancelled" element={<PaymentCancelled />} />
                       <Route path="/equipment/create" element={<AddEquipmentPage />} />
                       <Route path="/equipment/:id" element={<EquipmentDetails />} />
                       <Route path="/equipment/:id/edit" element={<EditEquipment />} />
