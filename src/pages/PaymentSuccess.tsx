@@ -54,23 +54,39 @@ const PaymentSuccess = () => {
       if (!user) return;
 
       try {
-        const { data: order, error } = await supabase
-          .from('orders')
+        // First try to get the transaction to get metadata
+        const { data: transaction, error: transactionError } = await supabase
+          .from('transactions')
           .select('*')
-          .eq('transaction_reference', reference)
+          .eq('reference', reference)
           .eq('user_id', user.id)
           .single();
 
-        if (error) {
-          console.error('Error fetching order details:', error);
-        } else if (order) {
-          setOrderDetails(prev => ({
-            ...prev!,
-            items: order.cart_items || [],
-            equipmentName: order.metadata?.equipment_name,
-            createdAt: order.created_at
-          }));
+        if (transactionError) {
+          console.error('Error fetching transaction details:', transactionError);
         }
+
+        // Try to get order details
+        const { data: order, error: orderError } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (orderError) {
+          console.error('Error fetching order details:', orderError);
+        }
+
+        // Update order details with available information
+        setOrderDetails(prev => ({
+          ...prev!,
+          items: transaction?.metadata?.cart_items || [],
+          equipmentName: transaction?.metadata?.equipment_name || order?.equipment_id,
+          createdAt: order?.created_at || transaction?.created_at
+        }));
+
       } catch (error) {
         console.error('Error fetching order details:', error);
       } finally {
