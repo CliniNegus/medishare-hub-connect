@@ -377,6 +377,7 @@ const BookingsTabContent: React.FC<BookingsTabContentProps> = ({
       {selectedEquipment && (
         <BookingModal 
           isOpen={bookingModalOpen}
+          equipmentId={selectedEquipment.id}
           equipmentName={selectedEquipment.name}
           pricePerUse={selectedEquipment.pricePerUse}
           location={selectedEquipment.location}

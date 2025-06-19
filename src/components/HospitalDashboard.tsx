@@ -131,6 +131,7 @@ const HospitalDashboard = () => {
       {selectedEquipment && (
         <BookingModal 
           isOpen={bookingModalOpen}
+          equipmentId={selectedEquipment.id}
           equipmentName={selectedEquipment.name}
           pricePerUse={selectedEquipment.pricePerUse}
           onClose={() => setBookingModalOpen(false)}
