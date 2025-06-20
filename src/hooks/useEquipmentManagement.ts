@@ -14,6 +14,17 @@ export interface Equipment {
   category: string | null;
   price: number | null;
   lease_rate: number | null;
+  model: string | null;
+  serial_number: string | null;
+  condition: string | null;
+  specs: string | null;
+  quantity: number | null;
+  sales_option: string | null;
+  usage_hours: number | null;
+  downtime_hours: number | null;
+  revenue_generated: number | null;
+  remote_control_enabled: boolean | null;
+  payment_status: string | null;
   created_at: string;
   updated_at: string;
 }
