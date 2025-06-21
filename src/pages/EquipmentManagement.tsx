@@ -157,7 +157,7 @@ const EquipmentManagement = () => {
                       <TableCell>{item.manufacturer || '-'}</TableCell>
                       <TableCell>{item.category || '-'}</TableCell>
                       <TableCell>{item.location || '-'}</TableCell>
-                      <TableCell>{item.price ? `$${item.price.toFixed(2)}` : '-'}</TableCell>
+                      <TableCell>{item.price ? `Ksh ${item.price.toLocaleString()}` : '-'}</TableCell>
                       <TableCell>{item.quantity || '-'}</TableCell>
                       <TableCell>
                         <span className={`px-2 py-1 rounded-full text-xs 

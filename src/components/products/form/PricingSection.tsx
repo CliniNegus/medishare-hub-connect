@@ -30,7 +30,7 @@ export const PricingSection = ({ form, onCalculateLeaseRate }: PricingSectionPro
             <FormLabel>Purchase Price (Ksh)</FormLabel>
             <div className="flex items-center">
               <FormControl>
-                <Input type="number" {...field} />
+                <Input type="number" {...field} placeholder="Enter price in KES" />
               </FormControl>
               <Button 
                 type="button" 
@@ -57,7 +57,7 @@ export const PricingSection = ({ form, onCalculateLeaseRate }: PricingSectionPro
             <FormControl>
               <Input 
                 type="number" 
-                placeholder="Calculate or enter manually"
+                placeholder="Calculate or enter manually in KES"
                 value={field.value || ''}
                 onChange={field.onChange}
                 className="pl-8"

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -262,26 +261,26 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="price">Purchase Price ($)</Label>
+                <Label htmlFor="price">Purchase Price (Ksh)</Label>
                 <Input
                   id="price"
                   type="number"
                   step="0.01"
                   value={formData.price || ''}
                   onChange={(e) => handleChange('price', e.target.value ? parseFloat(e.target.value) : null)}
-                  placeholder="Enter purchase price"
+                  placeholder="Enter purchase price in KES"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="lease_rate">Lease Rate ($/month)</Label>
+                <Label htmlFor="lease_rate">Lease Rate (Ksh/month)</Label>
                 <Input
                   id="lease_rate"
                   type="number"
                   step="0.01"
                   value={formData.lease_rate || ''}
                   onChange={(e) => handleChange('lease_rate', e.target.value ? parseFloat(e.target.value) : null)}
-                  placeholder="Enter monthly lease rate"
+                  placeholder="Enter monthly lease rate in KES"
                 />
               </div>
 
@@ -336,7 +335,7 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="revenue_generated">Revenue Generated ($)</Label>
+                <Label htmlFor="revenue_generated">Revenue Generated (Ksh)</Label>
                 <Input
                   id="revenue_generated"
                   type="number"
@@ -344,7 +343,7 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
                   min="0"
                   value={formData.revenue_generated || ''}
                   onChange={(e) => handleChange('revenue_generated', e.target.value ? parseFloat(e.target.value) : null)}
-                  placeholder="Enter revenue generated"
+                  placeholder="Enter revenue generated in KES"
                 />
               </div>
             </div>
