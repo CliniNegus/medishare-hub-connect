@@ -9,42 +9,48 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSystemSettings } from '@/hooks/useSystemSettings';
 import CreateAdminUserForm from './CreateAdminUserForm';
+import { Loader2 } from 'lucide-react';
 
 const SettingsPanel = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { settings, loading, saving, saveSettings } = useSystemSettings();
   
-  const [maintenanceMode, setMaintenanceMode] = useState(false);
-  const [defaultCurrency, setDefaultCurrency] = useState("USD");
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [systemName, setSystemName] = useState("CliniBuilds Dashboard");
-  
-  const handleSaveSettings = async () => {
-    try {
-      // Log the settings changes for audit purposes
-      await supabase.rpc('log_audit_event', {
-        action_param: 'UPDATE_SETTINGS',
-        resource_type_param: 'system_settings',
-        new_values_param: JSON.stringify({
-          maintenance_mode: maintenanceMode,
-          default_currency: defaultCurrency,
-          email_notifications: emailNotifications,
-          system_name: systemName
-        })
-      });
+  // Local form state
+  const [formSettings, setFormSettings] = useState(settings);
 
-      toast({
-        title: "Settings Saved",
-        description: "Your settings have been updated successfully.",
-      });
-    } catch (error) {
-      console.error("Error saving settings:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save settings. Please try again.",
-        variant: "destructive",
-      });
+  // Update form when settings load
+  React.useEffect(() => {
+    setFormSettings(settings);
+  }, [settings]);
+
+  const handlePlatformSettingsSave = async () => {
+    const platformSettings = {
+      systemName: formSettings.systemName,
+      defaultCurrency: formSettings.defaultCurrency,
+      maintenanceMode: formSettings.maintenanceMode,
+    };
+
+    const success = await saveSettings(platformSettings);
+    if (success) {
+      console.log('Platform settings saved successfully');
+    }
+  };
+
+  const handleNotificationSettingsSave = async () => {
+    const notificationSettings = {
+      emailNotifications: formSettings.emailNotifications,
+      notificationFrequency: formSettings.notificationFrequency,
+      notifyOrders: formSettings.notifyOrders,
+      notifyMaintenance: formSettings.notifyMaintenance,
+      notifySystem: formSettings.notifySystem,
+    };
+
+    const success = await saveSettings(notificationSettings);
+    if (success) {
+      console.log('Notification settings saved successfully');
     }
   };
 
@@ -55,7 +61,6 @@ const SettingsPanel = () => {
         description: "System backup has been initiated.",
       });
 
-      // Call the createDataBackup function
       const { data, error } = await supabase.rpc('create_data_backup', {
         name_param: 'Manual Admin Backup',
         backup_type_param: 'full'
@@ -63,7 +68,6 @@ const SettingsPanel = () => {
 
       if (error) throw error;
 
-      // Simulate backup process
       setTimeout(() => {
         toast({
           title: "Backup Completed",
@@ -80,6 +84,14 @@ const SettingsPanel = () => {
       });
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -108,8 +120,8 @@ const SettingsPanel = () => {
                   <Label htmlFor="system-name">System Name</Label>
                   <Input 
                     id="system-name" 
-                    value={systemName}
-                    onChange={(e) => setSystemName(e.target.value)}
+                    value={formSettings.systemName}
+                    onChange={(e) => setFormSettings(prev => ({ ...prev, systemName: e.target.value }))}
                   />
                 </div>
                 
@@ -117,10 +129,11 @@ const SettingsPanel = () => {
                   <Label htmlFor="currency">Default Currency</Label>
                   <select 
                     id="currency"
-                    value={defaultCurrency}
-                    onChange={(e) => setDefaultCurrency(e.target.value)}
+                    value={formSettings.defaultCurrency}
+                    onChange={(e) => setFormSettings(prev => ({ ...prev, defaultCurrency: e.target.value }))}
                     className="w-full p-2 border rounded"
                   >
+                    <option value="KES">Kenyan Shilling (KES)</option>
                     <option value="USD">US Dollar (USD)</option>
                     <option value="EUR">Euro (EUR)</option>
                     <option value="NGN">Nigerian Naira (NGN)</option>
@@ -132,16 +145,18 @@ const SettingsPanel = () => {
                   <Label htmlFor="maintenance">Maintenance Mode</Label>
                   <Switch 
                     id="maintenance" 
-                    checked={maintenanceMode}
-                    onCheckedChange={setMaintenanceMode}
+                    checked={formSettings.maintenanceMode}
+                    onCheckedChange={(checked) => setFormSettings(prev => ({ ...prev, maintenanceMode: checked }))}
                   />
                 </div>
                 
                 <Button 
-                  onClick={handleSaveSettings} 
+                  onClick={handlePlatformSettingsSave} 
+                  disabled={saving}
                   className="bg-[#E02020] hover:bg-[#c01c1c] mt-2"
                 >
-                  Save Settings
+                  {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save Platform Settings
                 </Button>
               </CardContent>
             </Card>
@@ -158,8 +173,8 @@ const SettingsPanel = () => {
                   <Label htmlFor="email-notifications">Email Notifications</Label>
                   <Switch 
                     id="email-notifications" 
-                    checked={emailNotifications}
-                    onCheckedChange={setEmailNotifications}
+                    checked={formSettings.emailNotifications}
+                    onCheckedChange={(checked) => setFormSettings(prev => ({ ...prev, emailNotifications: checked }))}
                   />
                 </div>
                 
@@ -167,8 +182,9 @@ const SettingsPanel = () => {
                   <Label htmlFor="notifications-frequency">Notification Frequency</Label>
                   <select 
                     id="notifications-frequency"
+                    value={formSettings.notificationFrequency}
+                    onChange={(e) => setFormSettings(prev => ({ ...prev, notificationFrequency: e.target.value }))}
                     className="w-full p-2 border rounded"
-                    defaultValue="realtime"
                   >
                     <option value="realtime">Real-time</option>
                     <option value="hourly">Hourly Digest</option>
@@ -180,25 +196,39 @@ const SettingsPanel = () => {
                 <div className="space-y-2 pt-2">
                   <h4 className="font-medium">Notification Types</h4>
                   <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <input type="checkbox" id="notify-orders" defaultChecked />
+                    <div className="flex items-center justify-between">
                       <Label htmlFor="notify-orders">Order Updates</Label>
+                      <Switch
+                        id="notify-orders"
+                        checked={formSettings.notifyOrders}
+                        onCheckedChange={(checked) => setFormSettings(prev => ({ ...prev, notifyOrders: checked }))}
+                      />
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <input type="checkbox" id="notify-maintenance" defaultChecked />
+                    <div className="flex items-center justify-between">
                       <Label htmlFor="notify-maintenance">Maintenance Alerts</Label>
+                      <Switch
+                        id="notify-maintenance"
+                        checked={formSettings.notifyMaintenance}
+                        onCheckedChange={(checked) => setFormSettings(prev => ({ ...prev, notifyMaintenance: checked }))}
+                      />
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <input type="checkbox" id="notify-system" defaultChecked />
+                    <div className="flex items-center justify-between">
                       <Label htmlFor="notify-system">System Notifications</Label>
+                      <Switch
+                        id="notify-system"
+                        checked={formSettings.notifySystem}
+                        onCheckedChange={(checked) => setFormSettings(prev => ({ ...prev, notifySystem: checked }))}
+                      />
                     </div>
                   </div>
                 </div>
                 
                 <Button 
-                  onClick={handleSaveSettings} 
+                  onClick={handleNotificationSettingsSave}
+                  disabled={saving}
                   className="bg-[#E02020] hover:bg-[#c01c1c] mt-2"
                 >
+                  {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Save Notification Settings
                 </Button>
               </CardContent>
@@ -279,6 +309,22 @@ const SettingsPanel = () => {
                     >
                       Open System Management
                     </Button>
+                  </div>
+                  <div className="flex justify-between items-center pb-2 border-b">
+                    <span className="font-medium">Current Currency</span>
+                    <span className="bg-blue-50 px-2 py-1 rounded text-xs">
+                      {settings.defaultCurrency}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pb-2 border-b">
+                    <span className="font-medium">Maintenance Mode</span>
+                    <span className={`px-2 py-1 rounded text-xs ${
+                      settings.maintenanceMode 
+                        ? 'bg-red-50 text-red-600' 
+                        : 'bg-green-50 text-green-600'
+                    }`}>
+                      {settings.maintenanceMode ? 'Enabled' : 'Disabled'}
+                    </span>
                   </div>
                 </div>
                 
