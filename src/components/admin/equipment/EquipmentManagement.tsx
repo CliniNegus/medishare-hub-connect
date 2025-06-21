@@ -12,6 +12,7 @@ import AddEquipmentModal from './AddEquipmentModal';
 const EquipmentManagement = () => {
   const [activeTab, setActiveTab] = useState('equipment');
   const [showAddEquipmentModal, setShowAddEquipmentModal] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   const { equipment, loading, updateEquipment } = useEquipmentManagement();
 
@@ -21,7 +22,15 @@ const EquipmentManagement = () => {
 
   const handleEquipmentAdded = () => {
     setShowAddEquipmentModal(false);
-    // Refresh equipment list if needed
+    // Trigger refresh for categories by updating the key
+    setRefreshTrigger(prev => prev + 1);
+  };
+
+  const handleEquipmentUpdated = async (...args: Parameters<typeof updateEquipment>) => {
+    const result = await updateEquipment(...args);
+    // Trigger refresh for categories when equipment is updated
+    setRefreshTrigger(prev => prev + 1);
+    return result;
   };
 
   return (
@@ -57,7 +66,7 @@ const EquipmentManagement = () => {
           <EquipmentTable 
             equipment={equipment}
             loading={loading}
-            onUpdateEquipment={updateEquipment}
+            onUpdateEquipment={handleEquipmentUpdated}
           />
         </TabsContent>
 
@@ -66,7 +75,9 @@ const EquipmentManagement = () => {
         </TabsContent>
 
         <TabsContent value="categories" className="mt-6">
-          <EquipmentCategories />
+          <div key={refreshTrigger}>
+            <EquipmentCategories />
+          </div>
         </TabsContent>
       </Tabs>
 
