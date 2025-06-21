@@ -42,25 +42,45 @@ export const useFinancialData = () => {
 
   const fetchTransactions = async () => {
     try {
-      const { data, error } = await supabase
+      // First, get all transactions
+      const { data: transactionsData, error: transactionsError } = await supabase
         .from('transactions')
-        .select(`
-          *,
-          profiles!inner(
-            email,
-            full_name
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (transactionsError) throw transactionsError;
 
-      // Transform the data to include user information
-      const transformedTransactions: Transaction[] = (data || []).map(transaction => ({
-        ...transaction,
-        user_email: transaction.profiles?.email || 'Unknown',
-        user_name: transaction.profiles?.full_name || 'Unknown User'
-      }));
+      // Then, get user profiles for the user IDs we have
+      const userIds = [...new Set(transactionsData?.map(t => t.user_id) || [])];
+      
+      let profilesData: any[] = [];
+      if (userIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, email, full_name')
+          .in('id', userIds);
+
+        if (profilesError) {
+          console.error('Error fetching profiles:', profilesError);
+        } else {
+          profilesData = profiles || [];
+        }
+      }
+
+      // Create a map of user profiles for quick lookup
+      const profilesMap = new Map(
+        profilesData.map(profile => [profile.id, profile])
+      );
+
+      // Transform the transactions to include user information
+      const transformedTransactions: Transaction[] = (transactionsData || []).map(transaction => {
+        const profile = profilesMap.get(transaction.user_id);
+        return {
+          ...transaction,
+          user_email: profile?.email || 'Unknown',
+          user_name: profile?.full_name || 'Unknown User'
+        };
+      });
 
       setTransactions(transformedTransactions);
     } catch (error: any) {
