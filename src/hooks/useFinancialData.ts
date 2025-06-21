@@ -115,7 +115,7 @@ export const useFinancialData = () => {
 
       // Get pending invoices (using sample data for now)
       const pendingInvoices = 3; // Mock data
-      const pendingInvoicesAmount = 48500; // Mock data
+      const pendingInvoicesAmount = 4850000; // Mock data in KES
 
       // Calculate current month cash flow
       const currentMonth = new Date();

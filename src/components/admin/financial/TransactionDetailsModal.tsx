@@ -66,11 +66,8 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
     });
   };
 
-  const formatAmount = (amount: number, currency: string) => {
-    if (currency === 'KES') {
-      return `Ksh ${amount.toLocaleString()}`;
-    }
-    return `$${amount.toLocaleString()}`;
+  const formatAmount = (amount: number, currency: string = 'KES') => {
+    return `Ksh ${amount.toLocaleString()}`;
   };
 
   return (

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { CreditCard, DollarSign, Activity, FileText, BarChart2, Search, Filter, ArrowUpDown, Calendar, Eye, Edit, MoreHorizontal } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -86,11 +85,8 @@ const FinancialManagement: React.FC<FinancialManagementProps> = ({ stats, recent
     });
   };
 
-  const formatAmount = (amount: number, currency: string) => {
-    if (currency === 'KES') {
-      return `Ksh ${amount.toLocaleString()}`;
-    }
-    return `$${amount.toLocaleString()}`;
+  const formatAmount = (amount: number, currency: string = 'KES') => {
+    return `Ksh ${amount.toLocaleString()}`;
   };
 
   const filteredTransactions = transactions
@@ -130,7 +126,7 @@ const FinancialManagement: React.FC<FinancialManagementProps> = ({ stats, recent
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              ${metrics.totalRevenue.toLocaleString()}
+              Ksh {metrics.totalRevenue.toLocaleString()}
             </div>
             <p className="text-xs text-red-700">From successful transactions</p>
           </CardContent>
@@ -154,7 +150,7 @@ const FinancialManagement: React.FC<FinancialManagementProps> = ({ stats, recent
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">{metrics.pendingInvoices}</div>
-            <p className="text-xs text-yellow-700">${metrics.pendingInvoicesAmount.toLocaleString()} outstanding</p>
+            <p className="text-xs text-yellow-700">Ksh {metrics.pendingInvoicesAmount.toLocaleString()} outstanding</p>
           </CardContent>
         </Card>
 
@@ -165,7 +161,7 @@ const FinancialManagement: React.FC<FinancialManagementProps> = ({ stats, recent
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              ${metrics.cashFlow.toLocaleString()}
+              Ksh {metrics.cashFlow.toLocaleString()}
             </div>
             <p className="text-xs text-green-700">This month</p>
           </CardContent>
