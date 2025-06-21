@@ -59,14 +59,14 @@ export const useSystemSettings = () => {
         const settingsMap = new Map(data.map(setting => [setting.setting_key, setting.setting_value]));
         
         setSettings({
-          systemName: settingsMap.get('system_name') || 'CliniBuilds Dashboard',
-          defaultCurrency: settingsMap.get('default_currency') || 'KES',
-          maintenanceMode: settingsMap.get('maintenance_mode') || false,
-          emailNotifications: settingsMap.get('email_notifications') || true,
-          notificationFrequency: settingsMap.get('notification_frequency') || 'realtime',
-          notifyOrders: settingsMap.get('notify_orders') || true,
-          notifyMaintenance: settingsMap.get('notify_maintenance') || true,
-          notifySystem: settingsMap.get('notify_system') || true,
+          systemName: (settingsMap.get('system_name') as string) || 'CliniBuilds Dashboard',
+          defaultCurrency: (settingsMap.get('default_currency') as string) || 'KES',
+          maintenanceMode: (settingsMap.get('maintenance_mode') as boolean) || false,
+          emailNotifications: (settingsMap.get('email_notifications') as boolean) || true,
+          notificationFrequency: (settingsMap.get('notification_frequency') as string) || 'realtime',
+          notifyOrders: (settingsMap.get('notify_orders') as boolean) || true,
+          notifyMaintenance: (settingsMap.get('notify_maintenance') as boolean) || true,
+          notifySystem: (settingsMap.get('notify_system') as boolean) || true,
         });
       }
     } catch (error: any) {
