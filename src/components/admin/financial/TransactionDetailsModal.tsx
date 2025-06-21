@@ -29,6 +29,8 @@ interface Transaction {
   updated_at: string;
   metadata?: any;
   user_id: string;
+  user_email?: string;
+  user_name?: string;
 }
 
 interface TransactionDetailsModalProps {
@@ -85,6 +87,36 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
         </DialogHeader>
         
         <div className="space-y-6">
+          {/* User Information Card */}
+          {(transaction.user_email || transaction.user_name) && (
+            <Card className="border-blue-200/50 shadow-sm">
+              <CardHeader className="bg-gradient-to-r from-blue-50/50 to-transparent border-b border-blue-200/30 pb-3">
+                <CardTitle className="text-lg font-semibold text-[#333333] flex items-center">
+                  <UserIcon className="h-5 w-5 mr-2 text-blue-600" />
+                  User Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center space-x-2">
+                    <UserIcon className="h-4 w-4 text-gray-500" />
+                    <div>
+                      <div className="text-xs text-gray-500">Full Name</div>
+                      <p className="text-sm font-medium">{transaction.user_name || 'Unknown User'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <MailIcon className="h-4 w-4 text-gray-500" />
+                    <div>
+                      <div className="text-xs text-gray-500">Email</div>
+                      <p className="text-sm font-medium">{transaction.user_email || 'Unknown'}</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Transaction Overview Card */}
           <Card className="border-[#E02020]/20 shadow-sm">
             <CardHeader className="bg-gradient-to-r from-[#E02020]/5 to-transparent border-b border-[#E02020]/10 pb-3">

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { CreditCard, DollarSign, Activity, FileText, BarChart2, Search, Filter, ArrowUpDown, Calendar, Eye, Edit, MoreHorizontal } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,8 @@ interface Transaction {
   updated_at: string;
   metadata?: any;
   user_id: string;
+  user_email?: string;
+  user_name?: string;
 }
 
 interface FinancialManagementProps {
@@ -93,7 +96,9 @@ const FinancialManagement: React.FC<FinancialManagementProps> = ({ stats, recent
   const filteredTransactions = transactions
     .filter(transaction => {
       const matchesSearch = transaction.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           transaction.paystack_reference?.toLowerCase().includes(searchTerm.toLowerCase());
+                           transaction.paystack_reference?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           transaction.user_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           transaction.user_email?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || transaction.status === statusFilter;
       return matchesSearch && matchesStatus;
     })
@@ -184,7 +189,7 @@ const FinancialManagement: React.FC<FinancialManagementProps> = ({ stats, recent
               <div className="relative">
                 <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <Input
-                  placeholder="Search transactions..."
+                  placeholder="Search transactions, users..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 w-full sm:w-64 border-gray-200 focus:border-[#E02020] focus:ring-[#E02020]"
@@ -242,6 +247,7 @@ const FinancialManagement: React.FC<FinancialManagementProps> = ({ stats, recent
                 <TableHeader>
                   <TableRow className="bg-gray-50/50 border-b border-gray-200">
                     <TableHead className="font-semibold text-gray-700 px-6 py-4">Reference</TableHead>
+                    <TableHead className="font-semibold text-gray-700 px-6 py-4">User</TableHead>
                     <TableHead className="font-semibold text-gray-700 px-6 py-4">
                       <div className="flex items-center">
                         <Calendar className="h-4 w-4 mr-2" />
@@ -271,6 +277,12 @@ const FinancialManagement: React.FC<FinancialManagementProps> = ({ stats, recent
                               PS: {transaction.paystack_reference}
                             </div>
                           )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-6 py-4">
+                        <div className="space-y-1">
+                          <div className="font-medium text-gray-900">{transaction.user_name || 'Unknown User'}</div>
+                          <div className="text-xs text-gray-500">{transaction.user_email || 'Unknown'}</div>
                         </div>
                       </TableCell>
                       <TableCell className="px-6 py-4">

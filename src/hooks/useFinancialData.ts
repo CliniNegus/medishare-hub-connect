@@ -23,6 +23,8 @@ interface Transaction {
   updated_at: string;
   metadata?: any;
   user_id: string;
+  user_email?: string;
+  user_name?: string;
 }
 
 export const useFinancialData = () => {
@@ -42,12 +44,25 @@ export const useFinancialData = () => {
     try {
       const { data, error } = await supabase
         .from('transactions')
-        .select('*')
+        .select(`
+          *,
+          profiles!inner(
+            email,
+            full_name
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      setTransactions(data || []);
+      // Transform the data to include user information
+      const transformedTransactions: Transaction[] = (data || []).map(transaction => ({
+        ...transaction,
+        user_email: transaction.profiles?.email || 'Unknown',
+        user_name: transaction.profiles?.full_name || 'Unknown User'
+      }));
+
+      setTransactions(transformedTransactions);
     } catch (error: any) {
       console.error('Error fetching transactions:', error);
       toast({

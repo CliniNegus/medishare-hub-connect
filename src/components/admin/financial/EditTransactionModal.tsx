@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Edit3Icon } from "lucide-react";
+import { Edit3Icon, UserIcon } from "lucide-react";
 import { Transaction, TransactionFormData } from './types';
 import TransactionDetailsSection from './TransactionDetailsSection';
 import PaymentInformationSection from './PaymentInformationSection';
@@ -120,6 +120,29 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
             Modify transaction details for #{transaction.reference}
           </p>
         </DialogHeader>
+
+        {/* User Information Display */}
+        {(transaction.user_email || transaction.user_name) && (
+          <>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center mb-2">
+                <UserIcon className="h-5 w-5 mr-2 text-blue-600" />
+                <h4 className="font-medium text-blue-900">User Information</h4>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span className="font-medium text-gray-600">Name:</span>
+                  <span className="ml-2 text-gray-900">{transaction.user_name || 'Unknown User'}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-600">Email:</span>
+                  <span className="ml-2 text-gray-900">{transaction.user_email || 'Unknown'}</span>
+                </div>
+              </div>
+            </div>
+            <Separator className="my-4" />
+          </>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <TransactionDetailsSection 

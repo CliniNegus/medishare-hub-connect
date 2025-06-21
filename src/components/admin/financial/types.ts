@@ -10,6 +10,8 @@ export interface Transaction {
   metadata?: any;
   created_at: string;
   updated_at: string;
+  user_email?: string;
+  user_name?: string;
 }
 
 export interface TransactionFormData {
