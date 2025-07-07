@@ -2,9 +2,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import FeatureSlides from '@/components/landing/FeatureSlides';
 import OptimizedImage from '@/components/OptimizedImage';
 import DashboardShowcase from '@/components/landing/DashboardShowcase';
+import { InputValidator, useFormValidation } from '@/components/security/InputValidator';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Heart, 
   TrendingUp, 
@@ -15,11 +18,50 @@ import {
   CheckCircle,
   Sparkles,
   Menu,
-  X
+  X,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Facebook
 } from "lucide-react";
 
 const Index: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [newsletterEmail, setNewsletterEmail] = React.useState('');
+  const [isSubscribing, setIsSubscribing] = React.useState(false);
+  const { errors, validateField, clearError } = useFormValidation();
+  const { toast } = useToast();
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateField('email', newsletterEmail, 'email')) {
+      return;
+    }
+
+    setIsSubscribing(true);
+    
+    // Simulate API call for newsletter subscription
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: "Successfully subscribed!",
+        description: "Thank you for subscribing to our newsletter. You'll receive updates about CliniBuilds platform.",
+      });
+      
+      setNewsletterEmail('');
+      clearError('email');
+    } catch (error) {
+      toast({
+        title: "Subscription failed",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white relative">
@@ -303,36 +345,123 @@ const Index: React.FC = () => {
           </div>
         </div>
 
-        {/* Footer */}
-        <footer className="py-12 bg-[#333333] text-white">
-          <div className="container mx-auto px-6">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="mb-8 md:mb-0 text-center md:text-left">
-                <div className="flex items-center gap-3 justify-center md:justify-start mb-3">
+        {/* Modern Footer */}
+        <footer className="bg-[#E02020] text-white relative overflow-hidden">
+          {/* Background pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-96 h-96 bg-white/5 rounded-full -translate-x-48 -translate-y-48"></div>
+            <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full translate-x-48 translate-y-48"></div>
+          </div>
+          
+          <div className="container mx-auto px-6 py-16 relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
+              {/* Company Info */}
+              <div className="lg:col-span-2">
+                <div className="flex items-center gap-3 mb-6">
                   <OptimizedImage
                     src="https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/Clinibuilds%20Logo.jpg"
                     alt="CliniBuilds Logo"
-                    height={32}
-                    className="object-contain rounded-md"
+                    height={40}
+                    className="object-contain rounded-md bg-white/20 p-1"
                   />
-                  <h2 className="text-3xl font-bold text-[#E02020]">CliniBuilds</h2>
+                  <h2 className="text-2xl font-bold">CliniBuilds</h2>
                 </div>
-                <p className="text-gray-300">Medical Equipment Management Platform</p>
-                <p className="text-sm text-gray-400 mt-2">Transforming healthcare through technology</p>
+                <p className="text-white/80 mb-6 leading-relaxed">
+                  CliniBuilds is a medical equipment management platform, connecting hospitals, manufacturers, and investors for efficient healthcare solutions.
+                </p>
+                <p className="text-sm text-white/60 mb-6">
+                  All medical equipment services are securely provided by our licensed partners who are members of healthcare insurance schemes, ensuring the safety of your medical operations.
+                </p>
+                
+                {/* Social Media Icons */}
+                <div className="flex gap-4">
+                  <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors">
+                    <Twitter className="h-5 w-5" />
+                  </a>
+                  <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors">
+                    <Instagram className="h-5 w-5" />
+                  </a>
+                  <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors">
+                    <Linkedin className="h-5 w-5" />
+                  </a>
+                </div>
               </div>
-              
-              <div className="flex flex-wrap justify-center md:justify-end gap-6">
-                <Link to="/auth" className="text-gray-300 hover:text-[#E02020] transition-colors duration-300 font-medium">Sign In</Link>
-                <Link to="/admin-auth" className="text-gray-300 hover:text-[#E02020] transition-colors duration-300 font-medium">Admin</Link>
-                <a href="#" className="text-gray-300 hover:text-[#E02020] transition-colors duration-300 font-medium">Privacy Policy</a>
-                <a href="#" className="text-gray-300 hover:text-[#E02020] transition-colors duration-300 font-medium">Terms of Service</a>
+
+              {/* Products */}
+              <div>
+                <h3 className="text-lg font-bold mb-6">Products</h3>
+                <ul className="space-y-3">
+                  <li><Link to="/shop/public" className="text-white/80 hover:text-white transition-colors">Medical Equipment</Link></li>
+                  <li><Link to="/equipment-tracking" className="text-white/80 hover:text-white transition-colors">Equipment Tracking</Link></li>
+                  <li><Link to="/lease-management" className="text-white/80 hover:text-white transition-colors">Lease Management</Link></li>
+                </ul>
+              </div>
+
+              {/* Company */}
+              <div>
+                <h3 className="text-lg font-bold mb-6">Company</h3>
+                <ul className="space-y-3">
+                  <li><a href="#about" className="text-white/80 hover:text-white transition-colors">About Us</a></li>
+                  <li><Link to="/hospital-locations" className="text-white/80 hover:text-white transition-colors">Hospital Network</Link></li>
+                  <li><Link to="/integrations" className="text-white/80 hover:text-white transition-colors">Partnerships</Link></li>
+                </ul>
+              </div>
+
+              {/* Resources */}
+              <div>
+                <h3 className="text-lg font-bold mb-6">Resources</h3>
+                <ul className="space-y-3">
+                  <li><Link to="/system-management" className="text-white/80 hover:text-white transition-colors">Tools</Link></li>
+                  <li><Link to="/auth" className="text-white/80 hover:text-white transition-colors">Developers</Link></li>
+                  <li><a href="#blog" className="text-white/80 hover:text-white transition-colors">Blog</a></li>
+                </ul>
               </div>
             </div>
-            
-            <div className="mt-8 pt-8 border-t border-gray-700 text-center">
-              <p className="text-sm text-gray-400">
-                &copy; {new Date().getFullYear()} CliniBuilds. All rights reserved. • Building the future of healthcare equipment management.
+
+            {/* Newsletter Section */}
+            <div className="mt-12 pt-8 border-t border-white/20">
+              <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Subscribe to our Newsletter</h3>
+                  <p className="text-white/80">Stay updated with the latest medical equipment innovations and platform updates.</p>
+                </div>
+                
+                <form onSubmit={handleNewsletterSubmit} className="flex gap-3 w-full max-w-md">
+                  <div className="flex-1">
+                    <Input
+                      type="email"
+                      placeholder="hello@clinibuilds.co"
+                      value={newsletterEmail}
+                      onChange={(e) => {
+                        setNewsletterEmail(e.target.value);
+                        if (errors.email) clearError('email');
+                      }}
+                      className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40"
+                    />
+                    {errors.email && (
+                      <p className="text-red-200 text-sm mt-1">{errors.email}</p>
+                    )}
+                  </div>
+                  <Button 
+                    type="submit"
+                    disabled={isSubscribing}
+                    className="bg-white text-[#E02020] hover:bg-white/90 font-semibold px-6"
+                  >
+                    {isSubscribing ? 'Subscribing...' : 'Subscribe'}
+                  </Button>
+                </form>
+              </div>
+            </div>
+
+            {/* Bottom Footer */}
+            <div className="mt-12 pt-8 border-t border-white/20 flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-sm text-white/60">
+                © {new Date().getFullYear()} CliniBuilds. All rights reserved.
               </p>
+              <div className="flex gap-6 text-sm">
+                <a href="#" className="text-white/60 hover:text-white transition-colors">Terms of Use</a>
+                <a href="#" className="text-white/60 hover:text-white transition-colors">Privacy Policy</a>
+              </div>
             </div>
           </div>
         </footer>
