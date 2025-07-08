@@ -52,10 +52,13 @@ serve(async (req) => {
   }
 
   try {
-    const PAYSTACK_SECRET_KEY = Deno.env.get('PAYSTACK_SECRET_KEY');
+    const PAYSTACK_SECRET_KEY = Deno.env.get('PAYSTACK_SECRET_KEY_2');
     if (!PAYSTACK_SECRET_KEY) {
+      console.error('PAYSTACK_SECRET_KEY_2 environment variable not found');
       throw new Error('Payment service not configured');
     }
+
+    console.log('Paystack secret key configured');
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -75,7 +78,7 @@ serve(async (req) => {
     // Handle GET request (callback from Paystack)
     if (req.method === 'GET') {
       const url = new URL(req.url);
-      const reference = url.searchParams.get('reference');
+      const reference = url.searchParams.get('reference') || url.searchParams.get('trxref');
       
       if (!reference) {
         return new Response(`
@@ -99,7 +102,7 @@ serve(async (req) => {
               <div class="error">
                 <h2>Payment Error</h2>
                 <p>Missing payment reference. Please try again.</p>
-                <a href="${supabaseUrl.replace('/functions/v1/verify-payment', '')}/dashboard" class="button">Back to Dashboard</a>
+                <a href="${supabaseUrl.replace('/functions/v1', '')}/dashboard" class="button">Back to Dashboard</a>
               </div>
             </div>
           </body>
@@ -277,7 +280,7 @@ serve(async (req) => {
         }
 
         // Redirect to success page with order details
-        const successUrl = `${supabaseUrl.replace('/functions/v1/verify-payment', '')}/payment-success?reference=${reference}&amount=${result.data.amount}&type=${orderType || 'equipment'}`;
+        const successUrl = `${supabaseUrl.replace('/functions/v1', '')}/payment-success?reference=${reference}&amount=${result.data.amount}&type=${orderType || 'equipment'}`;
         
         return new Response(`
           <!DOCTYPE html>
@@ -370,7 +373,7 @@ serve(async (req) => {
                 <h2>Payment Failed</h2>
                 <p>Your payment could not be processed. Please try again.</p>
                 <p><strong>Reference:</strong> ${reference}</p>
-                <a href="${supabaseUrl.replace('/functions/v1/verify-payment', '')}/payment-cancelled" class="button">Try Again</a>
+                <a href="${supabaseUrl.replace('/functions/v1', '')}/payment-cancelled" class="button">Try Again</a>
               </div>
             </div>
           </body>
@@ -382,7 +385,12 @@ serve(async (req) => {
       }
     }
 
-    // Handle POST request (manual verification)
+    // Handle POST request (manual verification) - this requires auth
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader) {
+      throw new Error('Missing authorization header for manual verification');
+    }
+
     const body = await req.json();
     const { reference } = body;
 
