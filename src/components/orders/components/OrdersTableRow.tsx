@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
+import { Eye } from "lucide-react";
+import OrderDetailsModal from '../OrderDetailsModal';
 
 interface Order {
   id: string;
@@ -28,6 +29,8 @@ interface OrdersTableRowProps {
 }
 
 const OrdersTableRow: React.FC<OrdersTableRowProps> = ({ order, onViewOrder }) => {
+  const [showOrderDetails, setShowOrderDetails] = useState(false);
+
   const getStatusColor = (status: string) => {
     switch(status) {
       case 'pending': return 'bg-blue-100 text-blue-800';
@@ -39,34 +42,56 @@ const OrdersTableRow: React.FC<OrdersTableRowProps> = ({ order, onViewOrder }) =
     }
   };
 
+  const handleViewClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowOrderDetails(true);
+    onViewOrder(order.id); // Keep the existing callback for any external functionality
+  };
+
+  const handleCloseModal = () => {
+    setShowOrderDetails(false);
+  };
+
   return (
-    <TableRow 
-      key={order.id} 
-      onClick={() => onViewOrder(order.id)} 
-      className="cursor-pointer hover:bg-gray-50"
-    >
-      <TableCell>
-        <div className="font-medium">{order.id.slice(0, 8)}...</div>
-      </TableCell>
-      <TableCell>
-        <div>{order.equipment?.name || 'Unknown Equipment'}</div>
-        <div className="text-xs text-gray-500">{order.equipment?.manufacturer}</div>
-      </TableCell>
-      <TableCell className="text-center">
-        <Badge className={`capitalize ${getStatusColor(order.status)}`}>
-          {order.status}
-        </Badge>
-      </TableCell>
-      <TableCell className="text-right font-medium">Ksh {order.amount.toLocaleString()}</TableCell>
-      <TableCell className="text-center capitalize">{order.payment_method}</TableCell>
-      <TableCell className="text-center text-sm">{new Date(order.created_at).toLocaleDateString()}</TableCell>
-      <TableCell className="text-right">
-        <Button variant="ghost" size="sm">
-          View
-          <ChevronRight className="h-4 w-4 ml-1" />
-        </Button>
-      </TableCell>
-    </TableRow>
+    <>
+      <TableRow 
+        key={order.id} 
+        className="cursor-pointer hover:bg-gray-50"
+      >
+        <TableCell>
+          <div className="font-medium">{order.id.slice(0, 8)}...</div>
+        </TableCell>
+        <TableCell>
+          <div>{order.equipment?.name || 'Unknown Equipment'}</div>
+          <div className="text-xs text-gray-500">{order.equipment?.manufacturer}</div>
+        </TableCell>
+        <TableCell className="text-center">
+          <Badge className={`capitalize ${getStatusColor(order.status)}`}>
+            {order.status}
+          </Badge>
+        </TableCell>
+        <TableCell className="text-right font-medium">Ksh {order.amount.toLocaleString()}</TableCell>
+        <TableCell className="text-center capitalize">{order.payment_method}</TableCell>
+        <TableCell className="text-center text-sm">{new Date(order.created_at).toLocaleDateString()}</TableCell>
+        <TableCell className="text-right">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={handleViewClick}
+            className="hover:bg-[#E02020] hover:text-white"
+          >
+            <Eye className="h-4 w-4 mr-1" />
+            View
+          </Button>
+        </TableCell>
+      </TableRow>
+
+      <OrderDetailsModal
+        isOpen={showOrderDetails}
+        onClose={handleCloseModal}
+        order={order}
+      />
+    </>
   );
 };
 
