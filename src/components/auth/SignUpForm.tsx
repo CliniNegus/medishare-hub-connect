@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { UserRole } from '@/contexts/UserRoleContext';
 import { AlertCircle, Mail, User, Building, Lock, Eye, EyeOff, CheckCircle, ArrowRight, Sparkles } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useEmailVerification } from '@/hooks/useEmailVerification';
 
 interface SignUpFormProps {
   onSuccess: () => void;
@@ -19,6 +19,7 @@ interface SignUpFormProps {
 
 const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata }) => {
   const { toast } = useToast();
+  const { sendVerificationEmail } = useEmailVerification();
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
   const [organization, setOrganization] = useState('');
@@ -27,9 +28,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
   const [validating, setValidating] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordValidationMessage, setPasswordValidationMessage] = useState<string | null>(null);
-  const [emailPending, setEmailPending] = useState(false);
-  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
-  const [pendingFullName, setPendingFullName] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [termsError, setTermsError] = useState<string | null>(null);
 
@@ -118,7 +116,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
           data: {
             full_name: fullName,
             organization: organization,
-            role: metadata?.role || 'hospital', // Default to hospital if not specified
+            role: metadata?.role || 'hospital',
           },
         },
       });
@@ -130,36 +128,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
       }
 
       if (data.user) {
-        // Send custom verification email
+        // Automatically send verification email
         try {
-          const { data: emailData, error: emailError } = await supabase.functions.invoke('send-verification-email', {
-            body: {
-              email,
-              fullName,
-              ipAddress: null,
-              userAgent: navigator.userAgent,
-            },
+          await sendVerificationEmail(email, fullName);
+          
+          toast({
+            title: "Account created successfully!",
+            description: "Please check your email to verify your account before signing in.",
           });
-
-          if (emailError || !emailData?.success) {
-            console.error("Email send error:", emailError);
-            // Don't fail the signup, but show a warning
-            toast({
-              title: "Account created",
-              description: "Account created but verification email failed to send. Please contact support.",
-              variant: "destructive",
-            });
-          } else {
-            // Set pending verification state
-            setEmailPending(true);
-            setPendingEmail(email);
-            setPendingFullName(fullName);
-            
-            toast({
-              title: "Account created successfully!",
-              description: "Please check your email to verify your account before signing in.",
-            });
-          }
         } catch (emailErr) {
           console.error("Email send error:", emailErr);
           toast({

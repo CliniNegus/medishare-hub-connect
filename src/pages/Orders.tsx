@@ -6,21 +6,42 @@ import Header from '@/components/Header';
 import OrdersTable from '@/components/orders/OrdersTable';
 import OrderStats from '@/components/orders/OrderStats';
 import CreateOrderModal from '@/components/orders/CreateOrderModal';
+import { useOrderEmails } from '@/hooks/useOrderEmails';
 
 const Orders = () => {
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const { sendOrderConfirmation } = useOrderEmails();
 
   const handleViewOrder = (id: string) => {
     setSelectedOrder(id);
-    // In a real app, you would navigate to a details view or open a modal
     console.log(`View order with ID: ${id}`);
   };
 
-  const handleOrderCreated = () => {
-    // Refresh the orders list by incrementing the key
+  const handleOrderCreated = async (orderData: any) => {
+    // Refresh the orders list
     setRefreshKey(prev => prev + 1);
+    
+    // Send order confirmation email
+    if (orderData?.email && orderData?.id) {
+      try {
+        await sendOrderConfirmation(
+          orderData.email,
+          orderData.customerName,
+          orderData.id,
+          {
+            equipmentName: orderData.equipmentName || 'Medical Equipment',
+            quantity: orderData.quantity || 1,
+            amount: orderData.amount || 0,
+            shippingAddress: orderData.shippingAddress,
+            estimatedDelivery: orderData.estimatedDelivery
+          }
+        );
+      } catch (error) {
+        console.error('Failed to send order confirmation email:', error);
+      }
+    }
   };
 
   return (

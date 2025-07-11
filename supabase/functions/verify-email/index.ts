@@ -57,8 +57,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Verifying email with token:", token);
 
-    // Verify the token
-    const { data: isValid, error: verifyError } = await supabase.rpc('verify_email_token', {
+    // Verify the token and get user email
+    const { data: verificationData, error: verifyError } = await supabase.rpc('verify_email_token', {
       token_hash_param: token
     });
 
@@ -67,7 +67,7 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Failed to verify token");
     }
 
-    if (!isValid) {
+    if (!verificationData) {
       return new Response(`
         <!DOCTYPE html>
         <html>
@@ -101,6 +101,46 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
+    // Get user profile to send welcome email
+    try {
+      const { data: verificationLog } = await supabase
+        .from('email_verification_log')
+        .select('email, user_id')
+        .eq('token_hash', token)
+        .single();
+
+      if (verificationLog?.email) {
+        // Get user profile for full name
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', verificationLog.user_id)
+          .single();
+
+        // Send welcome email
+        const welcomeResponse = await fetch(`${supabaseUrl}/functions/v1/send-welcome-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseServiceKey}`,
+          },
+          body: JSON.stringify({
+            email: verificationLog.email,
+            fullName: profile?.full_name
+          }),
+        });
+
+        if (!welcomeResponse.ok) {
+          console.error("Failed to send welcome email, but verification succeeded");
+        } else {
+          console.log("Welcome email sent successfully");
+        }
+      }
+    } catch (welcomeError) {
+      console.error("Error sending welcome email:", welcomeError);
+      // Don't fail verification if welcome email fails
+    }
+
     // Success page
     return new Response(`
       <!DOCTYPE html>
@@ -125,6 +165,7 @@ const handler = async (req: Request): Promise<Response> => {
           <div class="success">
             <h2>Email Verified Successfully!</h2>
             <p>Your email address has been verified. You can now access all features of the CliniBuilds platform.</p>
+            <p><strong>Welcome email sent!</strong> Check your inbox for helpful getting started information.</p>
             <a href="${supabaseUrl.replace('/functions/v1/verify-email', '')}/dashboard" class="button">Go to Dashboard</a>
             <br><br>
             <a href="${supabaseUrl.replace('/functions/v1/verify-email', '')}/auth" style="color: #666; text-decoration: none;">Or sign in here</a>
