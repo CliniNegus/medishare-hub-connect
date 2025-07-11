@@ -36,7 +36,7 @@ const TermsOfService: React.FC = () => {
             Please read these terms carefully before using our platform
           </p>
           <p className="text-sm text-[#333333]/50 mt-4">
-            Effective Date: [Effective Date] | Last Updated: [Last Updated Date]
+            Effective Date: January 11, 2025 | Last Updated: January 11, 2025
           </p>
         </div>
       </div>
@@ -55,7 +55,7 @@ const TermsOfService: React.FC = () => {
                 </h2>
                 <div className="text-[#333333]/80 leading-relaxed space-y-4">
                   <p>
-                    Welcome to [Company Name] ("we," "our," "us"). These Terms of Service ("Terms") govern your use of our medical equipment management platform and related services (collectively, the "Service").
+                    Welcome to Negus Med Ltd ("we," "our," "us"). These Terms of Service ("Terms") govern your use of our Clinibuilds medical equipment management platform and related services (collectively, the "Service").
                   </p>
                   <p>
                     By accessing or using our Service, you agree to be bound by these Terms. If you disagree with any part of these terms, you may not access the Service.
@@ -117,7 +117,7 @@ const TermsOfService: React.FC = () => {
                 </h2>
                 <div className="text-[#333333]/80 leading-relaxed space-y-4">
                   <p>
-                    The Service and its original content, features, and functionality are owned by [Company Name] and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.
+                    The Service and its original content, features, and functionality are owned by Negus Med Ltd and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.
                   </p>
                   <p>
                     You may not reproduce, distribute, modify, create derivative works of, publicly display, publicly perform, republish, download, store, or transmit any of the material on our Service without our prior written consent.
@@ -139,7 +139,7 @@ const TermsOfService: React.FC = () => {
                     We may terminate or suspend your account and access to the Service immediately, without prior notice, if you breach these Terms or engage in conduct that we determine to be harmful to the Service or other users.
                   </p>
                   <p>
-                    You may terminate your account at any time by contacting us at [Email Address]. Upon termination, your right to use the Service will cease immediately.
+                    You may terminate your account at any time by contacting us at support@negusmed.com. Upon termination, your right to use the Service will cease immediately.
                   </p>
                   <p>
                     All provisions of these Terms that by their nature should survive termination shall survive, including ownership provisions, warranty disclaimers, and limitations of liability.
@@ -155,7 +155,7 @@ const TermsOfService: React.FC = () => {
                 </h2>
                 <div className="text-[#333333]/80 leading-relaxed space-y-4">
                   <p>
-                    To the maximum extent permitted by applicable law, [Company Name] shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of or relating to your use of the Service.
+                    To the maximum extent permitted by applicable law, Negus Med Ltd shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of or relating to your use of the Service.
                   </p>
                   <p>
                     Our total liability to you for all claims arising out of or relating to the Service shall not exceed the amount you paid us in the twelve months preceding the claim.
@@ -174,10 +174,10 @@ const TermsOfService: React.FC = () => {
                 </h2>
                 <div className="text-[#333333]/80 leading-relaxed space-y-4">
                   <p>
-                    These Terms shall be governed by and construed in accordance with the laws of [Jurisdiction], without regard to its conflict of law provisions.
+                    These Terms shall be governed by and construed in accordance with the laws of Kenya, without regard to its conflict of law provisions.
                   </p>
                   <p>
-                    Any disputes arising out of or relating to these Terms or the Service shall be subject to the exclusive jurisdiction of the courts of [Jurisdiction].
+                    Any disputes arising out of or relating to these Terms or the Service shall be subject to the exclusive jurisdiction of the courts of Kenya.
                   </p>
                 </div>
               </section>
@@ -205,9 +205,10 @@ const TermsOfService: React.FC = () => {
                   If you have any questions about these Terms of Service, please contact us at:
                 </p>
                 <div className="mt-3 space-y-1 text-[#333333]/80">
-                  <p>Email: [Email Address]</p>
-                  <p>Address: [Company Address]</p>
-                  <p>Phone: [Phone Number]</p>
+                  <p><strong>Company:</strong> Negus Med Ltd</p>
+                  <p><strong>Email:</strong> support@negusmed.com</p>
+                  <p><strong>Address:</strong> Applewood Adam's, 9th Floor, Suite 902, Ngong Rd, Nairobi, Kenya</p>
+                  <p><strong>Phone:</strong> +(254) 700 711 663</p>
                 </div>
               </section>
             </div>

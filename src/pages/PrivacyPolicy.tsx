@@ -36,7 +36,7 @@ const PrivacyPolicy: React.FC = () => {
             Your privacy is important to us. Learn how we collect, use, and protect your information.
           </p>
           <p className="text-sm text-[#333333]/50 mt-4">
-            Effective Date: [Effective Date] | Last Updated: [Last Updated Date]
+            Effective Date: January 11, 2025 | Last Updated: January 11, 2025
           </p>
         </div>
       </div>
@@ -55,7 +55,7 @@ const PrivacyPolicy: React.FC = () => {
                 </h2>
                 <div className="text-[#333333]/80 leading-relaxed space-y-4">
                   <p>
-                    At [Company Name] ("we," "our," "us"), we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our medical equipment management platform.
+                    At Negus Med Ltd ("we," "our," "us"), we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our Clinibuilds medical equipment management platform.
                   </p>
                   <p>
                     By using our Service, you consent to the data practices described in this policy. If you do not agree with the practices described in this policy, please do not use our Service.
@@ -252,10 +252,11 @@ const PrivacyPolicy: React.FC = () => {
                   If you have any questions about this Privacy Policy or our data practices, please contact us:
                 </p>
                 <div className="space-y-1 text-[#333333]/80">
-                  <p><strong>Privacy Officer:</strong> [Privacy Officer Name]</p>
-                  <p><strong>Email:</strong> [Privacy Email Address]</p>
-                  <p><strong>Address:</strong> [Company Address]</p>
-                  <p><strong>Phone:</strong> [Phone Number]</p>
+                  <p><strong>Company:</strong> Negus Med Ltd</p>
+                  <p><strong>Privacy Officer:</strong> Data Protection Officer</p>
+                  <p><strong>Email:</strong> support@negusmed.com</p>
+                  <p><strong>Address:</strong> Applewood Adam's, 9th Floor, Suite 902, Ngong Rd, Nairobi, Kenya</p>
+                  <p><strong>Phone:</strong> +(254) 700 711 663</p>
                 </div>
                 <p className="text-sm text-[#333333]/60 mt-4">
                   We aim to respond to all privacy-related inquiries within 30 days.
