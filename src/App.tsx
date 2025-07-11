@@ -11,6 +11,8 @@ import ErrorBoundary from './components/ErrorBoundary';
 
 // Page imports
 import Index from './pages/Index';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import Auth from './pages/Auth';
 import AdminAuth from './pages/AdminAuth';
 import Dashboard from './components/Dashboard';
@@ -54,6 +56,8 @@ function App() {
                 <Router>
                   <Routes>
                     <Route path="/" element={<Index />} />
+                    <Route path="/terms-of-service" element={<TermsOfService />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="/shop" element={<PublicShop />} />
                     <Route path="/product/:id" element={<ProductDetailsPage />} />
                     <Route path="/payment-cancelled" element={<PaymentCancelled />} />

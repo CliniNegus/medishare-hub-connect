@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -391,9 +390,9 @@ const Index: React.FC = () => {
               <div>
                 <h3 className="text-lg font-bold mb-6">Products</h3>
                 <ul className="space-y-3">
-                  <li><Link to="/shop/public" className="text-white/80 hover:text-white transition-colors">Medical Equipment</Link></li>
-                  <li><Link to="/equipment-tracking" className="text-white/80 hover:text-white transition-colors">Equipment Tracking</Link></li>
-                  <li><Link to="/lease-management" className="text-white/80 hover:text-white transition-colors">Lease Management</Link></li>
+                  <li><Link to="/shop" className="text-white/80 hover:text-white transition-colors">Medical Equipment</Link></li>
+                  <li><Link to="/tracking" className="text-white/80 hover:text-white transition-colors">Equipment Tracking</Link></li>
+                  <li><Link to="/leases" className="text-white/80 hover:text-white transition-colors">Lease Management</Link></li>
                 </ul>
               </div>
 
@@ -401,9 +400,9 @@ const Index: React.FC = () => {
               <div>
                 <h3 className="text-lg font-bold mb-6">Company</h3>
                 <ul className="space-y-3">
-                  <li><a href="#about" className="text-white/80 hover:text-white transition-colors">About Us</a></li>
+                  <li><a href="#benefits" className="text-white/80 hover:text-white transition-colors">About Us</a></li>
                   <li><Link to="/hospital-locations" className="text-white/80 hover:text-white transition-colors">Hospital Network</Link></li>
-                  <li><Link to="/integrations" className="text-white/80 hover:text-white transition-colors">Partnerships</Link></li>
+                  <li><Link to="/auth" className="text-white/80 hover:text-white transition-colors">Partnerships</Link></li>
                 </ul>
               </div>
 
@@ -411,9 +410,9 @@ const Index: React.FC = () => {
               <div>
                 <h3 className="text-lg font-bold mb-6">Resources</h3>
                 <ul className="space-y-3">
-                  <li><Link to="/system-management" className="text-white/80 hover:text-white transition-colors">Tools</Link></li>
+                  <li><Link to="/system" className="text-white/80 hover:text-white transition-colors">Tools</Link></li>
                   <li><Link to="/auth" className="text-white/80 hover:text-white transition-colors">Developers</Link></li>
-                  <li><a href="#blog" className="text-white/80 hover:text-white transition-colors">Blog</a></li>
+                  <li><a href="#features" className="text-white/80 hover:text-white transition-colors">Blog</a></li>
                 </ul>
               </div>
             </div>
@@ -459,8 +458,8 @@ const Index: React.FC = () => {
                 © {new Date().getFullYear()} CliniBuilds. All rights reserved.
               </p>
               <div className="flex gap-6 text-sm">
-                <a href="#" className="text-white/60 hover:text-white transition-colors">Terms of Use</a>
-                <a href="#" className="text-white/60 hover:text-white transition-colors">Privacy Policy</a>
+                <Link to="/terms-of-service" className="text-white/60 hover:text-white transition-colors">Terms of Use</Link>
+                <Link to="/privacy-policy" className="text-white/60 hover:text-white transition-colors">Privacy Policy</Link>
               </div>
             </div>
           </div>
