@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { UserRole } from '@/contexts/UserRoleContext';
 import { AlertCircle, Mail, User, Building, Lock, Eye, EyeOff, CheckCircle, ArrowRight, Sparkles } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface SignUpFormProps {
   onSuccess: () => void;
@@ -29,6 +30,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
   const [emailPending, setEmailPending] = useState(false);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const [pendingFullName, setPendingFullName] = useState<string | null>(null);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [termsError, setTermsError] = useState<string | null>(null);
 
   const validatePassword = async (password: string) => {
     try {
@@ -89,6 +92,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setTermsError(null);
+
+    // Check if terms are accepted
+    if (!acceptedTerms) {
+      setTermsError("You must accept the Terms of Service and Privacy Policy to continue.");
+      setLoading(false);
+      return;
+    }
 
     try {
       // Validate password against HaveIBeenPwned and basic strength requirements
@@ -176,6 +187,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
     setPassword(e.target.value);
     if (passwordValidationMessage) {
       setPasswordValidationMessage(null);
+    }
+  };
+
+  // Handle terms checkbox change
+  const handleTermsChange = (checked: boolean) => {
+    setAcceptedTerms(checked);
+    if (termsError && checked) {
+      setTermsError(null);
     }
   };
 
@@ -301,6 +320,52 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription className="text-red-800 font-medium">
                   {passwordValidationMessage}
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
+
+          {/* Terms and Privacy Policy Checkbox */}
+          <div className="space-y-3">
+            <div className="flex items-start space-x-3">
+              <Checkbox 
+                id="terms-checkbox"
+                checked={acceptedTerms}
+                onCheckedChange={handleTermsChange}
+                className="mt-1"
+                aria-describedby="terms-error"
+              />
+              <Label 
+                htmlFor="terms-checkbox" 
+                className="text-sm font-medium text-[#333333] leading-relaxed cursor-pointer"
+              >
+                I agree to the{' '}
+                <a 
+                  href="/terms-of-service" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-[#E02020] hover:text-[#c01010] underline font-semibold transition-colors duration-200"
+                >
+                  Terms of Service
+                </a>
+                {' '}and{' '}
+                <a 
+                  href="/privacy-policy" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-[#E02020] hover:text-[#c01010] underline font-semibold transition-colors duration-200"
+                >
+                  Privacy Policy
+                </a>
+                .
+              </Label>
+            </div>
+            
+            {termsError && (
+              <Alert variant="destructive" className="bg-red-50 border-red-200 rounded-xl" id="terms-error">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-red-800 font-medium">
+                  {termsError}
                 </AlertDescription>
               </Alert>
             )}
