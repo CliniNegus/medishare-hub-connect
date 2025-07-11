@@ -1,6 +1,5 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
 const corsHeaders = {
@@ -31,17 +30,15 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Initialize Resend with API key
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    if (!resendApiKey) {
-      console.error("RESEND_API_KEY environment variable is not set");
+    // Initialize Brevo API key
+    const brevoApiKey = Deno.env.get("BREVO_API_KEY");
+    if (!brevoApiKey) {
+      console.error("BREVO_API_KEY environment variable is not set");
       return new Response(
         JSON.stringify({ success: false, error: "Email service not configured" }),
         { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
-
-    const resend = new Resend(resendApiKey);
 
     // Initialize Supabase client with service role key
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -188,19 +185,43 @@ Medical Equipment Sharing & Management
 Nairobi, Kenya
 `;
 
-    // Send email with professional configuration
-    const emailResponse = await resend.emails.send({
-      from: "CliniBuilds <no-reply@clinibuilds.com>",
-      to: [email],
+    // Prepare Brevo email payload
+    const emailPayload = {
+      sender: {
+        name: "Negus Med Ltd.",
+        email: "a.omune@negusmed.com"
+      },
+      to: [
+        {
+          email: email
+        }
+      ],
       subject: "Please Verify Your Email for CliniBuilds",
-      html: htmlContent,
-      text: textContent,
+      htmlContent: htmlContent,
+      textContent: textContent,
       headers: {
         'X-Entity-Ref-ID': verificationId,
       },
+    };
+
+    // Send email using Brevo API
+    const brevoResponse = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": brevoApiKey,
+      },
+      body: JSON.stringify(emailPayload),
     });
 
-    console.log("Verification email sent successfully:", emailResponse);
+    const responseData = await brevoResponse.json();
+
+    if (!brevoResponse.ok) {
+      console.error("Brevo API error:", responseData);
+      throw new Error(`Brevo API error: ${responseData.message || 'Unknown error'}`);
+    }
+
+    console.log("Verification email sent successfully via Brevo:", responseData);
 
     return new Response(JSON.stringify({ 
       success: true, 

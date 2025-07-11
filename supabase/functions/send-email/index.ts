@@ -1,8 +1,5 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -25,23 +22,53 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { to, subject, html, from = "MediShare <no-reply@medishare.com>", text } = await req.json() as EmailRequest;
+    const brevoApiKey = Deno.env.get("BREVO_API_KEY");
+    if (!brevoApiKey) {
+      throw new Error("BREVO_API_KEY is not configured");
+    }
+
+    const { to, subject, html, from = "a.omune@negusmed.com", text } = await req.json() as EmailRequest;
 
     if (!to || !subject || !html) {
       throw new Error("Missing required email parameters");
     }
 
-    const emailResponse = await resend.emails.send({
-      from,
-      to: [to],
-      subject,
-      html,
-      text,
+    // Prepare Brevo email payload
+    const emailPayload = {
+      sender: {
+        name: "Negus Med Ltd.",
+        email: from
+      },
+      to: [
+        {
+          email: to
+        }
+      ],
+      subject: subject,
+      htmlContent: html,
+      ...(text && { textContent: text })
+    };
+
+    // Send email using Brevo API
+    const brevoResponse = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": brevoApiKey,
+      },
+      body: JSON.stringify(emailPayload),
     });
 
-    console.log("Email sent successfully:", emailResponse);
+    const responseData = await brevoResponse.json();
 
-    return new Response(JSON.stringify(emailResponse), {
+    if (!brevoResponse.ok) {
+      console.error("Brevo API error:", responseData);
+      throw new Error(`Brevo API error: ${responseData.message || 'Unknown error'}`);
+    }
+
+    console.log("Email sent successfully via Brevo:", responseData);
+
+    return new Response(JSON.stringify(responseData), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
