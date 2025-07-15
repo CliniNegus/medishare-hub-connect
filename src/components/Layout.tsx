@@ -57,8 +57,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           onChangeAccountType={() => setAccountTypeModalOpen(true)}
         />
         
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <main className={`flex-1 overflow-y-auto bg-[#FFFFFF] ${isMobile ? 'pt-16' : 'ml-64'}`}>
+        <div className={`flex-1 ${isMobile ? 'pt-16' : 'ml-64'}`}>
+          <main className="h-screen overflow-y-auto bg-[#FFFFFF]">
             {children}
           </main>
         </div>

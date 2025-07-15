@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useUserRole } from '@/contexts/UserRoleContext';
@@ -91,7 +92,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onChangeAccountType }) => {
   };
 
   return (
-    <div className="h-screen fixed top-0 left-0 w-64 bg-white border-r border-gray-200 pt-16 hidden md:flex flex-col">
+    <div className="h-screen fixed top-0 left-0 w-64 bg-white border-r border-gray-200 pt-16 hidden md:flex flex-col z-10">
       {/* Navigation Links */}
       <div className="flex-1 px-4 py-4 overflow-y-auto">
         <Link to="/dashboard" className={getLinkClass('/dashboard')}>
