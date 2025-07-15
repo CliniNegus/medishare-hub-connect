@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, Star, Package, Truck, Shield, Heart } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Star, Package, Heart } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -124,12 +123,12 @@ const ProductDetailsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Skeleton className="h-8 w-32 mb-6" />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Skeleton className="h-96 w-full" />
-            <div className="space-y-4">
+          <Skeleton className="h-8 w-32 mb-8" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <Skeleton className="h-[500px] w-full rounded-2xl" />
+            <div className="space-y-6">
               <Skeleton className="h-8 w-3/4" />
               <Skeleton className="h-6 w-1/2" />
               <Skeleton className="h-24 w-full" />
@@ -143,7 +142,7 @@ const ProductDetailsPage = () => {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h1>
           <Link to="/shop">
@@ -159,50 +158,61 @@ const ProductDetailsPage = () => {
   const inStock = currentStock > 0;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <Link 
           to="/shop" 
-          className="inline-flex items-center text-red-600 hover:text-red-700 mb-6 transition-colors"
+          className="inline-flex items-center text-clinibuilds-red hover:text-red-700 mb-8 transition-colors font-medium"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <ArrowLeft className="h-5 w-5 mr-2" />
           Back to Shop
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Main Product Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
           {/* Product Image */}
-          <div className="bg-gray-50 rounded-lg p-8 flex items-center justify-center">
-            <img
-              src={product.image_url || "/placeholder.svg"}
-              alt={product.name}
-              className="max-h-96 max-w-full object-contain"
-            />
+          <div className="relative">
+            <div className="bg-white rounded-2xl shadow-lg p-8 h-[500px] flex items-center justify-center overflow-hidden">
+              <img
+                src={product.image_url || "/placeholder.svg"}
+                alt={product.name}
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
           </div>
 
           {/* Product Information */}
           <div className="space-y-6">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Badge variant="outline" className="border-red-200 text-red-700">
-                  {product.category || 'Medical Equipment'}
+            {/* Badges */}
+            <div className="flex items-center gap-3">
+              <Badge variant="red-outline" className="px-3 py-1 text-sm font-medium">
+                {product.category || 'Medical Equipment'}
+              </Badge>
+              {product.is_featured && (
+                <Badge className="bg-clinibuilds-red px-3 py-1 text-sm font-medium">
+                  Popular
                 </Badge>
-                {product.is_featured && (
-                  <Badge className="bg-red-600">Popular</Badge>
-                )}
-              </div>
-              
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+              )}
+            </div>
+            
+            {/* Product Title */}
+            <div>
+              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3 leading-tight">
+                {product.name}
+              </h1>
               
               {product.manufacturer && (
-                <p className="text-lg text-gray-600 mb-4">by {product.manufacturer}</p>
+                <p className="text-lg text-gray-600 mb-4">
+                  by <span className="font-medium text-gray-700">{product.manufacturer}</span>
+                </p>
               )}
 
               {product.rating && (
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="flex items-center">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center gap-1">
                     <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                    <span className="ml-1 font-medium">{product.rating}</span>
+                    <span className="font-semibold text-gray-900">{product.rating}</span>
                   </div>
                   <span className="text-gray-500 text-sm">(Based on user reviews)</span>
                 </div>
@@ -210,30 +220,40 @@ const ProductDetailsPage = () => {
             </div>
 
             {/* Price */}
-            <div className="text-3xl font-bold text-red-600">
-              Ksh {currentPrice.toLocaleString()}
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+              <div className="text-4xl font-bold text-clinibuilds-red mb-2">
+                Ksh {currentPrice.toLocaleString()}
+              </div>
+              
+              {/* Stock Status */}
+              <div className="flex items-center gap-2 mb-4">
+                <Package className="h-5 w-5 text-gray-500" />
+                <span className={`font-medium ${inStock ? 'text-green-600' : 'text-red-600'}`}>
+                  {inStock ? `${currentStock} in stock` : 'Out of stock'}
+                </span>
+              </div>
             </div>
 
             {/* Product Variants */}
             {variants.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="font-semibold text-gray-900">Available Options:</h3>
-                <div className="grid grid-cols-2 gap-2">
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <h3 className="font-semibold text-gray-900 mb-4">Available Options:</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {variants.map((variant) => (
                     <button
                       key={variant.id}
                       onClick={() => setSelectedVariant(variant)}
-                      className={`p-3 border rounded-lg text-left transition-colors ${
+                      className={`p-4 border rounded-lg text-left transition-all ${
                         selectedVariant?.id === variant.id
-                          ? 'border-red-500 bg-red-50'
-                          : 'border-gray-200 hover:border-red-300'
+                          ? 'border-clinibuilds-red bg-red-50 shadow-sm'
+                          : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
                       }`}
                     >
-                      <div className="font-medium">{variant.dimension_value}</div>
-                      <div className="text-sm text-gray-600">
+                      <div className="font-medium text-gray-900">{variant.dimension_value}</div>
+                      <div className="text-sm text-clinibuilds-red font-medium">
                         Ksh {variant.price.toLocaleString()}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 mt-1">
                         {variant.stock_quantity} in stock
                       </div>
                     </button>
@@ -242,59 +262,49 @@ const ProductDetailsPage = () => {
               </div>
             )}
 
-            {/* Stock Status */}
-            <div className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-gray-500" />
-              <span className={`font-medium ${inStock ? 'text-green-600' : 'text-red-600'}`}>
-                {inStock ? `${currentStock} in stock` : 'Out of stock'}
-              </span>
+            {/* Quantity and Add to Cart */}
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 space-y-4">
+              {/* Quantity Selector */}
+              {inStock && (
+                <div className="flex items-center gap-4">
+                  <label className="font-medium text-gray-900">Quantity:</label>
+                  <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="px-4 py-2 hover:bg-gray-50 transition-colors"
+                    >
+                      -
+                    </button>
+                    <span className="px-4 py-2 border-x border-gray-300 bg-gray-50 font-medium min-w-[60px] text-center">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
+                      className="px-4 py-2 hover:bg-gray-50 transition-colors"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Add to Cart Button */}
+              <Button
+                onClick={handleAddToCart}
+                disabled={!inStock}
+                className="w-full bg-clinibuilds-red hover:bg-red-700 text-white py-4 text-lg font-semibold rounded-lg shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                size="lg"
+              >
+                <ShoppingCart className="h-5 w-5 mr-3" />
+                {inStock ? 'Add to Cart' : 'Out of Stock'}
+              </Button>
             </div>
 
-            {/* Quantity Selector */}
-            {inStock && (
-              <div className="flex items-center gap-4">
-                <label className="font-medium text-gray-900">Quantity:</label>
-                <div className="flex items-center border border-gray-300 rounded-lg">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3 py-2 hover:bg-gray-100"
-                  >
-                    -
-                  </button>
-                  <span className="px-4 py-2 border-x border-gray-300">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
-                    className="px-3 py-2 hover:bg-gray-100"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Add to Cart Button */}
-            <Button
-              onClick={handleAddToCart}
-              disabled={!inStock}
-              className="w-full bg-red-600 hover:bg-red-700 text-white py-3 text-lg"
-            >
-              <ShoppingCart className="h-5 w-5 mr-2" />
-              {inStock ? 'Add to Cart' : 'Out of Stock'}
-            </Button>
-
-            {/* Product Features */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6 border-t border-gray-200">
-              <div className="flex items-center gap-2">
-                <Truck className="h-5 w-5 text-gray-500" />
-                <span className="text-sm text-gray-600">Free Shipping</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-gray-500" />
-                <span className="text-sm text-gray-600">Warranty Included</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-gray-500" />
-                <span className="text-sm text-gray-600">Quality Assured</span>
+            {/* Quality Assurance */}
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+              <div className="flex items-center gap-3">
+                <Heart className="h-5 w-5 text-clinibuilds-red" />
+                <span className="text-gray-700 font-medium">Quality Assured Medical Equipment</span>
               </div>
             </div>
           </div>
@@ -302,41 +312,43 @@ const ProductDetailsPage = () => {
 
         {/* Product Description */}
         {product.description && (
-          <Card className="mt-8">
-            <CardContent className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Product Description</h2>
-              <p className="text-gray-700 leading-relaxed">{product.description}</p>
+          <Card className="mb-8 shadow-sm border-gray-100">
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Product Description</h2>
+              <div className="prose max-w-none">
+                <p className="text-gray-700 leading-relaxed text-lg">{product.description}</p>
+              </div>
             </CardContent>
           </Card>
         )}
 
         {/* Product Specifications */}
-        <Card className="mt-6">
-          <CardContent className="p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Specifications</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="shadow-sm border-gray-100">
+          <CardContent className="p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Specifications</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {product.sku && (
-                <div>
-                  <span className="font-medium text-gray-900">SKU:</span>
-                  <span className="ml-2 text-gray-600">{product.sku}</span>
+                <div className="flex flex-col space-y-1">
+                  <span className="font-semibold text-gray-900">SKU</span>
+                  <span className="text-gray-600">{product.sku}</span>
                 </div>
               )}
               {product.weight && (
-                <div>
-                  <span className="font-medium text-gray-900">Weight:</span>
-                  <span className="ml-2 text-gray-600">{product.weight} kg</span>
+                <div className="flex flex-col space-y-1">
+                  <span className="font-semibold text-gray-900">Weight</span>
+                  <span className="text-gray-600">{product.weight} kg</span>
                 </div>
               )}
-              <div>
-                <span className="font-medium text-gray-900">Type:</span>
-                <span className="ml-2 text-gray-600">
+              <div className="flex flex-col space-y-1">
+                <span className="font-semibold text-gray-900">Type</span>
+                <span className="text-gray-600">
                   {product.is_disposable ? 'Disposable' : 'Reusable'}
                 </span>
               </div>
               {product.manufacturer && (
-                <div>
-                  <span className="font-medium text-gray-900">Manufacturer:</span>
-                  <span className="ml-2 text-gray-600">{product.manufacturer}</span>
+                <div className="flex flex-col space-y-1">
+                  <span className="font-semibold text-gray-900">Manufacturer</span>
+                  <span className="text-gray-600">{product.manufacturer}</span>
                 </div>
               )}
             </div>
