@@ -36,13 +36,14 @@ const EmailVerificationAlert: React.FC<EmailVerificationAlertProps> = ({
             <div>
               <strong>Please verify your email address</strong>
               <p className="text-sm mt-1">
-                We've sent a verification link to <strong>{email}</strong>. 
+                We've sent a verification link to <strong>{email}</strong> from info@negusmed.com. 
                 Click the link in your email to activate your account.
               </p>
             </div>
             
             <div className="text-sm text-orange-700">
               <p>📧 Check your <strong>spam/promotions folder</strong> if you don't see the email within a minute.</p>
+              <p>✉️ The email is sent from <strong>NEGUS MED LIMITED (info@negusmed.com)</strong></p>
             </div>
             
             <div className="flex items-center gap-2 pt-2">

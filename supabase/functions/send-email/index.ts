@@ -27,7 +27,7 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("BREVO_API_KEY is not configured");
     }
 
-    const { to, subject, html, from = "a.omune@negusmed.com", text } = await req.json() as EmailRequest;
+    const { to, subject, html, from = "info@negusmed.com", text } = await req.json() as EmailRequest;
 
     if (!to || !subject || !html) {
       throw new Error("Missing required email parameters");
@@ -36,7 +36,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Prepare Brevo email payload
     const emailPayload = {
       sender: {
-        name: "Negus Med Ltd.",
+        name: "NEGUS MED LIMITED",
         email: from
       },
       to: [

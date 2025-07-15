@@ -11,8 +11,8 @@ interface NewsletterRequest {
   subject: string;
   htmlContent: string;
   textContent?: string;
-  targetRole?: string; // 'all', 'hospital', 'manufacturer', 'investor', 'admin'
-  recipientEmails?: string[]; // Optional: specific email list
+  targetRole?: 'all' | 'hospital' | 'manufacturer' | 'investor' | 'admin';
+  recipientEmails?: string[];
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -80,7 +80,7 @@ const handler = async (req: Request): Promise<Response> => {
           <a href="${unsubscribeUrl}?email={{contact.EMAIL}}" style="color: #999999;">Unsubscribe</a> | 
           <a href="${supabaseUrl.replace('/functions/v1', '')}/privacy-policy" style="color: #999999;">Privacy Policy</a>
         </p>
-        <p>CliniBuilds Platform, Nairobi, Kenya</p>
+        <p><strong>NEGUS MED LIMITED</strong><br>CliniBuilds Platform, Nairobi, Kenya</p>
       </div>
     `;
 
@@ -90,7 +90,7 @@ const handler = async (req: Request): Promise<Response> => {
 You are receiving this email because you have an account with CliniBuilds.
 Unsubscribe: ${unsubscribeUrl}
 Privacy Policy: ${supabaseUrl.replace('/functions/v1', '')}/privacy-policy
-CliniBuilds Platform, Nairobi, Kenya
+NEGUS MED LIMITED - CliniBuilds Platform, Nairobi, Kenya
     `;
 
     // Send emails in batches to avoid rate limits
@@ -106,8 +106,8 @@ CliniBuilds Platform, Nairobi, Kenya
       
       const emailPayload = {
         sender: {
-          name: "Negus Med Ltd.",
-          email: "a.omune@negusmed.com"
+          name: "NEGUS MED LIMITED",
+          email: "info@negusmed.com"
         },
         to: batch.map(email => ({ email })),
         subject: subject,

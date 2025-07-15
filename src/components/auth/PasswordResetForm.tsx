@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { usePasswordResetEmail } from "@/hooks/usePasswordResetEmail";
 import { Mail, ArrowLeft } from "lucide-react";
 
 interface PasswordResetFormProps {
@@ -15,6 +16,7 @@ interface PasswordResetFormProps {
 
 const PasswordResetForm: React.FC<PasswordResetFormProps> = ({ onSuccess, onError }) => {
   const { toast } = useToast();
+  const { sendPasswordResetEmail } = usePasswordResetEmail();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -24,14 +26,20 @@ const PasswordResetForm: React.FC<PasswordResetFormProps> = ({ onSuccess, onErro
     try {
       setLoading(true);
       
+      // Create the reset URL
+      const resetUrl = `${window.location.origin}/reset-password`;
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/reset-password',
+        redirectTo: resetUrl,
       });
 
       if (error) {
         onError(error.message);
         throw error;
       }
+      
+      // Send custom password reset email
+      await sendPasswordResetEmail(email, resetUrl);
       
       toast({
         title: "Password Reset Email Sent",

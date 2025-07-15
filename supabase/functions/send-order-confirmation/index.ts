@@ -127,7 +127,7 @@ const handler = async (req: Request): Promise<Response> => {
               
               <p style="color: #666666; line-height: 1.6; margin: 20px 0 0; font-size: 14px; text-align: center;">
                 Questions about your order? Contact our support team at 
-                <a href="mailto:support@clinibuilds.com" style="color: #E02020;">support@clinibuilds.com</a>
+                <a href="mailto:info@negusmed.com" style="color: #E02020;">info@negusmed.com</a>
               </p>
             </td>
           </tr>
@@ -136,8 +136,8 @@ const handler = async (req: Request): Promise<Response> => {
           <tr>
             <td style="padding: 20px 40px; background-color: #f8f8f8; border-radius: 0 0 8px 8px;">
               <p style="color: #999999; font-size: 12px; line-height: 1.4; margin: 0; text-align: center;">
-                <strong>CliniBuilds Platform</strong><br>
-                Medical Equipment Sharing & Management<br>
+                <strong>NEGUS MED LIMITED</strong><br>
+                CliniBuilds Platform - Medical Equipment Sharing & Management<br>
                 Nairobi, Kenya
               </p>
             </td>
@@ -174,18 +174,18 @@ WHAT HAPPENS NEXT?
 
 Track your order: ${Deno.env.get("SUPABASE_URL")?.replace('/functions/v1', '') || 'https://clinibuilds.com'}/orders
 
-Questions? Contact support at support@clinibuilds.com
+Questions? Contact support at info@negusmed.com
 
 ---
-CliniBuilds Platform
-Medical Equipment Sharing & Management
+NEGUS MED LIMITED
+CliniBuilds Platform - Medical Equipment Sharing & Management
 Nairobi, Kenya
 `;
 
     const emailPayload = {
       sender: {
-        name: "Negus Med Ltd.",
-        email: "a.omune@negusmed.com"
+        name: "NEGUS MED LIMITED",
+        email: "info@negusmed.com"
       },
       to: [
         {
