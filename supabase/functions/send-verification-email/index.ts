@@ -14,6 +14,16 @@ interface VerificationEmailRequest {
   userAgent?: string;
 }
 
+// Generate a secure random token using Web Crypto API
+function generateSecureToken(): string {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return btoa(String.fromCharCode(...array))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -63,17 +73,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Sending verification email to:", email);
 
-    // Generate verification token
-    const { data: tokenData, error: tokenError } = await supabase.rpc('generate_verification_token');
-    
-    if (tokenError) {
-      throw new Error(`Failed to generate token: ${tokenError.message}`);
-    }
-
-    const verificationToken = tokenData;
+    // Generate verification token using Web Crypto API
+    const verificationToken = generateSecureToken();
     const tokenHash = btoa(verificationToken); // Base64 encode for URL safety
 
-    // Create verification entry in database
+    // Create verification entry in database using the create_email_verification function
     const { data: verificationId, error: verificationError } = await supabase.rpc('create_email_verification', {
       user_email: email,
       token_hash_param: tokenHash,
@@ -82,6 +86,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (verificationError) {
+      console.error("Failed to create verification entry:", verificationError);
       throw new Error(`Failed to create verification entry: ${verificationError.message}`);
     }
 

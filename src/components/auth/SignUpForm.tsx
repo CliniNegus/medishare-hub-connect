@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -136,39 +135,43 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
         return;
       }
 
-      // Send our custom verification email only after successful user creation
       if (data?.user) {
+        console.log("User created successfully, sending custom verification email...");
+        
+        // Send our custom verification email
         try {
           const emailResult = await sendVerificationEmail(email, fullName);
           
           if (emailResult.success) {
             toast({
-              title: "Account created successfully!",
-              description: "Please check your email to verify your account before signing in.",
+              title: "Account created successfully! 🎉",
+              description: "Please check your email (including spam folder) to verify your account. The email is sent from NEGUS MED LIMITED.",
             });
             onSuccess();
           } else {
-            throw new Error(emailResult.error || "Failed to send verification email");
+            console.error("Email verification failed:", emailResult.error);
+            toast({
+              title: "Account created but verification email failed",
+              description: "Your account was created successfully, but we couldn't send the verification email. You can try requesting a new verification email.",
+              variant: "destructive",
+            });
+            onSuccess(); // Still redirect to show verification component
           }
         } catch (emailErr: any) {
           console.error("Custom email send error:", emailErr);
           toast({
-            title: "Account created but email verification failed",
-            description: "Your account was created but we couldn't send the verification email. Please try requesting a new verification email.",
+            title: "Account created successfully",
+            description: "Your account was created but there was an issue sending the verification email. Please try again from the sign-in page.",
             variant: "destructive",
           });
-          onSuccess(); // Still call onSuccess since account was created
+          onSuccess(); // Still redirect since account was created
         }
       } else {
         throw new Error("User creation failed - no user data returned");
       }
     } catch (error: any) {
       console.error("Full signup error:", error);
-      toast({
-        title: "Registration failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      onError(error.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
