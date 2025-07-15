@@ -108,16 +108,18 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
         return;
       }
 
-      // Sign up the user - let Supabase handle email confirmation naturally
+      // Create user without email confirmation to avoid SMTP issues
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth`,
+          // Disable email confirmation to prevent SMTP errors
+          emailRedirectTo: undefined,
           data: {
             full_name: fullName,
             organization: organization,
             role: metadata?.role || 'hospital',
+            email_confirm: false
           }
         },
       });
@@ -134,27 +136,31 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
         return;
       }
 
-      // Send our custom verification email
-      try {
-        const emailResult = await sendVerificationEmail(email, fullName);
-        
-        if (emailResult.success) {
+      // Send our custom verification email only after successful user creation
+      if (data?.user) {
+        try {
+          const emailResult = await sendVerificationEmail(email, fullName);
+          
+          if (emailResult.success) {
+            toast({
+              title: "Account created successfully!",
+              description: "Please check your email to verify your account before signing in.",
+            });
+            onSuccess();
+          } else {
+            throw new Error(emailResult.error || "Failed to send verification email");
+          }
+        } catch (emailErr: any) {
+          console.error("Custom email send error:", emailErr);
           toast({
-            title: "Account created successfully!",
-            description: "Please check your email to verify your account before signing in.",
+            title: "Account created but email verification failed",
+            description: "Your account was created but we couldn't send the verification email. Please try requesting a new verification email.",
+            variant: "destructive",
           });
-          onSuccess();
-        } else {
-          throw new Error(emailResult.error || "Failed to send verification email");
+          onSuccess(); // Still call onSuccess since account was created
         }
-      } catch (emailErr: any) {
-        console.error("Custom email send error:", emailErr);
-        toast({
-          title: "Account created but email verification failed",
-          description: "Your account was created but we couldn't send the verification email. Please try requesting a new verification email.",
-          variant: "destructive",
-        });
-        onSuccess(); // Still call onSuccess since account was created
+      } else {
+        throw new Error("User creation failed - no user data returned");
       }
     } catch (error: any) {
       console.error("Full signup error:", error);
@@ -176,7 +182,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
     }
   };
 
-  // Handle terms checkbox change
   const handleTermsChange = (checked: boolean) => {
     setAcceptedTerms(checked);
     if (termsError && checked) {
