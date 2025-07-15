@@ -15,13 +15,13 @@ export function SectionTitle({
   return (
     <div className="mb-6">
       <h2 
-        className={cn("text-2xl font-bold text-[#333333] dark:text-white", className)} 
+        className={cn("text-2xl font-bold text-foreground", className)} 
         {...props}
       >
         {children}
       </h2>
       {subtitle && (
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+        <p className="mt-1 text-sm text-muted-foreground">
           {subtitle}
         </p>
       )}
@@ -38,13 +38,13 @@ export function PageTitle({
   return (
     <div className="mb-8">
       <h1 
-        className={cn("text-3xl font-bold text-[#333333] dark:text-white", className)} 
+        className={cn("text-3xl font-bold text-foreground", className)} 
         {...props}
       >
         {children}
       </h1>
       {subtitle && (
-        <p className="mt-2 text-gray-600 dark:text-gray-300">
+        <p className="mt-2 text-muted-foreground">
           {subtitle}
         </p>
       )}

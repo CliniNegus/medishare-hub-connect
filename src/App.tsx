@@ -47,10 +47,10 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <UserRoleProvider>
-          <ThemeProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <UserRoleProvider>
             <CartProvider>
               <ErrorBoundary>
                 <Router>
@@ -219,10 +219,10 @@ function App() {
                 </Router>
               </ErrorBoundary>
             </CartProvider>
-          </ThemeProvider>
-        </UserRoleProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+          </UserRoleProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 
