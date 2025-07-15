@@ -43,147 +43,180 @@ const SystemManagement = () => {
   
   return (
     <Layout>
-      <div className="flex-1 overflow-hidden">
-        <div className="h-full p-6">
-          <Card className="h-full flex flex-col">
-            <CardHeader className="flex-shrink-0">
-              <div className="flex items-center space-x-2">
-                <Database className="h-6 w-6 text-[#E02020]" />
-                <CardTitle>System Management</CardTitle>
+      <div className="flex flex-col h-screen">
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="p-6 border-b bg-white">
+            <div className="flex items-center space-x-2">
+              <Database className="h-6 w-6 text-[#E02020]" />
+              <div>
+                <h1 className="text-2xl font-bold text-[#333333]">System Management</h1>
+                <p className="text-sm text-gray-600">
+                  Manage communication, data, and system performance settings
+                </p>
               </div>
-              <CardDescription>
-                Manage communication, data, and system performance settings
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 p-0 overflow-hidden">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-full flex flex-col">
-                <TabsList className="w-full grid grid-cols-2 rounded-none border-b flex-shrink-0">
-                  <TabsTrigger value="communication" className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#E02020]">
+            </div>
+          </div>
+          
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+              <div className="px-6 py-4 border-b bg-white">
+                <TabsList className="grid w-full max-w-md grid-cols-2">
+                  <TabsTrigger value="communication">
                     <MessageCircle className="h-4 w-4 mr-2" />
                     Communication
                   </TabsTrigger>
-                  <TabsTrigger value="data" className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#E02020]">
+                  <TabsTrigger value="data">
                     <Database className="h-4 w-4 mr-2" />
                     Data Management
                   </TabsTrigger>
                 </TabsList>
-                
-                <TabsContent value="communication" className="flex-1 overflow-hidden">
-                  <Tabs value={activeCommunicationTab} onValueChange={setActiveCommunicationTab} className="w-full h-full flex flex-col">
-                    <TabsList className="w-full grid grid-cols-4 rounded-none border-b flex-shrink-0">
-                      <TabsTrigger value="messaging" className="rounded-none">
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        Messaging
-                      </TabsTrigger>
-                      <TabsTrigger value="notifications" className="rounded-none">
-                        <Bell className="h-4 w-4 mr-2" />
-                        Notifications
-                      </TabsTrigger>
-                      {role === 'admin' && (
-                        <TabsTrigger value="emails" className="rounded-none">
-                          <FileText className="h-4 w-4 mr-2" />
-                          Email Templates
-                        </TabsTrigger>
-                      )}
-                      <TabsTrigger value="support" className="rounded-none">
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        Support Chat
-                      </TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="messaging" className="flex-1 overflow-hidden pt-6 pb-6">
-                      <LazyComponent 
-                        component={LazyMessagingSystem} 
-                        fallback={<div className="h-full animate-pulse bg-gray-100 rounded-lg"></div>}
-                      />
-                    </TabsContent>
-                    
-                    <TabsContent value="notifications" className="flex-1 overflow-hidden pt-6 pb-6">
-                      <LazyComponent 
-                        component={LazyNotificationSystem}
-                        fallback={<div className="h-full animate-pulse bg-gray-100 rounded-lg"></div>}
-                      />
-                    </TabsContent>
-                    
-                    {role === 'admin' && (
-                      <TabsContent value="emails" className="flex-1 overflow-hidden pt-6 pb-6">
-                        <LazyComponent 
-                          component={LazyEmailTemplateEditor}
-                          fallback={<div className="h-full animate-pulse bg-gray-100 rounded-lg"></div>}
-                        />
-                      </TabsContent>
-                    )}
-                    
-                    <TabsContent value="support" className="flex-1 overflow-hidden pt-6 pb-6">
-                      <LazyComponent 
-                        component={LazyChatSupport}
-                        fallback={<div className="h-full animate-pulse bg-gray-100 rounded-lg"></div>}
-                      />
-                    </TabsContent>
-                  </Tabs>
+              </div>
+              
+              <div className="flex-1 overflow-hidden">
+                <TabsContent value="communication" className="h-full m-0 p-0">
+                  <div className="h-full flex flex-col">
+                    <Tabs value={activeCommunicationTab} onValueChange={setActiveCommunicationTab} className="flex-1 flex flex-col">
+                      <div className="px-6 py-4 border-b bg-white">
+                        <TabsList className="grid w-full grid-cols-4">
+                          <TabsTrigger value="messaging">
+                            <MessageCircle className="h-4 w-4 mr-2" />
+                            Messaging
+                          </TabsTrigger>
+                          <TabsTrigger value="notifications">
+                            <Bell className="h-4 w-4 mr-2" />
+                            Notifications
+                          </TabsTrigger>
+                          {role === 'admin' && (
+                            <TabsTrigger value="emails">
+                              <FileText className="h-4 w-4 mr-2" />
+                              Email Templates
+                            </TabsTrigger>
+                          )}
+                          <TabsTrigger value="support">
+                            <MessageCircle className="h-4 w-4 mr-2" />
+                            Support Chat
+                          </TabsTrigger>
+                        </TabsList>
+                      </div>
+                      
+                      <div className="flex-1 overflow-hidden">
+                        <TabsContent value="messaging" className="h-full m-0 p-0">
+                          <div className="h-full p-6">
+                            <LazyComponent 
+                              component={LazyMessagingSystem} 
+                              fallback={<div className="h-full animate-pulse bg-gray-100 rounded-lg"></div>}
+                            />
+                          </div>
+                        </TabsContent>
+                        
+                        <TabsContent value="notifications" className="h-full m-0 p-0">
+                          <div className="h-full p-6">
+                            <LazyComponent 
+                              component={LazyNotificationSystem}
+                              fallback={<div className="h-full animate-pulse bg-gray-100 rounded-lg"></div>}
+                            />
+                          </div>
+                        </TabsContent>
+                        
+                        {role === 'admin' && (
+                          <TabsContent value="emails" className="h-full m-0 p-0">
+                            <div className="h-full p-6">
+                              <LazyComponent 
+                                component={LazyEmailTemplateEditor}
+                                fallback={<div className="h-full animate-pulse bg-gray-100 rounded-lg"></div>}
+                              />
+                            </div>
+                          </TabsContent>
+                        )}
+                        
+                        <TabsContent value="support" className="h-full m-0 p-0">
+                          <div className="h-full p-6">
+                            <LazyComponent 
+                              component={LazyChatSupport}
+                              fallback={<div className="h-full animate-pulse bg-gray-100 rounded-lg"></div>}
+                            />
+                          </div>
+                        </TabsContent>
+                      </div>
+                    </Tabs>
+                  </div>
                 </TabsContent>
                 
-                <TabsContent value="data" className="flex-1 overflow-hidden">
-                  <Tabs value={activeDataTab} onValueChange={setActiveDataTab} className="w-full h-full flex flex-col">
-                    <TabsList className="w-full grid grid-cols-4 rounded-none border-b flex-shrink-0">
-                      {role === 'admin' && (
-                        <TabsTrigger value="backup" className="rounded-none">
-                          <Database className="h-4 w-4 mr-2" />
-                          Backup & Recovery
-                        </TabsTrigger>
-                      )}
-                      <TabsTrigger value="export" className="rounded-none">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Data Export
-                      </TabsTrigger>
-                      <TabsTrigger value="audit" className="rounded-none">
-                        <ClipboardCheck className="h-4 w-4 mr-2" />
-                        Audit Logs
-                      </TabsTrigger>
-                      {role === 'admin' && (
-                        <TabsTrigger value="archive" className="rounded-none">
-                          <Archive className="h-4 w-4 mr-2" />
-                          Archive System
-                        </TabsTrigger>
-                      )}
-                    </TabsList>
-                    
-                    {role === 'admin' && (
-                      <TabsContent value="backup" className="flex-1 overflow-hidden pt-6 pb-6">
-                        <LazyComponent 
-                          component={LazyDataBackupSystem}
-                          fallback={<div className="h-full animate-pulse bg-gray-100 rounded-lg"></div>}
-                        />
-                      </TabsContent>
-                    )}
-                    
-                    <TabsContent value="export" className="flex-1 overflow-hidden pt-6 pb-6">
-                      <LazyComponent 
-                        component={LazyDataExport}
-                        fallback={<div className="h-full animate-pulse bg-gray-100 rounded-lg"></div>}
-                      />
-                    </TabsContent>
-                    
-                    <TabsContent value="audit" className="flex-1 overflow-hidden pt-6 pb-6">
-                      <LazyComponent 
-                        component={LazyAuditLogs}
-                        fallback={<div className="h-full animate-pulse bg-gray-100 rounded-lg"></div>}
-                      />
-                    </TabsContent>
-                    
-                    {role === 'admin' && (
-                      <TabsContent value="archive" className="flex-1 overflow-hidden pt-6 pb-6">
-                        <LazyComponent 
-                          component={LazyArchiveSystem}
-                          fallback={<div className="h-full animate-pulse bg-gray-100 rounded-lg"></div>}
-                        />
-                      </TabsContent>
-                    )}
-                  </Tabs>
+                <TabsContent value="data" className="h-full m-0 p-0">
+                  <div className="h-full flex flex-col">
+                    <Tabs value={activeDataTab} onValueChange={setActiveDataTab} className="flex-1 flex flex-col">
+                      <div className="px-6 py-4 border-b bg-white">
+                        <TabsList className="grid w-full grid-cols-4">
+                          {role === 'admin' && (
+                            <TabsTrigger value="backup">
+                              <Database className="h-4 w-4 mr-2" />
+                              Backup & Recovery
+                            </TabsTrigger>
+                          )}
+                          <TabsTrigger value="export">
+                            <FileText className="h-4 w-4 mr-2" />
+                            Data Export
+                          </TabsTrigger>
+                          <TabsTrigger value="audit">
+                            <ClipboardCheck className="h-4 w-4 mr-2" />
+                            Audit Logs
+                          </TabsTrigger>
+                          {role === 'admin' && (
+                            <TabsTrigger value="archive">
+                              <Archive className="h-4 w-4 mr-2" />
+                              Archive System
+                            </TabsTrigger>
+                          )}
+                        </TabsList>
+                      </div>
+                      
+                      <div className="flex-1 overflow-hidden">
+                        {role === 'admin' && (
+                          <TabsContent value="backup" className="h-full m-0 p-0">
+                            <div className="h-full p-6">
+                              <LazyComponent 
+                                component={LazyDataBackupSystem}
+                                fallback={<div className="h-full animate-pulse bg-gray-100 rounded-lg"></div>}
+                              />
+                            </div>
+                          </TabsContent>
+                        )}
+                        
+                        <TabsContent value="export" className="h-full m-0 p-0">
+                          <div className="h-full p-6">
+                            <LazyComponent 
+                              component={LazyDataExport}
+                              fallback={<div className="h-full animate-pulse bg-gray-100 rounded-lg"></div>}
+                            />
+                          </div>
+                        </TabsContent>
+                        
+                        <TabsContent value="audit" className="h-full m-0 p-0">
+                          <div className="h-full p-6">
+                            <LazyComponent 
+                              component={LazyAuditLogs}
+                              fallback={<div className="h-full animate-pulse bg-gray-100 rounded-lg"></div>}
+                            />
+                          </div>
+                        </TabsContent>
+                        
+                        {role === 'admin' && (
+                          <TabsContent value="archive" className="h-full m-0 p-0">
+                            <div className="h-full p-6">
+                              <LazyComponent 
+                                component={LazyArchiveSystem}
+                                fallback={<div className="h-full animate-pulse bg-gray-100 rounded-lg"></div>}
+                              />
+                            </div>
+                          </TabsContent>
+                        )}
+                      </div>
+                    </Tabs>
+                  </div>
                 </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
+              </div>
+            </Tabs>
+          </div>
         </div>
       </div>
     </Layout>

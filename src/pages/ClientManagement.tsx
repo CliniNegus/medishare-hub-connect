@@ -1,32 +1,43 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import Layout from '@/components/Layout';
 import ClientsList from '@/components/clients/ClientsList';
 import ClientsImport from '@/components/clients/ClientsImport';
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ClientManagement = () => {
   return (
     <Layout>
-      <div className="flex-1 overflow-hidden">
-        <div className="h-full p-6">
-          <h1 className="text-2xl font-bold mb-6 text-gray-900">Client Management</h1>
+      <div className="flex flex-col h-screen">
+        <div className="flex-1 flex flex-col">
+          <div className="p-6 border-b bg-white">
+            <h1 className="text-2xl font-bold text-[#333333]">Client Management</h1>
+          </div>
           
-          <Tabs defaultValue="list" className="w-full h-full">
-            <TabsList className="grid w-full max-w-md grid-cols-2 mb-8">
-              <TabsTrigger value="list">Clients List</TabsTrigger>
-              <TabsTrigger value="import">Import Clients</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="list" className="h-full">
-              <ClientsList />
-            </TabsContent>
-            
-            <TabsContent value="import" className="h-full">
-              <ClientsImport />
-            </TabsContent>
-          </Tabs>
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <Tabs defaultValue="list" className="flex-1 flex flex-col">
+              <div className="px-6 py-4 border-b bg-white">
+                <TabsList className="grid w-full max-w-md grid-cols-2">
+                  <TabsTrigger value="list">Clients List</TabsTrigger>
+                  <TabsTrigger value="import">Import Clients</TabsTrigger>
+                </TabsList>
+              </div>
+              
+              <div className="flex-1 overflow-hidden">
+                <TabsContent value="list" className="h-full m-0 p-0">
+                  <div className="h-full p-6">
+                    <ClientsList />
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="import" className="h-full m-0 p-0">
+                  <div className="h-full p-6">
+                    <ClientsImport />
+                  </div>
+                </TabsContent>
+              </div>
+            </Tabs>
+          </div>
         </div>
       </div>
     </Layout>
