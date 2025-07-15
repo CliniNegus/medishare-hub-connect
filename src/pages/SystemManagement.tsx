@@ -43,7 +43,7 @@ const SystemManagement = () => {
   
   return (
     <Layout>
-      <div className="py-6 space-y-6">
+      <div className="p-6 space-y-6">
         <Card>
           <CardHeader>
             <div className="flex items-center space-x-2">

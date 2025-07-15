@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const ClientManagement = () => {
   return (
     <Layout>
-      <div className="py-8">
+      <div className="p-6">
         <h1 className="text-2xl font-bold mb-6 text-gray-900">Client Management</h1>
         
         <Tabs defaultValue="list" className="w-full">
