@@ -108,7 +108,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
         return;
       }
 
-      // Sign up the user with email confirmation disabled
+      // Sign up the user - let Supabase handle email confirmation naturally
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -118,9 +118,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
             full_name: fullName,
             organization: organization,
             role: metadata?.role || 'hospital',
-          },
-          // Disable automatic email confirmation
-          shouldCreateUser: true
+          }
         },
       });
 
@@ -130,16 +128,13 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
         // Handle specific error cases
         if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
           onError('An account with this email already exists. Please sign in instead.');
-        } else if (signUpError.message.includes('confirmation email')) {
-          // If it's an email confirmation error, we'll handle it with our custom system
-          console.log("Bypassing Supabase email confirmation error, using custom verification");
         } else {
           onError(signUpError.message);
-          throw signUpError;
         }
+        return;
       }
 
-      // Always send our custom verification email regardless of Supabase signup result
+      // Send our custom verification email
       try {
         const emailResult = await sendVerificationEmail(email, fullName);
         
@@ -163,13 +158,11 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
       }
     } catch (error: any) {
       console.error("Full signup error:", error);
-      if (!error.message.includes('confirmation email')) {
-        toast({
-          title: "Registration failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Registration failed",
+        description: error.message,
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
