@@ -58,7 +58,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         />
         
         <div className="flex-1 flex flex-col overflow-hidden">
-          <main className={`flex-1 overflow-y-auto bg-[#FFFFFF] ${isMobile ? 'pt-16 px-4' : 'ml-64 p-6'}`}>
+          <main className={`flex-1 overflow-y-auto bg-[#FFFFFF] ${isMobile ? 'pt-16' : 'ml-64'}`}>
             {children}
           </main>
         </div>
