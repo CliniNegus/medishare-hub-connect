@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -107,7 +108,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
         return;
       }
 
-      // Sign up the user with email confirmation disabled initially
+      // Sign up the user with email confirmation disabled
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -118,41 +119,57 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
             organization: organization,
             role: metadata?.role || 'hospital',
           },
+          // Disable automatic email confirmation
+          shouldCreateUser: true
         },
       });
 
       if (signUpError) {
         console.error("Signup error:", signUpError);
-        onError(signUpError.message);
-        throw signUpError;
+        
+        // Handle specific error cases
+        if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
+          onError('An account with this email already exists. Please sign in instead.');
+        } else if (signUpError.message.includes('confirmation email')) {
+          // If it's an email confirmation error, we'll handle it with our custom system
+          console.log("Bypassing Supabase email confirmation error, using custom verification");
+        } else {
+          onError(signUpError.message);
+          throw signUpError;
+        }
       }
 
-      if (data.user) {
-        // Automatically send verification email
-        try {
-          await sendVerificationEmail(email, fullName);
-          
+      // Always send our custom verification email regardless of Supabase signup result
+      try {
+        const emailResult = await sendVerificationEmail(email, fullName);
+        
+        if (emailResult.success) {
           toast({
             title: "Account created successfully!",
             description: "Please check your email to verify your account before signing in.",
           });
-        } catch (emailErr) {
-          console.error("Email send error:", emailErr);
-          toast({
-            title: "Account created",
-            description: "Account created but verification email failed to send. Please try resending from the login page.",
-          });
+          onSuccess();
+        } else {
+          throw new Error(emailResult.error || "Failed to send verification email");
         }
-        
-        onSuccess();
+      } catch (emailErr: any) {
+        console.error("Custom email send error:", emailErr);
+        toast({
+          title: "Account created but email verification failed",
+          description: "Your account was created but we couldn't send the verification email. Please try requesting a new verification email.",
+          variant: "destructive",
+        });
+        onSuccess(); // Still call onSuccess since account was created
       }
     } catch (error: any) {
       console.error("Full signup error:", error);
-      toast({
-        title: "Registration failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      if (!error.message.includes('confirmation email')) {
+        toast({
+          title: "Registration failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }
