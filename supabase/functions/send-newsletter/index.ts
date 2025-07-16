@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
@@ -80,7 +79,7 @@ const handler = async (req: Request): Promise<Response> => {
           <a href="${unsubscribeUrl}?email={{contact.EMAIL}}" style="color: #999999;">Unsubscribe</a> | 
           <a href="${supabaseUrl.replace('/functions/v1', '')}/privacy-policy" style="color: #999999;">Privacy Policy</a>
         </p>
-        <p><strong>NEGUS MED LIMITED</strong><br>CliniBuilds Platform, Nairobi, Kenya</p>
+        <p><strong>Negus Med Limited</strong><br>CliniBuilds Platform, Nairobi, Kenya</p>
       </div>
     `;
 
@@ -90,7 +89,7 @@ const handler = async (req: Request): Promise<Response> => {
 You are receiving this email because you have an account with CliniBuilds.
 Unsubscribe: ${unsubscribeUrl}
 Privacy Policy: ${supabaseUrl.replace('/functions/v1', '')}/privacy-policy
-NEGUS MED LIMITED - CliniBuilds Platform, Nairobi, Kenya
+Negus Med Limited - CliniBuilds Platform, Nairobi, Kenya
     `;
 
     // Send emails in batches to avoid rate limits
@@ -106,7 +105,7 @@ NEGUS MED LIMITED - CliniBuilds Platform, Nairobi, Kenya
       
       const emailPayload = {
         sender: {
-          name: "NEGUS MED LIMITED",
+          name: "Negus Med Limited",
           email: "info@negusmed.com"
         },
         to: batch.map(email => ({ email })),

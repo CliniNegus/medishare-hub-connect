@@ -36,7 +36,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Prepare Brevo email payload
     const emailPayload = {
       sender: {
-        name: "NEGUS MED LIMITED",
+        name: "Negus Med Limited",
         email: from
       },
       to: [

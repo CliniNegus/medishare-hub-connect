@@ -98,7 +98,7 @@ const handler = async (req: Request): Promise<Response> => {
           <tr>
             <td style="padding: 20px 40px; background-color: #f8f8f8; border-radius: 0 0 8px 8px;">
               <p style="color: #999999; font-size: 12px; line-height: 1.4; margin: 0; text-align: center;">
-                <strong>NEGUS MED LIMITED</strong><br>
+                <strong>Negus Med Limited</strong><br>
                 CliniBuilds Platform - Medical Equipment Sharing & Management<br>
                 Nairobi, Kenya
               </p>
@@ -126,14 +126,14 @@ Security Notice: If you didn't request this password reset, please ignore this e
 Need help? Contact our support team at info@negusmed.com
 
 ---
-NEGUS MED LIMITED
+Negus Med Limited
 CliniBuilds Platform - Medical Equipment Sharing & Management
 Nairobi, Kenya
 `;
 
     const emailPayload = {
       sender: {
-        name: "NEGUS MED LIMITED",
+        name: "Negus Med Limited",
         email: "info@negusmed.com"
       },
       to: [
