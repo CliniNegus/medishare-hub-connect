@@ -95,7 +95,7 @@ const LandingPage: React.FC = () => {
           
           <div className="flex flex-col sm:flex-row justify-center gap-6 max-w-md mx-auto">
             <Button asChild size="lg" className="bg-gradient-to-r from-[#E02020] to-[#E02020]/90 hover:from-[#E02020]/90 hover:to-[#E02020] text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group">
-              <Link to="/shop/public" className="flex items-center gap-2">
+              <Link to="/shop" className="flex items-center gap-2">
                 Browse Medical Supplies
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
