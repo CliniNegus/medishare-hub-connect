@@ -12,8 +12,35 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Handle GET requests (direct links from email) - redirect to frontend
+  if (req.method === "GET") {
+    const url = new URL(req.url);
+    const token = url.searchParams.get('token');
+    
+    if (token) {
+      // Redirect to frontend route with token
+      const redirectUrl = `https://bqgipoqlxizdpryguzac.lovableproject.com/verify?token=${encodeURIComponent(token)}`;
+      return new Response(null, {
+        status: 302,
+        headers: {
+          'Location': redirectUrl,
+          ...corsHeaders
+        }
+      });
+    } else {
+      // No token provided in GET request
+      return new Response(null, {
+        status: 302,
+        headers: {
+          'Location': 'https://bqgipoqlxizdpryguzac.lovableproject.com/auth',
+          ...corsHeaders
+        }
+      });
+    }
+  }
+
   try {
-    // Parse request body to get token
+    // Parse request body to get token (for POST requests from frontend)
     const { token } = await req.json();
 
     if (!token) {
