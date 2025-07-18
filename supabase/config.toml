@@ -7,3 +7,6 @@ project_id = "bqgipoqlxizdpryguzac"
 [functions]
 [functions.send-system-email]
 verify_jwt = true
+
+[functions.verify-email]
+verify_jwt = false

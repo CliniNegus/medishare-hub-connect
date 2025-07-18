@@ -96,7 +96,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    // Return success page
+    // Return success page with automatic redirect
     return new Response(
       `<!DOCTYPE html>
       <html>
@@ -107,14 +107,24 @@ const handler = async (req: Request): Promise<Response> => {
           .container { background: white; padding: 40px; border-radius: 8px; max-width: 500px; margin: 0 auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
           .success { color: #28a745; }
           .btn { background-color: #E02020; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 20px; }
+          .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #E02020; border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; margin: 20px auto; }
+          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         </style>
+        <script>
+          // Redirect to homepage after 3 seconds
+          setTimeout(function() {
+            window.location.href = '${supabaseUrl.replace('/functions/v1', '')}/';
+          }, 3000);
+        </script>
       </head>
       <body>
         <div class="container">
           <h1 class="success">✅ Email Verified Successfully!</h1>
           <p>Your email has been verified. You can now access all features of CliniBuilds.</p>
           <p>A welcome email has been sent to your inbox with helpful next steps.</p>
-          <a href="${supabaseUrl.replace('/functions/v1', '')}/dashboard" class="btn">Go to Dashboard</a>
+          <div class="spinner"></div>
+          <p>Redirecting you to the homepage in 3 seconds...</p>
+          <a href="${supabaseUrl.replace('/functions/v1', '')}/auth" class="btn">Continue to Sign In</a>
         </div>
       </body>
       </html>`,
