@@ -35,6 +35,7 @@ import ProductDetailsPage from './pages/ProductDetailsPage';
 import PublicShop from './pages/PublicShop';
 import PaymentCancelled from './pages/PaymentCancelled';
 import PaymentSuccess from './pages/PaymentSuccess';
+import EmailVerification from './pages/EmailVerification';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -62,6 +63,7 @@ function App() {
                     <Route path="/product/:id" element={<ProductDetailsPage />} />
                     <Route path="/payment-cancelled" element={<PaymentCancelled />} />
                     <Route path="/payment-success" element={<PaymentSuccess />} />
+                    <Route path="/verify" element={<EmailVerification />} />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/admin-auth" element={<AdminAuth />} />
                     <Route 

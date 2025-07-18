@@ -13,20 +13,19 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const url = new URL(req.url);
-    const token = url.searchParams.get('token');
+    // Parse request body to get token
+    const { token } = await req.json();
 
     if (!token) {
       return new Response(
-        `<!DOCTYPE html>
-        <html>
-        <head><title>Invalid Verification Link</title></head>
-        <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
-          <h1>Invalid Verification Link</h1>
-          <p>The verification link is invalid or has expired.</p>
-        </body>
-        </html>`,
-        { status: 400, headers: { "Content-Type": "text/html", ...corsHeaders } }
+        JSON.stringify({ 
+          success: false, 
+          message: "Token is required" 
+        }),
+        { 
+          status: 400, 
+          headers: { "Content-Type": "application/json", ...corsHeaders } 
+        }
       );
     }
 
@@ -52,16 +51,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (verifyError || !isValid) {
       return new Response(
-        `<!DOCTYPE html>
-        <html>
-        <head><title>Verification Failed</title></head>
-        <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
-          <h1>Verification Failed</h1>
-          <p>The verification link is invalid or has expired.</p>
-          <a href="https://bqgipoqlxizdpryguzac.lovableproject.com/auth" style="color: #E02020;">Back to Sign In</a>
-        </body>
-        </html>`,
-        { status: 400, headers: { "Content-Type": "text/html", ...corsHeaders } }
+        JSON.stringify({ 
+          success: false, 
+          message: "The verification link is invalid or has expired." 
+        }),
+        { 
+          status: 400, 
+          headers: { "Content-Type": "application/json", ...corsHeaders } 
+        }
       );
     }
 
@@ -96,53 +93,29 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    // Return success page with automatic redirect
+    // Return success response
     return new Response(
-      `<!DOCTYPE html>
-      <html>
-      <head>
-        <title>Email Verified Successfully</title>
-        <style>
-          body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f5f5f5; }
-          .container { background: white; padding: 40px; border-radius: 8px; max-width: 500px; margin: 0 auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-          .success { color: #28a745; }
-          .btn { background-color: #E02020; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 20px; }
-          .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #E02020; border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; margin: 20px auto; }
-          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        </style>
-        <script>
-          // Redirect to homepage after 3 seconds
-          setTimeout(function() {
-            window.location.href = 'https://bqgipoqlxizdpryguzac.lovableproject.com/';
-          }, 3000);
-        </script>
-      </head>
-      <body>
-        <div class="container">
-          <h1 class="success">✅ Email Verified Successfully!</h1>
-          <p>Your email has been verified. You can now access all features of CliniBuilds.</p>
-          <p>A welcome email has been sent to your inbox with helpful next steps.</p>
-          <div class="spinner"></div>
-          <p>Redirecting you to the homepage in 3 seconds...</p>
-          <a href="https://bqgipoqlxizdpryguzac.lovableproject.com/auth" class="btn">Continue to Sign In</a>
-        </div>
-      </body>
-      </html>`,
-      { status: 200, headers: { "Content-Type": "text/html", ...corsHeaders } }
+      JSON.stringify({ 
+        success: true, 
+        message: "Email verified successfully!" 
+      }),
+      { 
+        status: 200, 
+        headers: { "Content-Type": "application/json", ...corsHeaders } 
+      }
     );
 
   } catch (error: any) {
     console.error("Error in verify-email function:", error);
     return new Response(
-      `<!DOCTYPE html>
-      <html>
-      <head><title>Verification Error</title></head>
-      <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
-        <h1>Verification Error</h1>
-        <p>An error occurred during verification. Please try again.</p>
-      </body>
-      </html>`,
-      { status: 500, headers: { "Content-Type": "text/html", ...corsHeaders } }
+      JSON.stringify({ 
+        success: false, 
+        message: "An error occurred during verification. Please try again." 
+      }),
+      { 
+        status: 500, 
+        headers: { "Content-Type": "application/json", ...corsHeaders } 
+      }
     );
   }
 };

@@ -90,8 +90,8 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error(`Failed to create verification entry: ${verificationError.message}`);
     }
 
-    // Create verification URL
-    const verificationUrl = `${supabaseUrl}/functions/v1/verify-email?token=${encodeURIComponent(tokenHash)}`;
+    // Create verification URL pointing to frontend route
+    const verificationUrl = `https://bqgipoqlxizdpryguzac.lovableproject.com/verify?token=${encodeURIComponent(tokenHash)}`;
     
     // Create professional email content
     const htmlContent = `
