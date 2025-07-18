@@ -40,9 +40,14 @@ const Auth = () => {
   };
 
   const handleSignUpSuccess = () => {
-    // Reset the form state, user should get confirmation message
-    setUnconfirmedEmail(null);
-    setErrorMessage(null);
+    // TODO: Reinstate email verification enforcement later
+    // TEMPORARY WORKAROUND: Redirect to dashboard immediately after sign-up
+    // This bypasses email verification to avoid SMTP/email delivery issues
+    toast({
+      title: "Account created successfully! 🎉",
+      description: "Please verify your email when convenient for full access.",
+    });
+    navigate('/dashboard');
   };
 
   const handleEmailNotConfirmed = (email: string) => {

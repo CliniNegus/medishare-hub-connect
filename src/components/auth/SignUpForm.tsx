@@ -107,12 +107,13 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
         return;
       }
 
-      // Create user without email confirmation to avoid SMTP issues
+      // TODO: Reinstate email verification requirement later
+      // TEMPORARY WORKAROUND: Create user without email confirmation for immediate access
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          // Disable email confirmation to prevent SMTP errors
+          // Disable email confirmation to prevent SMTP errors and allow immediate access
           emailRedirectTo: undefined,
           data: {
             full_name: fullName,
@@ -136,36 +137,25 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
       }
 
       if (data?.user) {
-        console.log("User created successfully, sending custom verification email...");
+        console.log("User created successfully, proceeding with immediate access...");
         
-        // Send our custom verification email
+        // TODO: Reinstate email verification sending after SMTP issues are resolved
+        // Send verification email in background but don't block user access
         try {
           const emailResult = await sendVerificationEmail(email, fullName);
           
           if (emailResult.success) {
-            toast({
-              title: "Account created successfully! 🎉",
-              description: "Please check your email (including spam folder) to verify your account. The email is sent from NEGUS MED LIMITED.",
-            });
-            onSuccess();
+            console.log("Verification email sent successfully in background");
           } else {
-            console.error("Email verification failed:", emailResult.error);
-            toast({
-              title: "Account created but verification email failed",
-              description: "Your account was created successfully, but we couldn't send the verification email. You can try requesting a new verification email.",
-              variant: "destructive",
-            });
-            onSuccess(); // Still redirect to show verification component
+            console.error("Background email verification failed:", emailResult.error);
           }
         } catch (emailErr: any) {
-          console.error("Custom email send error:", emailErr);
-          toast({
-            title: "Account created successfully",
-            description: "Your account was created but there was an issue sending the verification email. Please try again from the sign-in page.",
-            variant: "destructive",
-          });
-          onSuccess(); // Still redirect since account was created
+          console.error("Background email send error:", emailErr);
+          // Don't block user flow for email failures
         }
+        
+        // Proceed with success regardless of email delivery
+        onSuccess();
       } else {
         throw new Error("User creation failed - no user data returned");
       }
