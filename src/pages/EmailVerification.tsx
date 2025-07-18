@@ -12,11 +12,19 @@ const EmailVerification = () => {
   const [message, setMessage] = useState('');
   const [countdown, setCountdown] = useState(3);
 
+  // Add component mount logging
+  console.log('EmailVerification component mounted');
+
   useEffect(() => {
     const verifyEmail = async () => {
       const token = searchParams.get('token');
       
+      console.log('EmailVerification component loaded, token:', token);
+      console.log('Current URL:', window.location.href);
+      console.log('Search params:', Object.fromEntries(searchParams.entries()));
+      
       if (!token) {
+        console.error('No token found in URL');
         setStatus('error');
         setMessage('Invalid verification link. No token provided.');
         return;
@@ -79,8 +87,8 @@ const EmailVerification = () => {
 
           {status === 'success' && (
             <>
-              <CheckCircle className="w-16 h-16 mx-auto mb-4 text-green-600" />
-              <h1 className="text-2xl font-semibold mb-2 text-green-600">Email Verified!</h1>
+              <CheckCircle className="w-16 h-16 mx-auto mb-4 text-success" />
+              <h1 className="text-2xl font-semibold mb-2 text-success">Email Verified!</h1>
               <p className="text-muted-foreground mb-4">{message}</p>
               <p className="text-sm text-muted-foreground mb-4">
                 A welcome email has been sent to your inbox with helpful next steps.

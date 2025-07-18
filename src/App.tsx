@@ -36,6 +36,7 @@ import PublicShop from './pages/PublicShop';
 import PaymentCancelled from './pages/PaymentCancelled';
 import PaymentSuccess from './pages/PaymentSuccess';
 import EmailVerification from './pages/EmailVerification';
+import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -215,8 +216,10 @@ function App() {
                           <ProfileManagement />
                         </ProtectedRoute>
                       } 
-                    />
-                  </Routes>
+                     />
+                     {/* Catch-all route for 404 */}
+                     <Route path="*" element={<NotFound />} />
+                   </Routes>
                   <Toaster />
                 </Router>
               </ErrorBoundary>
