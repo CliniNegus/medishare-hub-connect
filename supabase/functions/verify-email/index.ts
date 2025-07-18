@@ -58,7 +58,7 @@ const handler = async (req: Request): Promise<Response> => {
         <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
           <h1>Verification Failed</h1>
           <p>The verification link is invalid or has expired.</p>
-          <a href="${supabaseUrl.replace('/functions/v1', '')}/auth" style="color: #E02020;">Back to Sign In</a>
+          <a href="https://bqgipoqlxizdpryguzac.lovableproject.com/auth" style="color: #E02020;">Back to Sign In</a>
         </body>
         </html>`,
         { status: 400, headers: { "Content-Type": "text/html", ...corsHeaders } }
@@ -113,7 +113,7 @@ const handler = async (req: Request): Promise<Response> => {
         <script>
           // Redirect to homepage after 3 seconds
           setTimeout(function() {
-            window.location.href = '${supabaseUrl.replace('/functions/v1', '')}/';
+            window.location.href = 'https://bqgipoqlxizdpryguzac.lovableproject.com/';
           }, 3000);
         </script>
       </head>
@@ -124,7 +124,7 @@ const handler = async (req: Request): Promise<Response> => {
           <p>A welcome email has been sent to your inbox with helpful next steps.</p>
           <div class="spinner"></div>
           <p>Redirecting you to the homepage in 3 seconds...</p>
-          <a href="${supabaseUrl.replace('/functions/v1', '')}/auth" class="btn">Continue to Sign In</a>
+          <a href="https://bqgipoqlxizdpryguzac.lovableproject.com/auth" class="btn">Continue to Sign In</a>
         </div>
       </body>
       </html>`,
