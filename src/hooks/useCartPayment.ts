@@ -133,6 +133,38 @@ export const useCartPayment = ({ items, totalPrice, totalItems, fullName, phoneN
         full_address: `${street}, ${city}, ${country} ${zipCode}`
       };
 
+      // Create or update customer and shipping address
+      const { data: shippingAddressData, error: shippingError } = await supabase
+        .rpc('create_or_update_customer_with_shipping', {
+          p_user_id: user.id,
+          p_full_name: fullName,
+          p_phone_number: phoneNumber,
+          p_email: email,
+          p_street: street,
+          p_city: city,
+          p_country: country,
+          p_zip_code: zipCode
+        });
+
+      if (shippingError) {
+        console.error('Shipping address creation error:', shippingError);
+        throw new Error('Failed to save shipping information');
+      }
+
+      const shippingAddressId = shippingAddressData;
+
+      // Get customer ID
+      const { data: customerData, error: customerError } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (customerError) {
+        console.error('Customer lookup error:', customerError);
+        throw new Error('Failed to retrieve customer information');
+      }
+
       // Store transaction with detailed shipping information
       const { error: dbError } = await supabase
         .from('transactions')
@@ -146,6 +178,8 @@ export const useCartPayment = ({ items, totalPrice, totalItems, fullName, phoneN
             email: user.email,
             cart_items: cartItems,
             shipping_info: shippingInfo,
+            shipping_address_id: shippingAddressId,
+            customer_id: customerData.id,
             notes: notes,
             item_count: totalItems,
             order_type: 'cart_checkout'
@@ -157,11 +191,16 @@ export const useCartPayment = ({ items, totalPrice, totalItems, fullName, phoneN
         throw new Error('Failed to create transaction record');
       }
 
-      // Also create an order record for better tracking
+      // Create an order record with proper shipping information
       const { error: orderError } = await supabase
         .from('orders')
         .insert({
           user_id: user.id,
+          customer_id: customerData.id,
+          shipping_address_id: shippingAddressId,
+          shipping_full_name: fullName,
+          shipping_phone_number: phoneNumber,
+          shipping_email: email,
           amount: totalPrice,
           payment_method: 'paystack',
           shipping_address: shippingInfo.full_address,
@@ -183,6 +222,8 @@ export const useCartPayment = ({ items, totalPrice, totalItems, fullName, phoneN
             user_id: user.id,
             cart_items: cartItems,
             shipping_info: shippingInfo,
+            shipping_address_id: shippingAddressId,
+            customer_id: customerData.id,
             notes: notes,
             item_count: totalItems,
             order_type: 'cart_checkout'
