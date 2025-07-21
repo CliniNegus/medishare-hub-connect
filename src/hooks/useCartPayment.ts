@@ -9,11 +9,17 @@ interface UseCartPaymentProps {
   items: CartItem[];
   totalPrice: number;
   totalItems: number;
-  shippingAddress: string;
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  street: string;
+  city: string;
+  country: string;
+  zipCode: string;
   notes: string;
 }
 
-export const useCartPayment = ({ items, totalPrice, totalItems, shippingAddress, notes }: UseCartPaymentProps) => {
+export const useCartPayment = ({ items, totalPrice, totalItems, fullName, phoneNumber, email, street, city, country, zipCode, notes }: UseCartPaymentProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [isProcessingPayment, setIsProcessingPayment] = React.useState(false);
@@ -76,10 +82,11 @@ export const useCartPayment = ({ items, totalPrice, totalItems, shippingAddress,
       return;
     }
 
-    if (!shippingAddress.trim()) {
+    // Validate required shipping fields
+    if (!fullName.trim() || !phoneNumber.trim() || !email.trim() || !street.trim() || !city.trim() || !country.trim()) {
       toast({
-        title: "Shipping address required",
-        description: "Please provide a shipping address",
+        title: "Shipping information required",
+        description: "Please fill in all required shipping fields",
         variant: "destructive",
       });
       return;
@@ -114,6 +121,19 @@ export const useCartPayment = ({ items, totalPrice, totalItems, shippingAddress,
         total: item.price * item.quantity
       }));
 
+      // Create comprehensive shipping information object
+      const shippingInfo = {
+        full_name: fullName,
+        phone_number: phoneNumber,
+        email: email,
+        street: street,
+        city: city,
+        country: country,
+        zip_code: zipCode,
+        full_address: `${street}, ${city}, ${country} ${zipCode}`
+      };
+
+      // Store transaction with detailed shipping information
       const { error: dbError } = await supabase
         .from('transactions')
         .insert({
@@ -125,7 +145,7 @@ export const useCartPayment = ({ items, totalPrice, totalItems, shippingAddress,
           metadata: { 
             email: user.email,
             cart_items: cartItems,
-            shipping_address: shippingAddress,
+            shipping_info: shippingInfo,
             notes: notes,
             item_count: totalItems,
             order_type: 'cart_checkout'
@@ -137,6 +157,23 @@ export const useCartPayment = ({ items, totalPrice, totalItems, shippingAddress,
         throw new Error('Failed to create transaction record');
       }
 
+      // Also create an order record for better tracking
+      const { error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          amount: totalPrice,
+          payment_method: 'paystack',
+          shipping_address: shippingInfo.full_address,
+          notes: notes,
+          status: 'pending'
+        });
+
+      if (orderError) {
+        console.error('Order creation error:', orderError);
+        // Continue with payment even if order creation fails
+      }
+
       const { data, error } = await supabase.functions.invoke('handle-payment', {
         body: { 
           amount: totalPrice,
@@ -145,7 +182,7 @@ export const useCartPayment = ({ items, totalPrice, totalItems, shippingAddress,
             reference,
             user_id: user.id,
             cart_items: cartItems,
-            shipping_address: shippingAddress,
+            shipping_info: shippingInfo,
             notes: notes,
             item_count: totalItems,
             order_type: 'cart_checkout'

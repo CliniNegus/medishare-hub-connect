@@ -26,14 +26,18 @@ const CartSidebar = () => {
   const [notes, setNotes] = useState('');
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
 
-  // Create full shipping address from form fields
-  const shippingAddress = `${street}, ${city}, ${country} ${zipCode}`;
   
   const { isProcessingPayment, handleInitiatePayment } = useCartPayment({
     items,
     totalPrice,
     totalItems,
-    shippingAddress,
+    fullName,
+    phoneNumber,
+    email,
+    street,
+    city,
+    country,
+    zipCode,
     notes
   });
 
