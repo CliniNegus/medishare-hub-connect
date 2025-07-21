@@ -1,17 +1,21 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { EquipmentProps } from '../EquipmentCard';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { CreditCard, FileText, Download, DollarSign, TrendingUp, Calculator } from "lucide-react";
+import { CreditCard, FileText, Download, DollarSign, TrendingUp, Calculator, Plus, Eye } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useFinancialData } from '@/hooks/useFinancialData';
+import { useRealTimeLeases } from '@/hooks/use-real-time-leases';
+import { useLeaseAnalytics } from '@/hooks/use-lease-analytics';
 import PaymentProcessing from '../financial/PaymentProcessing';
 import FinancialReporting from '../financial/reporting/FinancialReporting';
 import InvoiceGeneration from '../financial/InvoiceGeneration';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface FinancingTabContentProps {
   equipmentData: EquipmentProps[];
@@ -19,10 +23,36 @@ interface FinancingTabContentProps {
 
 const FinancingTabContent: React.FC<FinancingTabContentProps> = ({ equipmentData }) => {
   const [activeFinanceTab, setActiveFinanceTab] = useState("overview");
+  const [realEquipment, setRealEquipment] = useState<any[]>([]);
+  const [isCreatingLease, setIsCreatingLease] = useState(false);
+  
   const { transactions, metrics, loading, refreshData } = useFinancialData();
+  const { leases, loading: leasesLoading, refetch: refetchLeases } = useRealTimeLeases();
+  const leaseAnalytics = useLeaseAnalytics(leases);
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  // Mock financing options data with Ksh pricing
+  // Fetch real equipment from Supabase
+  useEffect(() => {
+    const fetchEquipment = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('equipment')
+          .select('*')
+          .eq('status', 'Available')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setRealEquipment(data || []);
+      } catch (error) {
+        console.error('Error fetching equipment:', error);
+      }
+    };
+
+    fetchEquipment();
+  }, []);
+
+  // Real financing options data with calculated pricing
   const financingOptions = [
     {
       id: 1,
@@ -30,8 +60,8 @@ const FinancingTabContent: React.FC<FinancingTabContentProps> = ({ equipmentData
       term: "36 months",
       interestRate: "5.9%",
       downPayment: "10%",
-      monthlyPayment: "Ksh 325,000",
-      totalCost: "Ksh 11,700,000",
+      monthlyPaymentPercent: 0.032,
+      totalCostMultiplier: 1.17,
       bestFor: "General equipment with consistent usage",
       available: true
     },
@@ -41,8 +71,8 @@ const FinancingTabContent: React.FC<FinancingTabContentProps> = ({ equipmentData
       term: "24 months",
       interestRate: "6.5%",
       downPayment: "15%",
-      monthlyPayment: "Ksh 494,000",
-      totalCost: "Ksh 11,856,000",
+      monthlyPaymentPercent: 0.045,
+      totalCostMultiplier: 1.08,
       bestFor: "Rapidly depreciating technology",
       available: true
     },
@@ -52,74 +82,191 @@ const FinancingTabContent: React.FC<FinancingTabContentProps> = ({ equipmentData
       term: "60 months",
       interestRate: "7.2%",
       downPayment: "5%",
-      monthlyPayment: "Ksh 214,500",
-      totalCost: "Ksh 12,870,000",
+      monthlyPaymentPercent: 0.019,
+      totalCostMultiplier: 1.14,
       bestFor: "High value equipment with long service life",
       available: true
     }
   ];
 
-  // Equipment available for financing with Ksh pricing
-  const equipmentForFinancing = [
-    {
-      id: 1,
-      name: "MRI Scanner - Premium Model",
-      manufacturer: "MediTech Imaging",
-      price: "Ksh 162,500,000",
-      estimatedMonthly: "Ksh 2,925,000",
-      category: "Imaging",
-      available: true
-    },
-    {
-      id: 2,
-      name: "Surgical Robot System",
-      manufacturer: "SurgicalBots Inc",
-      price: "Ksh 116,350,000",
-      estimatedMonthly: "Ksh 2,106,000",
-      category: "Surgical",
-      available: true
-    },
-    {
-      id: 3,
-      name: "CT Scanner - Advanced",
-      manufacturer: "ClearView Medical",
-      price: "Ksh 97,500,000",
-      estimatedMonthly: "Ksh 1,755,000",
-      category: "Imaging",
-      available: true
-    },
-    {
-      id: 4,
-      name: "Ultrasound System - Professional",
-      manufacturer: "SonoWave",
-      price: "Ksh 16,250,000",
-      estimatedMonthly: "Ksh 299,000",
-      category: "Imaging",
-      available: true
+  const handleApplyForFinancing = async (optionId: number) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to apply for financing.",
+        variant: "destructive",
+      });
+      return;
     }
-  ];
 
-  const handleApplyForFinancing = (optionId: number) => {
     const option = financingOptions.find(opt => opt.id === optionId);
-    toast({
-      title: "Financing Application Started",
-      description: `Your application for ${option?.name} has been initiated. A finance advisor will contact you within 24 hours.`,
-    });
+    
+    try {
+      // Create a support request for financing application
+      const { error } = await supabase
+        .from('support_requests')
+        .insert({
+          user_id: user.id,
+          subject: `Financing Application - ${option?.name}`,
+          message: `I would like to apply for the ${option?.name} financing option. 
+                   Term: ${option?.term}
+                   Interest Rate: ${option?.interestRate}
+                   Down Payment: ${option?.downPayment}
+                   Please contact me with more details and next steps.`,
+          priority: 'high',
+          tags: ['financing', 'equipment', 'lease']
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Financing Application Submitted",
+        description: `Your application for ${option?.name} has been submitted successfully. A finance advisor will contact you within 24 hours.`,
+      });
+    } catch (error: any) {
+      console.error('Error submitting financing application:', error);
+      toast({
+        title: "Submission Failed",
+        description: "Failed to submit financing application. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleRequestQuote = (equipmentId: number) => {
-    const equipment = equipmentForFinancing.find(eq => eq.id === equipmentId);
-    toast({
-      title: "Quote Request Submitted",
-      description: `Quote request for ${equipment?.name} has been sent. You'll receive a detailed quote within 2 business days.`,
-    });
+  const handleRequestQuote = async (equipmentId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to request a quote.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const equipment = realEquipment.find(eq => eq.id === equipmentId);
+    
+    try {
+      // Create a support request for quote
+      const { error } = await supabase
+        .from('support_requests')
+        .insert({
+          user_id: user.id,
+          subject: `Equipment Quote Request - ${equipment?.name}`,
+          message: `I would like to request a detailed quote for:
+                   Equipment: ${equipment?.name}
+                   Manufacturer: ${equipment?.manufacturer || 'Not specified'}
+                   Category: ${equipment?.category || 'Not specified'}
+                   
+                   Please provide financing options and terms.`,
+          priority: 'normal',
+          tags: ['quote', 'equipment', 'financing']
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Quote Request Submitted",
+        description: `Quote request for ${equipment?.name} has been submitted. You'll receive a detailed quote within 2 business days.`,
+      });
+    } catch (error: any) {
+      console.error('Error submitting quote request:', error);
+      toast({
+        title: "Submission Failed",
+        description: "Failed to submit quote request. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleExportFinancialData = () => {
-    toast({
-      title: "Export Started",
-      description: "Your financial reports are being prepared for download.",
-    });
+  const handleCreateLease = async (equipmentId: string, financingOption: any) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to create a lease.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsCreatingLease(true);
+    
+    try {
+      const equipment = realEquipment.find(eq => eq.id === equipmentId);
+      if (!equipment || !equipment.price) {
+        throw new Error('Equipment price not available');
+      }
+
+      const equipmentPrice = Number(equipment.price);
+      const monthlyPayment = equipmentPrice * financingOption.monthlyPaymentPercent;
+      const totalValue = equipmentPrice * financingOption.totalCostMultiplier;
+      const termMonths = parseInt(financingOption.term);
+      
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setMonth(endDate.getMonth() + termMonths);
+
+      const { error } = await supabase
+        .from('leases')
+        .insert({
+          equipment_id: equipmentId,
+          hospital_id: user.id,
+          start_date: startDate.toISOString(),
+          end_date: endDate.toISOString(),
+          monthly_payment: monthlyPayment,
+          total_value: totalValue,
+          status: 'pending'
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Lease Created",
+        description: `Lease agreement for ${equipment.name} has been created and is pending approval.`,
+      });
+
+      refetchLeases();
+    } catch (error: any) {
+      console.error('Error creating lease:', error);
+      toast({
+        title: "Creation Failed",
+        description: error.message || "Failed to create lease. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreatingLease(false);
+    }
+  };
+
+  const handleExportFinancialData = async () => {
+    try {
+      // Create CSV data from transactions and leases
+      const csvData = [
+        ['Type', 'Reference', 'Amount', 'Status', 'Date'],
+        ...transactions.map(t => ['Transaction', t.reference, t.amount, t.status, t.created_at]),
+        ...leases.map(l => ['Lease', `LEASE-${l.id.slice(0, 8)}`, l.monthly_payment, l.status, l.created_at])
+      ];
+
+      const csvContent = csvData.map(row => row.join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `financial-report-${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Export Complete",
+        description: "Your financial report has been downloaded successfully.",
+      });
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      toast({
+        title: "Export Failed",
+        description: "Failed to export financial data. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (loading) {
@@ -333,8 +480,8 @@ const FinancingTabContent: React.FC<FinancingTabContentProps> = ({ equipmentData
                         <TableCell>{option.term}</TableCell>
                         <TableCell>{option.interestRate}</TableCell>
                         <TableCell>{option.downPayment}</TableCell>
-                        <TableCell>{option.monthlyPayment}</TableCell>
-                        <TableCell>{option.totalCost}</TableCell>
+                        <TableCell>{(option.monthlyPaymentPercent * 100).toFixed(1)}% of price</TableCell>
+                        <TableCell>{(option.totalCostMultiplier * 100).toFixed(0)}% of price</TableCell>
                         <TableCell className="text-sm">{option.bestFor}</TableCell>
                         <TableCell>
                           <Button 
@@ -355,41 +502,138 @@ const FinancingTabContent: React.FC<FinancingTabContentProps> = ({ equipmentData
             {/* Equipment Available for Financing */}
             <Card className="border-[#E02020]/20">
               <CardHeader>
-                <CardTitle className="text-[#333333]">Equipment Available for Financing</CardTitle>
+                <CardTitle className="text-[#333333] flex items-center justify-between">
+                  Equipment Available for Financing
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.location.href = '/equipment-management'}
+                    className="border-[#E02020] text-[#E02020] hover:bg-[#E02020] hover:text-white"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    View All
+                  </Button>
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {equipmentForFinancing.map(equipment => (
-                    <div key={equipment.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <div className="flex justify-between items-start mb-3">
+                {realEquipment.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <Calculator className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                    <p>No equipment available for financing</p>
+                    <p className="text-sm text-gray-400">Equipment will appear here when available</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {realEquipment.slice(0, 6).map(equipment => {
+                      const equipmentPrice = Number(equipment.price) || 0;
+                      const estimatedMonthly = equipmentPrice * 0.032; // Standard lease rate
+                      
+                      return (
+                        <div key={equipment.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <h3 className="font-semibold text-[#333333]">{equipment.name}</h3>
+                              <p className="text-sm text-gray-600">{equipment.manufacturer || 'Not specified'}</p>
+                              <Badge variant="outline" className="mt-1 text-xs">{equipment.category || 'General'}</Badge>
+                            </div>
+                            <Badge className="bg-green-100 text-green-800">{equipment.status}</Badge>
+                          </div>
+                          
+                          <div className="space-y-2 mb-4">
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-600">Purchase Price:</span>
+                              <span className="font-medium text-[#333333]">
+                                {equipmentPrice > 0 ? `Ksh ${equipmentPrice.toLocaleString()}` : 'Contact for price'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-600">Est. Monthly:</span>
+                              <span className="font-medium text-[#E02020]">
+                                {equipmentPrice > 0 ? `Ksh ${estimatedMonthly.toLocaleString()}` : 'TBD'}
+                              </span>
+                            </div>
+                            {equipment.location && (
+                              <div className="flex justify-between">
+                                <span className="text-sm text-gray-600">Location:</span>
+                                <span className="text-sm text-gray-600">{equipment.location}</span>
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Button 
+                              className="w-full bg-[#E02020] hover:bg-[#c01c1c]"
+                              onClick={() => handleRequestQuote(equipment.id)}
+                            >
+                              Request Quote
+                            </Button>
+                            {equipmentPrice > 0 && (
+                              <Button 
+                                variant="outline"
+                                className="w-full border-[#E02020] text-[#E02020] hover:bg-[#E02020] hover:text-white"
+                                onClick={() => handleCreateLease(equipment.id, financingOptions[0])}
+                                disabled={isCreatingLease}
+                              >
+                                <Plus className="h-4 w-4 mr-2" />
+                                Create Lease
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Current Leases */}
+            <Card className="border-[#E02020]/20">
+              <CardHeader>
+                <CardTitle className="text-[#333333] flex items-center">
+                  <FileText className="h-5 w-5 mr-2 text-[#E02020]" />
+                  Your Current Leases
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {leasesLoading ? (
+                  <div className="text-center py-6">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#E02020] mx-auto mb-2"></div>
+                    <p className="text-gray-600">Loading leases...</p>
+                  </div>
+                ) : leases.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <FileText className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                    <p>No active leases</p>
+                    <p className="text-sm text-gray-400">Your equipment leases will appear here</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {leases.slice(0, 5).map((lease) => (
+                      <div key={lease.id} className="flex items-center justify-between p-3 border rounded-lg">
                         <div>
-                          <h3 className="font-semibold text-[#333333]">{equipment.name}</h3>
-                          <p className="text-sm text-gray-600">{equipment.manufacturer}</p>
-                          <Badge variant="outline" className="mt-1 text-xs">{equipment.category}</Badge>
+                          <p className="font-medium text-[#333333]">{lease.equipment?.name || 'Unknown Equipment'}</p>
+                          <p className="text-sm text-gray-500">
+                            {new Date(lease.start_date).toLocaleDateString()} - {new Date(lease.end_date).toLocaleDateString()}
+                          </p>
+                          <p className="text-xs text-gray-400">{lease.equipment?.category}</p>
                         </div>
-                        <Badge className="bg-green-100 text-green-800">Available</Badge>
+                        <div className="text-right">
+                          <p className="font-medium text-[#E02020]">Ksh {lease.monthly_payment.toLocaleString()}/month</p>
+                          <Badge 
+                            className={`text-xs ${
+                              lease.status === 'active' ? 'bg-green-100 text-green-800' :
+                              lease.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}
+                          >
+                            {lease.status.toUpperCase()}
+                          </Badge>
+                        </div>
                       </div>
-                      
-                      <div className="space-y-2 mb-4">
-                        <div className="flex justify-between">
-                          <span className="text-sm text-gray-600">Purchase Price:</span>
-                          <span className="font-medium text-[#333333]">{equipment.price}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm text-gray-600">Est. Monthly:</span>
-                          <span className="font-medium text-[#E02020]">{equipment.estimatedMonthly}</span>
-                        </div>
-                      </div>
-                      
-                      <Button 
-                        className="w-full bg-[#E02020] hover:bg-[#c01c1c]"
-                        onClick={() => handleRequestQuote(equipment.id)}
-                      >
-                        Request Quote
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
