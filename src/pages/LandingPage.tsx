@@ -244,20 +244,35 @@ const LandingPage: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <footer className="py-12 bg-[#333333] text-white">
+      <footer className="py-12 bg-clinibuilds-dark text-white">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-8 md:mb-0 text-center md:text-left">
-              <h2 className="text-3xl font-bold text-[#E02020] mb-2">CliniBuilds</h2>
-              <p className="text-gray-300">Medical Equipment Management Platform</p>
-              <p className="text-sm text-gray-400 mt-2">Transforming healthcare through technology</p>
+              <div className="flex items-center gap-4 mb-4 justify-center md:justify-start">
+                {/* CliniBuilds Logo */}
+                <div className="relative group">
+                  <div className="bg-white p-3 rounded-2xl shadow-lg border-2 border-primary/20 group-hover:border-primary/40 transition-all duration-300 transform group-hover:scale-105">
+                    <OptimizedImage
+                      src="https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/Clinibuilds%20Logo.jpg"
+                      alt="CliniBuilds Logo"
+                      height={50}
+                      className="object-contain rounded-xl filter group-hover:brightness-110 transition-all duration-300"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-primary mb-1">CliniBuilds</h2>
+                  <p className="text-muted-foreground">Medical Equipment Management Platform</p>
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground">Transforming healthcare through technology</p>
             </div>
             
             <div className="flex flex-wrap justify-center md:justify-end gap-6">
-              <Link to="/auth" className="text-gray-300 hover:text-[#E02020] transition-colors duration-300 font-medium">Sign In</Link>
-              <Link to="/admin-auth" className="text-gray-300 hover:text-[#E02020] transition-colors duration-300 font-medium">Admin</Link>
-              <a href="#" className="text-gray-300 hover:text-[#E02020] transition-colors duration-300 font-medium">Privacy Policy</a>
-              <a href="#" className="text-gray-300 hover:text-[#E02020] transition-colors duration-300 font-medium">Terms of Service</a>
+              <Link to="/auth" className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium">Sign In</Link>
+              <Link to="/admin-auth" className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium">Admin</Link>
+              <a href="#" className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium">Privacy Policy</a>
+              <a href="#" className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium">Terms of Service</a>
             </div>
           </div>
           
