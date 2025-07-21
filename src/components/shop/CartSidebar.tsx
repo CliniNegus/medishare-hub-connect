@@ -15,10 +15,20 @@ const CartSidebar = () => {
   const { items, isOpen, setIsOpen, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
   const { toast } = useToast();
   const { user } = useAuth();
-  const [shippingAddress, setShippingAddress] = useState('');
+  // Shipping form state
+  const [fullName, setFullName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [email, setEmail] = useState('');
+  const [street, setStreet] = useState('');
+  const [city, setCity] = useState('');
+  const [country, setCountry] = useState('');
+  const [zipCode, setZipCode] = useState('');
   const [notes, setNotes] = useState('');
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
 
+  // Create full shipping address from form fields
+  const shippingAddress = `${street}, ${city}, ${country} ${zipCode}`;
+  
   const { isProcessingPayment, handleInitiatePayment } = useCartPayment({
     items,
     totalPrice,
@@ -71,11 +81,24 @@ const CartSidebar = () => {
               />
             ) : (
               <CartCheckoutForm
+                items={items}
                 totalItems={totalItems}
                 totalPrice={totalPrice}
-                shippingAddress={shippingAddress}
+                fullName={fullName}
+                phoneNumber={phoneNumber}
+                email={email}
+                street={street}
+                city={city}
+                country={country}
+                zipCode={zipCode}
                 notes={notes}
-                onShippingAddressChange={setShippingAddress}
+                onFullNameChange={setFullName}
+                onPhoneNumberChange={setPhoneNumber}
+                onEmailChange={setEmail}
+                onStreetChange={setStreet}
+                onCityChange={setCity}
+                onCountryChange={setCountry}
+                onZipCodeChange={setZipCode}
                 onNotesChange={setNotes}
               />
             )}
@@ -88,7 +111,7 @@ const CartSidebar = () => {
           totalPrice={totalPrice}
           showCheckoutForm={showCheckoutForm}
           isProcessingPayment={isProcessingPayment}
-          shippingAddress={shippingAddress}
+          isShippingFormComplete={!!(fullName && phoneNumber && email && street && city && country)}
           onCheckout={handleCheckout}
           onInitiatePayment={handleInitiatePayment}
           onBackToCart={() => setShowCheckoutForm(false)}

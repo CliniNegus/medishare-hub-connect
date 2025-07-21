@@ -6,7 +6,7 @@ interface CartSummaryProps {
   totalPrice: number;
   showCheckoutForm: boolean;
   isProcessingPayment: boolean;
-  shippingAddress: string;
+  isShippingFormComplete: boolean;
   onCheckout: () => void;
   onInitiatePayment: () => void;
   onBackToCart: () => void;
@@ -17,7 +17,7 @@ const CartSummary = ({
   totalPrice, 
   showCheckoutForm, 
   isProcessingPayment, 
-  shippingAddress, 
+  isShippingFormComplete, 
   onCheckout, 
   onInitiatePayment, 
   onBackToCart, 
@@ -51,7 +51,7 @@ const CartSummary = ({
           <Button 
             className="w-full bg-red-600 hover:bg-red-700"
             onClick={onInitiatePayment}
-            disabled={isProcessingPayment || !shippingAddress.trim()}
+            disabled={isProcessingPayment || !isShippingFormComplete}
           >
             {isProcessingPayment ? (
               <div className="flex items-center">
@@ -62,7 +62,7 @@ const CartSummary = ({
                 Processing Payment...
               </div>
             ) : (
-              'Pay with Paystack'
+              'Proceed to Checkout'
             )}
           </Button>
           <Button 
