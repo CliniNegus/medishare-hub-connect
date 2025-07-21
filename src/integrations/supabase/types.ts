@@ -180,6 +180,36 @@ export type Database = {
           },
         ]
       }
+      customers: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          phone_number: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          phone_number: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone_number?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       data_backups: {
         Row: {
           backup_type: string
@@ -876,11 +906,16 @@ export type Database = {
         Row: {
           amount: number
           created_at: string
+          customer_id: string | null
           equipment_id: string | null
           id: string
           notes: string | null
           payment_method: string
           shipping_address: string
+          shipping_address_id: string | null
+          shipping_email: string | null
+          shipping_full_name: string | null
+          shipping_phone_number: string | null
           status: string
           updated_at: string
           user_id: string | null
@@ -888,11 +923,16 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string
+          customer_id?: string | null
           equipment_id?: string | null
           id?: string
           notes?: string | null
           payment_method: string
           shipping_address: string
+          shipping_address_id?: string | null
+          shipping_email?: string | null
+          shipping_full_name?: string | null
+          shipping_phone_number?: string | null
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -900,21 +940,40 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string
+          customer_id?: string | null
           equipment_id?: string | null
           id?: string
           notes?: string | null
           payment_method?: string
           shipping_address?: string
+          shipping_address_id?: string | null
+          shipping_email?: string | null
+          shipping_full_name?: string | null
+          shipping_phone_number?: string | null
           status?: string
           updated_at?: string
           user_id?: string | null
         }
         Relationships: [
           {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "orders_equipment_id_fkey"
             columns: ["equipment_id"]
             isOneToOne: false
             referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_shipping_address_id_fkey"
+            columns: ["shipping_address_id"]
+            isOneToOne: false
+            referencedRelation: "shipping_addresses"
             referencedColumns: ["id"]
           },
         ]
@@ -1154,6 +1213,59 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      shipping_addresses: {
+        Row: {
+          city: string
+          country: string
+          created_at: string
+          customer_id: string | null
+          full_address: string
+          full_name: string
+          id: string
+          is_default: boolean | null
+          phone_number: string
+          street: string
+          updated_at: string
+          zip_code: string | null
+        }
+        Insert: {
+          city: string
+          country: string
+          created_at?: string
+          customer_id?: string | null
+          full_address: string
+          full_name: string
+          id?: string
+          is_default?: boolean | null
+          phone_number: string
+          street: string
+          updated_at?: string
+          zip_code?: string | null
+        }
+        Update: {
+          city?: string
+          country?: string
+          created_at?: string
+          customer_id?: string | null
+          full_address?: string
+          full_name?: string
+          id?: string
+          is_default?: boolean | null
+          phone_number?: string
+          street?: string
+          updated_at?: string
+          zip_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipping_addresses_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       support_conversations: {
         Row: {
@@ -1426,16 +1538,34 @@ export type Database = {
         }
         Returns: string
       }
+      create_or_update_customer_with_shipping: {
+        Args: {
+          p_user_id: string
+          p_full_name: string
+          p_phone_number: string
+          p_email: string
+          p_street: string
+          p_city: string
+          p_country: string
+          p_zip_code?: string
+        }
+        Returns: string
+      }
       create_order: {
         Args: { order_data: Json }
         Returns: {
           amount: number
           created_at: string
+          customer_id: string | null
           equipment_id: string | null
           id: string
           notes: string | null
           payment_method: string
           shipping_address: string
+          shipping_address_id: string | null
+          shipping_email: string | null
+          shipping_full_name: string | null
+          shipping_phone_number: string | null
           status: string
           updated_at: string
           user_id: string | null
