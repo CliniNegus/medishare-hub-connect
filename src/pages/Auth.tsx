@@ -134,7 +134,7 @@ const Auth = () => {
               {/* Official Clinibuilds Logo */}
               <div className="mb-6 animate-scale-in">
                 <img 
-                  src="https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/logos//Clinibuilds%20Logo.jpg" 
+                  src="/lovable-uploads/661de53b-e7ab-4711-97b0-ac4cf9c089f0.png" 
                   alt="Clinibuilds Logo" 
                   className="h-12 md:h-16 w-auto mx-auto hover-scale transition-transform duration-300"
                 />
