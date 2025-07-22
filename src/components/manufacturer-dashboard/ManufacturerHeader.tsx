@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Store, Plus, Sparkles, Users, LogOut, UserCog, Bell, Search } from "lucide-react";
+import { Store, Plus, Sparkles, Users, LogOut, UserCog, Bell, Search, Menu } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
@@ -94,51 +94,76 @@ const ManufacturerHeader = () => {
             </div>
           </div>
           
-          {/* Right Section - Actions and User Menu */}
-          <div className="flex items-center space-x-4">
-            {/* Quick Actions */}
-            <div className="hidden md:flex items-center space-x-3">
+          {/* Right Section - Actions and User Menu - Optimized */}
+          <div className="flex items-center space-x-2">
+            {/* Quick Actions - Responsive */}
+            <div className="hidden sm:flex items-center space-x-2">
               <Button 
                 variant="outline"
                 size="sm"
-                className="bg-white/10 border-white/30 text-white hover:bg-white hover:text-[#E02020] transition-all duration-200"
+                className="bg-white/10 border-white/30 text-white hover:bg-white hover:text-[#E02020] transition-all duration-200 hover:scale-105 px-2.5 py-2"
                 onClick={handleManageShops}
               >
-                <Store className="h-4 w-4 mr-2" />
-                Virtual Shops
+                <Store className="h-4 w-4" />
+                <span className="hidden md:inline ml-2">Virtual Shops</span>
               </Button>
               <Button 
                 size="sm"
-                className="bg-white text-[#E02020] hover:bg-white/90 font-medium"
+                className="bg-white text-[#E02020] hover:bg-white/90 font-medium transition-all duration-200 hover:scale-105 px-2.5 py-2"
                 onClick={handleAddProduct}
               >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Product
+                <Plus className="h-4 w-4" />
+                <span className="hidden md:inline ml-2">Add Product</span>
               </Button>
             </div>
 
-            {/* Notifications */}
+            {/* Actions Dropdown for Mobile */}
+            <div className="sm:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/10 p-2"
+                  >
+                    <Menu className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-white shadow-xl border z-50">
+                  <DropdownMenuItem onClick={handleManageShops}>
+                    <Store className="mr-2 h-4 w-4" />
+                    <span>Virtual Shops</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleAddProduct}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    <span>Add Product</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Notifications - Compact */}
             <Button
               variant="ghost"
               size="sm"
-              className="text-white hover:bg-white/10 p-2"
+              className="text-white hover:bg-white/10 p-2 transition-all duration-200 hover:scale-105"
             >
-              <Bell className="h-5 w-5" />
+              <Bell className="h-4 w-4" />
             </Button>
 
-            {/* User Menu */}
+            {/* User Menu - Compact */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                  <Avatar className="h-10 w-10 border-2 border-white/20">
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full hover:scale-105 transition-all duration-200">
+                  <Avatar className="h-9 w-9 border-2 border-white/20">
                     <AvatarImage src="" alt="User" />
-                    <AvatarFallback className="bg-white text-[#E02020] font-semibold">
+                    <AvatarFallback className="bg-white text-[#E02020] font-semibold text-xs">
                       {getUserInitials()}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-64" align="end" forceMount>
+              <DropdownMenuContent className="w-64 bg-white shadow-xl border z-50" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium">
@@ -154,8 +179,8 @@ const ManufacturerHeader = () => {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 
-                {/* Mobile Actions */}
-                <div className="md:hidden">
+                {/* Mobile Actions - Only show on mobile */}
+                <div className="sm:hidden">
                   <DropdownMenuItem onClick={handleManageShops}>
                     <Store className="mr-2 h-4 w-4" />
                     <span>Virtual Shops</span>

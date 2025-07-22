@@ -144,70 +144,117 @@ const Header = () => {
               </Link>
             </div>
             
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-8">
-              {visibleNavItems.map((item) => {
+            {/* Desktop Navigation - Optimized for space */}
+            <nav className="hidden lg:flex items-center space-x-1">
+              {visibleNavItems.slice(0, 4).map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                    className={`flex items-center space-x-1.5 px-2.5 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:scale-105 ${
                       isActive(item.path)
-                        ? 'text-[#E02020] bg-red-50'
+                        ? 'text-[#E02020] bg-red-50 shadow-sm'
                         : 'text-gray-700 hover:text-[#E02020] hover:bg-gray-50'
                     }`}
                   >
-                    <Icon className="h-4 w-4" />
-                    <span>{item.label}</span>
+                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    <span className="hidden xl:inline whitespace-nowrap">{item.label}</span>
                   </Link>
                 );
               })}
+              
+              {/* More Dropdown for additional items */}
+              {visibleNavItems.length > 4 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="px-2.5 py-2 text-gray-700 hover:text-[#E02020] hover:bg-gray-50 transition-all duration-200"
+                    >
+                      <Menu className="h-4 w-4" />
+                      <span className="hidden xl:inline ml-1.5">More</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48 bg-white shadow-xl border z-50">
+                    {visibleNavItems.slice(4).map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <DropdownMenuItem key={item.path} asChild>
+                          <Link
+                            to={item.path}
+                            className={`flex items-center space-x-2 px-3 py-2 transition-colors ${
+                              isActive(item.path) ? 'text-[#E02020] bg-red-50' : 'hover:text-[#E02020]'
+                            }`}
+                          >
+                            <Icon className="h-4 w-4" />
+                            <span>{item.label}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </nav>
             
-            {/* Right Side Actions */}
-            <div className="flex items-center space-x-3">
+            {/* Right Side Actions - Optimized */}
+            <div className="flex items-center space-x-2">
               {user && (
                 <>
-                  <UserRoleSelector />
+                  {/* User Role Selector - Compact */}
+                  <div className="hidden sm:block">
+                    <UserRoleSelector />
+                  </div>
+                  
+                  {/* Notifications - Always visible */}
                   <NotificationDropdown />
                   
-                  {/* Quick Settings Button */}
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => navigate('/profile')}
-                    className="hidden sm:flex items-center space-x-2 text-gray-700 hover:text-[#E02020] hover:bg-gray-50"
-                  >
-                    <Settings className="h-4 w-4" />
-                    <span className="hidden md:inline">Settings</span>
-                  </Button>
-                  
-                  {/* Quick Sign Out Button */}
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={handleSignOut}
-                    disabled={isSigningOut}
-                    className="hidden sm:flex items-center space-x-2 text-gray-700 hover:text-[#E02020] hover:bg-gray-50"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span className="hidden md:inline">
-                      {isSigningOut ? "Signing out..." : "Sign Out"}
-                    </span>
-                  </Button>
+                  {/* Quick Actions Dropdown */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="hidden md:flex items-center space-x-1.5 text-gray-700 hover:text-[#E02020] hover:bg-gray-50 transition-all duration-200 hover:scale-105 px-2.5"
+                      >
+                        <Settings className="h-4 w-4" />
+                        <span className="hidden lg:inline">Settings</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 bg-white shadow-xl border z-50">
+                      <DropdownMenuItem onClick={() => navigate('/profile')}>
+                        <UserCircle className="h-4 w-4 mr-2" />
+                        Profile Settings
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/system')}>
+                        <Settings className="h-4 w-4 mr-2" />
+                        System Settings
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={handleSignOut}
+                        disabled={isSigningOut}
+                        className="text-red-600 focus:text-red-600"
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        {isSigningOut ? "Signing out..." : "Sign Out"}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   
                   {/* User Avatar with Dropdown */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button 
                         variant="ghost" 
-                        className="relative h-10 w-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 flex items-center justify-center transition-all duration-200 hover:shadow-md"
+                        className="relative h-9 w-9 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 flex items-center justify-center transition-all duration-200 hover:shadow-md hover:scale-105"
                       >
-                        <span className="font-semibold text-gray-700 text-sm">{getUserInitials()}</span>
+                        <span className="font-semibold text-gray-700 text-xs">{getUserInitials()}</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-64 mr-4 mt-2 border-0 shadow-xl bg-white/95 backdrop-blur-md">
+                    <DropdownMenuContent align="end" className="w-64 mr-4 mt-2 border-0 shadow-xl bg-white backdrop-blur-md z-50">
                       <div className="p-4">
                         <div className="flex flex-col space-y-2">
                           <p className="text-base font-semibold leading-none text-[#333333]">
@@ -306,14 +353,14 @@ const Header = () => {
                 </Link>
               )}
               
-              {/* Mobile Menu Button */}
+              {/* Mobile Menu Button - Compact */}
               <Button
                 variant="ghost"
                 size="sm"
-                className="lg:hidden"
+                className="lg:hidden p-2"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
-                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
               </Button>
             </div>
           </div>
