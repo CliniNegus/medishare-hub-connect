@@ -136,18 +136,11 @@ const Header = () => {
             {/* Logo and Brand */}
             <div className="flex items-center">
               <Link to="/" className="flex items-center space-x-3 group">
-                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-[#E02020] to-[#B91C1C] flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-200">
-                  <svg 
-                    className="h-6 w-6 text-white" 
-                    fill="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M19 8h-2V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM15.1 8H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/>
-                  </svg>
-                </div>
-                <h1 className="text-xl font-bold text-[#333333] tracking-tight">
-                  CliniBuilds
-                </h1>
+                <img 
+                  src="/lovable-uploads/661de53b-e7ab-4711-97b0-ac4cf9c089f0.png" 
+                  alt="Clinibuilds Logo" 
+                  className="h-10 w-auto hover-scale transition-transform duration-300"
+                />
               </Link>
             </div>
             

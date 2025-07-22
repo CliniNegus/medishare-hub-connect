@@ -383,8 +383,13 @@ const InvestorDashboard = () => {
         <div className="relative z-10 px-6 py-6">
           <div className="max-w-7xl mx-auto">
             <div className="flex justify-between items-center">
-              {/* Left Section - Brand and Welcome */}
+              {/* Left Section - Logo, Brand and Welcome */}
               <div className="flex items-center space-x-6">
+                <img 
+                  src="/lovable-uploads/661de53b-e7ab-4711-97b0-ac4cf9c089f0.png" 
+                  alt="Clinibuilds Logo" 
+                  className="h-12 md:h-14 w-auto hover-scale transition-transform duration-300"
+                />
                 <div>
                   <div className="flex items-center gap-3 mb-1">
                     <h1 className="text-2xl lg:text-3xl font-bold text-white">Investor Hub</h1>
