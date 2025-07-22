@@ -137,9 +137,9 @@ const OrderStats: React.FC = () => {
       <Card>
         <CardContent className="p-4 flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500">Total Revenue</p>
+            <p className="text-sm text-gray-500">Total Spent</p>
             <p className="text-2xl font-bold">Ksh {totalRevenue.toLocaleString()}</p>
-            <p className="text-xs text-gray-500">From all orders</p>
+            <p className="text-xs text-gray-500">On all orders</p>
           </div>
           <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
             <CircleDollarSign className="h-6 w-6 text-purple-600" />
