@@ -133,19 +133,15 @@ const Header = () => {
       <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Brand - removed text to save space */}
-            <div className="flex items-center">
-            </div>
-            
-            {/* Desktop Navigation - Optimized for space */}
-            <nav className="hidden lg:flex items-center space-x-1">
+            {/* Desktop Navigation - Full width distribution */}
+            <nav className="hidden lg:flex items-center space-x-1 flex-1">
               {visibleNavItems.slice(0, 4).map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center space-x-1.5 px-2.5 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:scale-105 ${
+                    className={`flex items-center space-x-1.5 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:scale-105 ${
                       isActive(item.path)
                         ? 'text-[#E02020] bg-red-50 shadow-sm'
                         : 'text-gray-700 hover:text-[#E02020] hover:bg-gray-50'
@@ -164,7 +160,7 @@ const Header = () => {
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      className="px-2.5 py-2 text-gray-700 hover:text-[#E02020] hover:bg-gray-50 transition-all duration-200"
+                      className="px-3 py-2 text-gray-700 hover:text-[#E02020] hover:bg-gray-50 transition-all duration-200"
                     >
                       <Menu className="h-4 w-4" />
                       <span className="hidden xl:inline ml-1.5">More</span>
