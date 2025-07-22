@@ -21,42 +21,48 @@ const InventoryStats: React.FC<InventoryStatsProps> = ({ items }) => {
   const utilizationRate = totalItems > 0 ? (itemsInUse / totalItems) * 100 : 0;
   const availabilityRate = totalItems > 0 ? (availableItems / totalItems) * 100 : 0;
 
+  // Calculate hospital-specific metrics
+  const purchasedItems = items.filter(item => item.cluster === 'Purchased').length;
+  const leasedItems = items.filter(item => item.cluster === 'Leased').length;
+  const bookedItems = items.filter(item => item.cluster === 'Booked').length;
+  const activeEquipment = items.filter(item => item.inUse > 0).length;
+
   const stats = [
     {
-      title: "Total Equipment",
+      title: "Your Equipment",
       value: totalItems.toLocaleString(),
-      change: "+2.5%",
+      change: `${purchasedItems} purchased`,
       changeType: "positive" as const,
       icon: Package,
-      description: `${items.length} unique items`,
+      description: `${leasedItems} leased, ${bookedItems} booked`,
       color: "border-l-blue-500"
     },
     {
-      title: "Total Value",
+      title: "Total Invested",
       value: `Ksh ${totalValue.toLocaleString()}`,
-      change: "+8.2%",
+      change: "Equipment value",
       changeType: "positive" as const,
       icon: DollarSign,
-      description: "Inventory worth",
+      description: "Total spent on equipment",
       color: "border-l-green-500"
     },
     {
-      title: "Utilization Rate",
-      value: `${utilizationRate.toFixed(1)}%`,
-      change: "+1.2%",
+      title: "Active Equipment",
+      value: activeEquipment.toLocaleString(),
+      change: `${utilizationRate.toFixed(1)}% utilization`,
       changeType: "positive" as const,
       icon: TrendingUp,
-      description: `${itemsInUse} items in use`,
+      description: "Currently in use",
       color: "border-l-purple-500"
     },
     {
-      title: "Stock Alerts",
-      value: lowStockItems + outOfStockItems,
-      change: lowStockItems > 0 || outOfStockItems > 0 ? "Needs attention" : "All good",
-      changeType: (lowStockItems > 0 || outOfStockItems > 0) ? "negative" as const : "positive" as const,
+      title: "Equipment Status",
+      value: availableItems.toLocaleString(),
+      change: "Available for use",
+      changeType: availableItems > 0 ? "positive" as const : "negative" as const,
       icon: AlertTriangle,
-      description: `${lowStockItems} low stock, ${outOfStockItems} out of stock`,
-      color: "border-l-red-500"
+      description: `${totalItems - availableItems} not available`,
+      color: "border-l-orange-500"
     }
   ];
 

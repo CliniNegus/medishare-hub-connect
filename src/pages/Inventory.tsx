@@ -20,39 +20,121 @@ const Inventory = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Fetch inventory data from Supabase
+  // Fetch hospital-specific inventory data from Supabase
   useEffect(() => {
-    const fetchInventoryData = async () => {
+    const fetchHospitalInventoryData = async () => {
+      if (!user) return;
+      
       try {
         setLoading(true);
         
-        // Fetch equipment data
-        const { data: equipmentData, error: equipmentError } = await supabase
-          .from('equipment')
-          .select('*')
-          .order('created_at', { ascending: false });
+        // Fetch equipment from orders (purchased equipment)
+        const { data: ordersData, error: ordersError } = await supabase
+          .from('orders')
+          .select(`
+            *,
+            equipment:equipment_id (*)
+          `)
+          .eq('user_id', user.id)
+          .eq('status', 'completed');
 
-        if (equipmentError) throw equipmentError;
+        // Fetch equipment from leases (leased equipment)
+        const { data: leasesData, error: leasesError } = await supabase
+          .from('leases')
+          .select(`
+            *,
+            equipment:equipment_id (*)
+          `)
+          .eq('hospital_id', user.id)
+          .in('status', ['active', 'pending']);
 
-        // Transform equipment data to match InventoryItem interface
-        const transformedInventory: InventoryItem[] = (equipmentData || []).map(item => ({
-          id: item.id,
-          name: item.name || 'Unnamed Equipment',
-          sku: item.serial_number || `SKU-${item.id.substring(0, 8)}`,
-          category: (item.category as any) || 'diagnostic',
-          manufacturer: item.manufacturer || 'Unknown Manufacturer',
-          currentStock: item.quantity || 1,
-          availableForSharing: Math.max(0, (item.quantity || 1) - (item.usage_hours > 0 ? 1 : 0)),
-          price: item.price || 0,
-          leasingPrice: item.lease_rate || 0,
-          image: item.image_url || '/placeholder-equipment.jpg',
-          description: item.description || 'No description available',
-          inUse: item.usage_hours > 0 ? 1 : 0,
-          onMaintenance: 0, // This would need to be calculated from maintenance table
-          location: item.location || 'Warehouse',
-          cluster: 'Main Cluster', // Default cluster
-          dateAdded: new Date(item.created_at).toLocaleDateString()
-        }));
+        // Fetch equipment from bookings (booked equipment)
+        const { data: bookingsData, error: bookingsError } = await supabase
+          .from('bookings')
+          .select(`
+            *,
+            equipment:equipment_id (*)
+          `)
+          .eq('user_id', user.id)
+          .in('status', ['confirmed', 'active']);
+
+        if (ordersError) throw ordersError;
+        if (leasesError) throw leasesError;
+        if (bookingsError) throw bookingsError;
+
+        const transformedInventory: InventoryItem[] = [];
+        
+        // Process purchased equipment
+        (ordersData || []).forEach(order => {
+          if (order.equipment) {
+            transformedInventory.push({
+              id: order.equipment.id,
+              name: order.equipment.name || 'Unnamed Equipment',
+              sku: order.equipment.serial_number || `SKU-${order.equipment.id.substring(0, 8)}`,
+              category: (order.equipment.category as any) || 'diagnostic',
+              manufacturer: order.equipment.manufacturer || 'Unknown Manufacturer',
+              currentStock: 1, // Hospital owns it
+              availableForSharing: 1, // Available for use
+              price: order.amount || order.equipment.price || 0,
+              leasingPrice: 0,
+              image: order.equipment.image_url || '/placeholder-equipment.jpg',
+              description: order.equipment.description || 'No description available',
+              inUse: 0,
+              onMaintenance: 0,
+              location: 'Your Hospital',
+              cluster: 'Purchased',
+              dateAdded: new Date(order.created_at).toLocaleDateString()
+            });
+          }
+        });
+
+        // Process leased equipment
+        (leasesData || []).forEach(lease => {
+          if (lease.equipment) {
+            transformedInventory.push({
+              id: lease.equipment.id,
+              name: lease.equipment.name || 'Unnamed Equipment',
+              sku: lease.equipment.serial_number || `SKU-${lease.equipment.id.substring(0, 8)}`,
+              category: (lease.equipment.category as any) || 'diagnostic',
+              manufacturer: lease.equipment.manufacturer || 'Unknown Manufacturer',
+              currentStock: 1, // Hospital is leasing it
+              availableForSharing: 1, // Available for use
+              price: lease.monthly_payment || 0,
+              leasingPrice: lease.monthly_payment || 0,
+              image: lease.equipment.image_url || '/placeholder-equipment.jpg',
+              description: lease.equipment.description || 'No description available',
+              inUse: lease.status === 'active' ? 1 : 0,
+              onMaintenance: 0,
+              location: 'Your Hospital',
+              cluster: 'Leased',
+              dateAdded: new Date(lease.created_at).toLocaleDateString()
+            });
+          }
+        });
+
+        // Process booked equipment
+        (bookingsData || []).forEach(booking => {
+          if (booking.equipment) {
+            transformedInventory.push({
+              id: booking.equipment.id,
+              name: booking.equipment.name || 'Unnamed Equipment',
+              sku: booking.equipment.serial_number || `SKU-${booking.equipment.id.substring(0, 8)}`,
+              category: (booking.equipment.category as any) || 'diagnostic',
+              manufacturer: booking.equipment.manufacturer || 'Unknown Manufacturer',
+              currentStock: 1, // Hospital has booked it
+              availableForSharing: booking.status === 'confirmed' ? 1 : 0,
+              price: booking.price_paid || 0,
+              leasingPrice: 0,
+              image: booking.equipment.image_url || '/placeholder-equipment.jpg',
+              description: booking.equipment.description || 'No description available',
+              inUse: booking.status === 'active' ? 1 : 0,
+              onMaintenance: 0,
+              location: 'Your Hospital',
+              cluster: 'Booked',
+              dateAdded: new Date(booking.created_at).toLocaleDateString()
+            });
+          }
+        });
 
         setInventoryData(transformedInventory);
 
@@ -82,8 +164,8 @@ const Inventory = () => {
       }
     };
 
-    fetchInventoryData();
-  }, [toast]);
+    fetchHospitalInventoryData();
+  }, [user, toast]);
 
   const handleViewInventoryItem = (id: string) => {
     setSelectedInventoryItem(id);
@@ -107,11 +189,11 @@ const Inventory = () => {
     }
   };
 
-  const handleAddNewItem = () => {
-    // Navigate to add equipment page or open modal
+  const handleViewMarketplace = () => {
+    // Navigate to equipment marketplace
     toast({
-      title: "Add New Item",
-      description: "Opening add equipment form...",
+      title: "Browse Equipment",
+      description: "Opening equipment marketplace...",
     });
   };
 
@@ -142,13 +224,13 @@ const Inventory = () => {
       <main className="flex-1 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-[#333333]">Inventory Management</h1>
+            <h1 className="text-3xl font-bold text-[#333333]">Your Equipment</h1>
             <Button 
-              onClick={handleAddNewItem}
+              onClick={handleViewMarketplace}
               className="bg-[#E02020] hover:bg-[#c01c1c] text-white"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Add New Item
+              Browse Equipment
             </Button>
           </div>
 
@@ -159,7 +241,7 @@ const Inventory = () => {
               <TabsList className="mb-6">
                 <TabsTrigger value="inventory" className="text-sm">
                   <Package className="h-4 w-4 mr-2" />
-                  Inventory Items ({inventoryData.length})
+                  Your Equipment ({inventoryData.length})
                 </TabsTrigger>
                 <TabsTrigger value="manufacturers" className="text-sm">
                   <Factory className="h-4 w-4 mr-2" />
