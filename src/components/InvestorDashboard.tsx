@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ThemeToggleButton } from './ThemeToggle';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   PiggyBank, ArrowUpRight, ArrowDownRight, TrendingUp,
@@ -376,7 +377,7 @@ const InvestorDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5]">
+    <div className="min-h-screen bg-background transition-colors duration-300">
       {/* Modern Hero Section with Streamlined Navbar */}
       <div className="relative bg-gradient-to-r from-[#E02020] to-[#c01c1c] text-white">
         <div className="absolute inset-0 bg-black/10"></div>
@@ -576,7 +577,7 @@ const InvestorDashboard = () => {
                         <Menu className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 bg-white shadow-xl border z-50">
+                    <DropdownMenuContent align="end" className="w-48 bg-popover shadow-xl border border-border z-50">
                       <DropdownMenuItem onClick={() => {
                         setDialogTabValue('investment-form');
                         setInvestmentDialogOpen(true);
@@ -587,6 +588,9 @@ const InvestorDashboard = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
+
+                {/* Theme Toggle - Compact */}
+                <ThemeToggleButton />
 
                 {/* Notifications - Compact */}
                 <Button
@@ -609,16 +613,16 @@ const InvestorDashboard = () => {
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-64 bg-white shadow-xl border z-50" align="end" forceMount>
+                  <DropdownMenuContent className="w-64 bg-popover shadow-xl border border-border z-50" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium">
                           {profile?.full_name || 'Investor'}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           {user?.email}
                         </p>
-                        <p className="text-xs text-gray-400 capitalize">
+                        <p className="text-xs text-muted-foreground capitalize">
                           Investor Account
                         </p>
                       </div>
@@ -648,7 +652,7 @@ const InvestorDashboard = () => {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 
                       onClick={handleSignOut}
-                      className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                      className="text-destructive focus:text-destructive focus:bg-destructive/10"
                     >
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Sign Out</span>
@@ -742,28 +746,28 @@ const InvestorDashboard = () => {
           <CardContent className="p-6">
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-[#333333] mb-2">Investment Management Hub</h2>
-              <p className="text-gray-600">Manage your portfolio, explore opportunities, and track performance</p>
+              <p className="text-muted-foreground">Manage your portfolio, explore opportunities, and track performance</p>
             </div>
 
             <Tabs defaultValue="portfolio" className="space-y-6" onValueChange={setActiveTab} value={activeTab}>
-              <TabsList className="grid w-full grid-cols-5 bg-gray-100 p-1 rounded-lg">
-                <TabsTrigger value="portfolio" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm transition-all duration-200">
+              <TabsList className="grid w-full grid-cols-5 bg-muted p-1 rounded-lg">
+                <TabsTrigger value="portfolio" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200">
                   <Briefcase className="h-4 w-4" />
                   <span className="hidden sm:inline">Portfolio</span>
                 </TabsTrigger>
-                <TabsTrigger value="requests" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm transition-all duration-200">
+                <TabsTrigger value="requests" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200">
                   <AlertCircle className="h-4 w-4" />
                   <span className="hidden sm:inline">Requests</span>
                 </TabsTrigger>
-                <TabsTrigger value="wallet" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm transition-all duration-200">
+                <TabsTrigger value="wallet" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200">
                   <PiggyBank className="h-4 w-4" />
                   <span className="hidden sm:inline">Wallet</span>
                 </TabsTrigger>
-                <TabsTrigger value="opportunities" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm transition-all duration-200">
+                <TabsTrigger value="opportunities" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200">
                   <TrendingUp className="h-4 w-4" />
                   <span className="hidden sm:inline">Opportunities</span>
                 </TabsTrigger>
-                <TabsTrigger value="analytics" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-[#E02020] data-[state=active]:shadow-sm transition-all duration-200">
+                <TabsTrigger value="analytics" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200">
                   <BarChart2 className="h-4 w-4" />
                   <span className="hidden sm:inline">Analytics</span>
                 </TabsTrigger>

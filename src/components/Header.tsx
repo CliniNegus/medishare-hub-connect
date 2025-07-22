@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Settings, UserCircle, Package, ShoppingCart, Home, Calculator, LayoutDashboard, LogOut, Trash2, UserCog, Menu, X, Bell } from "lucide-react";
+import { ThemeToggleButton } from './ThemeToggle';
 import UserRoleSelector from './UserRoleSelector';
 import { useUserRole } from '@/contexts/UserRoleContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -130,7 +131,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
+      <header className="bg-background border-b border-border shadow-sm sticky top-0 z-50 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Desktop Navigation - Full width distribution */}
@@ -143,8 +144,8 @@ const Header = () => {
                     to={item.path}
                     className={`flex items-center space-x-1.5 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:scale-105 ${
                       isActive(item.path)
-                        ? 'text-[#E02020] bg-red-50 shadow-sm'
-                        : 'text-gray-700 hover:text-[#E02020] hover:bg-gray-50'
+                        ? 'text-primary bg-primary/10 shadow-sm'
+                        : 'text-foreground hover:text-primary hover:bg-accent'
                     }`}
                   >
                     <Icon className="h-4 w-4 flex-shrink-0" />
@@ -160,13 +161,13 @@ const Header = () => {
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      className="px-3 py-2 text-gray-700 hover:text-[#E02020] hover:bg-gray-50 transition-all duration-200"
+                      className="px-3 py-2 text-foreground hover:text-primary hover:bg-accent transition-all duration-200"
                     >
                       <Menu className="h-4 w-4" />
                       <span className="hidden xl:inline ml-1.5">More</span>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 bg-white shadow-xl border z-50">
+                  <DropdownMenuContent align="end" className="w-48 bg-popover shadow-xl border border-border z-50">
                     {visibleNavItems.slice(4).map((item) => {
                       const Icon = item.icon;
                       return (
@@ -174,7 +175,7 @@ const Header = () => {
                           <Link
                             to={item.path}
                             className={`flex items-center space-x-2 px-3 py-2 transition-colors ${
-                              isActive(item.path) ? 'text-[#E02020] bg-red-50' : 'hover:text-[#E02020]'
+                              isActive(item.path) ? 'text-primary bg-primary/10' : 'hover:text-primary text-foreground'
                             }`}
                           >
                             <Icon className="h-4 w-4" />
@@ -197,8 +198,11 @@ const Header = () => {
                     <UserRoleSelector />
                   </div>
                   
-                  {/* Notifications - Always visible */}
-                  <NotificationDropdown />
+                   {/* Theme Toggle */}
+                   <ThemeToggleButton />
+                   
+                   {/* Notifications - Always visible */}
+                   <NotificationDropdown />
                   
                   {/* Quick Actions Dropdown */}
                   <DropdownMenu>
@@ -206,13 +210,13 @@ const Header = () => {
                       <Button 
                         variant="ghost" 
                         size="sm"
-                        className="hidden md:flex items-center space-x-1.5 text-gray-700 hover:text-[#E02020] hover:bg-gray-50 transition-all duration-200 hover:scale-105 px-2.5"
+                        className="hidden md:flex items-center space-x-1.5 text-foreground hover:text-primary hover:bg-accent transition-all duration-200 hover:scale-105 px-2.5"
                       >
                         <Settings className="h-4 w-4" />
                         <span className="hidden lg:inline">Settings</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 bg-white shadow-xl border z-50">
+                    <DropdownMenuContent align="end" className="w-48 bg-popover shadow-xl border border-border z-50">
                       <DropdownMenuItem onClick={() => navigate('/profile')}>
                         <UserCircle className="h-4 w-4 mr-2" />
                         Profile Settings
@@ -225,7 +229,7 @@ const Header = () => {
                       <DropdownMenuItem 
                         onClick={handleSignOut}
                         disabled={isSigningOut}
-                        className="text-red-600 focus:text-red-600"
+                        className="text-destructive focus:text-destructive"
                       >
                         <LogOut className="h-4 w-4 mr-2" />
                         {isSigningOut ? "Signing out..." : "Sign Out"}
@@ -238,32 +242,32 @@ const Header = () => {
                     <DropdownMenuTrigger asChild>
                       <Button 
                         variant="ghost" 
-                        className="relative h-9 w-9 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 flex items-center justify-center transition-all duration-200 hover:shadow-md hover:scale-105"
+                        className="relative h-9 w-9 rounded-full bg-gradient-to-br from-muted to-accent hover:from-accent hover:to-muted flex items-center justify-center transition-all duration-200 hover:shadow-md hover:scale-105"
                       >
-                        <span className="font-semibold text-gray-700 text-xs">{getUserInitials()}</span>
+                        <span className="font-semibold text-foreground text-xs">{getUserInitials()}</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-64 mr-4 mt-2 border-0 shadow-xl bg-white backdrop-blur-md z-50">
+                    <DropdownMenuContent align="end" className="w-64 mr-4 mt-2 border-0 shadow-xl bg-popover backdrop-blur-md z-50">
                       <div className="p-4">
                         <div className="flex flex-col space-y-2">
-                          <p className="text-base font-semibold leading-none text-[#333333]">
+                          <p className="text-base font-semibold leading-none text-foreground">
                             {profile?.full_name || 'User'}
                           </p>
-                          <p className="text-sm leading-none text-gray-500">
+                          <p className="text-sm leading-none text-muted-foreground">
                             {user?.email}
                           </p>
                           {profile?.organization && (
-                            <p className="text-xs leading-none text-gray-400 bg-gray-100 px-2 py-1 rounded-md inline-block">
+                            <p className="text-xs leading-none text-muted-foreground bg-muted px-2 py-1 rounded-md inline-block">
                               {profile.organization}
                             </p>
                           )}
-                          <div className="text-xs text-gray-400 capitalize">
+                          <div className="text-xs text-muted-foreground capitalize">
                             Role: {role}
                           </div>
                         </div>
                       </div>
                       
-                      <DropdownMenuSeparator className="bg-gray-100" />
+                      <DropdownMenuSeparator className="bg-border" />
                       
                       <DropdownMenuItem onClick={() => navigate('/profile')}>
                         <UserCircle className="h-4 w-4 mr-2" />
@@ -303,7 +307,7 @@ const Header = () => {
                         <AlertDialogTrigger asChild>
                           <DropdownMenuItem
                             onSelect={(e) => e.preventDefault()}
-                            className="text-red-600 focus:text-red-600"
+                            className="text-destructive focus:text-destructive"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Delete Account
@@ -320,7 +324,7 @@ const Header = () => {
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction 
-                              className="bg-red-600 text-white hover:bg-red-700" 
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90" 
                               onClick={handleDeleteAccount}
                               disabled={isDeleting}
                             >
@@ -336,7 +340,7 @@ const Header = () => {
               
               {!user && (
                 <Link to="/auth">
-                  <Button className="bg-[#E02020] hover:bg-[#c01c1c] text-white font-medium">
+                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium">
                     Login / Register
                   </Button>
                 </Link>
@@ -358,7 +362,7 @@ const Header = () => {
       
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-white border-b border-gray-200 shadow-lg">
+        <div className="lg:hidden bg-background border-b border-border shadow-lg transition-colors duration-300">
           <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
             {visibleNavItems.map((item) => {
               const Icon = item.icon;
@@ -369,8 +373,8 @@ const Header = () => {
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                     isActive(item.path)
-                      ? 'text-[#E02020] bg-red-50'
-                      : 'text-gray-700 hover:text-[#E02020] hover:bg-gray-50'
+                      ? 'text-primary bg-primary/10'
+                      : 'text-foreground hover:text-primary hover:bg-accent'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -381,11 +385,11 @@ const Header = () => {
             
             {user && (
               <>
-                <div className="border-t border-gray-200 pt-4 mt-4">
+                <div className="border-t border-border pt-4 mt-4">
                   <Link
                     to="/profile"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-[#E02020] hover:bg-gray-50"
+                    className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-foreground hover:text-primary hover:bg-accent"
                   >
                     <Settings className="h-4 w-4" />
                     <span>Settings</span>
@@ -397,7 +401,7 @@ const Header = () => {
                       handleSignOut();
                     }}
                     disabled={isSigningOut}
-                    className="w-full flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-[#E02020] hover:bg-gray-50"
+                    className="w-full flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-foreground hover:text-primary hover:bg-accent"
                   >
                     <LogOut className="h-4 w-4" />
                     <span>{isSigningOut ? "Signing out..." : "Sign Out"}</span>

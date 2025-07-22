@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
+import { ThemeToggleButton } from '../ThemeToggle';
 import { Store, Plus, Sparkles, Users, LogOut, UserCog, Bell, Search, Menu } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "@/contexts/AuthContext";
@@ -124,7 +125,7 @@ const ManufacturerHeader = () => {
                     <Menu className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 bg-white shadow-xl border z-50">
+                <DropdownMenuContent align="end" className="w-48 bg-popover shadow-xl border border-border z-50">
                   <DropdownMenuItem onClick={handleManageShops}>
                     <Store className="mr-2 h-4 w-4" />
                     <span>Virtual Shops</span>
@@ -136,6 +137,9 @@ const ManufacturerHeader = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+
+            {/* Theme Toggle - Compact */}
+            <ThemeToggleButton />
 
             {/* Notifications - Compact */}
             <Button
@@ -158,16 +162,16 @@ const ManufacturerHeader = () => {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-64 bg-white shadow-xl border z-50" align="end" forceMount>
+              <DropdownMenuContent className="w-64 bg-popover shadow-xl border border-border z-50" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium">
                       {profile?.full_name || 'Manufacturer'}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {user?.email}
                     </p>
-                    <p className="text-xs text-gray-400 capitalize">
+                    <p className="text-xs text-muted-foreground capitalize">
                       Manufacturer Account
                     </p>
                   </div>
@@ -198,7 +202,7 @@ const ManufacturerHeader = () => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   onClick={handleSignOut}
-                  className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                  className="text-destructive focus:text-destructive focus:bg-destructive/10"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Sign Out</span>
