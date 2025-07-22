@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { UserRoleProvider } from './contexts/UserRoleContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { CartProvider } from './contexts/CartContext';
+import { NotificationProvider } from './components/notifications/NotificationProvider';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -36,6 +37,7 @@ import PublicShop from './pages/PublicShop';
 import PaymentCancelled from './pages/PaymentCancelled';
 import PaymentSuccess from './pages/PaymentSuccess';
 import EmailVerification from './pages/EmailVerification';
+import NotificationsPage from './components/notifications/NotificationsPage';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient({
@@ -52,9 +54,10 @@ function App() {
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <UserRoleProvider>
-            <CartProvider>
-              <ErrorBoundary>
+          <NotificationProvider>
+            <UserRoleProvider>
+              <CartProvider>
+                <ErrorBoundary>
                 <Router>
                   <Routes>
                     <Route path="/" element={<Index />} />
@@ -209,22 +212,31 @@ function App() {
                         </ProtectedRoute>
                       } 
                     />
-                    <Route 
-                      path="/profile" 
-                      element={
-                        <ProtectedRoute>
-                          <ProfileManagement />
-                        </ProtectedRoute>
-                      } 
-                     />
-                     {/* Catch-all route for 404 */}
-                     <Route path="*" element={<NotFound />} />
+                     <Route 
+                       path="/profile" 
+                       element={
+                         <ProtectedRoute>
+                           <ProfileManagement />
+                         </ProtectedRoute>
+                       } 
+                      />
+                      <Route 
+                       path="/notifications" 
+                       element={
+                         <ProtectedRoute>
+                           <NotificationsPage />
+                         </ProtectedRoute>
+                       } 
+                      />
+                      {/* Catch-all route for 404 */}
+                      <Route path="*" element={<NotFound />} />
                    </Routes>
                   <Toaster />
                 </Router>
-              </ErrorBoundary>
-            </CartProvider>
-          </UserRoleProvider>
+                </ErrorBoundary>
+              </CartProvider>
+            </UserRoleProvider>
+          </NotificationProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>

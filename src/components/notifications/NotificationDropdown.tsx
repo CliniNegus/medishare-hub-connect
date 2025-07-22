@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { useNotificationContext } from './NotificationProvider';
 
 interface Notification {
   id: string;
@@ -31,8 +32,8 @@ const NotificationDropdown = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { unreadCount, refreshNotifications } = useNotificationContext();
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -63,7 +64,6 @@ const NotificationDropdown = () => {
       }));
 
       setNotifications(typedNotifications);
-      setUnreadCount(typedNotifications.filter(n => !n.read).length);
     } catch (error: any) {
       console.error('Error fetching notifications:', error);
       toast({
@@ -95,7 +95,7 @@ const NotificationDropdown = () => {
             : notification
         )
       );
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      refreshNotifications();
     } catch (error: any) {
       console.error('Error marking notification as read:', error);
       toast({
@@ -125,7 +125,7 @@ const NotificationDropdown = () => {
       setNotifications(prev =>
         prev.map(notification => ({ ...notification, read: true }))
       );
-      setUnreadCount(0);
+      refreshNotifications();
 
       toast({
         title: "Success",
