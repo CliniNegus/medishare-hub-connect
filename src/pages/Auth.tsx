@@ -12,7 +12,6 @@ import EmailConfirmationAlert from '@/components/auth/EmailConfirmationAlert';
 import ErrorAlert from '@/components/auth/ErrorAlert';
 import { Hospital, Factory, PiggyBank, ShieldAlert, Sparkles } from "lucide-react";
 import { UserRole } from '@/contexts/UserRoleContext';
-import cliniBuildsLogo from '@/assets/clinibuilds-logo.png';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -132,37 +131,18 @@ const Auth = () => {
           {/* Header with logo and branding */}
           <CardHeader className="space-y-6 text-center pb-8 bg-gradient-to-br from-white to-gray-50/50">
             <div className="relative animate-fade-in">
-              {/* Clinibuilds Logo */}
+              {/* Official Clinibuilds Logo */}
               <div className="mb-6 animate-scale-in">
-                <div className="h-16 md:h-20 flex items-center justify-center mx-auto hover-scale">
-                  {/* Try to use the generated logo image first */}
-                  <img 
-                    src={cliniBuildsLogo} 
-                    alt="Clinibuilds Logo" 
-                    className="h-full w-auto max-w-[280px] object-contain"
-                    onError={(e) => {
-                      // Fallback to text-based logo if image fails to load
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const fallback = target.nextElementSibling as HTMLElement;
-                      if (fallback) fallback.style.display = 'flex';
-                    }}
-                  />
-                  {/* Fallback text-based logo (hidden by default) */}
-                  <div className="items-center space-x-2" style={{ display: 'none' }}>
-                    <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-[#E02020] to-[#c01010] rounded-lg flex items-center justify-center shadow-lg">
-                      <Hospital className="h-5 w-5 md:h-6 md:w-6 text-white" />
-                    </div>
-                    <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-[#E02020] to-[#c01010] bg-clip-text text-transparent">
-                      Clinibuilds
-                    </div>
-                  </div>
-                </div>
+                <img 
+                  src="/lovable-uploads/f6c1f98e-1165-4baa-b813-051da0edb6e1.png" 
+                  alt="Clinibuilds Logo" 
+                  className="h-12 md:h-16 w-auto mx-auto hover-scale transition-transform duration-300"
+                />
               </div>
               
               {/* Tagline */}
               <div className="space-y-3 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-[#333333] to-[#666666] bg-clip-text text-transparent">
+                <CardTitle className="text-xl md:text-2xl font-bold text-[#333333]">
                   Welcome to Clinibuilds
                 </CardTitle>
                 <CardDescription className="text-sm md:text-base text-gray-600 font-medium">
