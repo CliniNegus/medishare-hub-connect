@@ -19,14 +19,14 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CalendarIcon, Clock, MapPin, Info, CreditCard } from "lucide-react";
+import { CalendarIcon, Clock, MapPin, Info, CreditCard, User, Phone, Mail } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import PaystackPaymentButton from './payment/PaystackPaymentButton';
+import BookingPaymentButton from './payment/BookingPaymentButton';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -34,10 +34,20 @@ interface BookingModalProps {
   equipmentId: string;
   pricePerUse: number;
   onClose: () => void;
-  onConfirm: (date: Date, duration: number, notes: string) => void;
+  onConfirm: (date: Date, duration: number, notes: string, shippingInfo: ShippingInfo) => void;
   location?: string;
   cluster?: string;
   availability?: string;
+}
+
+interface ShippingInfo {
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  street: string;
+  city: string;
+  country: string;
+  zipCode: string;
 }
 
 const BookingModal: React.FC<BookingModalProps> = ({
@@ -58,6 +68,15 @@ const BookingModal: React.FC<BookingModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("date-time");
   
+  // Shipping information state
+  const [fullName, setFullName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [street, setStreet] = useState("");
+  const [city, setCity] = useState("");
+  const [country, setCountry] = useState("");
+  const [zipCode, setZipCode] = useState("");
+  
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -73,7 +92,18 @@ const BookingModal: React.FC<BookingModalProps> = ({
       const bookingDate = new Date(date);
       const [hours, minutes] = timeSlot.split(':').map(Number);
       bookingDate.setHours(hours, minutes, 0, 0);
-      onConfirm(bookingDate, duration, notes);
+      
+      const shippingInfo: ShippingInfo = {
+        fullName,
+        phoneNumber,
+        email,
+        street,
+        city,
+        country,
+        zipCode
+      };
+      
+      onConfirm(bookingDate, duration, notes, shippingInfo);
     }
     onClose();
   };
@@ -144,6 +174,10 @@ const BookingModal: React.FC<BookingModalProps> = ({
               <TabsTrigger value="details" className="flex-1">
                 <Info className="mr-2 h-4 w-4" />
                 Details
+              </TabsTrigger>
+              <TabsTrigger value="shipping" className="flex-1">
+                <User className="mr-2 h-4 w-4" />
+                Shipping
               </TabsTrigger>
               <TabsTrigger value="payment" className="flex-1">
                 <CreditCard className="mr-2 h-4 w-4" />
@@ -281,8 +315,116 @@ const BookingModal: React.FC<BookingModalProps> = ({
                   </Button>
                   <Button 
                     className="flex-1 bg-[#E02020] hover:bg-[#c01010]"
-                    onClick={() => setActiveTab("payment")}
+                    onClick={() => setActiveTab("shipping")}
                     disabled={!date}
+                  >
+                    Continue to Shipping
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="shipping" className="space-y-4 mt-2">
+              <div className="space-y-4">
+                <h3 className="font-medium text-[#333333]">Shipping Information</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="full-name" className="text-[#333333] font-medium">Full Name *</Label>
+                    <Input
+                      id="full-name"
+                      placeholder="Enter your full name"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="border-gray-300 bg-white"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-[#333333] font-medium">Phone Number *</Label>
+                    <Input
+                      id="phone"
+                      placeholder="e.g., +254700000000"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      className="border-gray-300 bg-white"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-[#333333] font-medium">Email Address *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="border-gray-300 bg-white"
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="street" className="text-[#333333] font-medium">Street Address *</Label>
+                  <Input
+                    id="street"
+                    placeholder="Enter street address"
+                    value={street}
+                    onChange={(e) => setStreet(e.target.value)}
+                    className="border-gray-300 bg-white"
+                    required
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="city" className="text-[#333333] font-medium">City *</Label>
+                    <Input
+                      id="city"
+                      placeholder="Enter city"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      className="border-gray-300 bg-white"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="country" className="text-[#333333] font-medium">Country *</Label>
+                    <Input
+                      id="country"
+                      placeholder="Enter country"
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      className="border-gray-300 bg-white"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="zip-code" className="text-[#333333] font-medium">ZIP Code</Label>
+                  <Input
+                    id="zip-code"
+                    placeholder="Enter ZIP code (optional)"
+                    value={zipCode}
+                    onChange={(e) => setZipCode(e.target.value)}
+                    className="border-gray-300 bg-white"
+                  />
+                </div>
+                
+                <div className="flex space-x-3 pt-2">
+                  <Button 
+                    variant="outline" 
+                    className="flex-1" 
+                    onClick={() => setActiveTab("details")}
+                  >
+                    Back
+                  </Button>
+                  <Button 
+                    className="flex-1 bg-[#E02020] hover:bg-[#c01010]"
+                    onClick={() => setActiveTab("payment")}
+                    disabled={!fullName.trim() || !phoneNumber.trim() || !email.trim() || !street.trim() || !city.trim() || !country.trim()}
                   >
                     Continue to Payment
                   </Button>
@@ -336,23 +478,30 @@ const BookingModal: React.FC<BookingModalProps> = ({
                   <Button 
                     variant="outline" 
                     className="flex-1" 
-                    onClick={() => setActiveTab("details")}
+                    onClick={() => setActiveTab("shipping")}
                   >
                     Back
                   </Button>
                   
-                  <PaystackPaymentButton
+                  <BookingPaymentButton
                     amount={totalPrice}
                     equipmentId={equipmentId}
                     equipmentName={`${equipmentName} - Booking`}
-                    shippingAddress={`Booking for ${duration} hour(s) on ${date?.toLocaleDateString()} at ${timeSlot}`}
+                    bookingDetails={`Booking for ${duration} hour(s) on ${date?.toLocaleDateString()} at ${timeSlot}`}
                     notes={notes}
+                    fullName={fullName}
+                    phoneNumber={phoneNumber}
+                    email={email}
+                    street={street}
+                    city={city}
+                    country={country}
+                    zipCode={zipCode}
                     onSuccess={handlePaystackSuccess}
                     onError={handlePaystackError}
                     className="flex-1"
                   >
                     Complete Booking
-                  </PaystackPaymentButton>
+                  </BookingPaymentButton>
                 </div>
               </div>
             </TabsContent>

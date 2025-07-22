@@ -10,6 +10,13 @@ interface UseBookingPaymentProps {
   equipmentName: string;
   bookingDetails: string;
   notes: string;
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  street: string;
+  city: string;
+  country: string;
+  zipCode: string;
   onSuccess?: (reference: string) => void;
   onError?: (error: string) => void;
 }
@@ -20,6 +27,13 @@ export const useBookingPayment = ({
   equipmentName,
   bookingDetails,
   notes,
+  fullName,
+  phoneNumber,
+  email,
+  street,
+  city,
+  country,
+  zipCode,
   onSuccess,
   onError
 }: UseBookingPaymentProps) => {
@@ -50,6 +64,49 @@ export const useBookingPayment = ({
         email: user.email
       });
 
+      // Create or update customer and shipping address
+      const { data: shippingAddressData, error: shippingError } = await supabase
+        .rpc('create_or_update_customer_with_shipping', {
+          p_user_id: user.id,
+          p_full_name: fullName,
+          p_phone_number: phoneNumber,
+          p_email: email,
+          p_street: street,
+          p_city: city,
+          p_country: country,
+          p_zip_code: zipCode
+        });
+
+      if (shippingError) {
+        console.error('Shipping address creation error:', shippingError);
+        throw new Error('Failed to save shipping information');
+      }
+
+      const shippingAddressId = shippingAddressData;
+
+      // Get customer ID
+      const { data: customerData, error: customerError } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (customerError) {
+        console.error('Customer lookup error:', customerError);
+        throw new Error('Failed to retrieve customer information');
+      }
+
+      const shippingInfo = {
+        full_name: fullName,
+        phone_number: phoneNumber,
+        email: email,
+        street: street,
+        city: city,
+        country: country,
+        zip_code: zipCode,
+        full_address: `${street}, ${city}, ${country} ${zipCode}`
+      };
+
       // Create transaction record first
       const { error: dbError } = await supabase
         .from('transactions')
@@ -65,6 +122,9 @@ export const useBookingPayment = ({
             equipment_name: equipmentName,
             booking_details: bookingDetails,
             notes: notes,
+            shipping_info: shippingInfo,
+            shipping_address_id: shippingAddressId,
+            customer_id: customerData.id,
             order_type: 'booking'
           }
         });

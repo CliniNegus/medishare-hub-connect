@@ -1,52 +1,51 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { usePaystackPayment } from "@/hooks/usePaystackPayment";
+import { useBookingPayment } from "@/hooks/useBookingPayment";
 import { usePaymentCancellation } from "@/hooks/usePaymentCancellation";
 import PaymentLoadingSpinner from "./PaymentLoadingSpinner";
 
-interface PaystackPaymentButtonProps {
+interface BookingPaymentButtonProps {
   amount: number;
   equipmentId: string;
   equipmentName: string;
+  bookingDetails: string;
+  notes?: string;
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  street: string;
+  city: string;
+  country: string;
+  zipCode: string;
   onSuccess?: (reference: string) => void;
   onError?: (error: string) => void;
   className?: string;
   children?: React.ReactNode;
-  shippingAddress: string;
-  notes?: string;
-  fullName?: string;
-  phoneNumber?: string;
-  email?: string;
-  street?: string;
-  city?: string;
-  country?: string;
-  zipCode?: string;
 }
 
-const PaystackPaymentButton = ({ 
+const BookingPaymentButton = ({ 
   amount, 
   equipmentId,
   equipmentName,
+  bookingDetails,
+  notes = "",
+  fullName,
+  phoneNumber,
+  email,
+  street,
+  city,
+  country,
+  zipCode,
   onSuccess, 
   onError,
   className,
-  children,
-  shippingAddress,
-  notes = "",
-  fullName = "",
-  phoneNumber = "",
-  email = "",
-  street = "",
-  city = "",
-  country = "",
-  zipCode = ""
-}: PaystackPaymentButtonProps) => {
-  const { loading, setLoading, handlePayment } = usePaystackPayment({
+  children
+}: BookingPaymentButtonProps) => {
+  const { loading, setLoading, handlePayment } = useBookingPayment({
     amount,
     equipmentId,
     equipmentName,
-    shippingAddress,
+    bookingDetails,
     notes,
     fullName,
     phoneNumber,
@@ -64,17 +63,20 @@ const PaystackPaymentButton = ({
     onError?.(error);
   });
 
+  const isValidShipping = fullName.trim() && phoneNumber.trim() && email.trim() && 
+                         street.trim() && city.trim() && country.trim();
+
   return (
     <Button
       onClick={handlePayment}
-      disabled={loading || !shippingAddress.trim()}
+      disabled={loading || !isValidShipping}
       className={`bg-[#E02020] hover:bg-[#c01010] text-white ${className}`}
     >
       {loading ? (
         <PaymentLoadingSpinner />
-      ) : children || 'Pay with Paystack'}
+      ) : children || 'Complete Booking'}
     </Button>
   );
 };
 
-export default PaystackPaymentButton;
+export default BookingPaymentButton;

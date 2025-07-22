@@ -80,7 +80,7 @@ const EquipmentDetailsPage = () => {
     navigate(-1);
   };
 
-  const handleBooking = (date: Date, duration: number, notes: string) => {
+  const handleBooking = (date: Date, duration: number, notes: string, shippingInfo: any) => {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -109,7 +109,7 @@ const EquipmentDetailsPage = () => {
     setBookingModalOpen(false);
   };
 
-  const handlePurchase = async (paymentMethod: string, shippingAddress: string, notes: string) => {
+  const handlePurchase = async (paymentMethod: string, shippingAddress: string, notes: string, shippingInfo: any) => {
     if (!user) {
       toast({
         title: "Authentication required",

@@ -10,6 +10,13 @@ interface UsePaystackPaymentProps {
   equipmentName: string;
   shippingAddress: string;
   notes: string;
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  street: string;
+  city: string;
+  country: string;
+  zipCode: string;
   onSuccess?: (reference: string) => void;
   onError?: (error: string) => void;
 }
@@ -20,6 +27,13 @@ export const usePaystackPayment = ({
   equipmentName,
   shippingAddress,
   notes,
+  fullName,
+  phoneNumber,
+  email,
+  street,
+  city,
+  country,
+  zipCode,
   onSuccess,
   onError
 }: UsePaystackPaymentProps) => {
@@ -59,6 +73,49 @@ export const usePaystackPayment = ({
         email: user.email
       });
 
+      // Create or update customer and shipping address
+      const { data: shippingAddressData, error: shippingError } = await supabase
+        .rpc('create_or_update_customer_with_shipping', {
+          p_user_id: user.id,
+          p_full_name: fullName,
+          p_phone_number: phoneNumber,
+          p_email: email,
+          p_street: street,
+          p_city: city,
+          p_country: country,
+          p_zip_code: zipCode
+        });
+
+      if (shippingError) {
+        console.error('Shipping address creation error:', shippingError);
+        throw new Error('Failed to save shipping information');
+      }
+
+      const shippingAddressId = shippingAddressData;
+
+      // Get customer ID
+      const { data: customerData, error: customerError } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (customerError) {
+        console.error('Customer lookup error:', customerError);
+        throw new Error('Failed to retrieve customer information');
+      }
+
+      const shippingInfo = {
+        full_name: fullName,
+        phone_number: phoneNumber,
+        email: email,
+        street: street,
+        city: city,
+        country: country,
+        zip_code: zipCode,
+        full_address: `${street}, ${city}, ${country} ${zipCode}`
+      };
+
       // Create transaction record first
       const { error: dbError } = await supabase
         .from('transactions')
@@ -73,9 +130,41 @@ export const usePaystackPayment = ({
             equipment_id: equipmentId,
             equipment_name: equipmentName,
             shipping_address: shippingAddress,
-            notes: notes
+            notes: notes,
+            shipping_info: shippingInfo,
+            shipping_address_id: shippingAddressId,
+            customer_id: customerData.id,
+            order_type: 'purchase'
           }
         });
+
+      if (dbError) {
+        console.error('Database error:', dbError);
+        throw new Error('Failed to create transaction record');
+      }
+
+      // Create an order record with proper shipping information
+      const { error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          customer_id: customerData.id,
+          shipping_address_id: shippingAddressId,
+          shipping_full_name: fullName,
+          shipping_phone_number: phoneNumber,
+          shipping_email: email,
+          amount: amount,
+          payment_method: 'paystack',
+          shipping_address: shippingAddress,
+          notes: notes,
+          equipment_id: equipmentId,
+          status: 'pending'
+        });
+
+      if (orderError) {
+        console.error('Order creation error:', orderError);
+        throw new Error('Failed to create order record');
+      }
 
       if (dbError) {
         console.error('Database error:', dbError);
