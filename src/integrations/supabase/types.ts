@@ -1131,6 +1131,7 @@ export type Database = {
           email: string
           email_verified_at: string | null
           full_name: string | null
+          gender: string | null
           id: string
           is_new_user: boolean | null
           last_active: string | null
@@ -1138,6 +1139,9 @@ export type Database = {
           logo_url: string | null
           organization: string | null
           phone: string | null
+          profile_completed: boolean | null
+          profile_completion_step: number | null
+          profile_draft: Json | null
           role: string | null
           updated_at: string
           verification_attempts: number | null
@@ -1150,6 +1154,7 @@ export type Database = {
           email: string
           email_verified_at?: string | null
           full_name?: string | null
+          gender?: string | null
           id: string
           is_new_user?: boolean | null
           last_active?: string | null
@@ -1157,6 +1162,9 @@ export type Database = {
           logo_url?: string | null
           organization?: string | null
           phone?: string | null
+          profile_completed?: boolean | null
+          profile_completion_step?: number | null
+          profile_draft?: Json | null
           role?: string | null
           updated_at?: string
           verification_attempts?: number | null
@@ -1169,6 +1177,7 @@ export type Database = {
           email?: string
           email_verified_at?: string | null
           full_name?: string | null
+          gender?: string | null
           id?: string
           is_new_user?: boolean | null
           last_active?: string | null
@@ -1176,6 +1185,9 @@ export type Database = {
           logo_url?: string | null
           organization?: string | null
           phone?: string | null
+          profile_completed?: boolean | null
+          profile_completion_step?: number | null
+          profile_draft?: Json | null
           role?: string | null
           updated_at?: string
           verification_attempts?: number | null

@@ -28,6 +28,11 @@ const ProtectedRoute = ({
     return <Navigate to="/auth" replace />;
   }
 
+  // Check if profile needs to be completed (except for complete-profile route)
+  if (profile && !profile.profile_completed && location.pathname !== '/complete-profile') {
+    return <Navigate to="/complete-profile" replace />;
+  }
+
   // Automatic redirection to admin dashboard for admin users
   // Only redirect if they're not already trying to access the admin route
   if (profile?.role === 'admin' && !requireAdmin && location.pathname !== '/admin') {

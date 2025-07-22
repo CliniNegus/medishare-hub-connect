@@ -38,6 +38,7 @@ import PaymentCancelled from './pages/PaymentCancelled';
 import PaymentSuccess from './pages/PaymentSuccess';
 import EmailVerification from './pages/EmailVerification';
 import NotificationsPage from './components/notifications/NotificationsPage';
+import CompleteProfile from './pages/CompleteProfile';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient({
@@ -69,6 +70,7 @@ function App() {
                     <Route path="/payment-success" element={<PaymentSuccess />} />
                     <Route path="/verify" element={<EmailVerification />} />
                     <Route path="/auth" element={<Auth />} />
+                    <Route path="/complete-profile" element={<CompleteProfile />} />
                     <Route path="/admin-auth" element={<AdminAuth />} />
                     <Route 
                       path="/dashboard" 
