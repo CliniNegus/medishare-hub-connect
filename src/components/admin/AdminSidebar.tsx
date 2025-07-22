@@ -34,9 +34,11 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
       {/* Logo Section with enhanced design */}
       <div className="p-6 border-b border-gray-700/50 bg-gradient-to-r from-[#E02020]/10 to-transparent">
         <div className="flex items-center">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#E02020] to-[#c01010] mr-3 flex items-center justify-center shadow-lg">
-            <BarChart2 className="h-6 w-6 text-white" />
-          </div>
+          <img 
+            src="/lovable-uploads/661de53b-e7ab-4711-97b0-ac4cf9c089f0.png" 
+            alt="Clinibuilds Logo" 
+            className="h-10 w-auto mr-3"
+          />
           <div>
             <h1 className="text-xl font-bold text-white">CliniBuilds</h1>
             <p className="text-xs text-gray-300">Admin Panel</p>

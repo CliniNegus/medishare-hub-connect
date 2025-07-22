@@ -93,6 +93,21 @@ const Sidebar: React.FC<SidebarProps> = ({ onChangeAccountType }) => {
 
   return (
     <div className="h-screen fixed top-0 left-0 w-64 bg-white border-r border-gray-200 pt-16 hidden md:flex flex-col z-10">
+      {/* Logo Section */}
+      <div className="px-4 py-6 border-b border-gray-200">
+        <div className="flex items-center space-x-3">
+          <img 
+            src="/lovable-uploads/661de53b-e7ab-4711-97b0-ac4cf9c089f0.png" 
+            alt="Clinibuilds Logo" 
+            className="h-10 w-auto"
+          />
+          <div>
+            <h1 className="text-lg font-bold text-[#333333]">CliniBuilds</h1>
+            <p className="text-xs text-gray-500 capitalize">{role} Portal</p>
+          </div>
+        </div>
+      </div>
+
       {/* Navigation Links */}
       <div className="flex-1 px-4 py-4 overflow-y-auto">
         <Link to="/dashboard" className={getLinkClass('/dashboard')}>
