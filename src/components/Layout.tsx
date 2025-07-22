@@ -10,6 +10,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { HelpBar } from './help/HelpBar';
 import { TutorialProvider } from '@/contexts/TutorialContext';
 import RoleDashboardTutorial from './tutorials/RoleDashboardTutorial';
+import NotificationSystemInitializer from './notifications/NotificationSystemInitializer';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -70,6 +71,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         
         {user && <HelpBar />}
         {user && <FloatingActionButton />}
+        {user && <NotificationSystemInitializer />}
         
         <RoleDashboardTutorial />
       </div>
