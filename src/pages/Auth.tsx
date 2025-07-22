@@ -12,6 +12,7 @@ import EmailConfirmationAlert from '@/components/auth/EmailConfirmationAlert';
 import ErrorAlert from '@/components/auth/ErrorAlert';
 import { Hospital, Factory, PiggyBank, ShieldAlert, Sparkles } from "lucide-react";
 import { UserRole } from '@/contexts/UserRoleContext';
+import cliniBuildsLogo from '@/assets/clinibuilds-logo.png';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -128,22 +129,50 @@ const Auth = () => {
       
       <div className="relative w-full max-w-md z-10">
         <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-md overflow-hidden">
-          {/* Header with modern gradient */}
+          {/* Header with logo and branding */}
           <CardHeader className="space-y-6 text-center pb-8 bg-gradient-to-br from-white to-gray-50/50">
-            <div className="relative">
-              <div className="w-20 h-20 bg-gradient-to-br from-[#E02020] to-[#c01010] rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <Hospital className="h-10 w-10 text-white" />
-                <div className="absolute -top-1 -right-1">
-                  <Sparkles className="h-5 w-5 text-[#E02020] animate-pulse" />
+            <div className="relative animate-fade-in">
+              {/* Clinibuilds Logo */}
+              <div className="mb-6 animate-scale-in">
+                <div className="h-16 md:h-20 flex items-center justify-center mx-auto hover-scale">
+                  {/* Try to use the generated logo image first */}
+                  <img 
+                    src={cliniBuildsLogo} 
+                    alt="Clinibuilds Logo" 
+                    className="h-full w-auto max-w-[280px] object-contain"
+                    onError={(e) => {
+                      // Fallback to text-based logo if image fails to load
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const fallback = target.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                  {/* Fallback text-based logo (hidden by default) */}
+                  <div className="items-center space-x-2" style={{ display: 'none' }}>
+                    <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-[#E02020] to-[#c01010] rounded-lg flex items-center justify-center shadow-lg">
+                      <Hospital className="h-5 w-5 md:h-6 md:w-6 text-white" />
+                    </div>
+                    <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-[#E02020] to-[#c01010] bg-clip-text text-transparent">
+                      Clinibuilds
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="space-y-3">
-                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-[#333333] to-[#666666] bg-clip-text text-transparent">
-                  CliniBuilds
+              
+              {/* Tagline */}
+              <div className="space-y-3 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-[#333333] to-[#666666] bg-clip-text text-transparent">
+                  Welcome to Clinibuilds
                 </CardTitle>
-                <CardDescription className="text-base text-gray-600 font-medium">
+                <CardDescription className="text-sm md:text-base text-gray-600 font-medium">
                   Medical Equipment Sharing & Management Platform
                 </CardDescription>
+              </div>
+              
+              {/* Decorative elements */}
+              <div className="absolute -top-2 -right-2 opacity-50 animate-pulse" style={{ animationDelay: '0.4s' }}>
+                <Sparkles className="h-4 w-4 text-[#E02020]" />
               </div>
             </div>
           </CardHeader>
