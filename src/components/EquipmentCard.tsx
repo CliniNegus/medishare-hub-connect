@@ -105,18 +105,6 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
               <span className="text-sm font-bold text-blue-600">Ksh {payPerUsePrice.toLocaleString()}/day</span>
             </div>
           )}
-          {purchasePrice && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Purchase:</span>
-              <span className="text-sm font-medium">Ksh {purchasePrice.toLocaleString()}</span>
-            </div>
-          )}
-          {leaseRate && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Lease:</span>
-              <span className="text-sm font-medium">Ksh {leaseRate.toLocaleString()}/month</span>
-            </div>
-          )}
         </div>
       </CardContent>
       <CardFooter>
