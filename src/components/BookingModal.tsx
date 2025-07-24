@@ -236,11 +236,11 @@ const BookingModal: React.FC<BookingModalProps> = ({
                       <SelectValue placeholder="Select duration" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">1 hour</SelectItem>
-                      <SelectItem value="2">2 hours</SelectItem>
-                      <SelectItem value="3">3 hours</SelectItem>
-                      <SelectItem value="4">4 hours</SelectItem>
-                      <SelectItem value="8">8 hours</SelectItem>
+                      <SelectItem value="1">1 day</SelectItem>
+                      <SelectItem value="2">2 days</SelectItem>
+                      <SelectItem value="3">3 days</SelectItem>
+                      <SelectItem value="4">4 days</SelectItem>
+                      <SelectItem value="7">1 week</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -289,13 +289,13 @@ const BookingModal: React.FC<BookingModalProps> = ({
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Duration:</span>
-                      <span className="font-medium">{duration} hour{duration > 1 ? 's' : ''}</span>
+                      <span className="font-medium">{duration} day{duration > 1 ? 's' : ''}</span>
                     </div>
                     
                     <Separator className="my-2" />
                     
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Price per hour:</span>
+                      <span className="text-gray-600">Daily rate:</span>
                       <span className="font-medium">KES {pricePerUse.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between font-bold text-[#E02020]">
@@ -458,13 +458,13 @@ const BookingModal: React.FC<BookingModalProps> = ({
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Duration:</span>
-                      <span className="font-medium">{duration} hour{duration > 1 ? 's' : ''}</span>
+                      <span className="font-medium">{duration} day{duration > 1 ? 's' : ''}</span>
                     </div>
                     
                     <Separator className="my-2" />
                     
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Price per hour:</span>
+                      <span className="text-gray-600">Daily rate:</span>
                       <span className="font-medium">KES {pricePerUse.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between font-bold text-[#E02020]">
@@ -487,7 +487,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
                     amount={totalPrice}
                     equipmentId={equipmentId}
                     equipmentName={`${equipmentName} - Booking`}
-                    bookingDetails={`Booking for ${duration} hour(s) on ${date?.toLocaleDateString()} at ${timeSlot}`}
+                    bookingDetails={`Booking for ${duration} day(s) on ${date?.toLocaleDateString()} at ${timeSlot}`}
                     notes={notes}
                     fullName={fullName}
                     phoneNumber={phoneNumber}
