@@ -84,7 +84,7 @@ const PaymentOptionsDialog: React.FC<PaymentOptionsDialogProps> = ({
                   <Clock className="h-5 w-5 text-red-600 mr-2" />
                   <span>Pay Per Use</span>
                 </div>
-                <span className="font-semibold">${pricePerUse.toLocaleString()}/use</span>
+                <span className="font-semibold">${pricePerUse.toLocaleString()}/day</span>
               </div>
             )}
             
@@ -132,7 +132,7 @@ const PaymentOptionsDialog: React.FC<PaymentOptionsDialogProps> = ({
                 onClick={() => handlePaymentOption('Pay Per Use')}
               >
                 <Clock className="h-4 w-4 mr-2 text-red-600" />
-                Pay Per Use (${pricePerUse}/use)
+                Pay Per Use (${pricePerUse}/day)
               </Button>
               <Button 
                 variant="outline" 

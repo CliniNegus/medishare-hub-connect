@@ -172,20 +172,20 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
 
         {form.pay_per_use_enabled && (
           <div className="space-y-2">
-            <Label htmlFor="pay_per_use_price">Pay Per Use Price (Ksh) *</Label>
+            <Label htmlFor="pay_per_use_price">Daily Rate (Ksh) *</Label>
             <Input 
               id="pay_per_use_price" 
               name="pay_per_use_price" 
               type="number" 
               value={form.pay_per_use_price || ''} 
               onChange={handleChange} 
-              placeholder="Enter price per use"
+              placeholder="Enter daily rate"
               min="0.01"
               step="0.01"
               required={form.pay_per_use_enabled}
             />
             <p className="text-sm text-gray-500">
-              This is the price customers will pay for each use of this equipment
+              This is the amount users will be charged per calendar day
             </p>
           </div>
         )}

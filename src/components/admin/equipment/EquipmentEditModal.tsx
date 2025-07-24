@@ -326,7 +326,7 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
 
               {formData.pay_per_use_enabled && (
                 <div className="space-y-2">
-                  <Label htmlFor="pay_per_use_price">Pay Per Use Price (Ksh)</Label>
+                  <Label htmlFor="pay_per_use_price">Daily Rate (Ksh)</Label>
                   <Input
                     id="pay_per_use_price"
                     type="number"
@@ -338,7 +338,7 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
                     required={formData.pay_per_use_enabled}
                   />
                   <p className="text-sm text-gray-500">
-                    This is the price customers will pay for each use of this equipment
+                    This is the amount users will be charged per calendar day
                   </p>
                 </div>
               )}

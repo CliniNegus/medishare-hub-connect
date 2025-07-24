@@ -101,8 +101,8 @@ export const useEquipmentForm = ({ onSuccess, onCancel }: UseEquipmentFormProps 
     // Validate pay per use price if enabled
     if (form.pay_per_use_enabled && (!form.pay_per_use_price || parseFloat(form.pay_per_use_price) <= 0)) {
       toast({
-        title: "Invalid pay per use price",
-        description: "Please enter a valid price per use greater than 0",
+        title: "Invalid daily rate",
+        description: "Please enter a valid daily rate greater than 0",
         variant: "destructive",
       });
       return;

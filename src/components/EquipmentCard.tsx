@@ -101,8 +101,8 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
         <div className="space-y-1 pt-2">
           {payPerUseEnabled && payPerUsePrice && (
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-blue-600">Pay Per Use:</span>
-              <span className="text-sm font-bold text-blue-600">Ksh {payPerUsePrice.toLocaleString()}/use</span>
+              <span className="text-sm font-medium text-blue-600">Daily Rate:</span>
+              <span className="text-sm font-bold text-blue-600">Ksh {payPerUsePrice.toLocaleString()}/day</span>
             </div>
           )}
           {purchasePrice && (
