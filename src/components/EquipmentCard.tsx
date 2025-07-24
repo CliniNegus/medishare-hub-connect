@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin } from "lucide-react";
+import { Calendar, MapPin, Zap } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
 export interface EquipmentProps {
@@ -18,6 +18,8 @@ export interface EquipmentProps {
   purchasePrice?: number;
   leaseRate?: number;
   nextAvailable?: string;
+  payPerUseEnabled?: boolean;
+  payPerUsePrice?: number;
   onBook?: (id: string) => void;
 }
 
@@ -30,6 +32,10 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
   cluster,
   status,
   nextAvailable,
+  payPerUseEnabled,
+  payPerUsePrice,
+  purchasePrice,
+  leaseRate,
   onBook
 }) => {
   const navigate = useNavigate();
@@ -58,11 +64,22 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
           alt={name} 
           className="w-full h-full object-cover" 
         />
-        <Badge 
-          className={`absolute top-2 right-2 ${statusColors[status]}`}
-        >
-          {statusLabels[status]}
-        </Badge>
+        <div className="absolute top-2 right-2 flex gap-2">
+          <Badge 
+            className={`${statusColors[status]}`}
+          >
+            {statusLabels[status]}
+          </Badge>
+          {payPerUseEnabled && (
+            <Badge 
+              variant="outline"
+              className="bg-blue-50 text-blue-700 border-blue-200"
+            >
+              <Zap className="w-3 h-3 mr-1" />
+              Pay Per Use
+            </Badge>
+          )}
+        </div>
       </div>
       <CardHeader className="pb-2">
         <CardTitle className="text-lg font-semibold text-red-600">{name}</CardTitle>
@@ -79,6 +96,28 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
             <span>Available: {nextAvailable}</span>
           </div>
         )}
+        
+        {/* Pricing Information */}
+        <div className="space-y-1 pt-2">
+          {payPerUseEnabled && payPerUsePrice && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-blue-600">Pay Per Use:</span>
+              <span className="text-sm font-bold text-blue-600">Ksh {payPerUsePrice.toLocaleString()}/use</span>
+            </div>
+          )}
+          {purchasePrice && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Purchase:</span>
+              <span className="text-sm font-medium">Ksh {purchasePrice.toLocaleString()}</span>
+            </div>
+          )}
+          {leaseRate && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Lease:</span>
+              <span className="text-sm font-medium">Ksh {leaseRate.toLocaleString()}/month</span>
+            </div>
+          )}
+        </div>
       </CardContent>
       <CardFooter>
         <Button 

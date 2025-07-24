@@ -25,6 +25,8 @@ export const useEquipmentForm = ({ onSuccess, onCancel }: UseEquipmentFormProps 
     model: '',
     condition: '',
     serial_number: '',
+    pay_per_use_enabled: false,
+    pay_per_use_price: '',
   });
   
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -45,6 +47,13 @@ export const useEquipmentForm = ({ onSuccess, onCancel }: UseEquipmentFormProps 
     }));
   };
 
+  const handleCheckboxChange = (field: string, checked: boolean) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: checked,
+    }));
+  };
+
   const handleImageUploaded = (url: string) => {
     console.log("Image uploaded, URL:", url);
     setImageUrl(url);
@@ -62,6 +71,8 @@ export const useEquipmentForm = ({ onSuccess, onCancel }: UseEquipmentFormProps 
       model: '',
       condition: '',
       serial_number: '',
+      pay_per_use_enabled: false,
+      pay_per_use_price: '',
     });
     setImageUrl(null);
   };
@@ -86,6 +97,16 @@ export const useEquipmentForm = ({ onSuccess, onCancel }: UseEquipmentFormProps 
       });
       return;
     }
+
+    // Validate pay per use price if enabled
+    if (form.pay_per_use_enabled && (!form.pay_per_use_price || parseFloat(form.pay_per_use_price) <= 0)) {
+      toast({
+        title: "Invalid pay per use price",
+        description: "Please enter a valid price per use greater than 0",
+        variant: "destructive",
+      });
+      return;
+    }
     
     try {
       setLoading(true);
@@ -103,6 +124,8 @@ export const useEquipmentForm = ({ onSuccess, onCancel }: UseEquipmentFormProps 
         model: form.model || null,
         condition: form.condition || null,
         serial_number: form.serial_number || null,
+        pay_per_use_enabled: form.pay_per_use_enabled,
+        pay_per_use_price: form.pay_per_use_enabled && form.pay_per_use_price ? parseFloat(form.pay_per_use_price) : null,
         image_url: imageUrl,
         owner_id: user.id,
         status: 'Available',
@@ -166,6 +189,7 @@ export const useEquipmentForm = ({ onSuccess, onCancel }: UseEquipmentFormProps 
     imageUrl,
     handleChange,
     handleSelectChange,
+    handleCheckboxChange,
     handleImageUploaded,
     handleSubmit,
     resetForm,

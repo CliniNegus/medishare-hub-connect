@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -60,6 +61,8 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
         revenue_generated: equipment.revenue_generated || 0,
         remote_control_enabled: equipment.remote_control_enabled || false,
         payment_status: equipment.payment_status || 'compliant',
+        pay_per_use_enabled: equipment.pay_per_use_enabled || false,
+        pay_per_use_price: equipment.pay_per_use_price || null,
       });
     }
   }, [equipment]);
@@ -303,6 +306,45 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
             </div>
           </div>
 
+          {/* Pay Per Use Section */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-[#333333] border-b border-gray-200 pb-2">
+              Pay Per Use Options
+            </h3>
+            
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="pay_per_use_enabled"
+                  checked={formData.pay_per_use_enabled || false}
+                  onChange={(e) => handleChange('pay_per_use_enabled', e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="pay_per_use_enabled">Enable Pay Per Use</Label>
+              </div>
+
+              {formData.pay_per_use_enabled && (
+                <div className="space-y-2">
+                  <Label htmlFor="pay_per_use_price">Pay Per Use Price (Ksh)</Label>
+                  <Input
+                    id="pay_per_use_price"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={formData.pay_per_use_price || ''}
+                    onChange={(e) => handleChange('pay_per_use_price', e.target.value ? parseFloat(e.target.value) : null)}
+                    placeholder="Enter price per use in KES"
+                    required={formData.pay_per_use_enabled}
+                  />
+                  <p className="text-sm text-gray-500">
+                    This is the price customers will pay for each use of this equipment
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Analytics & Performance Section */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-[#333333] border-b border-gray-200 pb-2">
@@ -415,7 +457,7 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
           </Button>
           <Button
             onClick={handleSave}
-            disabled={loading || !formData.name}
+            disabled={loading || !formData.name || (formData.pay_per_use_enabled && (!formData.pay_per_use_price || formData.pay_per_use_price <= 0))}
             className="bg-[#E02020] hover:bg-[#E02020]/90"
           >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

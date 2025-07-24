@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -25,6 +24,8 @@ export interface Equipment {
   revenue_generated: number | null;
   remote_control_enabled: boolean | null;
   payment_status: string | null;
+  pay_per_use_enabled: boolean | null;
+  pay_per_use_price: number | null;
   created_at: string;
   updated_at: string;
 }

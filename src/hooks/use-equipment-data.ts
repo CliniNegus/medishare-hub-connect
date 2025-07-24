@@ -17,6 +17,8 @@ export interface EquipmentItem {
   purchasePrice?: number;
   leaseRate?: number;
   nextAvailable?: string;
+  payPerUseEnabled?: boolean;
+  payPerUsePrice?: number;
 }
 
 // Add sample enhanced cluster data
@@ -129,10 +131,12 @@ export function useEquipmentData() {
                 item.status === 'maintenance' ? 'maintenance' : 'in-use',
           location: item.location || 'Unknown',
           cluster: 'Main Hospital', // Default value as it might not be in the DB
-          pricePerUse: Math.round(item.price / 100) || 10, // Example calculation
+          pricePerUse: item.pay_per_use_enabled ? item.pay_per_use_price : Math.round(item.price / 100) || 10,
           purchasePrice: item.price || 0,
           leaseRate: item.lease_rate || Math.round((item.price || 0) * 0.05),
           nextAvailable: item.status !== 'available' ? '2025-06-01' : undefined,
+          payPerUseEnabled: item.pay_per_use_enabled || false,
+          payPerUsePrice: item.pay_per_use_price || null,
         }));
         
         setEquipment(formattedEquipment);
@@ -157,6 +161,6 @@ export function useEquipmentData() {
     equipment, 
     loading, 
     error,
-    clusterNodes: sampleClusterNodes // Add cluster nodes to the return
+    clusterNodes: sampleClusterNodes
   };
 }

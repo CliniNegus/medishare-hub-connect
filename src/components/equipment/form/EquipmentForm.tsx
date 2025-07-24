@@ -18,9 +18,12 @@ interface EquipmentFormProps {
     model?: string;
     condition?: string;
     serial_number?: string;
+    pay_per_use_enabled?: boolean;
+    pay_per_use_price?: string;
   };
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleSelectChange?: (field: string, value: string) => void;
+  handleCheckboxChange?: (field: string, checked: boolean) => void;
   handleImageUploaded: (url: string) => void;
 }
 
@@ -28,6 +31,7 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
   form,
   handleChange,
   handleSelectChange,
+  handleCheckboxChange,
   handleImageUploaded
 }) => {
   return (
@@ -113,7 +117,7 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="price">Price ($)</Label>
+          <Label htmlFor="price">Price (Ksh)</Label>
           <Input 
             id="price" 
             name="price" 
@@ -149,6 +153,42 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
             placeholder="e.g., SN123456789"
           />
         </div>
+      </div>
+      
+      {/* Pay Per Use Section */}
+      <div className="space-y-4 p-4 border rounded-lg bg-gray-50">
+        <h3 className="text-lg font-semibold text-[#333333]">Pay Per Use Options</h3>
+        
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="pay_per_use_enabled"
+            checked={form.pay_per_use_enabled || false}
+            onChange={(e) => handleCheckboxChange?.('pay_per_use_enabled', e.target.checked)}
+            className="rounded border-gray-300"
+          />
+          <Label htmlFor="pay_per_use_enabled">Enable Pay Per Use</Label>
+        </div>
+
+        {form.pay_per_use_enabled && (
+          <div className="space-y-2">
+            <Label htmlFor="pay_per_use_price">Pay Per Use Price (Ksh) *</Label>
+            <Input 
+              id="pay_per_use_price" 
+              name="pay_per_use_price" 
+              type="number" 
+              value={form.pay_per_use_price || ''} 
+              onChange={handleChange} 
+              placeholder="Enter price per use"
+              min="0.01"
+              step="0.01"
+              required={form.pay_per_use_enabled}
+            />
+            <p className="text-sm text-gray-500">
+              This is the price customers will pay for each use of this equipment
+            </p>
+          </div>
+        )}
       </div>
       
       <div className="space-y-2">

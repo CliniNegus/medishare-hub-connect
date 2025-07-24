@@ -342,6 +342,8 @@ export type Database = {
           model: string | null
           name: string
           owner_id: string | null
+          pay_per_use_enabled: boolean | null
+          pay_per_use_price: number | null
           payment_status: string | null
           price: number | null
           quantity: number | null
@@ -369,6 +371,8 @@ export type Database = {
           model?: string | null
           name: string
           owner_id?: string | null
+          pay_per_use_enabled?: boolean | null
+          pay_per_use_price?: number | null
           payment_status?: string | null
           price?: number | null
           quantity?: number | null
@@ -396,6 +400,8 @@ export type Database = {
           model?: string | null
           name?: string
           owner_id?: string | null
+          pay_per_use_enabled?: boolean | null
+          pay_per_use_price?: number | null
           payment_status?: string | null
           price?: number | null
           quantity?: number | null
