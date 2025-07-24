@@ -28,13 +28,13 @@ const EquipmentSidebar: React.FC<EquipmentSidebarProps> = ({
   onSelectEquipment,
 }) => {
   return (
-    <Card className="h-fit">
-      <CardHeader className="pb-3 sm:pb-4 px-4 sm:px-6">
-        <CardTitle className="text-base sm:text-lg font-semibold text-[#333333]">Your Equipment</CardTitle>
-        <p className="text-xs sm:text-sm text-gray-600">{equipmentList.length} devices connected</p>
+    <Card className="h-fit shadow-card">
+      <CardHeader className="pb-4 px-6">
+        <CardTitle className="text-lg font-bold text-foreground">Your Equipment</CardTitle>
+        <p className="text-sm text-muted-foreground">{equipmentList.length} devices connected</p>
       </CardHeader>
-      <CardContent className="pt-0 px-4 sm:px-6">
-        <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[500px] lg:max-h-[600px] overflow-y-auto pr-1 sm:pr-2">
+      <CardContent className="pt-0 px-6 pb-6">
+        <div className="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
           {equipmentList.map(equipment => (
             <ModernEquipmentCard
               key={equipment.id}
