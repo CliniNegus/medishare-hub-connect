@@ -28,23 +28,27 @@ const EquipmentTracking = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-7xl">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div>
-              <Skeleton className="h-6 sm:h-8 w-36 sm:w-48 mb-2" />
-              <Skeleton className="h-3 sm:h-4 w-48 sm:w-64" />
+        <div className="min-h-screen bg-background">
+          <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-7xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div>
+                <Skeleton className="h-8 w-48 mb-2" />
+                <Skeleton className="h-4 w-64" />
+              </div>
+              <Skeleton className="h-10 w-32" />
             </div>
-            <Skeleton className="h-8 sm:h-10 w-24 sm:w-32" />
-          </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8">
-            <div className="lg:col-span-4 xl:col-span-3 space-y-4">
-              {[1, 2, 3].map(i => (
-                <Skeleton key={i} className="h-28 sm:h-32 w-full" />
-              ))}
-            </div>
-            <div className="lg:col-span-8 xl:col-span-9 space-y-4">
-              <Skeleton className="h-64 sm:h-80 lg:h-96 w-full" />
+            
+            <div className="flex flex-col lg:flex-row gap-6 mt-6">
+              <div className="w-full lg:w-80 xl:w-96 flex-shrink-0">
+                <div className="space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <Skeleton key={i} className="h-32 w-full" />
+                  ))}
+                </div>
+              </div>
+              <div className="flex-1 space-y-4">
+                <Skeleton className="h-96 w-full" />
+              </div>
             </div>
           </div>
         </div>
@@ -54,35 +58,41 @@ const EquipmentTracking = () => {
   
   return (
     <Layout>
-      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-7xl">
-        <EquipmentTrackingHeader onRefresh={handleRefresh} />
-        
-        {equipmentList.length === 0 ? (
-          <EmptyEquipmentState />
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8">
-            <div className="lg:col-span-4 xl:col-span-3">
-              <EquipmentSidebar
-                equipmentList={equipmentList}
-                selectedEquipmentId={selectedEquipmentId}
-                onSelectEquipment={setSelectedEquipmentId}
-              />
-            </div>
-            
-            <div className="lg:col-span-8 xl:col-span-9 space-y-6 sm:space-y-8 min-w-0">
-              {selectedEquipment && (
-                <>
-                  <EquipmentDetailsHeader equipment={selectedEquipment} />
-                  <EquipmentTabs
-                    analytics={analytics}
-                    equipmentName={selectedEquipment.name}
-                    equipmentId={selectedEquipment.id}
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-7xl">
+          <EquipmentTrackingHeader onRefresh={handleRefresh} />
+          
+          {equipmentList.length === 0 ? (
+            <EmptyEquipmentState />
+          ) : (
+            <div className="flex flex-col lg:flex-row gap-6 mt-6">
+              {/* Equipment Sidebar - Fixed width on large screens */}
+              <div className="w-full lg:w-80 xl:w-96 flex-shrink-0">
+                <div className="sticky top-6">
+                  <EquipmentSidebar
+                    equipmentList={equipmentList}
+                    selectedEquipmentId={selectedEquipmentId}
+                    onSelectEquipment={setSelectedEquipmentId}
                   />
-                </>
-              )}
+                </div>
+              </div>
+              
+              {/* Main Content - Takes remaining space */}
+              <div className="flex-1 min-w-0 space-y-6">
+                {selectedEquipment && (
+                  <>
+                    <EquipmentDetailsHeader equipment={selectedEquipment} />
+                    <EquipmentTabs
+                      analytics={analytics}
+                      equipmentName={selectedEquipment.name}
+                      equipmentId={selectedEquipment.id}
+                    />
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </Layout>
   );
