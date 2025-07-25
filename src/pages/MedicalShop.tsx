@@ -8,6 +8,7 @@ import { CartProvider } from '@/contexts/CartContext';
 import CartSidebar from '@/components/shop/CartSidebar';
 import TrendingProducts from '@/components/shop/TrendingProducts';
 import ShopFeatures from '@/components/shop/ShopFeatures';
+import CategoryNavigation from '@/components/shop/CategoryNavigation';
 import { useProducts } from '@/hooks/use-products';
 
 const MedicalShop = () => {
@@ -25,7 +26,12 @@ const MedicalShop = () => {
         <div className="p-6 max-w-7xl mx-auto">
           <ShopHeader />
           
-          <ShopFilters 
+          <CategoryNavigation
+            selectedCategory={category}
+            onCategoryChange={setCategory}
+          />
+          
+          <ShopFilters
             searchTerm={searchTerm}
             category={category}
             productType={productType}

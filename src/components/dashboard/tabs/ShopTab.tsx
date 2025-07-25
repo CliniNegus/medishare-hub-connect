@@ -9,6 +9,7 @@ import ShopFeatures from '@/components/shop/ShopFeatures';
 import { useCart } from '@/contexts/CartContext';
 import { useProducts } from '@/hooks/use-products';
 import ShopFilters from '@/components/shop/ShopFilters';
+import CategoryNavigation from '@/components/shop/CategoryNavigation';
 
 const ShopTab = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -35,6 +36,11 @@ const ShopTab = () => {
           View Cart ({totalItems})
         </Button>
       </div>
+      
+      <CategoryNavigation
+        selectedCategory={category}
+        onCategoryChange={setCategory}
+      />
       
       <ShopFilters
         searchTerm={searchTerm}
