@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { QrCode, FileText, Calendar, Settings, Database } from "lucide-react";
-import MaintenanceScheduler from '../equipment/MaintenanceScheduler';
+import EnhancedMaintenanceScheduler from '../maintenance/EnhancedMaintenanceScheduler';
 import EquipmentQrScanner from '../equipment/EquipmentQrScanner';
 import EquipmentHistory from '../equipment/EquipmentHistory';
 import IoTIntegration from '../equipment/IoTIntegration';
@@ -104,15 +104,11 @@ const EquipmentTabContent: React.FC<EquipmentTabContentProps> = ({
               <CardHeader className="bg-red-50 border-b border-red-200">
                 <CardTitle className="text-red-800 flex items-center">
                   <Calendar className="h-5 w-5 mr-2 text-red-600" />
-                  Equipment Maintenance Scheduler
+                  Equipment Maintenance Management
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <MaintenanceScheduler 
-                  equipmentData={equipmentData}
-                  selectedEquipmentId={selectedEquipmentId}
-                  onSelectEquipment={setSelectedEquipmentId}
-                />
+                <EnhancedMaintenanceScheduler />
               </CardContent>
             </Card>
           </TabsContent>

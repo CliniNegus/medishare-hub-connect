@@ -679,36 +679,60 @@ export type Database = {
       }
       maintenance: {
         Row: {
+          actual_duration: number | null
           completed_date: string | null
+          cost: number | null
           created_at: string
           created_by: string | null
           description: string | null
           equipment_id: string | null
+          estimated_duration: number | null
           id: string
+          is_overdue: boolean | null
+          maintenance_type: string | null
+          priority: string | null
           scheduled_date: string | null
           status: string | null
+          technician_name: string | null
+          technician_notes: string | null
           updated_at: string
         }
         Insert: {
+          actual_duration?: number | null
           completed_date?: string | null
+          cost?: number | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           equipment_id?: string | null
+          estimated_duration?: number | null
           id?: string
+          is_overdue?: boolean | null
+          maintenance_type?: string | null
+          priority?: string | null
           scheduled_date?: string | null
           status?: string | null
+          technician_name?: string | null
+          technician_notes?: string | null
           updated_at?: string
         }
         Update: {
+          actual_duration?: number | null
           completed_date?: string | null
+          cost?: number | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           equipment_id?: string | null
+          estimated_duration?: number | null
           id?: string
+          is_overdue?: boolean | null
+          maintenance_type?: string | null
+          priority?: string | null
           scheduled_date?: string | null
           status?: string | null
+          technician_name?: string | null
+          technician_notes?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -780,6 +804,53 @@ export type Database = {
             columns: ["equipment_id"]
             isOneToOne: false
             referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      maintenance_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_sent: boolean | null
+          maintenance_id: string | null
+          message: string
+          notification_type: string
+          recipient_id: string | null
+          scheduled_for: string
+          sent_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_sent?: boolean | null
+          maintenance_id?: string | null
+          message: string
+          notification_type: string
+          recipient_id?: string | null
+          scheduled_for: string
+          sent_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_sent?: boolean | null
+          maintenance_id?: string | null
+          message?: string
+          notification_type?: string
+          recipient_id?: string | null
+          scheduled_for?: string
+          sent_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_notifications_maintenance_id_fkey"
+            columns: ["maintenance_id"]
+            isOneToOne: false
+            referencedRelation: "maintenance"
             referencedColumns: ["id"]
           },
         ]
@@ -1618,6 +1689,14 @@ export type Database = {
           ip_address_param?: unknown
           user_agent_param?: string
         }
+        Returns: undefined
+      }
+      mark_overdue_maintenance: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      schedule_maintenance_notifications: {
+        Args: { maintenance_id_param: string }
         Returns: undefined
       }
       send_system_message: {
