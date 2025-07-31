@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Users, Clock, BarChart2, Zap } from 'lucide-react';
+import { PlusCircle, Users, Clock, BarChart2, Zap, Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import AddEquipmentModal from '@/components/equipment/AddEquipmentModal';
 import AddUserModal from './AddUserModal';
+import ScheduleMaintenanceModal from './maintenance/ScheduleMaintenanceModal';
 import { useToast } from '@/hooks/use-toast';
 
 const QuickActions = () => {
@@ -12,6 +13,8 @@ const QuickActions = () => {
   const { toast } = useToast();
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   
   const handleAddEquipmentClick = () => {
     setIsEquipmentModalOpen(true);
@@ -27,6 +30,38 @@ const QuickActions = () => {
 
   const handleUserAdded = () => {
     console.log('User added successfully');
+    toast({
+      title: "Success",
+      description: "User added successfully",
+    });
+  };
+
+  const handleMaintenanceScheduled = () => {
+    console.log('Maintenance scheduled successfully');
+    toast({
+      title: "Success",
+      description: "Maintenance scheduled successfully",
+    });
+  };
+
+  const handleViewUserDashboard = async () => {
+    try {
+      setIsNavigating(true);
+      toast({
+        title: "Redirecting...",
+        description: "Loading user dashboard interface",
+      });
+      await new Promise(resolve => setTimeout(resolve, 500)); // Small delay for UX
+      navigate('/dashboard');
+    } catch (error) {
+      toast({
+        title: "Navigation Error",
+        description: "Failed to load user dashboard",
+        variant: "destructive",
+      });
+    } finally {
+      setIsNavigating(false);
+    }
   };
 
   const quickActions = [
@@ -50,17 +85,18 @@ const QuickActions = () => {
       title: "Schedule Maintenance",
       description: "Plan equipment maintenance",
       icon: Clock,
-      action: () => {},
+      action: () => setIsMaintenanceModalOpen(true),
       gradient: "from-green-500 to-green-600",
       bgGradient: "from-green-50 to-green-100",
     },
     {
       title: "View User Dashboard",
       description: "Switch to user interface",
-      icon: BarChart2,
-      action: () => navigate('/dashboard'),
+      icon: isNavigating ? Loader2 : BarChart2,
+      action: handleViewUserDashboard,
       gradient: "from-purple-500 to-purple-600",
       bgGradient: "from-purple-50 to-purple-100",
+      disabled: isNavigating,
     },
   ];
   
@@ -85,12 +121,14 @@ const QuickActions = () => {
           return (
             <div
               key={action.title}
-              className={`group relative overflow-hidden bg-gradient-to-br ${action.bgGradient} p-4 rounded-xl border border-white/50 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105`}
-              onClick={action.action}
+              className={`group relative overflow-hidden bg-gradient-to-br ${action.bgGradient} p-4 rounded-xl border border-white/50 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105 ${
+                action.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-xl hover:shadow-gray-200/50'
+              }`}
+              onClick={action.disabled ? undefined : action.action}
             >
               {/* Icon */}
               <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${action.gradient} text-white shadow-md mb-3 group-hover:scale-110 transition-transform duration-200`}>
-                <Icon className="h-5 w-5" />
+                <Icon className={`h-5 w-5 ${isNavigating && action.title === 'View User Dashboard' ? 'animate-spin' : ''}`} />
               </div>
               
               {/* Content */}
@@ -120,6 +158,13 @@ const QuickActions = () => {
         open={isUserModalOpen}
         onOpenChange={setIsUserModalOpen}
         onUserAdded={handleUserAdded}
+      />
+
+      {/* Maintenance Modal */}
+      <ScheduleMaintenanceModal
+        open={isMaintenanceModalOpen}
+        onOpenChange={setIsMaintenanceModalOpen}
+        onScheduled={handleMaintenanceScheduled}
       />
     </div>
   );
