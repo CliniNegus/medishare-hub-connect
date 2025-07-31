@@ -92,6 +92,11 @@ const NotificationForm = ({ onSendNotification, sending }: NotificationFormProps
           <SelectContent>
             <SelectItem value="role">Send to Role</SelectItem>
             <SelectItem value="user">Send to Specific User</SelectItem>
+            <SelectItem value="all_users">Send to All Users</SelectItem>
+            <SelectItem value="all_admins">Send to All Admins</SelectItem>
+            <SelectItem value="all_hospitals">Send to All Hospitals</SelectItem>
+            <SelectItem value="all_manufacturers">Send to All Manufacturers</SelectItem>
+            <SelectItem value="all_investors">Send to All Investors</SelectItem>
           </SelectContent>
         </Select>
       </div>

@@ -64,6 +64,37 @@ export const useNotificationSystem = () => {
     }
   };
 
+  // Function to notify users by role
+  const notifyUsersByRole = async (
+    role: string,
+    title: string,
+    message: string,
+    type: 'info' | 'success' | 'warning' | 'error' = 'info',
+    actionUrl?: string
+  ) => {
+    try {
+      const { data: roleProfiles } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('role', role);
+
+      if (roleProfiles && roleProfiles.length > 0) {
+        const notifications = roleProfiles.map(profile => ({
+          user_id: profile.id,
+          title,
+          message,
+          type,
+          action_url: actionUrl,
+          read: false
+        }));
+
+        await supabase.from('notifications').insert(notifications);
+      }
+    } catch (error) {
+      console.error(`Error notifying ${role} users:`, error);
+    }
+  };
+
   // Listen for real-time changes that should trigger notifications
   useEffect(() => {
     if (!user) return;
@@ -90,13 +121,22 @@ export const useNotificationSystem = () => {
               'info',
               `/admin?tab=users`
             );
+            
+            // Welcome notification to the new user
+            createNotification(
+              newProfile.id,
+              'Welcome to CliniBuilds!',
+              `Welcome! Your ${newProfile.role} account has been successfully created.`,
+              'success',
+              '/dashboard'
+            );
           }
         }
       )
       .subscribe();
     channels.push(profileChannel);
 
-    // Listen for new equipment (relevant to all users)
+    // Listen for new equipment (notify all relevant users)
     const equipmentChannel = supabase
       .channel('equipment-notifications')
       .on(
@@ -109,23 +149,29 @@ export const useNotificationSystem = () => {
         (payload) => {
           const equipment = payload.new;
           
-          // Notify admins
-          if (profile?.role === 'admin') {
-            createNotification(
-              user.id,
-              'New Equipment Added',
-              `${equipment.name} has been added to the system`,
-              'info',
-              `/equipment/${equipment.id}`
-            );
-          }
+          // Notify admins about new equipment
+          notifyAllAdmins(
+            'New Equipment Added',
+            `${equipment.name} has been added by ${equipment.manufacturer || 'a manufacturer'}`,
+            'info',
+            `/admin?tab=equipment`
+          );
           
-          // Notify hospitals about new equipment in their area/category
-          if (profile?.role === 'hospital') {
-            createNotification(
-              user.id,
-              'New Equipment Available',
-              `${equipment.name} is now available for booking`,
+          // Notify all hospitals about new equipment availability
+          notifyUsersByRole(
+            'hospital',
+            'New Equipment Available',
+            `${equipment.name} is now available for booking or purchase`,
+            'info',
+            `/equipment/${equipment.id}`
+          );
+          
+          // Notify investors about new investment opportunities
+          if (equipment.sales_option === 'lease') {
+            notifyUsersByRole(
+              'investor',
+              'New Investment Opportunity',
+              `${equipment.name} is available for investment - lease opportunity`,
               'info',
               `/equipment/${equipment.id}`
             );
@@ -134,6 +180,35 @@ export const useNotificationSystem = () => {
       )
       .subscribe();
     channels.push(equipmentChannel);
+
+    // Listen for equipment status updates
+    const equipmentUpdatesChannel = supabase
+      .channel('equipment-status-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'equipment'
+        },
+        (payload) => {
+          const equipment = payload.new;
+          const oldEquipment = payload.old;
+          
+          // Notify equipment owner about status changes
+          if (equipment.status !== oldEquipment.status && equipment.owner_id) {
+            createNotification(
+              equipment.owner_id,
+              'Equipment Status Updated',
+              `${equipment.name} status changed to: ${equipment.status}`,
+              equipment.status === 'maintenance' ? 'warning' : 'info',
+              `/equipment/${equipment.id}`
+            );
+          }
+        }
+      )
+      .subscribe();
+    channels.push(equipmentUpdatesChannel);
 
     // Listen for new orders
     const ordersChannel = supabase
@@ -444,25 +519,133 @@ export const useNotificationSystem = () => {
         (payload) => {
           const product = payload.new;
           
-          // Notify hospitals and general users about new products
-          if (profile?.role === 'hospital') {
+          // Notify hospitals about new products
+          notifyUsersByRole(
+            'hospital',
+            'New Product Available',
+            `${product.name} is now available in the shop`,
+            'info',
+            `/shop`
+          );
+        }
+      )
+      .subscribe();
+    channels.push(productsChannel);
+
+    // Listen for new investments
+    const investmentsChannel = supabase
+      .channel('investment-notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'investments'
+        },
+        (payload) => {
+          const investment = payload.new;
+          
+          // Notify admins about new investments
+          notifyAllAdmins(
+            'New Investment Made',
+            `Investment of $${investment.amount} has been made`,
+            'success',
+            `/admin?tab=investments`
+          );
+
+          // Notify the investor
+          if (investment.investor_id) {
             createNotification(
-              user.id,
-              'New Product Available',
-              `${product.name} is now available in the shop`,
-              'info',
-              `/shop`
+              investment.investor_id,
+              'Investment Confirmed',
+              `Your investment of $${investment.amount} has been confirmed`,
+              'success',
+              `/dashboard`
             );
           }
         }
       )
       .subscribe();
-    channels.push(productsChannel);
+    channels.push(investmentsChannel);
+
+    // Listen for new leases
+    const leasesChannel = supabase
+      .channel('lease-notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'leases'
+        },
+        (payload) => {
+          const lease = payload.new;
+          
+          // Notify admins
+          notifyAllAdmins(
+            'New Lease Agreement',
+            `New lease agreement for $${lease.monthly_payment}/month`,
+            'info',
+            `/admin?tab=leases`
+          );
+
+          // Notify hospital
+          if (lease.hospital_id) {
+            createNotification(
+              lease.hospital_id,
+              'Lease Agreement Created',
+              `Your lease agreement has been created`,
+              'success',
+              `/dashboard`
+            );
+          }
+
+          // Notify investor
+          if (lease.investor_id) {
+            createNotification(
+              lease.investor_id,
+              'Lease Investment Active',
+              `Your lease investment is now active`,
+              'success',
+              `/dashboard`
+            );
+          }
+        }
+      )
+      .subscribe();
+    channels.push(leasesChannel);
+
+    // Listen for maintenance scheduling
+    const maintenanceSchedulingChannel = supabase
+      .channel('maintenance-scheduling')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'maintenance'
+        },
+        (payload) => {
+          const maintenance = payload.new;
+          
+          if (maintenance.status === 'scheduled') {
+            // Notify admins
+            notifyAllAdmins(
+              'Maintenance Scheduled',
+              `Maintenance has been scheduled for equipment`,
+              'info',
+              `/admin?tab=maintenance`
+            );
+          }
+        }
+      )
+      .subscribe();
+    channels.push(maintenanceSchedulingChannel);
 
     return () => {
       channels.forEach(channel => supabase.removeChannel(channel));
     };
   }, [user, profile]);
 
-  return { createNotification, notifyAllAdmins };
+  return { createNotification, notifyAllAdmins, notifyUsersByRole };
 };

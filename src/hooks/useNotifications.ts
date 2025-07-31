@@ -102,12 +102,30 @@ export function useNotifications() {
         })
       });
 
-      if (recipientType === 'user') {
-        // Send to specific user
-        await sendToUser(recipientId, title, message, notificationType, actionUrl);
-      } else {
-        // Send to role
-        await sendToRole(recipientRole, title, message, notificationType, actionUrl);
+      switch (recipientType) {
+        case 'user':
+          await sendToUser(recipientId, title, message, notificationType, actionUrl);
+          break;
+        case 'role':
+          await sendToRole(recipientRole, title, message, notificationType, actionUrl);
+          break;
+        case 'all_users':
+          await sendToAllUsers(title, message, notificationType, actionUrl);
+          break;
+        case 'all_admins':
+          await sendToRole('admin', title, message, notificationType, actionUrl);
+          break;
+        case 'all_hospitals':
+          await sendToRole('hospital', title, message, notificationType, actionUrl);
+          break;
+        case 'all_manufacturers':
+          await sendToRole('manufacturer', title, message, notificationType, actionUrl);
+          break;
+        case 'all_investors':
+          await sendToRole('investor', title, message, notificationType, actionUrl);
+          break;
+        default:
+          await sendToRole(recipientRole, title, message, notificationType, actionUrl);
       }
 
       toast({
@@ -172,6 +190,32 @@ export function useNotifications() {
     }
   };
 
+  const sendToAllUsers = async (title: string, message: string, type: string, actionUrl: string) => {
+    // Get all users
+    const { data: users, error } = await supabase
+      .from('profiles')
+      .select('id');
+
+    if (error) throw error;
+
+    // Send notification to each user
+    if (users && users.length > 0) {
+      const notifications = users.map(u => ({
+        user_id: u.id,
+        title,
+        message,
+        type,
+        action_url: actionUrl || null
+      }));
+
+      const { error: insertError } = await supabase
+        .from('notifications')
+        .insert(notifications);
+
+      if (insertError) throw insertError;
+    }
+  };
+
   const deleteNotification = async (notificationId: string) => {
     try {
       const { error } = await supabase
@@ -197,12 +241,74 @@ export function useNotifications() {
     }
   };
 
+  const markAsRead = async (notificationId: string) => {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true, updated_at: new Date().toISOString() })
+        .eq('id', notificationId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: 'Notification marked as read',
+      });
+
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update notification',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
+      
+      if (unreadIds.length === 0) {
+        toast({
+          title: 'Info',
+          description: 'No unread notifications to mark',
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true, updated_at: new Date().toISOString() })
+        .in('id', unreadIds);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: 'All notifications marked as read',
+      });
+
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update notifications',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return {
     notifications,
     loading,
     sending,
     fetchNotifications,
     sendNotification,
-    deleteNotification
+    deleteNotification,
+    markAsRead,
+    markAllAsRead
   };
 }
