@@ -7,12 +7,21 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useActiveUsers } from '@/hooks/useActiveUsers';
 import { useNavigate } from 'react-router-dom';
+import { UserViewDialog } from '@/components/admin/UserViewDialog';
+import { UserEditDialog } from '@/components/admin/UserEditDialog';
+import { UserDeleteDialog } from '@/components/admin/UserDeleteDialog';
+import { UserSuspendDialog } from '@/components/admin/UserSuspendDialog';
 
 const ManageHospitalAccounts = () => {
   const navigate = useNavigate();
-  const { users, loading } = useActiveUsers();
+  const { users, loading, updateUser, refreshUsers } = useActiveUsers();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [suspendDialogOpen, setSuspendDialogOpen] = useState(false);
 
   // Filter users by hospital role
   const hospitalUsers = useMemo(() => {
@@ -228,16 +237,45 @@ const ManageHospitalAccounts = () => {
                         <TableCell>{formatLastActive(user.last_active)}</TableCell>
                         <TableCell>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="ghost">
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => {
+                                setSelectedUser(user);
+                                setViewDialogOpen(true);
+                              }}
+                            >
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button size="sm" variant="ghost">
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => {
+                                setSelectedUser(user);
+                                setEditDialogOpen(true);
+                              }}
+                            >
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button size="sm" variant="ghost">
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => {
+                                setSelectedUser(user);
+                                setSuspendDialogOpen(true);
+                              }}
+                            >
                               <Ban className="h-4 w-4" />
                             </Button>
-                            <Button size="sm" variant="ghost" className="text-red-600">
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="text-red-600"
+                              onClick={() => {
+                                setSelectedUser(user);
+                                setDeleteDialogOpen(true);
+                              }}
+                            >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
@@ -250,6 +288,34 @@ const ManageHospitalAccounts = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Action Dialogs */}
+        <UserViewDialog
+          user={selectedUser}
+          open={viewDialogOpen}
+          onOpenChange={setViewDialogOpen}
+        />
+        
+        <UserEditDialog
+          user={selectedUser}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onUserUpdate={updateUser}
+        />
+        
+        <UserDeleteDialog
+          user={selectedUser}
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          onUserDeleted={refreshUsers}
+        />
+        
+        <UserSuspendDialog
+          user={selectedUser}
+          open={suspendDialogOpen}
+          onOpenChange={setSuspendDialogOpen}
+          onUserSuspended={refreshUsers}
+        />
       </div>
     </div>
   );
