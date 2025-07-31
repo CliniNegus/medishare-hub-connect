@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavigate } from 'react-router-dom';
 import AddUserModal from './AddUserModal';
 import ActiveUsersTable from './ActiveUsersTable';
 
@@ -13,6 +14,7 @@ interface Stats {
 }
 
 const UserManagement = ({ stats }: { stats: Stats }) => {
+  const navigate = useNavigate();
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -42,7 +44,13 @@ const UserManagement = ({ stats }: { stats: Stats }) => {
             <CardDescription>{stats.hospitals} active accounts</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full">Manage Hospital Accounts</Button>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => navigate('/admin/users/hospitals')}
+            >
+              Manage Hospital Accounts
+            </Button>
           </CardContent>
         </Card>
         <Card>
@@ -51,7 +59,13 @@ const UserManagement = ({ stats }: { stats: Stats }) => {
             <CardDescription>{stats.manufacturers} active accounts</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full">Manage Manufacturer Accounts</Button>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => navigate('/admin/users/manufacturers')}
+            >
+              Manage Manufacturer Accounts
+            </Button>
           </CardContent>
         </Card>
         <Card>
@@ -60,7 +74,13 @@ const UserManagement = ({ stats }: { stats: Stats }) => {
             <CardDescription>{stats.investors} active accounts</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full">Manage Investor Accounts</Button>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => navigate('/admin/users/investors')}
+            >
+              Manage Investor Accounts
+            </Button>
           </CardContent>
         </Card>
       </div>

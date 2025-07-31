@@ -19,6 +19,9 @@ import AdminAuth from './pages/AdminAuth';
 import Dashboard from './components/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import MaintenanceAlertsPage from './pages/MaintenanceAlertsPage';
+import ManageHospitalAccounts from './pages/admin/ManageHospitalAccounts';
+import ManageManufacturerAccounts from './pages/admin/ManageManufacturerAccounts';
+import ManageInvestorAccounts from './pages/admin/ManageInvestorAccounts';
 import Orders from './pages/Orders';
 import MedicalShop from './pages/MedicalShop';
 import ProfileManagement from './pages/ProfileManagement';
@@ -95,6 +98,30 @@ function App() {
                       element={
                         <ProtectedRoute requireAdmin>
                           <MaintenanceAlertsPage />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/users/hospitals" 
+                      element={
+                        <ProtectedRoute requireAdmin>
+                          <ManageHospitalAccounts />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/users/manufacturers" 
+                      element={
+                        <ProtectedRoute requireAdmin>
+                          <ManageManufacturerAccounts />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/users/investors" 
+                      element={
+                        <ProtectedRoute requireAdmin>
+                          <ManageInvestorAccounts />
                         </ProtectedRoute>
                       } 
                     />
