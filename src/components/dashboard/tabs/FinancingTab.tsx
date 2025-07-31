@@ -14,8 +14,8 @@ const FinancingTab: React.FC = () => {
       term: "36 months",
       interestRate: "5.9%",
       downPayment: "10%",
-      monthlyPayment: "$2,500",
-      totalCost: "$90,000",
+      monthlyPayment: "Ksh 250,000",
+      totalCost: "Ksh 9,000,000",
       bestFor: "General equipment with consistent usage"
     },
     {
@@ -24,8 +24,8 @@ const FinancingTab: React.FC = () => {
       term: "24 months",
       interestRate: "6.5%",
       downPayment: "15%",
-      monthlyPayment: "$3,800",
-      totalCost: "$91,200",
+      monthlyPayment: "Ksh 380,000",
+      totalCost: "Ksh 9,120,000",
       bestFor: "Rapidly depreciating technology"
     },
     {
@@ -34,8 +34,8 @@ const FinancingTab: React.FC = () => {
       term: "60 months",
       interestRate: "7.2%",
       downPayment: "5%",
-      monthlyPayment: "$1,650",
-      totalCost: "$99,000",
+      monthlyPayment: "Ksh 165,000",
+      totalCost: "Ksh 9,900,000",
       bestFor: "High value equipment with long service life"
     }
   ];
@@ -46,32 +46,32 @@ const FinancingTab: React.FC = () => {
       id: 1,
       name: "MRI Scanner - Premium Model",
       manufacturer: "MediTech Imaging",
-      price: "$1,250,000",
-      estimatedMonthly: "$22,500",
+      price: "Ksh 125,000,000",
+      estimatedMonthly: "Ksh 2,250,000",
       category: "Imaging"
     },
     {
       id: 2,
       name: "Surgical Robot System",
       manufacturer: "SurgicalBots Inc",
-      price: "$895,000",
-      estimatedMonthly: "$16,200",
+      price: "Ksh 89,500,000",
+      estimatedMonthly: "Ksh 1,620,000",
       category: "Surgical"
     },
     {
       id: 3,
       name: "CT Scanner - Advanced",
       manufacturer: "ClearView Medical",
-      price: "$750,000",
-      estimatedMonthly: "$13,500",
+      price: "Ksh 75,000,000",
+      estimatedMonthly: "Ksh 1,350,000",
       category: "Imaging"
     },
     {
       id: 4,
       name: "Ultrasound System - Professional",
       manufacturer: "SonoWave",
-      price: "$125,000",
-      estimatedMonthly: "$2,300",
+      price: "Ksh 12,500,000",
+      estimatedMonthly: "Ksh 230,000",
       category: "Imaging"
     }
   ];
@@ -189,11 +189,11 @@ const FinancingTab: React.FC = () => {
                 <div>
                   <label className="text-sm font-medium">Equipment Price</label>
                   <div className="relative mt-1">
-                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">$</span>
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">Ksh</span>
                     <input 
                       type="text" 
                       className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md"
-                      defaultValue="500,000"
+                      defaultValue="50,000,000"
                     />
                   </div>
                 </div>
@@ -240,8 +240,8 @@ const FinancingTab: React.FC = () => {
                 
                 <div className="p-3 bg-gray-50 rounded-md">
                   <div className="text-sm text-gray-500">Estimated Monthly Payment:</div>
-                  <div className="text-xl font-bold text-red-600">$9,325.42</div>
-                  <div className="text-sm text-gray-500 mt-1">Total Finance Amount: $450,000</div>
+                  <div className="text-xl font-bold text-red-600">Ksh 932,542</div>
+                  <div className="text-sm text-gray-500 mt-1">Total Finance Amount: Ksh 45,000,000</div>
                 </div>
               </div>
             </CardContent>

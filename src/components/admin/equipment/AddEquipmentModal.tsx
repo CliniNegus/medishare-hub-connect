@@ -317,7 +317,7 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="price">Price ($)</Label>
+              <Label htmlFor="price">Price (Ksh)</Label>
               <Input
                 id="price"
                 type="number"
@@ -330,7 +330,7 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="lease_rate">Lease Rate ($/month)</Label>
+              <Label htmlFor="lease_rate">Lease Rate (Ksh/month)</Label>
               <Input
                 id="lease_rate"
                 type="number"
