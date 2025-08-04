@@ -20,7 +20,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
     { id: 'users', label: 'Users', icon: Users },
     { id: 'maintenance', label: 'Maintenance', icon: Clock },
     { id: 'finance', label: 'Finance', icon: DollarSign },
-    { id: 'shop', label: 'Medical Shop', icon: Package },
+    { id: 'notifications', label: 'Notifications', icon: Bell },
   ];
 
   const secondaryItems = [

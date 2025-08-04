@@ -8,6 +8,7 @@ import SettingsPanel from './SettingsPanel';
 import PredictiveAnalytics from './analytics/PredictiveAnalytics';
 import OverviewTabContent from './tabs/OverviewTabContent';
 import ShopTabContent from './tabs/ShopTabContent';
+import AdminNotificationsDashboard from './notifications/AdminNotificationsDashboard';
 import { useEquipmentData } from './hooks/useEquipmentData';
 
 interface TabContentProps {
@@ -64,6 +65,8 @@ const TabContent: React.FC<TabContentProps> = ({
       return <PredictiveAnalytics />;
     case 'settings':
       return <SettingsPanel />;
+    case 'notifications':
+      return <AdminNotificationsDashboard />;
     case 'shop':
       return <ShopTabContent />;
     default:
