@@ -22,6 +22,8 @@ import HospitalDashboardTabs from './hospital-dashboard/HospitalDashboardTabs';
 import DashboardStatsSection from './hospital-dashboard/DashboardStatsSection';
 import RecentBookingsSection from './hospital-dashboard/RecentBookingsSection';
 import RecentOrdersSection from './hospital-dashboard/RecentOrdersSection';
+import NotificationDropdown from './notifications/NotificationDropdown';
+import { ThemeToggleButton } from './ThemeToggle';
 
 const HospitalDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -79,7 +81,16 @@ const HospitalDashboard = () => {
                 </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+              <div className="flex items-center gap-2">
+                {/* Theme Toggle */}
+                <ThemeToggleButton />
+                
+                {/* Notifications */}
+                <div className="text-white [&>button]:text-white [&>button:hover]:bg-white/10 [&_svg]:text-white [&_.bg-\\[\\#E02020\\]]:bg-white [&_.bg-\\[\\#E02020\\]]:text-[#E02020]">
+                  <NotificationDropdown />
+                </div>
+                
+                {/* Account Settings */}
                 <Button 
                   variant="outline"
                   className="bg-white/10 border-white/30 text-white hover:bg-white hover:text-[#E02020] transition-all duration-200 backdrop-blur-sm"

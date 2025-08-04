@@ -30,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import InvestorWallet from "@/components/InvestorWallet";
+import NotificationDropdown from "@/components/notifications/NotificationDropdown";
 
 interface Investment {
   id: string;
@@ -592,14 +593,10 @@ const InvestorDashboard = () => {
                 {/* Theme Toggle - Compact */}
                 <ThemeToggleButton />
 
-                {/* Notifications - Compact */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-white hover:bg-white/10 p-2 transition-all duration-200 hover:scale-105"
-                >
-                  <Bell className="h-4 w-4" />
-                </Button>
+                {/* Notifications - Functional */}
+                <div className="text-white [&>button]:text-white [&>button:hover]:bg-white/10 [&_svg]:text-white [&_.bg-\\[\\#E02020\\]]:bg-white [&_.bg-\\[\\#E02020\\]]:text-[#E02020]">
+                  <NotificationDropdown />
+                </div>
 
                 {/* User Menu - Compact */}
                 <DropdownMenu>

@@ -168,16 +168,16 @@ const NotificationDropdown = () => {
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button variant="ghost" size="icon" className="relative hover:bg-accent transition-colors">
           {unreadCount > 0 ? (
-            <BellDot className="h-5 w-5 text-gray-600" />
+            <BellDot className="h-5 w-5 text-foreground animate-pulse" />
           ) : (
-            <Bell className="h-5 w-5 text-gray-600" />
+            <Bell className="h-5 w-5 text-foreground" />
           )}
           {unreadCount > 0 && (
             <Badge 
               variant="destructive" 
-              className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center text-xs bg-[#E02020] p-0 min-w-5"
+              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs bg-[#E02020] text-white p-0 min-w-5 border-2 border-background shadow-sm animate-bounce"
             >
               {unreadCount > 99 ? '99+' : unreadCount}
             </Badge>
@@ -185,19 +185,19 @@ const NotificationDropdown = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
-        className="w-96 max-h-[500px] bg-white border shadow-lg z-50" 
+        className="w-96 max-h-[500px] bg-background border border-border shadow-xl z-50 animate-scale-in" 
         align="end"
         sideOffset={8}
       >
-        <div className="p-4 border-b">
+        <div className="p-4 border-b border-border bg-muted/30">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-lg">Notifications</h3>
+            <h3 className="font-semibold text-lg text-foreground">Notifications</h3>
             {unreadCount > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={markAllAsRead}
-                className="text-[#E02020] hover:text-[#c01010]"
+                className="text-[#E02020] hover:text-[#c01010] hover:bg-[#E02020]/10 transition-colors"
               >
                 <CheckCheck className="h-4 w-4 mr-1" />
                 Mark all read
@@ -205,7 +205,7 @@ const NotificationDropdown = () => {
             )}
           </div>
           {unreadCount > 0 && (
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
             </p>
           )}
@@ -213,22 +213,25 @@ const NotificationDropdown = () => {
 
         <ScrollArea className="max-h-80">
           {loading ? (
-            <div className="p-4 text-center text-gray-500">
-              Loading notifications...
+            <div className="p-4 text-center text-muted-foreground">
+              <div className="animate-pulse flex flex-col items-center">
+                <div className="w-8 h-8 bg-muted rounded-full mb-2"></div>
+                <div className="text-sm">Loading notifications...</div>
+              </div>
             </div>
           ) : notifications.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">
-              <Bell className="h-12 w-12 mx-auto mb-2 text-gray-300" />
-              <p>No notifications yet</p>
+            <div className="p-6 text-center text-muted-foreground">
+              <Bell className="h-12 w-12 mx-auto mb-2 text-muted-foreground/50" />
+              <p className="font-medium">No notifications yet</p>
               <p className="text-xs mt-1">You'll see updates here when they arrive</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-border">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
-                    !notification.read ? 'bg-blue-50 border-l-4 border-l-[#E02020]' : ''
+                  className={`p-4 hover:bg-accent/50 cursor-pointer transition-all duration-200 hover:scale-[1.01] ${
+                    !notification.read ? 'bg-primary/5 border-l-4 border-l-[#E02020] shadow-sm' : ''
                   }`}
                   onClick={() => handleNotificationClick(notification)}
                 >
@@ -236,19 +239,19 @@ const NotificationDropdown = () => {
                     {getNotificationIcon(notification.type)}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <p className={`text-sm font-medium ${!notification.read ? 'text-gray-900' : 'text-gray-700'}`}>
+                        <p className={`text-sm font-medium ${!notification.read ? 'text-foreground' : 'text-muted-foreground'}`}>
                           {notification.title}
                         </p>
                         {!notification.read && (
-                          <div className="w-2 h-2 bg-[#E02020] rounded-full flex-shrink-0" />
+                          <div className="w-2 h-2 bg-[#E02020] rounded-full flex-shrink-0 animate-pulse" />
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                         {notification.message}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
-                        <Clock className="h-3 w-3 text-gray-400" />
-                        <span className="text-xs text-gray-500">
+                        <Clock className="h-3 w-3 text-muted-foreground/60" />
+                        <span className="text-xs text-muted-foreground/80">
                           {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                         </span>
                       </div>
@@ -266,7 +269,7 @@ const NotificationDropdown = () => {
             <div className="p-2">
               <Button
                 variant="ghost"
-                className="w-full text-[#E02020] hover:text-[#c01010] hover:bg-gray-50"
+                className="w-full text-[#E02020] hover:text-[#c01010] hover:bg-[#E02020]/10 transition-all duration-200 font-medium"
                 onClick={() => {
                   navigate('/notifications');
                   setIsOpen(false);
