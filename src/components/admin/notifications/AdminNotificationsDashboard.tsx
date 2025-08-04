@@ -119,6 +119,14 @@ const AdminNotificationsDashboard = () => {
   };
 
   const handleTemplateSelect = (templateId: string) => {
+    if (templateId === 'custom') {
+      setTitle('');
+      setMessage('');
+      setNotificationType('info');
+      setSelectedTemplate('custom');
+      return;
+    }
+    
     const template = defaultTemplates.find(t => t.id === templateId);
     if (template) {
       setTitle(template.title);
@@ -265,7 +273,7 @@ const AdminNotificationsDashboard = () => {
                     <SelectValue placeholder="Choose a template or create custom" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Custom Notification</SelectItem>
+                    <SelectItem value="custom">Custom Notification</SelectItem>
                     {defaultTemplates.map(template => (
                       <SelectItem key={template.id} value={template.id}>
                         {template.name}
@@ -343,7 +351,7 @@ const AdminNotificationsDashboard = () => {
                         </SelectTrigger>
                         <SelectContent>
                           {loadingUsers ? (
-                            <SelectItem value="">Loading users...</SelectItem>
+                            <SelectItem value="loading" disabled>Loading users...</SelectItem>
                           ) : (
                             users.map(user => (
                               <SelectItem key={user.id} value={user.id}>
