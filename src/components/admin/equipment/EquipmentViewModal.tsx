@@ -42,9 +42,9 @@ const EquipmentViewModal: React.FC<EquipmentViewModalProps> = ({
 
   const formatCurrency = (amount: number | null) => {
     if (!amount) return 'Not specified';
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-KE', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'KES'
     }).format(amount);
   };
 
