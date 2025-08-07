@@ -16,7 +16,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
 
   const menuItems = [
     { id: 'overview', label: 'Dashboard', icon: BarChart2 },
-    { id: 'equipment', label: 'Equipment', icon: Package },
+    { id: 'equipment', label: 'Equipment & Products', icon: Package },
     { id: 'users', label: 'Users', icon: Users },
     { id: 'maintenance', label: 'Maintenance', icon: Clock },
     { id: 'finance', label: 'Finance', icon: DollarSign },
