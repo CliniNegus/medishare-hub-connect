@@ -9,6 +9,7 @@ import PredictiveAnalytics from './analytics/PredictiveAnalytics';
 import OverviewTabContent from './tabs/OverviewTabContent';
 import ShopTabContent from './tabs/ShopTabContent';
 import AdminNotificationsDashboard from './notifications/AdminNotificationsDashboard';
+import CustomerStatements from './customer-statements/CustomerStatements';
 import { useEquipmentData } from './hooks/useEquipmentData';
 
 interface TabContentProps {
@@ -61,6 +62,8 @@ const TabContent: React.FC<TabContentProps> = ({
         stats={stats} 
         recentTransactions={recentTransactions} 
       />;
+    case 'customer-statements':
+      return <CustomerStatements />;
     case 'analytics':
       return <PredictiveAnalytics />;
     case 'settings':

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CreditCard, DollarSign, Activity, FileText, BarChart2, Search, Filter, ArrowUpDown, Calendar, Eye, Edit, MoreHorizontal } from 'lucide-react';
+import { CreditCard, DollarSign, Activity, FileText, BarChart2, Search, Filter, ArrowUpDown, Calendar, Eye, Edit, MoreHorizontal, Receipt } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -22,6 +22,7 @@ import { useFinancialData } from '@/hooks/useFinancialData';
 import RecordTransactionModal from './financial/RecordTransactionModal';
 import TransactionDetailsModal from './financial/TransactionDetailsModal';
 import EditTransactionModal from './financial/EditTransactionModal';
+import CustomerStatements from './customer-statements/CustomerStatements';
 
 interface Transaction {
   id: string;
@@ -55,6 +56,7 @@ const FinancialManagement: React.FC<FinancialManagementProps> = ({ stats, recent
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [showCustomerStatements, setShowCustomerStatements] = useState(false);
 
   const handleViewTransaction = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
@@ -112,12 +114,26 @@ const FinancialManagement: React.FC<FinancialManagementProps> = ({ stats, recent
     <div className="bg-white p-6 rounded-lg shadow-sm">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-[#333333]">Financial Management</h2>
-        <Button variant="primary-red" onClick={() => setRecordModalOpen(true)}>
-          <CreditCard className="h-4 w-4 mr-2" />
-          Record Transaction
-        </Button>
+        <div className="flex gap-3">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowCustomerStatements(!showCustomerStatements)}
+            className="border-[#E02020] text-[#E02020] hover:bg-[#E02020] hover:text-white"
+          >
+            <Receipt className="h-4 w-4 mr-2" />
+            {showCustomerStatements ? 'View Transactions' : 'Customer Statements'}
+          </Button>
+          <Button variant="primary-red" onClick={() => setRecordModalOpen(true)}>
+            <CreditCard className="h-4 w-4 mr-2" />
+            Record Transaction
+          </Button>
+        </div>
       </div>
-      
+
+      {showCustomerStatements ? (
+        <CustomerStatements />
+      ) : (
+        <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card className="border-red-100 bg-red-50">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -360,6 +376,8 @@ const FinancialManagement: React.FC<FinancialManagementProps> = ({ stats, recent
         transaction={selectedTransaction}
         onTransactionUpdated={refreshData}
       />
+        </>
+      )}
     </div>
   );
 };

@@ -180,6 +180,42 @@ export type Database = {
           },
         ]
       }
+      customer_statements: {
+        Row: {
+          amount_paid: number
+          balance_due: number
+          client_name: string
+          created_at: string
+          date_range: string
+          id: string
+          invoiced_amount: number
+          opening_balance: number
+          updated_at: string
+        }
+        Insert: {
+          amount_paid: number
+          balance_due: number
+          client_name: string
+          created_at?: string
+          date_range: string
+          id?: string
+          invoiced_amount: number
+          opening_balance: number
+          updated_at?: string
+        }
+        Update: {
+          amount_paid?: number
+          balance_due?: number
+          client_name?: string
+          created_at?: string
+          date_range?: string
+          id?: string
+          invoiced_amount?: number
+          opening_balance?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       customers: {
         Row: {
           created_at: string

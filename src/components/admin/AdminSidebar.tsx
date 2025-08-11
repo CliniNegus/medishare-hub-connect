@@ -1,9 +1,9 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, Package, Bell, Calendar, Settings, 
-  FileText, BarChart2, Clock, DollarSign, LogOut, Home
+  FileText, BarChart2, Clock, DollarSign, LogOut, Home, ChevronDown, ChevronRight, Receipt
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -13,13 +13,30 @@ interface AdminSidebarProps {
 
 const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
   const navigate = useNavigate();
+  const [financeSubmenuOpen, setFinanceSubmenuOpen] = useState(false);
+
+  // Auto-open finance submenu when customer-statements is active
+  useEffect(() => {
+    if (activeTab === 'customer-statements') {
+      setFinanceSubmenuOpen(true);
+    }
+  }, [activeTab]);
 
   const menuItems = [
     { id: 'overview', label: 'Dashboard', icon: BarChart2 },
     { id: 'equipment', label: 'Equipment & Products', icon: Package },
     { id: 'users', label: 'Users', icon: Users },
     { id: 'maintenance', label: 'Maintenance', icon: Clock },
-    { id: 'finance', label: 'Finance', icon: DollarSign },
+    { 
+      id: 'finance', 
+      label: 'Finance', 
+      icon: DollarSign,
+      hasSubmenu: true,
+      submenu: [
+        { id: 'finance', label: 'Transactions', icon: DollarSign },
+        { id: 'customer-statements', label: 'Customer Statements', icon: Receipt }
+      ]
+    },
     { id: 'notifications', label: 'Notifications', icon: Bell },
   ];
 
@@ -51,24 +68,68 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
         <div className="space-y-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeTab === item.id;
+            const isActive = activeTab === item.id || (item.hasSubmenu && item.submenu?.some(sub => sub.id === activeTab));
+            const isSubmenuOpen = item.id === 'finance' && financeSubmenuOpen;
             
             return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center p-3 rounded-xl transition-all duration-200 group ${
-                  isActive 
-                    ? 'bg-gradient-to-r from-[#E02020] to-[#c01010] text-white shadow-lg transform scale-105' 
-                    : 'hover:bg-white/10 text-gray-300 hover:text-white hover:transform hover:scale-105'
-                }`}
-              >
-                <Icon className={`h-5 w-5 mr-3 transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
-                <span className="font-medium">{item.label}</span>
-                {isActive && (
-                  <div className="ml-auto w-2 h-2 bg-white rounded-full animate-pulse" />
+              <div key={item.id}>
+                <button
+                  onClick={() => {
+                    if (item.hasSubmenu) {
+                      setFinanceSubmenuOpen(!financeSubmenuOpen);
+                    } else {
+                      setActiveTab(item.id);
+                    }
+                  }}
+                  className={`w-full flex items-center p-3 rounded-xl transition-all duration-200 group ${
+                    isActive 
+                      ? 'bg-gradient-to-r from-[#E02020] to-[#c01010] text-white shadow-lg transform scale-105' 
+                      : 'hover:bg-white/10 text-gray-300 hover:text-white hover:transform hover:scale-105'
+                  }`}
+                >
+                  <Icon className={`h-5 w-5 mr-3 transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                  <span className="font-medium">{item.label}</span>
+                  {item.hasSubmenu && (
+                    <div className="ml-auto">
+                      {isSubmenuOpen ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
+                    </div>
+                  )}
+                  {isActive && !item.hasSubmenu && (
+                    <div className="ml-auto w-2 h-2 bg-white rounded-full animate-pulse" />
+                  )}
+                </button>
+                
+                {item.hasSubmenu && isSubmenuOpen && (
+                  <div className="mt-2 ml-6 space-y-1">
+                    {item.submenu?.map((subItem) => {
+                      const SubIcon = subItem.icon;
+                      const isSubActive = activeTab === subItem.id;
+                      
+                      return (
+                        <button
+                          key={subItem.id}
+                          onClick={() => setActiveTab(subItem.id)}
+                          className={`w-full flex items-center p-2 rounded-lg transition-all duration-200 text-sm ${
+                            isSubActive 
+                              ? 'bg-[#E02020] text-white shadow-md' 
+                              : 'text-gray-400 hover:text-white hover:bg-white/10'
+                          }`}
+                        >
+                          <SubIcon className="h-4 w-4 mr-3" />
+                          <span className="font-medium">{subItem.label}</span>
+                          {isSubActive && (
+                            <div className="ml-auto w-1.5 h-1.5 bg-white rounded-full" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 )}
-              </button>
+              </div>
             );
           })}
         </div>
