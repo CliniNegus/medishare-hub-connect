@@ -111,10 +111,12 @@ export function useEquipmentData() {
       try {
         setLoading(true);
         
+        // Try to fetch basic equipment data - will only return data user has access to
         const { data, error } = await supabase
           .from('equipment')
-          .select('*')
-          .order('created_at', { ascending: false });
+          .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, created_at, updated_at')
+          .in('status', ['Available', 'In Use'])
+          .order('created_at', { ascending: false })
           
         if (error) throw error;
         
@@ -124,19 +126,19 @@ export function useEquipmentData() {
           name: item.name || 'Unnamed Equipment',
           image_url: item.image_url || '/placeholder.svg',
           description: item.description || 'No description available',
-          price: item.price || 0,
+          price: 0, // Price is no longer available in public data
           category: item.category || 'Uncategorized',
           manufacturer: item.manufacturer || 'Unknown',
           type: item.status === 'available' ? 'available' : 
                 item.status === 'maintenance' ? 'maintenance' : 'in-use',
           location: item.location || 'Unknown',
           cluster: 'Main Hospital', // Default value as it might not be in the DB
-          pricePerUse: item.pay_per_use_enabled ? item.pay_per_use_price : Math.round(item.price / 100) || 10,
-          purchasePrice: item.price || 0,
-          leaseRate: item.lease_rate || Math.round((item.price || 0) * 0.05),
+          pricePerUse: 10, // Default value as pricing is now private
+          purchasePrice: 0, // Price data is no longer public
+          leaseRate: 0, // Lease rate is no longer public
           nextAvailable: item.status !== 'available' ? '2025-06-01' : undefined,
-          payPerUseEnabled: item.pay_per_use_enabled || false,
-          payPerUsePrice: item.pay_per_use_price || null,
+          payPerUseEnabled: false, // Pay per use data is no longer public
+          payPerUsePrice: null, // Pay per use pricing is no longer public
         }));
         
         setEquipment(formattedEquipment);
