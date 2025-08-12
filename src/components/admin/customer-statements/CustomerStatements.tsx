@@ -4,6 +4,11 @@ import { useToast } from '@/hooks/use-toast';
 import { CustomerStatementsTable } from './CustomerStatementsTable';
 import { CSVUploadSection } from './CSVUploadSection';
 import { formatCurrency } from '@/utils/formatters';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { CalendarDays, Users, TrendingUp, TrendingDown } from 'lucide-react';
 
 export interface CustomerStatement {
   id: string;
@@ -20,7 +25,8 @@ export interface CustomerStatement {
 const CustomerStatements = () => {
   const [statements, setStatements] = useState<CustomerStatement[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [clientNameFilter, setClientNameFilter] = useState('');
+  const [dateRangeFilter, setDateRangeFilter] = useState('');
   const { toast } = useToast();
 
   const fetchStatements = async () => {
@@ -128,10 +134,19 @@ const CustomerStatements = () => {
     };
   }, []);
 
-  const filteredStatements = statements.filter(statement =>
-    statement.client_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    statement.date_range.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredStatements = statements.filter(statement => {
+    const matchesClient = !clientNameFilter || 
+      statement.client_name.toLowerCase().includes(clientNameFilter.toLowerCase());
+    const matchesDateRange = !dateRangeFilter || 
+      statement.date_range.toLowerCase().includes(dateRangeFilter.toLowerCase());
+    return matchesClient && matchesDateRange;
+  });
+
+  // Calculate summary statistics
+  const totalClients = new Set(statements.map(s => s.client_name)).size;
+  const totalInvoiced = statements.reduce((sum, s) => sum + s.invoiced_amount, 0);
+  const totalPaid = statements.reduce((sum, s) => sum + s.amount_paid, 0);
+  const totalOutstanding = statements.reduce((sum, s) => sum + s.balance_due, 0);
 
   if (loading) {
     return (
@@ -142,40 +157,123 @@ const CustomerStatements = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Customer Statements</h1>
-          <p className="text-muted-foreground">Manage customer financial statements and upload CSV data</p>
-        </div>
+    <div className="space-y-8 p-6">
+      {/* Header Section */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Customer Statements</h1>
+        <p className="text-lg text-muted-foreground">
+          Manage customer financial statements and upload CSV data
+        </p>
       </div>
 
+      {/* Summary Cards */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Clients</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-foreground">{totalClients}</div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Invoiced</CardTitle>
+            <TrendingUp className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-foreground">{formatCurrency(totalInvoiced)}</div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Paid</CardTitle>
+            <TrendingUp className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-foreground">{formatCurrency(totalPaid)}</div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Outstanding</CardTitle>
+            <TrendingDown className="h-4 w-4 text-red-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-foreground">{formatCurrency(totalOutstanding)}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Upload Section */}
       <CSVUploadSection onUploadSuccess={handleCSVUploadSuccess} />
 
-      <div className="bg-card rounded-lg border shadow-sm">
-        <div className="p-6 border-b">
+      {/* Data Table Section */}
+      <Card className="shadow-sm">
+        <CardHeader className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <h2 className="text-lg font-semibold text-foreground">
-              All Statements ({filteredStatements.length})
-            </h2>
-            <div className="w-full sm:w-auto">
-              <input
+            <div className="space-y-1">
+              <CardTitle className="text-xl">All Statements</CardTitle>
+              <CardDescription>
+                {filteredStatements.length} of {statements.length} statements
+              </CardDescription>
+            </div>
+            <Badge variant="secondary" className="text-sm">
+              {filteredStatements.length} records
+            </Badge>
+          </div>
+
+          {/* Filters */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Filter by Client</label>
+              <Input
                 type="text"
-                placeholder="Search by client name or date range..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full sm:w-64 px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="Enter client name..."
+                value={clientNameFilter}
+                onChange={(e) => setClientNameFilter(e.target.value)}
+                className="bg-background"
               />
             </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Filter by Date Range</label>
+              <Input
+                type="text"
+                placeholder="Enter date range..."
+                value={dateRangeFilter}
+                onChange={(e) => setDateRangeFilter(e.target.value)}
+                className="bg-background"
+              />
+            </div>
+            <div className="flex items-end">
+              {(clientNameFilter || dateRangeFilter) && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setClientNameFilter('');
+                    setDateRangeFilter('');
+                  }}
+                  className="h-10"
+                >
+                  Clear Filters
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
+        </CardHeader>
 
-        <CustomerStatementsTable
-          statements={filteredStatements}
-          onUpdate={handleUpdate}
-          onDelete={handleDelete}
-        />
-      </div>
+        <CardContent className="p-0">
+          <CustomerStatementsTable
+            statements={filteredStatements}
+            onUpdate={handleUpdate}
+            onDelete={handleDelete}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Upload, FileText } from 'lucide-react';
 import { parseCurrencyValue } from '@/utils/formatters';
 
@@ -136,53 +137,68 @@ export const CSVUploadSection: React.FC<CSVUploadSectionProps> = ({ onUploadSucc
   };
 
   return (
-    <div className="bg-card rounded-lg border p-6">
-      <div className="flex items-center gap-3 mb-4">
-        <FileText className="h-5 w-5 text-primary" />
-        <h3 className="text-lg font-semibold text-foreground">Upload CSV Statement</h3>
-      </div>
-      
-      <p className="text-muted-foreground mb-4">
-        Upload a CSV file containing customer statement data. The system will automatically parse 
-        client name, date range, and financial amounts.
-      </p>
-
-      <div className="flex items-center gap-4">
-        <div className="relative">
-          <input
-            type="file"
-            accept=".csv"
-            onChange={handleFileUpload}
-            disabled={uploading}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-            id="csv-upload"
-          />
-          <Button 
-            disabled={uploading}
-            className="relative"
-            asChild
-          >
-            <label htmlFor="csv-upload" className="cursor-pointer">
-              <Upload className="h-4 w-4 mr-2" />
-              {uploading ? 'Processing...' : 'Upload CSV File'}
-            </label>
-          </Button>
-        </div>
-        
-        {uploading && (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-            <span className="text-sm">Processing file...</span>
+    <Card className="shadow-md border-2 border-dashed border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
+      <CardContent className="p-8">
+        <div className="text-center space-y-6">
+          <div className="flex justify-center">
+            <div className="flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full">
+              <Upload className="h-8 w-8 text-primary" />
+            </div>
           </div>
-        )}
-      </div>
+          
+          <div className="space-y-2">
+            <h3 className="text-xl font-semibold text-foreground">Upload Customer Statement</h3>
+            <p className="text-muted-foreground max-w-lg mx-auto">
+              Drag and drop your CSV file here, or click the button below to browse and upload customer statement data. 
+              The system will automatically parse client information and financial amounts.
+            </p>
+          </div>
 
-      <div className="mt-4 p-3 bg-muted rounded-md">
-        <p className="text-sm text-muted-foreground">
-          <strong>CSV Format Expected:</strong> The file should contain client information and financial data 
-          with labels like "Opening Balance", "Invoiced Amount", "Amount Paid", and "Balance Due".
-        </p>
-      </div>
-    </div>
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative">
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+                disabled={uploading}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                id="csv-upload"
+              />
+              <Button 
+                disabled={uploading}
+                size="lg"
+                className="relative bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
+                asChild
+              >
+                <label htmlFor="csv-upload" className="cursor-pointer flex items-center gap-3">
+                  <FileText className="h-5 w-5" />
+                  {uploading ? 'Processing CSV...' : 'Choose CSV File'}
+                </label>
+              </Button>
+            </div>
+            
+            {uploading && (
+              <div className="flex items-center gap-3 text-primary">
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary border-t-transparent"></div>
+                <span className="text-sm font-medium">Processing file, please wait...</span>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-muted/50 rounded-lg p-4 border border-muted">
+            <div className="flex items-start gap-3">
+              <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+              <div className="text-left space-y-1">
+                <p className="text-sm font-medium text-foreground">CSV Format Requirements:</p>
+                <p className="text-xs text-muted-foreground">
+                  Your CSV should contain client information in the first row and financial data 
+                  (Opening Balance, Invoiced Amount, Amount Paid, Balance Due) in subsequent rows with clear labels.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
