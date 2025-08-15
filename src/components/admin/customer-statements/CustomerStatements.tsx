@@ -162,6 +162,8 @@ const CustomerStatements = () => {
     );
   }
 
+  console.log('CustomerStatements component rendering, statements:', statements.length);
+  
   return (
     <div className="space-y-8 p-6">
       {/* Header Section */}
@@ -230,7 +232,10 @@ const CustomerStatements = () => {
             </div>
             <div className="flex items-center gap-3">
               <Button
-                onClick={() => setShowManualModal(true)}
+                onClick={() => {
+                  console.log('New Record button clicked');
+                  setShowManualModal(true);
+                }}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
                 size="sm"
               >
