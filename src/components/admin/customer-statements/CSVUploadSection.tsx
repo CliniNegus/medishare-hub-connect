@@ -17,23 +17,26 @@ export const CSVUploadSection: React.FC<CSVUploadSectionProps> = ({ onUploadSucc
   const parseCSVStatement = (csvContent: string) => {
     const lines = csvContent.split('\n').map(line => line.trim()).filter(line => line);
     
-    if (lines.length < 5) {
+    if (lines.length < 3) {
       throw new Error('Invalid CSV format: insufficient data rows');
     }
 
     // Parse the first row to extract client name and date range
     const firstRowCells = lines[0].split(',').map(cell => cell.replace(/"/g, '').trim());
-    const firstCellLines = firstRowCells[0].split('\n').filter(line => line.trim());
+    
+    // The first cell contains multiple lines with company info, client name, and date range
+    const firstCellContent = firstRowCells[0];
+    const firstCellLines = firstCellContent.split(/[\n\r]+/).map(line => line.trim()).filter(line => line);
     
     let clientName = '';
     let dateRange = '';
     
-    // Extract client name (usually the second line in the first cell)
+    // Extract client name from the second line of the first cell
     if (firstCellLines.length >= 2) {
       clientName = firstCellLines[1].trim();
     }
     
-    // Extract date range (usually the last line in the first cell)
+    // Extract date range from the last line of the first cell
     if (firstCellLines.length >= 1) {
       const lastLine = firstCellLines[firstCellLines.length - 1].trim();
       if (lastLine.toLowerCase().includes('from') && lastLine.toLowerCase().includes('to')) {
@@ -41,52 +44,62 @@ export const CSVUploadSection: React.FC<CSVUploadSectionProps> = ({ onUploadSucc
       }
     }
 
-    // If we couldn't parse from the first cell, try to find it in other ways
+    // Fallback: Search all lines for missing information
     if (!clientName || !dateRange) {
-      // Look for patterns in all lines
       for (const line of lines) {
-        if (line.toLowerCase().includes('from') && line.toLowerCase().includes('to')) {
-          dateRange = line.replace(/"/g, '').trim();
+        const cleanLine = line.replace(/"/g, '').trim();
+        
+        // Look for date range pattern
+        if (!dateRange && cleanLine.toLowerCase().includes('from') && cleanLine.toLowerCase().includes('to')) {
+          dateRange = cleanLine;
         }
-        // Look for potential client names (lines that don't contain numbers or special formatting)
-        if (!clientName && line.length > 5 && !line.includes('Opening') && !line.includes('Invoiced') && !line.includes('Amount') && !line.includes('Balance')) {
-          const cleanLine = line.replace(/"/g, '').replace(/,/g, '').trim();
-          if (cleanLine && !cleanLine.match(/^\d/) && !cleanLine.includes('KES')) {
-            clientName = cleanLine;
+        
+        // Look for client name (non-numeric line that's not a header or financial term)
+        if (!clientName && cleanLine.length > 3 && 
+            !cleanLine.toLowerCase().match(/^(opening|invoiced|amount|balance|unnamed|from|to|kes)/)) {
+          const potentialName = cleanLine.split(',')[0].trim();
+          if (potentialName && !potentialName.match(/^\d/) && !potentialName.includes('KES')) {
+            clientName = potentialName;
           }
         }
       }
     }
 
-    // Parse financial data from subsequent rows
+    // Initialize financial metrics
     let openingBalance = 0;
     let invoicedAmount = 0;
     let amountPaid = 0;
     let balanceDue = 0;
 
-    // Look for financial data in the format expected
-    for (let i = 1; i < Math.min(lines.length, 10); i++) {
-      const cells = lines[i].split(',').map(cell => cell.replace(/"/g, '').trim());
+    // Parse financial data using label-based matching (column 0 = labels, column 1 = values)
+    for (const line of lines) {
+      const cells = line.split(',').map(cell => cell.replace(/"/g, '').trim());
       
-      if (cells.length >= 2) {
+      if (cells.length >= 2 && cells[0] && cells[1]) {
         const label = cells[0].toLowerCase();
         const value = cells[1];
         
-        if (label.includes('opening') || label.includes('brought forward')) {
+        // Match labels and extract numeric values from column 1
+        if (label.includes('opening balance') || label.includes('brought forward')) {
           openingBalance = parseCurrencyValue(value);
-        } else if (label.includes('invoiced') || label.includes('invoice')) {
+        } else if (label.includes('invoiced amount') || (label.includes('invoiced') && !label.includes('paid'))) {
           invoicedAmount = parseCurrencyValue(value);
-        } else if (label.includes('amount paid') || label.includes('payments')) {
+        } else if (label.includes('amount paid') || label.includes('payments received')) {
           amountPaid = parseCurrencyValue(value);
-        } else if (label.includes('balance') || label.includes('due')) {
+        } else if (label.includes('balance due') || (label.includes('balance') && !label.includes('opening'))) {
           balanceDue = parseCurrencyValue(value);
         }
       }
     }
 
+    // Validate that we extracted essential information
+    if (!clientName) {
+      throw new Error('Could not extract client name from CSV file');
+    }
+
     return {
-      client_name: clientName || 'Unknown Client',
-      date_range: dateRange || 'Unknown Period',
+      client_name: clientName,
+      date_range: dateRange || 'Date range not specified',
       opening_balance: openingBalance,
       invoiced_amount: invoicedAmount,
       amount_paid: amountPaid,
