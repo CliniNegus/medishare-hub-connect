@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { CustomerStatement } from './CustomerStatements';
 import { formatCurrency } from '@/utils/formatters';
 import { Button } from '@/components/ui/button';
-import { Edit3, Trash2, Save, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Edit3, Trash2, Save, X, Calendar, User, DollarSign } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -86,6 +89,140 @@ export const CustomerStatementsTable: React.FC<CustomerStatementsTableProps> = (
     setEditValues(prev => ({ ...prev, [field]: value }));
   };
 
+  // Mobile Card Component
+  const MobileCard: React.FC<{ statement: CustomerStatement; index: number }> = ({ statement, index }) => (
+    <Card className={`mb-4 ${index % 2 === 0 ? 'bg-background' : 'bg-muted/10'} transition-all hover:shadow-md`}>
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            {editingId === statement.id ? (
+              <Input
+                value={editValues.client_name}
+                onChange={(e) => handleInputChange('client_name', e.target.value)}
+                className="font-semibold text-lg mb-2"
+              />
+            ) : (
+              <CardTitle className="text-lg flex items-center gap-2">
+                <User className="h-4 w-4 text-primary" />
+                {statement.client_name}
+              </CardTitle>
+            )}
+            
+            {editingId === statement.id ? (
+              <Input
+                value={editValues.date_range}
+                onChange={(e) => handleInputChange('date_range', e.target.value)}
+                className="text-sm"
+              />
+            ) : (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                <Calendar className="h-3 w-3" />
+                {statement.date_range}
+              </div>
+            )}
+          </div>
+          <div className="flex gap-2 ml-4">
+            {editingId === statement.id ? (
+              <>
+                <Button size="sm" onClick={handleEditSave} className="bg-green-600 hover:bg-green-700">
+                  <Save className="h-3 w-3" />
+                </Button>
+                <Button size="sm" variant="outline" onClick={handleEditCancel}>
+                  <X className="h-3 w-3" />
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button size="sm" variant="outline" onClick={() => handleEditStart(statement)}>
+                  <Edit3 className="h-3 w-3" />
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => onDelete(statement.id)}
+                  className="text-red-600 hover:bg-red-50"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="pt-0">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Opening Balance</div>
+            {editingId === statement.id ? (
+              <Input
+                type="number"
+                step="0.01"
+                value={editValues.opening_balance}
+                onChange={(e) => handleInputChange('opening_balance', e.target.value)}
+                className="font-mono text-right"
+              />
+            ) : (
+              <div className="font-semibold font-mono">{formatCurrency(statement.opening_balance)}</div>
+            )}
+          </div>
+          
+          <div className="space-y-2">
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Invoiced Amount</div>
+            {editingId === statement.id ? (
+              <Input
+                type="number"
+                step="0.01"
+                value={editValues.invoiced_amount}
+                onChange={(e) => handleInputChange('invoiced_amount', e.target.value)}
+                className="font-mono text-right"
+              />
+            ) : (
+              <div className="font-semibold font-mono">{formatCurrency(statement.invoiced_amount)}</div>
+            )}
+          </div>
+          
+          <div className="space-y-2">
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Amount Paid</div>
+            {editingId === statement.id ? (
+              <Input
+                type="number"
+                step="0.01"
+                value={editValues.amount_paid}
+                onChange={(e) => handleInputChange('amount_paid', e.target.value)}
+                className="font-mono text-right"
+              />
+            ) : (
+              <div className="font-semibold font-mono text-green-600">{formatCurrency(statement.amount_paid)}</div>
+            )}
+          </div>
+          
+          <div className="space-y-2">
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Balance Due</div>
+            {editingId === statement.id ? (
+              <Input
+                type="number"
+                step="0.01"
+                value={editValues.balance_due}
+                onChange={(e) => handleInputChange('balance_due', e.target.value)}
+                className="font-mono text-right"
+              />
+            ) : (
+              <div className="flex items-center gap-2">
+                <Badge 
+                  variant={statement.balance_due > 0 ? "destructive" : "secondary"}
+                  className="font-mono"
+                >
+                  {formatCurrency(statement.balance_due)}
+                </Badge>
+              </div>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="w-full">
       {statements.length === 0 ? (
@@ -97,166 +234,190 @@ export const CustomerStatementsTable: React.FC<CustomerStatementsTableProps> = (
           <p className="text-sm">Upload a CSV file or add statements manually to get started.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto border-t">
-          <div className="min-w-full">
-            <Table>
-              <TableHeader className="sticky top-0 bg-muted/50 backdrop-blur-sm">
-                <TableRow className="border-b border-border hover:bg-transparent">
-                  <TableHead className="font-semibold text-foreground min-w-[200px]">Client Name</TableHead>
-                  <TableHead className="font-semibold text-foreground min-w-[180px]">Date Range</TableHead>
-                  <TableHead className="text-right font-semibold text-foreground min-w-[140px]">Opening Balance</TableHead>
-                  <TableHead className="text-right font-semibold text-foreground min-w-[140px]">Invoiced Amount</TableHead>
-                  <TableHead className="text-right font-semibold text-foreground min-w-[140px]">Amount Paid</TableHead>
-                  <TableHead className="text-right font-semibold text-foreground min-w-[140px]">Balance Due</TableHead>
-                  <TableHead className="text-center font-semibold text-foreground min-w-[120px]">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {statements.map((statement, index) => (
-                  <TableRow 
-                    key={statement.id} 
-                    className={`border-b border-border transition-colors hover:bg-muted/30 ${
-                      index % 2 === 0 ? 'bg-background' : 'bg-muted/10'
-                    }`}
-                  >
-                    <TableCell className="font-medium py-4">
-                      {editingId === statement.id ? (
-                        <input
-                          type="text"
-                          value={editValues.client_name}
-                          onChange={(e) => handleInputChange('client_name', e.target.value)}
-                          className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      ) : (
-                        <div className="font-medium text-foreground">{statement.client_name}</div>
-                      )}
-              </TableCell>
-                    <TableCell className="py-4">
-                      {editingId === statement.id ? (
-                        <input
-                          type="text"
-                          value={editValues.date_range}
-                          onChange={(e) => handleInputChange('date_range', e.target.value)}
-                          className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      ) : (
-                        <div className="text-muted-foreground text-sm">{statement.date_range}</div>
-                      )}
-              </TableCell>
-                    <TableCell className="text-right py-4 font-mono">
-                      {editingId === statement.id ? (
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={editValues.opening_balance}
-                          onChange={(e) => handleInputChange('opening_balance', e.target.value)}
-                          className="w-full px-3 py-2 border border-border rounded-md text-sm text-right bg-background font-mono focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      ) : (
-                        <div className="text-foreground font-semibold">
-                          {formatCurrency(statement.opening_balance)}
-                        </div>
-                      )}
-              </TableCell>
-                    <TableCell className="text-right py-4 font-mono">
-                      {editingId === statement.id ? (
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={editValues.invoiced_amount}
-                          onChange={(e) => handleInputChange('invoiced_amount', e.target.value)}
-                          className="w-full px-3 py-2 border border-border rounded-md text-sm text-right bg-background font-mono focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      ) : (
-                        <div className="text-foreground font-semibold">
-                          {formatCurrency(statement.invoiced_amount)}
-                        </div>
-                      )}
-              </TableCell>
-                    <TableCell className="text-right py-4 font-mono">
-                      {editingId === statement.id ? (
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={editValues.amount_paid}
-                          onChange={(e) => handleInputChange('amount_paid', e.target.value)}
-                          className="w-full px-3 py-2 border border-border rounded-md text-sm text-right bg-background font-mono focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      ) : (
-                        <div className="text-green-600 font-semibold">
-                          {formatCurrency(statement.amount_paid)}
-                        </div>
-                      )}
-              </TableCell>
-                    <TableCell className="text-right py-4 font-mono">
-                      {editingId === statement.id ? (
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={editValues.balance_due}
-                          onChange={(e) => handleInputChange('balance_due', e.target.value)}
-                          className="w-full px-3 py-2 border border-border rounded-md text-sm text-right bg-background font-mono focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      ) : (
-                        <div className={`font-semibold ${
-                          statement.balance_due > 0 ? 'text-red-600' : 'text-gray-500'
-                        }`}>
-                          {formatCurrency(statement.balance_due)}
-                        </div>
-                      )}
-              </TableCell>
-                    <TableCell className="py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        {editingId === statement.id ? (
-                          <>
-                            <Button
-                              size="sm"
-                              onClick={handleEditSave}
-                              className="h-9 px-3 bg-green-600 hover:bg-green-700 text-white"
-                            >
-                              <Save className="h-4 w-4 mr-1" />
-                              Save
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={handleEditCancel}
-                              className="h-9 px-3"
-                            >
-                              <X className="h-4 w-4 mr-1" />
-                              Cancel
-                            </Button>
-                          </>
-                        ) : (
-                          <>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleEditStart(statement)}
-                              className="h-9 px-3 hover:bg-blue-50 hover:border-blue-300"
-                            >
-                              <Edit3 className="h-4 w-4 mr-1" />
-                              Edit
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => onDelete(statement.id)}
-                              className="h-9 px-3 text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300"
-                            >
-                              <Trash2 className="h-4 w-4 mr-1" />
-                              Delete
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+        <>
+          {/* Mobile/Tablet Card View (below lg breakpoint) */}
+          <div className="lg:hidden space-y-4">
+            {statements.map((statement, index) => (
+              <MobileCard key={statement.id} statement={statement} index={index} />
+            ))}
           </div>
-        </div>
+
+          {/* Desktop Table View (lg and above) */}
+          <div className="hidden lg:block">
+            <div className="w-full overflow-hidden border rounded-lg">
+              <Table>
+                <TableHeader className="sticky top-0 bg-muted/50 backdrop-blur-sm">
+                  <TableRow className="border-b border-border hover:bg-transparent">
+                    <TableHead className="font-semibold text-foreground w-1/6 min-w-0">
+                      <div className="truncate">Client Name</div>
+                    </TableHead>
+                    <TableHead className="font-semibold text-foreground w-1/6 min-w-0">
+                      <div className="truncate">Date Range</div>
+                    </TableHead>
+                    <TableHead className="text-right font-semibold text-foreground w-1/6 min-w-0">
+                      <div className="truncate">Opening Balance</div>
+                    </TableHead>
+                    <TableHead className="text-right font-semibold text-foreground w-1/6 min-w-0">
+                      <div className="truncate">Invoiced Amount</div>
+                    </TableHead>
+                    <TableHead className="text-right font-semibold text-foreground w-1/6 min-w-0">
+                      <div className="truncate">Amount Paid</div>
+                    </TableHead>
+                    <TableHead className="text-right font-semibold text-foreground w-1/6 min-w-0">
+                      <div className="truncate">Balance Due</div>
+                    </TableHead>
+                    <TableHead className="text-center font-semibold text-foreground w-32">
+                      Actions
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {statements.map((statement, index) => (
+                    <TableRow 
+                      key={statement.id} 
+                      className={`border-b border-border transition-colors hover:bg-muted/30 ${
+                        index % 2 === 0 ? 'bg-background' : 'bg-muted/10'
+                      }`}
+                    >
+                      <TableCell className="py-4 w-1/6 min-w-0">
+                        {editingId === statement.id ? (
+                          <Input
+                            value={editValues.client_name}
+                            onChange={(e) => handleInputChange('client_name', e.target.value)}
+                            className="w-full text-sm"
+                          />
+                        ) : (
+                          <div className="font-medium text-foreground break-words">{statement.client_name}</div>
+                        )}
+                      </TableCell>
+                      
+                      <TableCell className="py-4 w-1/6 min-w-0">
+                        {editingId === statement.id ? (
+                          <Input
+                            value={editValues.date_range}
+                            onChange={(e) => handleInputChange('date_range', e.target.value)}
+                            className="w-full text-sm"
+                          />
+                        ) : (
+                          <div className="text-muted-foreground text-sm break-words">{statement.date_range}</div>
+                        )}
+                      </TableCell>
+                      
+                      <TableCell className="text-right py-4 font-mono w-1/6 min-w-0">
+                        {editingId === statement.id ? (
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={editValues.opening_balance}
+                            onChange={(e) => handleInputChange('opening_balance', e.target.value)}
+                            className="w-full text-right font-mono text-sm"
+                          />
+                        ) : (
+                          <div className="text-foreground font-semibold text-sm break-all">
+                            {formatCurrency(statement.opening_balance)}
+                          </div>
+                        )}
+                      </TableCell>
+                      
+                      <TableCell className="text-right py-4 font-mono w-1/6 min-w-0">
+                        {editingId === statement.id ? (
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={editValues.invoiced_amount}
+                            onChange={(e) => handleInputChange('invoiced_amount', e.target.value)}
+                            className="w-full text-right font-mono text-sm"
+                          />
+                        ) : (
+                          <div className="text-foreground font-semibold text-sm break-all">
+                            {formatCurrency(statement.invoiced_amount)}
+                          </div>
+                        )}
+                      </TableCell>
+                      
+                      <TableCell className="text-right py-4 font-mono w-1/6 min-w-0">
+                        {editingId === statement.id ? (
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={editValues.amount_paid}
+                            onChange={(e) => handleInputChange('amount_paid', e.target.value)}
+                            className="w-full text-right font-mono text-sm"
+                          />
+                        ) : (
+                          <div className="text-green-600 font-semibold text-sm break-all">
+                            {formatCurrency(statement.amount_paid)}
+                          </div>
+                        )}
+                      </TableCell>
+                      
+                      <TableCell className="text-right py-4 font-mono w-1/6 min-w-0">
+                        {editingId === statement.id ? (
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={editValues.balance_due}
+                            onChange={(e) => handleInputChange('balance_due', e.target.value)}
+                            className="w-full text-right font-mono text-sm"
+                          />
+                        ) : (
+                          <div className={`font-semibold text-sm break-all ${
+                            statement.balance_due > 0 ? 'text-red-600' : 'text-gray-500'
+                          }`}>
+                            {formatCurrency(statement.balance_due)}
+                          </div>
+                        )}
+                      </TableCell>
+                      
+                      <TableCell className="py-4 w-32">
+                        <div className="flex items-center justify-center gap-1">
+                          {editingId === statement.id ? (
+                            <>
+                              <Button
+                                size="sm"
+                                onClick={handleEditSave}
+                                className="h-8 px-2 bg-green-600 hover:bg-green-700 text-white"
+                              >
+                                <Save className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={handleEditCancel}
+                                className="h-8 px-2"
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleEditStart(statement)}
+                                className="h-8 px-2 hover:bg-blue-50 hover:border-blue-300"
+                              >
+                                <Edit3 className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => onDelete(statement.id)}
+                                className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
