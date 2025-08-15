@@ -3,12 +3,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { CustomerStatementsTable } from './CustomerStatementsTable';
 import { CSVUploadSection } from './CSVUploadSection';
+import { ManualRecordModal } from './ManualRecordModal';
 import { formatCurrency } from '@/utils/formatters';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CalendarDays, Users, TrendingUp, TrendingDown } from 'lucide-react';
+import { CalendarDays, Users, TrendingUp, TrendingDown, Plus } from 'lucide-react';
 
 export interface CustomerStatement {
   id: string;
@@ -27,6 +28,7 @@ const CustomerStatements = () => {
   const [loading, setLoading] = useState(true);
   const [clientNameFilter, setClientNameFilter] = useState('');
   const [dateRangeFilter, setDateRangeFilter] = useState('');
+  const [showManualModal, setShowManualModal] = useState(false);
   const { toast } = useToast();
 
   const fetchStatements = async () => {
@@ -108,6 +110,10 @@ const CustomerStatements = () => {
       title: "Success",
       description: "CSV data uploaded successfully",
     });
+  };
+
+  const handleManualRecordSuccess = () => {
+    fetchStatements();
   };
 
   useEffect(() => {
@@ -222,9 +228,19 @@ const CustomerStatements = () => {
                 {filteredStatements.length} of {statements.length} statements
               </CardDescription>
             </div>
-            <Badge variant="secondary" className="text-sm">
-              {filteredStatements.length} records
-            </Badge>
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => setShowManualModal(true)}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
+                size="sm"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                New Record
+              </Button>
+              <Badge variant="secondary" className="text-sm">
+                {filteredStatements.length} records
+              </Badge>
+            </div>
           </div>
 
           {/* Filters */}
@@ -274,6 +290,13 @@ const CustomerStatements = () => {
           />
         </CardContent>
       </Card>
+
+      {/* Manual Record Modal */}
+      <ManualRecordModal
+        open={showManualModal}
+        onOpenChange={setShowManualModal}
+        onSuccess={handleManualRecordSuccess}
+      />
     </div>
   );
 };
