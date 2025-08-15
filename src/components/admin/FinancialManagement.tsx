@@ -254,23 +254,25 @@ const FinancialManagement: React.FC<FinancialManagementProps> = ({ stats, recent
               )}
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div>
+            {/* Desktop Table View */}
+            <div className="hidden md:block">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-gray-50/50 border-b border-gray-200">
-                    <TableHead className="font-semibold text-gray-700 px-6 py-4">Reference</TableHead>
-                    <TableHead className="font-semibold text-gray-700 px-6 py-4">User</TableHead>
-                    <TableHead className="font-semibold text-gray-700 px-6 py-4">
+                    <TableHead className="font-semibold text-gray-700 px-4 py-4 w-[15%]">Reference</TableHead>
+                    <TableHead className="font-semibold text-gray-700 px-4 py-4 w-[20%]">User</TableHead>
+                    <TableHead className="font-semibold text-gray-700 px-4 py-4 w-[15%]">
                       <div className="flex items-center">
                         <Calendar className="h-4 w-4 mr-2" />
                         Date & Time
                       </div>
                     </TableHead>
-                    <TableHead className="font-semibold text-gray-700 px-6 py-4 text-right">Amount</TableHead>
-                    <TableHead className="font-semibold text-gray-700 px-6 py-4">Currency</TableHead>
-                    <TableHead className="font-semibold text-gray-700 px-6 py-4">Status</TableHead>
-                    <TableHead className="font-semibold text-gray-700 px-6 py-4">Payment Method</TableHead>
-                    <TableHead className="font-semibold text-gray-700 px-6 py-4 text-center">Actions</TableHead>
+                    <TableHead className="font-semibold text-gray-700 px-4 py-4 text-right w-[12%]">Amount</TableHead>
+                    <TableHead className="font-semibold text-gray-700 px-4 py-4 w-[8%]">Currency</TableHead>
+                    <TableHead className="font-semibold text-gray-700 px-4 py-4 w-[10%]">Status</TableHead>
+                    <TableHead className="font-semibold text-gray-700 px-4 py-4 w-[12%]">Payment Method</TableHead>
+                    <TableHead className="font-semibold text-gray-700 px-4 py-4 text-center w-[8%]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -281,48 +283,48 @@ const FinancialManagement: React.FC<FinancialManagementProps> = ({ stats, recent
                         index % 2 === 0 ? 'bg-white' : 'bg-gray-50/20'
                       }`}
                     >
-                      <TableCell className="px-6 py-4">
+                      <TableCell className="px-4 py-4">
                         <div className="space-y-1">
-                          <div className="font-medium text-gray-900">{transaction.reference}</div>
+                          <div className="font-medium text-gray-900 break-words">{transaction.reference}</div>
                           {transaction.paystack_reference && (
-                            <div className="text-xs text-gray-500 font-mono">
+                            <div className="text-xs text-gray-500 font-mono break-all">
                               PS: {transaction.paystack_reference}
                             </div>
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="px-6 py-4">
+                      <TableCell className="px-4 py-4">
                         <div className="space-y-1">
-                          <div className="font-medium text-gray-900">{transaction.user_name || 'Unknown User'}</div>
-                          <div className="text-xs text-gray-500">{transaction.user_email || 'Unknown'}</div>
+                          <div className="font-medium text-gray-900 break-words">{transaction.user_name || 'Unknown User'}</div>
+                          <div className="text-xs text-gray-500 break-words">{transaction.user_email || 'Unknown'}</div>
                         </div>
                       </TableCell>
-                      <TableCell className="px-6 py-4">
+                      <TableCell className="px-4 py-4">
                         <div className="text-sm text-gray-900">
                           {formatDate(transaction.created_at)}
                         </div>
                       </TableCell>
-                      <TableCell className="px-6 py-4 text-right">
+                      <TableCell className="px-4 py-4 text-right">
                         <div className="font-semibold text-gray-900">
                           {formatAmount(transaction.amount, transaction.currency)}
                         </div>
                       </TableCell>
-                      <TableCell className="px-6 py-4">
+                      <TableCell className="px-4 py-4">
                         <Badge variant="outline" className="font-medium border-gray-200 text-gray-700">
                           {transaction.currency}
                         </Badge>
                       </TableCell>
-                      <TableCell className="px-6 py-4">
+                      <TableCell className="px-4 py-4">
                         <Badge className={`${getStatusColor(transaction.status)} font-medium`}>
                           {transaction.status.toUpperCase()}
                         </Badge>
                       </TableCell>
-                      <TableCell className="px-6 py-4">
-                        <div className="text-sm text-gray-600">
+                      <TableCell className="px-4 py-4">
+                        <div className="text-sm text-gray-600 break-words">
                           {transaction.metadata?.payment_method || 'Not specified'}
                         </div>
                       </TableCell>
-                      <TableCell className="px-6 py-4">
+                      <TableCell className="px-4 py-4">
                         <div className="flex justify-center">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -353,6 +355,94 @@ const FinancialManagement: React.FC<FinancialManagementProps> = ({ stats, recent
                   ))}
                 </TableBody>
               </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-4">
+              {filteredTransactions.map((transaction, index) => (
+                <div 
+                  key={transaction.id} 
+                  className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900 break-words">{transaction.reference}</div>
+                      {transaction.paystack_reference && (
+                        <div className="text-xs text-gray-500 font-mono break-all mt-1">
+                          PS: {transaction.paystack_reference}
+                        </div>
+                      )}
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-gray-100">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem 
+                          onClick={() => handleViewTransaction(transaction)}
+                          className="flex items-center cursor-pointer"
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleEditTransaction(transaction)}
+                          className="flex items-center cursor-pointer"
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit Transaction
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">User:</span>
+                      <div className="text-right">
+                        <div className="font-medium text-gray-900 break-words">{transaction.user_name || 'Unknown User'}</div>
+                        <div className="text-xs text-gray-500 break-words">{transaction.user_email || 'Unknown'}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Date:</span>
+                      <span className="text-sm text-gray-900">{formatDate(transaction.created_at)}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Amount:</span>
+                      <span className="font-semibold text-gray-900">
+                        {formatAmount(transaction.amount, transaction.currency)}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Currency:</span>
+                      <Badge variant="outline" className="font-medium border-gray-200 text-gray-700">
+                        {transaction.currency}
+                      </Badge>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Status:</span>
+                      <Badge className={`${getStatusColor(transaction.status)} font-medium`}>
+                        {transaction.status.toUpperCase()}
+                      </Badge>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Payment Method:</span>
+                      <span className="text-sm text-gray-600 break-words">
+                        {transaction.metadata?.payment_method || 'Not specified'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
             </div>
           )}
         </CardContent>
