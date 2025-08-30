@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from './contexts/AuthContext';
-import { UserRoleProvider } from './contexts/UserRoleContext';
+
 import { ThemeProvider } from './contexts/ThemeContext';
 import { CartProvider } from './contexts/CartContext';
 import { NotificationProvider } from './components/notifications/NotificationProvider';
@@ -43,7 +43,7 @@ import EmailVerification from './pages/EmailVerification';
 import NotificationsPage from './components/notifications/NotificationsPage';
 import CompleteProfile from './pages/CompleteProfile';
 import NotFound from './pages/NotFound';
-import UserDashboardView from './components/admin/UserDashboardView';
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -60,8 +60,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <NotificationProvider>
-            <UserRoleProvider>
-              <CartProvider>
+            <CartProvider>
                 <ErrorBoundary>
                 <Router>
                   <Routes>
@@ -123,14 +122,6 @@ function App() {
                       element={
                         <ProtectedRoute requireAdmin>
                           <ManageInvestorAccounts />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/view-dashboard/:userId" 
-                      element={
-                        <ProtectedRoute requireAdmin>
-                          <UserDashboardView />
                         </ProtectedRoute>
                       } 
                     />
@@ -273,7 +264,6 @@ function App() {
                 </Router>
                 </ErrorBoundary>
               </CartProvider>
-            </UserRoleProvider>
           </NotificationProvider>
         </AuthProvider>
       </QueryClientProvider>

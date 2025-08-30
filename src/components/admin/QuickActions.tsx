@@ -1,24 +1,15 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Users, Clock, BarChart2, Zap, Loader2 } from 'lucide-react';
+import { PlusCircle, Users, Clock, Zap } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import AddEquipmentModal from '@/components/equipment/AddEquipmentModal';
 import AddUserModal from './AddUserModal';
 import ScheduleMaintenanceModal from './maintenance/ScheduleMaintenanceModal';
-import UserSelectModal from './UserSelectModal';
-import ImpersonationConfirmModal from './ImpersonationConfirmModal';
+import DemoAccountsDropdown from './DemoAccountsDropdown';
 import { useToast } from '@/hooks/use-toast';
 import { useAuditLogger } from '@/hooks/useAuditLogger';
-
-interface UserProfile {
-  id: string;
-  email: string;
-  full_name: string;
-  role: string;
-  organization: string;
-  last_active: string;
-}
+import { supabase } from '@/integrations/supabase/client';
 
 const QuickActions = () => {
   const navigate = useNavigate();
@@ -27,10 +18,7 @@ const QuickActions = () => {
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
-  const [isUserSelectModalOpen, setIsUserSelectModalOpen] = useState(false);
-  const [isImpersonationModalOpen, setIsImpersonationModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
-  const [isNavigating, setIsNavigating] = useState(false);
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
   
   const handleAddEquipmentClick = () => {
     setIsEquipmentModalOpen(true);
@@ -60,63 +48,56 @@ const QuickActions = () => {
     });
   };
 
-  const handleViewUserDashboard = () => {
-    setIsUserSelectModalOpen(true);
-  };
-
-  const handleUserSelected = async (user: UserProfile, mode: 'view' | 'impersonate') => {
-    setSelectedUser(user);
-    
-    if (mode === 'impersonate') {
-      setIsImpersonationModalOpen(true);
-    } else {
-      await handleViewDashboard(user, 'view');
-    }
-  };
-
-  const handleConfirmImpersonation = async () => {
-    if (selectedUser) {
-      setIsImpersonationModalOpen(false);
-      await handleViewDashboard(selectedUser, 'impersonate');
-    }
-  };
-
-  const handleViewDashboard = async (user: UserProfile, mode: 'view' | 'impersonate') => {
+  const handleDemoRoleSelect = async (role: string) => {
     try {
-      setIsNavigating(true);
+      setIsDemoLoading(true);
       
       // Log the admin action
       await logAuditEvent(
-        mode === 'view' ? 'ADMIN_VIEW_USER_DASHBOARD' : 'ADMIN_IMPERSONATE_USER',
-        'user_management',
-        user.id,
+        'ADMIN_DEMO_SESSION_CREATED',
+        'demo_session',
         null,
-        {
-          target_user_email: user.email,
-          target_user_role: user.role,
-          mode: mode
-        }
+        null,
+        { demo_role: role }
       );
 
-      toast({
-        title: "Redirecting...",
-        description: `${mode === 'view' ? 'Loading user dashboard (read-only)' : 'Starting impersonation session'}`,
+      // Call the demo login edge function
+      const { data, error } = await supabase.functions.invoke('demo-login', {
+        body: { role }
       });
 
-      // Small delay for better UX
-      await new Promise(resolve => setTimeout(resolve, 500));
+      if (error) {
+        throw error;
+      }
 
-      // Navigate to the user dashboard view
-      navigate(`/admin/view-dashboard/${user.id}?mode=${mode}&role=${user.role}`);
-    } catch (error) {
-      console.error('Error viewing user dashboard:', error);
       toast({
-        title: "Navigation Error",
-        description: "Failed to load user dashboard",
+        title: "Opening Demo Dashboard...",
+        description: `Loading ${role} dashboard in new tab`,
+      });
+
+      // Create a new window with demo session
+      const demoWindow = window.open('about:blank', '_blank');
+      if (demoWindow) {
+        // Set the demo session in the new window's localStorage
+        demoWindow.localStorage.setItem('supabase.auth.token', JSON.stringify(data.session));
+        
+        // Navigate to the appropriate dashboard
+        const dashboardRoute = role === 'hospital' ? '/hospital' : 
+                              role === 'investor' ? '/investor' : 
+                              '/manufacturer';
+        
+        demoWindow.location.href = `${window.location.origin}${dashboardRoute}?demo=true`;
+      }
+
+    } catch (error) {
+      console.error('Error creating demo session:', error);
+      toast({
+        title: "Demo Error",
+        description: "Failed to create demo session",
         variant: "destructive",
       });
     } finally {
-      setIsNavigating(false);
+      setIsDemoLoading(false);
     }
   };
 
@@ -145,15 +126,6 @@ const QuickActions = () => {
       gradient: "from-green-500 to-green-600",
       bgGradient: "from-green-50 to-green-100",
     },
-    {
-      title: "View User Dashboard",
-      description: "Switch to user interface",
-      icon: isNavigating ? Loader2 : BarChart2,
-      action: handleViewUserDashboard,
-      gradient: "from-purple-500 to-purple-600",
-      bgGradient: "from-purple-50 to-purple-100",
-      disabled: isNavigating,
-    },
   ];
   
   return (
@@ -177,14 +149,12 @@ const QuickActions = () => {
           return (
             <div
               key={action.title}
-              className={`group relative overflow-hidden bg-gradient-to-br ${action.bgGradient} p-4 rounded-xl border border-white/50 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105 ${
-                action.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-xl hover:shadow-gray-200/50'
-              }`}
-              onClick={action.disabled ? undefined : action.action}
+              className={`group relative overflow-hidden bg-gradient-to-br ${action.bgGradient} p-4 rounded-xl border border-white/50 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105 hover:shadow-xl hover:shadow-gray-200/50`}
+              onClick={action.action}
             >
               {/* Icon */}
               <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${action.gradient} text-white shadow-md mb-3 group-hover:scale-110 transition-transform duration-200`}>
-                <Icon className={`h-5 w-5 ${isNavigating && action.title === 'View User Dashboard' ? 'animate-spin' : ''}`} />
+                <Icon className="h-5 w-5" />
               </div>
               
               {/* Content */}
@@ -200,6 +170,12 @@ const QuickActions = () => {
             </div>
           );
         })}
+        
+        {/* Demo Accounts Dropdown */}
+        <DemoAccountsDropdown 
+          isLoading={isDemoLoading}
+          onRoleSelect={handleDemoRoleSelect}
+        />
       </div>
 
       {/* Equipment Modal */}
@@ -223,20 +199,6 @@ const QuickActions = () => {
         onScheduled={handleMaintenanceScheduled}
       />
 
-      {/* User Select Modal */}
-      <UserSelectModal
-        open={isUserSelectModalOpen}
-        onOpenChange={setIsUserSelectModalOpen}
-        onUserSelected={handleUserSelected}
-      />
-
-      {/* Impersonation Confirmation Modal */}
-      <ImpersonationConfirmModal
-        open={isImpersonationModalOpen}
-        onOpenChange={setIsImpersonationModalOpen}
-        user={selectedUser}
-        onConfirm={handleConfirmImpersonation}
-      />
     </div>
   );
 };

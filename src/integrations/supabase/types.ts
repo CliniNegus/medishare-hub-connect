@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -1632,11 +1632,15 @@ export type Database = {
     Functions: {
       archive_old_data: {
         Args: {
-          table_name_param: string
           cutoff_date: string
           reason_param?: string
+          table_name_param: string
         }
         Returns: number
+      }
+      can_view_equipment_details: {
+        Args: { equipment_id: string }
+        Returns: boolean
       }
       check_auth_rate_limit: {
         Args: { user_email: string }
@@ -1651,27 +1655,27 @@ export type Database = {
         Returns: string
       }
       create_data_backup: {
-        Args: { name_param: string; backup_type_param: string }
+        Args: { backup_type_param: string; name_param: string }
         Returns: string
       }
       create_email_verification: {
         Args: {
-          user_email: string
-          token_hash_param: string
           ip_address_param?: unknown
+          token_hash_param: string
           user_agent_param?: string
+          user_email: string
         }
         Returns: string
       }
       create_or_update_customer_with_shipping: {
         Args: {
-          p_user_id: string
-          p_full_name: string
-          p_phone_number: string
-          p_email: string
-          p_street: string
           p_city: string
           p_country: string
+          p_email: string
+          p_full_name: string
+          p_phone_number: string
+          p_street: string
+          p_user_id: string
           p_zip_code?: string
         }
         Returns: string
@@ -1700,6 +1704,25 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_public_equipment: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          category: string
+          condition: string
+          created_at: string
+          description: string
+          id: string
+          image_url: string
+          location: string
+          manufacturer: string
+          model: string
+          name: string
+          sales_option: string
+          specs: string
+          status: string
+          updated_at: string
+        }[]
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -1711,17 +1734,17 @@ export type Database = {
       log_audit_event: {
         Args: {
           action_param: string
-          resource_type_param: string
-          resource_id_param?: string
-          old_values_param?: Json
           new_values_param?: Json
+          old_values_param?: Json
+          resource_id_param?: string
+          resource_type_param: string
         }
         Returns: string
       }
       log_security_event: {
         Args: {
-          event_type_param: string
           event_details_param?: Json
+          event_type_param: string
           ip_address_param?: unknown
           user_agent_param?: string
         }
@@ -1737,12 +1760,12 @@ export type Database = {
       }
       send_system_message: {
         Args: {
-          recipient_id_param: string
-          recipient_role_param: string
-          subject_param: string
           content_param: string
           message_type_param?: string
           priority_param?: string
+          recipient_id_param: string
+          recipient_role_param: string
+          subject_param: string
         }
         Returns: string
       }
