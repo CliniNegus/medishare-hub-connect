@@ -56,11 +56,62 @@ Deno.serve(async (req) => {
 
     const demoAccount = DEMO_ACCOUNTS[role as keyof typeof DEMO_ACCOUNTS]
 
-    // Create a temporary auth session for the demo account
-    const { data: sessionData, error: authError } = await supabaseClient.auth.signInWithPassword({
+    // Try to sign in first
+    let { data: sessionData, error: authError } = await supabaseClient.auth.signInWithPassword({
       email: demoAccount.email,
       password: demoAccount.password,
     })
+
+    // If login fails, try to create the account
+    if (authError && authError.message.includes('Invalid login credentials')) {
+      console.log(`Demo account doesn't exist, creating: ${demoAccount.email}`)
+      
+      // Create the demo account
+      const { data: createData, error: createError } = await supabaseClient.auth.admin.createUser({
+        email: demoAccount.email,
+        password: demoAccount.password,
+        user_metadata: {
+          full_name: demoAccount.name,
+          role: demoAccount.role
+        },
+        email_confirm: true
+      })
+
+      if (createError) {
+        console.error('Failed to create demo account:', createError)
+        return new Response(
+          JSON.stringify({ error: 'Failed to create demo account' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      // Create profile for the demo account
+      if (createData.user) {
+        await supabaseClient.from('profiles').upsert({
+          id: createData.user.id,
+          email: demoAccount.email,
+          full_name: demoAccount.name,
+          role: demoAccount.role,
+          organization: demoAccount.role === 'hospital' ? 'City General Hospital' : 
+                       demoAccount.role === 'investor' ? 'MedTech Ventures' : 'MedEquip Solutions',
+          bio: `Demo ${demoAccount.role} account for testing purposes`,
+          location: demoAccount.role === 'hospital' ? 'New York, NY' : 
+                   demoAccount.role === 'investor' ? 'San Francisco, CA' : 'Boston, MA',
+          phone: demoAccount.role === 'hospital' ? '+1-555-0101' : 
+                demoAccount.role === 'investor' ? '+1-555-0102' : '+1-555-0103',
+          last_active: new Date().toISOString()
+        })
+      }
+
+      // Now try to sign in again
+      const signInResult = await supabaseClient.auth.signInWithPassword({
+        email: demoAccount.email,
+        password: demoAccount.password,
+      })
+
+      sessionData = signInResult.data
+      authError = signInResult.error
+    }
 
     if (authError) {
       console.error('Demo auth error:', authError)
