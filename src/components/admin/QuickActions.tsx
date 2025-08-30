@@ -6,14 +6,30 @@ import { Button } from "@/components/ui/button";
 import AddEquipmentModal from '@/components/equipment/AddEquipmentModal';
 import AddUserModal from './AddUserModal';
 import ScheduleMaintenanceModal from './maintenance/ScheduleMaintenanceModal';
+import UserSelectModal from './UserSelectModal';
+import ImpersonationConfirmModal from './ImpersonationConfirmModal';
 import { useToast } from '@/hooks/use-toast';
+import { useAuditLogger } from '@/hooks/useAuditLogger';
+
+interface UserProfile {
+  id: string;
+  email: string;
+  full_name: string;
+  role: string;
+  organization: string;
+  last_active: string;
+}
 
 const QuickActions = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { logAuditEvent } = useAuditLogger();
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
+  const [isUserSelectModalOpen, setIsUserSelectModalOpen] = useState(false);
+  const [isImpersonationModalOpen, setIsImpersonationModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
   
   const handleAddEquipmentClick = () => {
@@ -44,16 +60,53 @@ const QuickActions = () => {
     });
   };
 
-  const handleViewUserDashboard = async () => {
+  const handleViewUserDashboard = () => {
+    setIsUserSelectModalOpen(true);
+  };
+
+  const handleUserSelected = async (user: UserProfile, mode: 'view' | 'impersonate') => {
+    setSelectedUser(user);
+    
+    if (mode === 'impersonate') {
+      setIsImpersonationModalOpen(true);
+    } else {
+      await handleViewDashboard(user, 'view');
+    }
+  };
+
+  const handleConfirmImpersonation = async () => {
+    if (selectedUser) {
+      setIsImpersonationModalOpen(false);
+      await handleViewDashboard(selectedUser, 'impersonate');
+    }
+  };
+
+  const handleViewDashboard = async (user: UserProfile, mode: 'view' | 'impersonate') => {
     try {
       setIsNavigating(true);
+      
+      // Log the admin action
+      await logAuditEvent(
+        mode === 'view' ? 'ADMIN_VIEW_USER_DASHBOARD' : 'ADMIN_IMPERSONATE_USER',
+        'user_management',
+        user.id,
+        null,
+        {
+          target_user_email: user.email,
+          target_user_role: user.role,
+          mode: mode
+        }
+      );
+
       toast({
         title: "Redirecting...",
-        description: "Loading user dashboard interface",
+        description: `${mode === 'view' ? 'Loading user dashboard (read-only)' : 'Starting impersonation session'}`,
       });
-      await new Promise(resolve => setTimeout(resolve, 500)); // Small delay for UX
-      navigate('/dashboard');
+
+      // Navigate to the user dashboard view
+      navigate(`/admin/view-dashboard/${user.id}?mode=${mode}&role=${user.role}`);
     } catch (error) {
+      console.error('Error viewing user dashboard:', error);
       toast({
         title: "Navigation Error",
         description: "Failed to load user dashboard",
@@ -165,6 +218,21 @@ const QuickActions = () => {
         open={isMaintenanceModalOpen}
         onOpenChange={setIsMaintenanceModalOpen}
         onScheduled={handleMaintenanceScheduled}
+      />
+
+      {/* User Select Modal */}
+      <UserSelectModal
+        open={isUserSelectModalOpen}
+        onOpenChange={setIsUserSelectModalOpen}
+        onUserSelected={handleUserSelected}
+      />
+
+      {/* Impersonation Confirmation Modal */}
+      <ImpersonationConfirmModal
+        open={isImpersonationModalOpen}
+        onOpenChange={setIsImpersonationModalOpen}
+        user={selectedUser}
+        onConfirm={handleConfirmImpersonation}
       />
     </div>
   );

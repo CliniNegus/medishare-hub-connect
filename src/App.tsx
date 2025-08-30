@@ -43,6 +43,7 @@ import EmailVerification from './pages/EmailVerification';
 import NotificationsPage from './components/notifications/NotificationsPage';
 import CompleteProfile from './pages/CompleteProfile';
 import NotFound from './pages/NotFound';
+import UserDashboardView from './components/admin/UserDashboardView';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -122,6 +123,14 @@ function App() {
                       element={
                         <ProtectedRoute requireAdmin>
                           <ManageInvestorAccounts />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/view-dashboard/:userId" 
+                      element={
+                        <ProtectedRoute requireAdmin>
+                          <UserDashboardView />
                         </ProtectedRoute>
                       } 
                     />
