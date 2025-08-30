@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from './contexts/AuthContext';
+import { UserRoleProvider } from './contexts/UserRoleContext';
 
 import { ThemeProvider } from './contexts/ThemeContext';
 import { CartProvider } from './contexts/CartContext';
@@ -60,7 +61,8 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <NotificationProvider>
-            <CartProvider>
+            <UserRoleProvider>
+              <CartProvider>
                 <ErrorBoundary>
                 <Router>
                   <Routes>
@@ -264,6 +266,7 @@ function App() {
                 </Router>
                 </ErrorBoundary>
               </CartProvider>
+            </UserRoleProvider>
           </NotificationProvider>
         </AuthProvider>
       </QueryClientProvider>
