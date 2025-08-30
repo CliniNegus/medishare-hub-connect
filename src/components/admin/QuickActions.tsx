@@ -103,6 +103,9 @@ const QuickActions = () => {
         description: `${mode === 'view' ? 'Loading user dashboard (read-only)' : 'Starting impersonation session'}`,
       });
 
+      // Small delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       // Navigate to the user dashboard view
       navigate(`/admin/view-dashboard/${user.id}?mode=${mode}&role=${user.role}`);
     } catch (error) {

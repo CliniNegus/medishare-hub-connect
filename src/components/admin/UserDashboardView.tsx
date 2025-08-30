@@ -37,7 +37,10 @@ const UserDashboardView: React.FC = () => {
 
   useEffect(() => {
     if (userId) {
+      console.log('UserDashboardView: Loading user profile for ID:', userId);
       fetchUserProfile();
+    } else {
+      console.log('UserDashboardView: No userId provided');
     }
   }, [userId]);
 
@@ -55,13 +58,20 @@ const UserDashboardView: React.FC = () => {
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
+      console.log('Fetching user profile for ID:', userId);
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('id, email, full_name, role, organization')
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        throw error;
+      }
+
+      console.log('User profile fetched:', data);
 
       if (data.role === 'admin') {
         toast({
@@ -191,7 +201,10 @@ const UserDashboardView: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#E02020]"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#E02020] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading user dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -201,16 +214,29 @@ const UserDashboardView: React.FC = () => {
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-900 mb-2">User Not Found</h2>
+          <p className="text-gray-600 mb-4">The user profile could not be loaded.</p>
           <Button onClick={() => navigate('/admin')} variant="outline">
-            Back to Admin
+            Back to Admin Dashboard
           </Button>
         </div>
       </div>
     );
   }
 
+  console.log('UserDashboardView render:', { 
+    userId, 
+    userProfile: userProfile?.email, 
+    mode, 
+    loading, 
+    isImpersonating 
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Debug info - remove in production */}
+      <div className="bg-yellow-100 p-2 text-xs text-yellow-800 text-center">
+        Debug: Viewing {userProfile.email} in {mode} mode
+      </div>
       {/* Admin Banner */}
       <div className={`${mode === 'view' ? 'bg-blue-600' : 'bg-orange-600'} text-white p-4 shadow-lg`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -280,8 +306,14 @@ const UserDashboardView: React.FC = () => {
       )}
 
       {/* Dashboard Content */}
-      <div className={mode === 'view' ? 'pointer-events-none select-none opacity-75' : ''}>
-        <Dashboard />
+      <div className="relative">
+        {mode === 'view' && (
+          <div className="absolute inset-0 z-10 bg-transparent cursor-not-allowed" 
+               onClick={(e) => e.preventDefault()} />
+        )}
+        <div className={mode === 'view' ? 'pointer-events-none select-none opacity-75' : ''}>
+          <Dashboard />
+        </div>
       </div>
 
       {/* Impersonation Confirmation Modal */}
