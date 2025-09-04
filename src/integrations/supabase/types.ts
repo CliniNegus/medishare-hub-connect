@@ -388,6 +388,7 @@ export type Database = {
           sales_option: string | null
           serial_number: string | null
           shop_id: string | null
+          sku: string | null
           specs: string | null
           status: string | null
           updated_at: string
@@ -417,6 +418,7 @@ export type Database = {
           sales_option?: string | null
           serial_number?: string | null
           shop_id?: string | null
+          sku?: string | null
           specs?: string | null
           status?: string | null
           updated_at?: string
@@ -446,6 +448,7 @@ export type Database = {
           sales_option?: string | null
           serial_number?: string | null
           shop_id?: string | null
+          sku?: string | null
           specs?: string | null
           status?: string | null
           updated_at?: string

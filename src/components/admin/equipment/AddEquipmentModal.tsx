@@ -37,6 +37,7 @@ interface EquipmentFormData {
   description: string;
   model: string;
   serial_number: string;
+  sku: string;
   condition: string;
   location: string;
   status: string;
@@ -61,6 +62,7 @@ const INITIAL_FORM_DATA: EquipmentFormData = {
   description: '',
   model: '',
   serial_number: '',
+  sku: '',
   condition: '',
   location: '',
   status: 'available',
@@ -144,6 +146,7 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
         description: formData.description.trim() || null,
         model: formData.model.trim() || null,
         serial_number: formData.serial_number.trim() || null,
+        sku: formData.sku.trim() || null,
         condition: formData.condition || null,
         location: formData.location.trim() || null,
         status: formData.status,
@@ -266,6 +269,16 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
                   value={formData.serial_number}
                   onChange={(e) => handleInputChange('serial_number', e.target.value)}
                   placeholder="Enter serial number"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="sku">SKU</Label>
+                <Input
+                  id="sku"
+                  value={formData.sku}
+                  onChange={(e) => handleInputChange('sku', e.target.value)}
+                  placeholder="Enter SKU"
                 />
               </div>
 
