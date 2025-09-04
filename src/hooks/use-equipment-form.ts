@@ -128,7 +128,7 @@ export const useEquipmentForm = ({ onSuccess, onCancel }: UseEquipmentFormProps 
         pay_per_use_price: form.pay_per_use_enabled && form.pay_per_use_price ? parseFloat(form.pay_per_use_price) : null,
         image_url: imageUrl,
         owner_id: user.id,
-        status: 'Available',
+        status: 'available',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
