@@ -52,6 +52,7 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
         image_url: equipment.image_url,
         model: equipment.model || '',
         serial_number: equipment.serial_number || '',
+        sku: equipment.sku || '',
         condition: equipment.condition || '',
         specs: equipment.specs || '',
         quantity: equipment.quantity || 1,
@@ -144,6 +145,16 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
                   value={formData.serial_number || ''}
                   onChange={(e) => handleChange('serial_number', e.target.value)}
                   placeholder="Enter serial number"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="sku">SKU</Label>
+                <Input
+                  id="sku"
+                  value={formData.sku || ''}
+                  onChange={(e) => handleChange('sku', e.target.value)}
+                  placeholder="Enter SKU"
                 />
               </div>
 

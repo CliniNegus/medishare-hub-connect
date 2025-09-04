@@ -119,6 +119,16 @@ const EquipmentViewModal: React.FC<EquipmentViewModalProps> = ({
                 </div>
 
                 <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">Serial Number:</span>
+                  <span className="text-sm">{equipment.serial_number || 'Not specified'}</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">SKU:</span>
+                  <span className="text-sm">{equipment.sku || 'Not specified'}</span>
+                </div>
+
+                <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-gray-500" />
                   <span className="text-sm text-gray-600">Location:</span>
                   <span className="text-sm">{equipment.location || 'Not specified'}</span>

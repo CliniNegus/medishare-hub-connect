@@ -18,6 +18,7 @@ interface EquipmentFormProps {
     model?: string;
     condition?: string;
     serial_number?: string;
+    sku?: string;
     pay_per_use_enabled?: boolean;
     pay_per_use_price?: string;
   };
@@ -151,6 +152,17 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
             value={form.serial_number || ''} 
             onChange={handleChange} 
             placeholder="e.g., SN123456789"
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="sku">SKU</Label>
+          <Input 
+            id="sku" 
+            name="sku" 
+            value={form.sku || ''} 
+            onChange={handleChange} 
+            placeholder="e.g., MED-XYZ-001"
           />
         </div>
       </div>

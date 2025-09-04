@@ -25,6 +25,7 @@ export const useEquipmentForm = ({ onSuccess, onCancel }: UseEquipmentFormProps 
     model: '',
     condition: '',
     serial_number: '',
+    sku: '',
     pay_per_use_enabled: false,
     pay_per_use_price: '',
   });
@@ -71,6 +72,7 @@ export const useEquipmentForm = ({ onSuccess, onCancel }: UseEquipmentFormProps 
       model: '',
       condition: '',
       serial_number: '',
+      sku: '',
       pay_per_use_enabled: false,
       pay_per_use_price: '',
     });
@@ -124,6 +126,7 @@ export const useEquipmentForm = ({ onSuccess, onCancel }: UseEquipmentFormProps 
         model: form.model || null,
         condition: form.condition || null,
         serial_number: form.serial_number || null,
+        sku: form.sku || null,
         pay_per_use_enabled: form.pay_per_use_enabled,
         pay_per_use_price: form.pay_per_use_enabled && form.pay_per_use_price ? parseFloat(form.pay_per_use_price) : null,
         image_url: imageUrl,

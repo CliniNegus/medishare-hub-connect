@@ -15,6 +15,7 @@ export interface Equipment {
   lease_rate: number | null;
   model: string | null;
   serial_number: string | null;
+  sku: string | null;
   condition: string | null;
   specs: string | null;
   quantity: number | null;
