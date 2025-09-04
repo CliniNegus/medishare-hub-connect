@@ -60,7 +60,6 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
         downtime_hours: equipment.downtime_hours || 0,
         revenue_generated: equipment.revenue_generated || 0,
         remote_control_enabled: equipment.remote_control_enabled || false,
-        payment_status: equipment.payment_status || 'compliant',
         pay_per_use_enabled: equipment.pay_per_use_enabled || false,
         pay_per_use_price: equipment.pay_per_use_price || null,
       });
@@ -216,11 +215,9 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Available">Available</SelectItem>
-                    <SelectItem value="In Use">In Use</SelectItem>
-                    <SelectItem value="Leased">Leased</SelectItem>
-                    <SelectItem value="Maintenance">Maintenance</SelectItem>
-                    <SelectItem value="Out of Service">Out of Service</SelectItem>
+                    <SelectItem value="available">Available</SelectItem>
+                    <SelectItem value="leased">Leased</SelectItem>
+                    <SelectItem value="maintenance">Maintenance</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -235,23 +232,6 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
                   onChange={(e) => handleChange('quantity', e.target.value ? parseInt(e.target.value) : null)}
                   placeholder="Enter quantity"
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="payment_status">Payment Status</Label>
-                <Select
-                  value={formData.payment_status || ''}
-                  onValueChange={(value) => handleChange('payment_status', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select payment status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="compliant">Compliant</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="overdue">Overdue</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
           </div>

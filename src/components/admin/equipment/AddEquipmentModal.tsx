@@ -50,7 +50,6 @@ interface EquipmentFormData {
   downtime_hours: string;
   revenue_generated: string;
   remote_control_enabled: boolean;
-  payment_status: string;
   pay_per_use_enabled: boolean;
   pay_per_use_price: string;
 }
@@ -64,7 +63,7 @@ const INITIAL_FORM_DATA: EquipmentFormData = {
   serial_number: '',
   condition: '',
   location: '',
-  status: 'Available',
+  status: 'available',
   price: '',
   lease_rate: '',
   quantity: '1',
@@ -75,7 +74,6 @@ const INITIAL_FORM_DATA: EquipmentFormData = {
   downtime_hours: '0',
   revenue_generated: '0',
   remote_control_enabled: false,
-  payment_status: 'compliant',
   pay_per_use_enabled: false,
   pay_per_use_price: '',
 };
@@ -159,7 +157,6 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
         downtime_hours: formData.downtime_hours ? parseInt(formData.downtime_hours) : 0,
         revenue_generated: formData.revenue_generated ? parseFloat(formData.revenue_generated) : 0,
         remote_control_enabled: formData.remote_control_enabled,
-        payment_status: formData.payment_status,
         sales_option: formData.sales_option || null,
         pay_per_use_enabled: formData.pay_per_use_enabled,
         pay_per_use_price: formData.pay_per_use_enabled && formData.pay_per_use_price ? parseFloat(formData.pay_per_use_price) : null
@@ -340,16 +337,14 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Available">Available</SelectItem>
-                    <SelectItem value="In Use">In Use</SelectItem>
-                    <SelectItem value="Leased">Leased</SelectItem>
-                    <SelectItem value="Maintenance">Maintenance</SelectItem>
-                    <SelectItem value="Out of Service">Out of Service</SelectItem>
+                    <SelectItem value="available">Available</SelectItem>
+                    <SelectItem value="leased">Leased</SelectItem>
+                    <SelectItem value="maintenance">Maintenance</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="space-y-2">
+                <div className="space-y-2">
                 <Label htmlFor="quantity">Quantity</Label>
                 <Input
                   id="quantity"
@@ -359,23 +354,6 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
                   onChange={(e) => handleInputChange('quantity', e.target.value)}
                   placeholder="Enter quantity"
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="payment_status">Payment Status</Label>
-                <Select
-                  value={formData.payment_status}
-                  onValueChange={(value) => handleInputChange('payment_status', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select payment status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="compliant">Compliant</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="overdue">Overdue</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
           </div>
