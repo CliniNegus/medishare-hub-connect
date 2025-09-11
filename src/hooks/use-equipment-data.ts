@@ -116,6 +116,14 @@ export function useEquipmentData() {
       try {
         setLoading(true);
         console.log('Fetching equipment data...');
+        console.log('Current auth user:', await supabase.auth.getUser());
+        
+        // Check if we can access equipment table at all
+        const { count } = await supabase
+          .from('equipment')
+          .select('*', { count: 'exact', head: true });
+        
+        console.log('Equipment count check:', count);
         
         // Try to fetch basic equipment data - will only return data user has access to
         const { data, error } = await supabase
