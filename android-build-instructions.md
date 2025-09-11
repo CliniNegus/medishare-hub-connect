@@ -79,13 +79,49 @@ npx cap open android
 # 5. Click "Build"
 ```
 
-### 7. Alternative Command Line Build
+### 7. Command Line Build (No Android Studio Required)
+
+#### For AAB (Android App Bundle) - Recommended for Play Store
 ```bash
+# Sync Capacitor first
+npx cap sync android
+
+# Navigate to android directory
 cd android
+
+# Build signed AAB
 ./gradlew bundleRelease
+
+# The signed .aab file will be in:
+# android/app/build/outputs/bundle/release/app-release.aab
 ```
 
-The signed .aab file will be in: `android/app/build/outputs/bundle/release/app-release.aab`
+#### For APK (Alternative Distribution)
+```bash
+# Navigate to android directory (if not already there)
+cd android
+
+# Build signed APK
+./gradlew assembleRelease
+
+# The signed .apk file will be in:
+# android/app/build/outputs/apk/release/app-release.apk
+```
+
+#### Build Both AAB and APK
+```bash
+# Build both formats at once
+./gradlew bundleRelease assembleRelease
+```
+
+#### Verify Signing
+```bash
+# Check AAB signature
+jarsigner -verify -verbose -certs android/app/build/outputs/bundle/release/app-release.aab
+
+# Check APK signature  
+jarsigner -verify -verbose -certs android/app/build/outputs/apk/release/app-release.apk
+```
 
 ## Play Store Upload
 1. Upload the .aab file to Google Play Console
