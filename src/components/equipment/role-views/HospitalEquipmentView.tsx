@@ -9,6 +9,7 @@ import {
   CreditCard, Clock, MapPin, Activity 
 } from 'lucide-react';
 import { useEquipmentData } from '@/hooks/use-equipment-data';
+import { formatCurrency } from '@/utils/formatters';
 import BookingModal from '@/components/BookingModal';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
@@ -171,7 +172,7 @@ const HospitalEquipmentView = () => {
               {item.payPerUseEnabled && item.payPerUsePrice && (
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-gray-400" />
-                    <span>Pay per use: ${item.payPerUsePrice}/day</span>
+                    <span>Pay per use: {formatCurrency(item.payPerUsePrice)}/day</span>
                   </div>
                 )}
                 {item.leaseRate && (
@@ -183,7 +184,7 @@ const HospitalEquipmentView = () => {
                 {item.price && (
                   <div className="flex items-center gap-2">
                     <ShoppingCart className="h-4 w-4 text-gray-400" />
-                    <span>Purchase: ${item.price}</span>
+                    <span>Purchase: {formatCurrency(item.price)}</span>
                   </div>
                 )}
               </div>
@@ -211,7 +212,7 @@ const HospitalEquipmentView = () => {
                             <DialogTitle>Purchase Equipment</DialogTitle>
                           </DialogHeader>
                           <div className="p-4">
-                            <p>Purchase {item.name} for ${item.price}</p>
+                            <p>Purchase {item.name} for {formatCurrency(item.price || 0)}</p>
                             <Button className="w-full mt-4 bg-[#E02020]">
                               Proceed to Purchase
                             </Button>

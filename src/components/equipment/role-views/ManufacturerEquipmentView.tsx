@@ -9,6 +9,7 @@ import {
   DollarSign, TrendingUp, Settings, Eye
 } from 'lucide-react';
 import { useEquipmentData } from '@/hooks/use-equipment-data';
+import { formatCurrency } from '@/utils/formatters';
 import { useAuth } from '@/contexts/AuthContext';
 import AddEquipmentModal from '@/components/admin/equipment/AddEquipmentModal';
 import EquipmentEditModal from '@/components/admin/equipment/EquipmentEditModal';
@@ -211,7 +212,7 @@ const ManufacturerEquipmentView = () => {
                 {item.price && (
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Purchase Price:</span>
-                    <span className="font-medium">${item.price}</span>
+                    <span className="font-medium">{formatCurrency(item.price)}</span>
                   </div>
                 )}
                 {item.leaseRate && (
@@ -223,7 +224,7 @@ const ManufacturerEquipmentView = () => {
                 {item.payPerUsePrice && (
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Pay per Use:</span>
-                    <span className="font-medium">${item.payPerUsePrice}/day</span>
+                    <span className="font-medium">{formatCurrency(item.payPerUsePrice)}/day</span>
                   </div>
                 )}
               </div>

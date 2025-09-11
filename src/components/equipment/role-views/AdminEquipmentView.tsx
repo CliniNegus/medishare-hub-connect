@@ -9,6 +9,7 @@ import {
   BarChart3, Users, Settings, AlertTriangle
 } from 'lucide-react';
 import { useEquipmentData } from '@/hooks/use-equipment-data';
+import { formatCurrency } from '@/utils/formatters';
 import AddEquipmentModal from '@/components/admin/equipment/AddEquipmentModal';
 import EquipmentEditModal from '@/components/admin/equipment/EquipmentEditModal';
 import EquipmentViewModal from '@/components/admin/equipment/EquipmentViewModal';
@@ -239,7 +240,7 @@ const AdminEquipmentView = () => {
                 {item.price && (
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Purchase Price:</span>
-                    <span className="font-medium">${item.price}</span>
+                    <span className="font-medium">{formatCurrency(item.price)}</span>
                   </div>
                 )}
                 {item.leaseRate && (
@@ -251,7 +252,7 @@ const AdminEquipmentView = () => {
                 {item.payPerUsePrice && (
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Pay per Use:</span>
-                    <span className="font-medium">${item.payPerUsePrice}/day</span>
+                    <span className="font-medium">{formatCurrency(item.payPerUsePrice)}/day</span>
                   </div>
                 )}
               </div>
