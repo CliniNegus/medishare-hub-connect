@@ -44,6 +44,7 @@ import EmailVerification from './pages/EmailVerification';
 import NotificationsPage from './components/notifications/NotificationsPage';
 import CompleteProfile from './pages/CompleteProfile';
 import NotFound from './pages/NotFound';
+import EquipmentPage from './pages/EquipmentPage';
 
 
 const queryClient = new QueryClient({
@@ -214,17 +215,25 @@ function App() {
                           </Layout>
                         </ProtectedRoute>
                       } 
-                    />
-                    <Route 
-                      path="/clients" 
-                      element={
-                        <ProtectedRoute>
-                          <Layout>
-                            <ClientManagement />
-                          </Layout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                     />
+                      <Route 
+                        path="/equipment" 
+                        element={
+                          <ProtectedRoute>
+                            <EquipmentPage />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/clients" 
+                        element={
+                          <ProtectedRoute>
+                            <Layout>
+                              <ClientManagement />
+                            </Layout>
+                          </ProtectedRoute>
+                        } 
+                      />
                     <Route 
                       path="/internal-shop" 
                       element={

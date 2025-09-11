@@ -150,6 +150,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onChangeAccountType }) => {
           </Link>
         )}
 
+        {/* Equipment section for all roles */}
+        {['admin', 'hospital', 'manufacturer', 'investor'].includes(role) && (
+          <Link to="/equipment" className={getLinkClass('/equipment')}>
+            <Package className="mr-3 h-5 w-5" />
+            Equipment
+          </Link>
+        )}
+
         {['admin', 'manufacturer'].includes(role) && (
           <Link to="/tracking" className={getLinkClass('/tracking')}>
             <Activity className="mr-3 h-5 w-5" />

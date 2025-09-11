@@ -19,6 +19,11 @@ export interface EquipmentItem {
   nextAvailable?: string;
   payPerUseEnabled?: boolean;
   payPerUsePrice?: number;
+  // Additional properties for admin/manufacturer views
+  status?: string;
+  usageHours?: number;
+  revenueGenerated?: number;
+  ownerId?: string;
 }
 
 // Add sample enhanced cluster data
