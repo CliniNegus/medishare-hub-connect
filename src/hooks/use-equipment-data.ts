@@ -115,15 +115,20 @@ export function useEquipmentData() {
     async function fetchEquipment() {
       try {
         setLoading(true);
+        console.log('Fetching equipment data...');
         
         // Try to fetch basic equipment data - will only return data user has access to
         const { data, error } = await supabase
           .from('equipment')
           .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, created_at, updated_at')
-          .in('status', ['Available', 'In Use'])
           .order('created_at', { ascending: false })
           
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase error:', error);
+          throw error;
+        }
+        
+        console.log('Raw equipment data:', data);
         
         // Transform database data to match our EquipmentItem interface
         const formattedEquipment: EquipmentItem[] = (data || []).map(item => ({
@@ -131,21 +136,27 @@ export function useEquipmentData() {
           name: item.name || 'Unnamed Equipment',
           image_url: item.image_url || '/placeholder.svg',
           description: item.description || 'No description available',
-          price: 0, // Price is no longer available in public data
+          price: 50000, // Default price for demo
           category: item.category || 'Uncategorized',
           manufacturer: item.manufacturer || 'Unknown',
-          type: item.status === 'available' ? 'available' : 
-                item.status === 'maintenance' ? 'maintenance' : 'in-use',
+          type: item.status?.toLowerCase() === 'available' ? 'available' : 
+                item.status?.toLowerCase() === 'under maintenance' ? 'maintenance' : 'in-use',
           location: item.location || 'Unknown',
           cluster: 'Main Hospital', // Default value as it might not be in the DB
-          pricePerUse: 10, // Default value as pricing is now private
-          purchasePrice: 0, // Price data is no longer public
-          leaseRate: 0, // Lease rate is no longer public
-          nextAvailable: item.status !== 'available' ? '2025-06-01' : undefined,
-          payPerUseEnabled: false, // Pay per use data is no longer public
-          payPerUsePrice: null, // Pay per use pricing is no longer public
+          pricePerUse: 150, // Default value for demo
+          purchasePrice: 50000, // Default price for demo
+          leaseRate: 5000, // Default lease rate for demo
+          nextAvailable: item.status !== 'Available' ? '2025-06-01' : undefined,
+          payPerUseEnabled: true, // Enable for demo
+          payPerUsePrice: 150, // Default pay per use price for demo
+          // Additional properties for admin/manufacturer views
+          status: item.status,
+          usageHours: Math.floor(Math.random() * 1000), // Mock data
+          revenueGenerated: Math.floor(Math.random() * 100000), // Mock data
+          ownerId: 'demo-owner-id', // Mock data
         }));
         
+        console.log('Formatted equipment:', formattedEquipment);
         setEquipment(formattedEquipment);
         
       } catch (err: any) {
