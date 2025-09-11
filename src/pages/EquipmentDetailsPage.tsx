@@ -12,6 +12,7 @@ import BookingModal from '@/components/BookingModal';
 import PurchaseModal from '@/components/PurchaseModal';
 import Header from '@/components/Header';
 import { useAuth } from '@/contexts/AuthContext';
+import { formatCurrency } from '@/utils/formatters';
 
 interface EquipmentDetails {
   id: string;
@@ -33,6 +34,15 @@ interface EquipmentDetails {
   quantity: number;
   usage_hours: number;
   downtime_hours: number;
+  revenue_generated: number;
+  pay_per_use_enabled: boolean;
+  pay_per_use_price: number;
+  remote_control_enabled: boolean;
+  sales_option: string;
+  sku: string;
+  owner_id: string;
+  payment_status: string;
+  shop_id: string;
 }
 
 const EquipmentDetailsPage = () => {
@@ -54,9 +64,12 @@ const EquipmentDetailsPage = () => {
           .from('equipment')
           .select('*')
           .eq('id', id)
-          .single();
+          .maybeSingle();
           
         if (error) throw error;
+        if (!data) {
+          throw new Error('Equipment not found');
+        }
         
         setEquipment(data as EquipmentDetails);
       } catch (error: any) {
@@ -359,6 +372,36 @@ const EquipmentDetailsPage = () => {
                       </p>
                     </div>
                   )}
+                  
+                  {equipment?.revenue_generated && equipment.revenue_generated > 0 && (
+                    <div className="mt-6">
+                      <h3 className="text-xl font-semibold mb-3 text-gray-800">Performance</h3>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-600">Revenue Generated:</span>
+                          <span className="ml-2 font-medium">{formatCurrency(equipment.revenue_generated)}</span>
+                        </div>
+                        {equipment.pay_per_use_enabled && (
+                          <div>
+                            <span className="text-gray-600">Pay Per Use:</span>
+                            <span className="ml-2 font-medium text-green-600">Enabled</span>
+                          </div>
+                        )}
+                        {equipment.remote_control_enabled && (
+                          <div>
+                            <span className="text-gray-600">Remote Control:</span>
+                            <span className="ml-2 font-medium text-blue-600">Available</span>
+                          </div>
+                        )}
+                        {equipment.sales_option && (
+                          <div>
+                            <span className="text-gray-600">Sales Option:</span>
+                            <span className="ml-2 font-medium">{equipment.sales_option}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -371,7 +414,7 @@ const EquipmentDetailsPage = () => {
                       <span className="text-sm text-gray-500 mb-2">Purchase Price</span>
                       <div className="flex items-center">
                         <DollarSign className="h-6 w-6 mr-2 text-red-500" />
-                        <span className="text-2xl font-bold text-gray-800">KES {equipment?.price?.toLocaleString() || 'N/A'}</span>
+                        <span className="text-2xl font-bold text-gray-800">{equipment?.price ? formatCurrency(equipment.price) : 'N/A'}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -383,7 +426,7 @@ const EquipmentDetailsPage = () => {
                       <span className="text-sm text-gray-500 mb-2">Monthly Lease Rate</span>
                       <div className="flex items-center">
                         <Calculator className="h-6 w-6 mr-2 text-red-500" />
-                        <span className="text-2xl font-bold text-gray-800">KES {equipment?.lease_rate?.toLocaleString() || 'N/A'}</span>
+                        <span className="text-2xl font-bold text-gray-800">{equipment?.lease_rate ? formatCurrency(equipment.lease_rate) : 'N/A'}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -392,10 +435,15 @@ const EquipmentDetailsPage = () => {
                 <Card className="bg-gray-50 border-gray-200">
                   <CardContent className="p-6">
                     <div className="flex flex-col">
-                      <span className="text-sm text-gray-500 mb-2">Per Use Price</span>
+                      <span className="text-sm text-gray-500 mb-2">Pay Per Use Price</span>
                       <div className="flex items-center">
                         <Clock className="h-6 w-6 mr-2 text-red-500" />
-                        <span className="text-2xl font-bold text-gray-800">KES {perUsePrice?.toFixed(2) || 'N/A'}</span>
+                        <span className="text-2xl font-bold text-gray-800">
+                          {equipment?.pay_per_use_enabled && equipment?.pay_per_use_price 
+                            ? `${formatCurrency(equipment.pay_per_use_price)}/day`
+                            : 'Not Available'
+                          }
+                        </span>
                       </div>
                     </div>
                   </CardContent>
