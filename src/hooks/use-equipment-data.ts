@@ -120,7 +120,7 @@ export function useEquipmentData() {
         // Try to fetch basic equipment data - will only return data user has access to
         const { data, error } = await supabase
           .from('equipment')
-          .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, created_at, updated_at')
+          .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, price, lease_rate, pay_per_use_price, pay_per_use_enabled, usage_hours, downtime_hours, revenue_generated, created_at, updated_at')
           .order('created_at', { ascending: false })
           
         if (error) {
@@ -136,27 +136,27 @@ export function useEquipmentData() {
           name: item.name || 'Unnamed Equipment',
           image_url: item.image_url || '/placeholder.svg',
           description: item.description || 'No description available',
-          price: 50000, // Default price for demo
-          category: item.category || 'Uncategorized',
+          price: item.price || 0,
+          category: item.category || 'Medical Device',
           manufacturer: item.manufacturer || 'Unknown',
           type: item.status?.toLowerCase() === 'available' ? 'available' : 
-                item.status?.toLowerCase() === 'under maintenance' ? 'maintenance' : 'in-use',
-          location: item.location || 'Unknown',
-          cluster: 'Main Hospital', // Default value as it might not be in the DB
-          pricePerUse: 150, // Default value for demo
-          purchasePrice: 50000, // Default price for demo
-          leaseRate: 5000, // Default lease rate for demo
-          nextAvailable: item.status !== 'Available' ? '2025-06-01' : undefined,
-          payPerUseEnabled: true, // Enable for demo
-          payPerUsePrice: 150, // Default pay per use price for demo
+                item.status?.toLowerCase() === 'maintenance' ? 'maintenance' : 'in-use',
+          location: item.location || 'Main Hospital',
+          cluster: 'Hospital Network', // Default cluster name
+          pricePerUse: item.pay_per_use_price || 0,
+          purchasePrice: item.price || 0,
+          leaseRate: item.lease_rate || 0,
+          nextAvailable: item.status !== 'available' ? '2025-06-01' : undefined,
+          payPerUseEnabled: item.pay_per_use_enabled || false,
+          payPerUsePrice: item.pay_per_use_price || 0,
           // Additional properties for admin/manufacturer views
           status: item.status,
-          usageHours: Math.floor(Math.random() * 1000), // Mock data
-          revenueGenerated: Math.floor(Math.random() * 100000), // Mock data
-          ownerId: 'demo-owner-id', // Mock data
+          usageHours: item.usage_hours || Math.floor(Math.random() * 500),
+          revenueGenerated: item.revenue_generated || Math.floor(Math.random() * 50000),
+          ownerId: 'system', // Default owner
         }));
         
-        console.log('Formatted equipment:', formattedEquipment);
+        console.log(`Loaded ${formattedEquipment.length} equipment items:`, formattedEquipment);
         setEquipment(formattedEquipment);
         
       } catch (err: any) {
