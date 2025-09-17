@@ -1,0 +1,85 @@
+/* Accessibility improvements for dark theme */
+
+/* Focus indicators with high contrast */
+.dark *:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring));
+}
+
+/* Enhanced button focus states */
+.dark .btn:focus-visible {
+  outline: 3px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Link contrast improvements */
+.dark a {
+  color: hsl(var(--primary));
+  text-decoration-thickness: 2px;
+}
+
+.dark a:hover {
+  color: hsl(var(--primary) / 0.8);
+  text-decoration-thickness: 3px;
+}
+
+/* High contrast borders for interactive elements */
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.2);
+}
+
+/* Improved visibility for disabled states */
+.dark .disabled,
+.dark [disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* High contrast for form labels */
+.dark label {
+  color: hsl(var(--foreground));
+  font-weight: 500;
+}
+
+/* Enhanced contrast for placeholder text */
+.dark ::placeholder {
+  color: hsl(var(--muted-foreground));
+  opacity: 0.8;
+}
+
+/* Mobile-specific accessibility improvements */
+@media (max-width: 768px) {
+  .dark .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .dark button,
+  .dark [role="button"] {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --border: 0 0% 50%;
+    --muted-foreground: 0 0% 80%;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .dark * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

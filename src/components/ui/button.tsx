@@ -14,15 +14,15 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold",
         outline:
-          "border-2 border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "border-2 border-input bg-background hover:bg-accent hover:text-accent-foreground dark:border-border dark:hover:bg-accent",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-gray-300",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-gray-300 dark:border-border",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        // New button variants for CliniBuilds
-        'primary-red': "bg-[#E02020] text-white hover:bg-[#c01010] font-semibold",
-        'secondary-outlined': "bg-white border-2 border-[#E02020] text-[#333333] hover:bg-red-50 font-semibold",
-        'dark-outlined': "bg-white border-2 border-[#333333] text-[#333333] hover:bg-gray-50 font-semibold",
+        // New button variants for CliniBuilds with dark mode support
+        'primary-red': "bg-[#E02020] text-white hover:bg-[#c01010] font-semibold dark:bg-[#FF4444] dark:hover:bg-[#E02020]",
+        'secondary-outlined': "bg-white border-2 border-[#E02020] text-[#333333] hover:bg-red-50 font-semibold dark:bg-background dark:border-[#FF4444] dark:text-foreground dark:hover:bg-accent",
+        'dark-outlined': "bg-white border-2 border-[#333333] text-[#333333] hover:bg-gray-50 font-semibold dark:bg-background dark:border-border dark:text-foreground dark:hover:bg-accent",
       },
       size: {
         default: "h-10 px-4 py-2",

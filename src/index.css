@@ -1,6 +1,7 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+@import "./components/ui/accessibility.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -35,30 +36,32 @@
   }
 
   .dark {
-    --background: 210 12% 8%;
-    --foreground: 0 0% 98%;
-    --card: 210 12% 10%;
-    --card-foreground: 0 0% 98%;
-    --popover: 210 12% 10%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 70% 50%;
+    /* High contrast dark theme for accessibility */
+    --background: 0 0% 6%;        /* Very dark background for maximum contrast */
+    --foreground: 0 0% 95%;       /* Near white text for high contrast */
+    --card: 0 0% 8%;              /* Slightly lighter than background */
+    --card-foreground: 0 0% 95%;  /* High contrast text on cards */
+    --popover: 0 0% 8%;           /* Same as card for consistency */
+    --popover-foreground: 0 0% 95%;
+    --primary: 0 70% 55%;         /* CliniBuilds red - slightly brighter for dark mode */
     --primary-foreground: 0 0% 100%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 17%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 0 70% 50%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --secondary: 0 0% 12%;        /* Dark gray for secondary elements */
+    --secondary-foreground: 0 0% 90%;
+    --muted: 0 0% 12%;            /* Consistent with secondary */
+    --muted-foreground: 0 0% 70%; /* Improved contrast for muted text */
+    --accent: 0 0% 15%;           /* Slightly lighter for hover states */
+    --accent-foreground: 0 0% 95%;
+    --destructive: 0 75% 60%;     /* More vibrant destructive color */
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 18%;           /* More visible borders */
+    --input: 0 0% 10%;            /* Dark input backgrounds */
+    --ring: 0 70% 55%;            /* Focus ring using primary color */
+    /* Enhanced chart colors for dark mode */
+    --chart-1: 220 70% 60%;
+    --chart-2: 160 60% 50%;
+    --chart-3: 30 80% 60%;
+    --chart-4: 280 65% 65%;
+    --chart-5: 340 75% 60%;
   }
 }
 
@@ -214,16 +217,24 @@
   background-color: #F5F5F5;
 }
 
-/* Dark mode overrides for CliniBuilds colors */
+/* Dark mode overrides for CliniBuilds colors - improved contrast */
 .dark .text-clinibuilds-dark {
-  color: #E5E5E5;
+  color: #F0F0F0; /* Brighter for better contrast */
 }
 
 .dark .bg-clinibuilds-light {
-  background-color: #1A1A1A;
+  background-color: #121212; /* Darker for better contrast */
 }
 
-/* Ensure proper contrast for all text elements */
+.dark .text-clinibuilds-red {
+  color: #FF4444; /* Brighter red for dark mode visibility */
+}
+
+.dark .border-clinibuilds-red {
+  border-color: #FF4444;
+}
+
+/* Enhanced contrast for all text elements in dark mode */
 .dark .text-gray-600 {
   color: hsl(var(--muted-foreground));
 }
@@ -237,6 +248,23 @@
 }
 
 .dark .text-gray-900 {
+  color: hsl(var(--foreground));
+}
+
+/* Additional contrast improvements */
+.dark .text-slate-600 {
+  color: hsl(var(--muted-foreground));
+}
+
+.dark .text-slate-700 {
+  color: hsl(var(--foreground));
+}
+
+.dark .text-neutral-600 {
+  color: hsl(var(--muted-foreground));
+}
+
+.dark .text-neutral-700 {
   color: hsl(var(--foreground));
 }
 

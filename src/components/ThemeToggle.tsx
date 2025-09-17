@@ -31,7 +31,7 @@ export function ThemeToggleButton() {
       variant="outline"
       size="icon"
       onClick={toggleTheme}
-      className="relative border-border bg-background hover:bg-accent"
+      className="relative border-border bg-background hover:bg-accent dark:border-border dark:bg-card dark:hover:bg-accent"
     >
       <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
       <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
