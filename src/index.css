@@ -72,6 +72,17 @@
     font-family: "Inter", sans-serif;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
+  
+  /* Mobile-first responsive typography */
+  html {
+    font-size: 14px;
+  }
+  
+  @media (min-width: 640px) {
+    html {
+      font-size: 16px;
+    }
+  }
 }
 
 @layer components {
@@ -82,6 +93,56 @@
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Mobile-responsive container utilities */
+  .container-responsive {
+    @apply px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto;
+  }
+  
+  .grid-responsive {
+    @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+  
+  .flex-responsive {
+    @apply flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 sm:items-center;
+  }
+  
+  /* Mobile table wrapper */
+  .table-responsive {
+    @apply w-full overflow-x-auto;
+  }
+  
+  .table-responsive table {
+    @apply min-w-full;
+  }
+  
+  /* Mobile-specific card adjustments */
+  .card-mobile {
+    @apply p-4 sm:p-6;
+  }
+  
+  .card-mobile h2, .card-mobile h3 {
+    @apply text-lg sm:text-xl;
+  }
+  
+  .card-mobile p {
+    @apply text-sm sm:text-base;
+  }
+  
+  /* Mobile button adjustments */
+  .btn-mobile {
+    @apply text-sm sm:text-base px-3 sm:px-4 py-2;
+  }
+  
+  /* Hide scrollbars on mobile for horizontal scroll */
+  .scroll-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scroll-hidden::-webkit-scrollbar {
+    display: none;
   }
 
   /* Custom map styles */

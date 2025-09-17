@@ -382,15 +382,15 @@ const InvestorDashboard = () => {
       {/* Modern Hero Section with Streamlined Navbar */}
       <div className="relative bg-gradient-to-r from-[#E02020] to-[#c01c1c] text-white">
         <div className="absolute inset-0 bg-black/10"></div>
-        <div className="relative z-10 px-6 py-6">
-          <div className="max-w-7xl mx-auto">
+        <div className="relative z-10 px-4 sm:px-6 py-4 sm:py-6">
+          <div className="container-responsive">
             <div className="flex justify-between items-center">
               {/* Left Section - Brand and Welcome */}
-              <div className="flex items-center space-x-6">
-                <div>
-                  <div className="flex items-center gap-3 mb-1">
-                    <h1 className="text-2xl lg:text-3xl font-bold text-white">Investor Hub</h1>
-                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+              <div className="flex items-center space-x-4 lg:space-x-6">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-1">
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Investor Hub</h1>
+                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30 w-fit">
                       <Sparkles className="h-3 w-3 mr-1" />
                       Premium
                     </Badge>
@@ -410,7 +410,7 @@ const InvestorDashboard = () => {
               </div>
               
               {/* Right Section - Actions and User Menu - Optimized */}
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
                 {/* Quick Action - New Investment - Responsive */}
                 <div className="hidden sm:flex">
                   <Dialog open={investmentDialogOpen} onOpenChange={setInvestmentDialogOpen}>

@@ -20,13 +20,13 @@ const ManufacturerDashboard = () => {
       {/* Modern Hero Section with Gradient Background */}
       <div className="relative bg-gradient-to-r from-[#E02020] to-[#c01c1c] text-white">
         <div className="absolute inset-0 bg-black/10"></div>
-        <div className="relative z-10 px-6 py-6">
+        <div className="relative z-10 px-4 sm:px-6 py-4 sm:py-6">
           <ManufacturerHeader />
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="px-6 -mt-4 relative z-20">
+      <div className="px-4 sm:px-6 -mt-4 relative z-20">
         {/* Performance Overview */}
         <Card className="mb-8 shadow-lg border-0">
           <CardContent className="p-6">

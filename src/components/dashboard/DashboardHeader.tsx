@@ -27,19 +27,20 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const isMobile = useIsMobile();
 
   return (
-    <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} justify-between items-${isMobile ? 'start' : 'center'} mb-6`}>
-      <div>
-        <h1 className="text-2xl font-bold">{title}</h1>
-        {subtitle && <p className="text-gray-500 dark:text-gray-400">{subtitle}</p>}
+    <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} justify-between items-${isMobile ? 'start' : 'center'} mb-4 sm:mb-6 gap-4`}>
+      <div className="min-w-0 flex-1">
+        <h1 className="text-xl sm:text-2xl font-bold truncate">{title}</h1>
+        {subtitle && <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base">{subtitle}</p>}
       </div>
       
-      <div className={`flex items-center space-x-2 ${isMobile ? 'mt-4' : ''}`}>
+      <div className={`flex items-center space-x-2 w-full ${isMobile ? '' : 'w-auto'} ${isMobile ? 'justify-start' : 'justify-end'}`}>
         <ThemeToggle />
         
         {actionLabel && onAction && (
           <Button 
             onClick={onAction}
-            className="bg-red-600 hover:bg-red-700 text-white"
+            className="bg-red-600 hover:bg-red-700 text-white text-sm sm:text-base px-3 sm:px-4"
+            size={isMobile ? "sm" : "default"}
           >
             {actionLabel}
           </Button>

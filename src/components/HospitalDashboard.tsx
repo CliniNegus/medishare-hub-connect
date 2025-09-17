@@ -55,13 +55,13 @@ const HospitalDashboard = () => {
       {/* Hero Section with Gradient Background */}
       <div className="relative bg-gradient-to-r from-[#E02020] to-[#c01c1c] text-white">
         <div className="absolute inset-0 bg-black opacity-10"></div>
-        <div className="relative z-10 px-6 py-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+        <div className="relative z-10 px-4 sm:px-6 py-6 sm:py-8">
+          <div className="container-responsive">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6">
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-3xl lg:text-4xl font-bold">Hospital Dashboard</h1>
-                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Hospital Dashboard</h1>
+                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 w-fit">
                     <Sparkles className="h-3 w-3 mr-1" />
                     Active
                   </Badge>
@@ -81,7 +81,7 @@ const HospitalDashboard = () => {
                 </div>
               </div>
               
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
                 {/* Theme Toggle */}
                 <ThemeToggleButton />
                 
@@ -106,12 +106,12 @@ const HospitalDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="px-6 -mt-4 relative z-20">
+      <div className="px-4 sm:px-6 -mt-4 relative z-20">
         {/* Quick Stats Overview - Now functional with real data */}
         <DashboardStatsSection />
 
         {/* Recent Activity Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8">
           <RecentBookingsSection />
           <RecentOrdersSection />
         </div>

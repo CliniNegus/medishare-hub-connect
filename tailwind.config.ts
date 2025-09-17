@@ -89,6 +89,16 @@ export default {
       spacing: {
         'standard': '1rem',  // 16px
         'large': '1.5rem',   // 24px
+        'mobile': '0.75rem', // 12px for mobile
+        'tablet': '1.25rem', // 20px for tablet
+      },
+      screens: {
+        'xs': '475px',
+        'sm': '640px',
+        'md': '768px',
+        'lg': '1024px',
+        'xl': '1280px',
+        '2xl': '1536px',
       }
     },
   },
