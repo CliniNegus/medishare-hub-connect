@@ -128,7 +128,7 @@ export function useEquipmentData() {
         // Try to fetch basic equipment data - will only return data user has access to
         const { data, error } = await supabase
           .from('equipment')
-          .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, price, lease_rate, pay_per_use_price, pay_per_use_enabled, usage_hours, downtime_hours, revenue_generated, created_at, updated_at')
+          .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, price, lease_rate, pay_per_use_price, pay_per_use_enabled, usage_hours, downtime_hours, revenue_generated, owner_id, created_at, updated_at')
           .order('created_at', { ascending: false })
           
         if (error) {
@@ -161,7 +161,7 @@ export function useEquipmentData() {
           status: item.status,
           usageHours: item.usage_hours || Math.floor(Math.random() * 500),
           revenueGenerated: item.revenue_generated || Math.floor(Math.random() * 50000),
-          ownerId: 'system', // Default owner
+          ownerId: item.owner_id || 'system', // Use actual owner_id from database
         }));
         
         console.log(`Loaded ${formattedEquipment.length} equipment items:`, formattedEquipment);

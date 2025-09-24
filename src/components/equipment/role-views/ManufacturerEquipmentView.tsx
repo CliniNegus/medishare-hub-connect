@@ -26,8 +26,8 @@ const ManufacturerEquipmentView = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState(null);
 
-  // Filter equipment by manufacturer (using the equipment data - this should be role-filtered at the API level)
-  const manufacturerEquipment = equipment.filter(item => item.ownerId === user?.id || equipment.length > 0); // For demo, show all equipment
+  // Filter equipment by manufacturer - only show equipment owned by current user
+  const manufacturerEquipment = equipment.filter(item => item.ownerId === user?.id);
 
   const filteredEquipment = manufacturerEquipment.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -229,7 +229,7 @@ const ManufacturerEquipmentView = () => {
                 )}
               </div>
 
-              {/* Action Buttons */}
+              {/* Action Buttons - Only show edit for owned equipment */}
               <div className="grid grid-cols-3 gap-2">
                 <Button 
                   variant="outline" 
@@ -238,13 +238,16 @@ const ManufacturerEquipmentView = () => {
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleEditEquipment(item)}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
+                {/* Only show edit button for equipment owned by current manufacturer */}
+                {item.ownerId === user?.id && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleEditEquipment(item)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                )}
                 <Button variant="outline" size="sm">
                   <BarChart3 className="h-4 w-4" />
                 </Button>

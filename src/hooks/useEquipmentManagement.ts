@@ -27,6 +27,7 @@ export interface Equipment {
   payment_status: string | null;
   pay_per_use_enabled: boolean | null;
   pay_per_use_price: number | null;
+  owner_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -65,6 +66,8 @@ export const useEquipmentManagement = () => {
 
   const updateEquipment = async (id: string, updates: Partial<Equipment>) => {
     try {
+      // The RLS policies in the database will handle authorization
+      // If user is not authorized, they'll get a policy violation error
       const { data, error } = await supabase
         .from('equipment')
         .update(updates)
@@ -72,7 +75,18 @@ export const useEquipmentManagement = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // Handle specific authorization errors
+        if (error.code === '42501' || error.message.includes('policy')) {
+          toast({
+            title: "Access denied",
+            description: "You don't have permission to update this equipment.",
+            variant: "destructive",
+          });
+          throw new Error("Access denied: You don't have permission to update this equipment.");
+        }
+        throw error;
+      }
 
       // Update local state
       setEquipment(prev => prev.map(item => 

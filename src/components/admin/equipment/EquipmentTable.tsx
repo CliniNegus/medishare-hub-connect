@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from 'lucide-react';
 import { Equipment } from '@/hooks/useEquipmentManagement';
+import { useAuth } from '@/contexts/AuthContext';
 import EquipmentViewModal from './EquipmentViewModal';
 import EquipmentEditModal from './EquipmentEditModal';
 
@@ -21,9 +22,15 @@ interface EquipmentTableProps {
 }
 
 const EquipmentTable = ({ equipment, loading, onUpdateEquipment }: EquipmentTableProps) => {
+  const { user, profile } = useAuth();
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // Check if user can edit equipment (admin or owner)
+  const canEditEquipment = (item: Equipment) => {
+    return profile?.role === 'admin' || item.owner_id === user?.id;
+  };
 
   const handleViewEquipment = (item: Equipment) => {
     setSelectedEquipment(item);
@@ -104,14 +111,17 @@ const EquipmentTable = ({ equipment, loading, onUpdateEquipment }: EquipmentTabl
               <TableCell>{item.location || 'Not specified'}</TableCell>
               <TableCell>
                 <div className="flex space-x-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="border-[#E02020] text-[#E02020] hover:bg-red-50"
-                    onClick={() => handleEditEquipment(item)}
-                  >
-                    Edit
-                  </Button>
+                  {/* Only show edit button if user can edit this equipment */}
+                  {canEditEquipment(item) && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="border-[#E02020] text-[#E02020] hover:bg-red-50"
+                      onClick={() => handleEditEquipment(item)}
+                    >
+                      Edit
+                    </Button>
+                  )}
                   <Button 
                     variant="outline" 
                     size="sm" 
