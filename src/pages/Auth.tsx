@@ -23,9 +23,19 @@ const Auth = () => {
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [activeTab, setActiveTab] = useState('signin');
 
-  // Check if user is already logged in
+  // Check if user is already logged in - only on initial load, not after sign out
   useEffect(() => {
     const checkSession = async () => {
+      // Check if we came from a sign out (check navigation state)
+      const navigationState = window.history.state;
+      const fromSignOut = navigationState?.usr?.fromSignOut;
+      
+      if (fromSignOut) {
+        // Clear the navigation state and don't check session
+        window.history.replaceState(null, '');
+        return;
+      }
+      
       const { data } = await supabase.auth.getSession();
       if (data.session) {
         navigate('/dashboard');

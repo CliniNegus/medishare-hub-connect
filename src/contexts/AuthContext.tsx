@@ -201,15 +201,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
-      setSession(null);
-      setUser(null);
-      setProfile(null);
-      
+      // Clear session timeout first
       if (sessionTimeoutId) {
         clearTimeout(sessionTimeoutId);
         setSessionTimeoutId(null);
       }
+      
+      // Clear local state immediately
+      setSession(null);
+      setUser(null);
+      setProfile(null);
+      
+      // Sign out from Supabase with proper scope
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      // Clear any cached auth data
+      localStorage.removeItem('supabase.auth.token');
+      sessionStorage.clear();
       
       toast({
         title: "Signed out",

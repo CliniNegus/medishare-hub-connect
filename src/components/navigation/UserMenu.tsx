@@ -29,7 +29,8 @@ export const UserMenu = ({ onChangeAccountType }: { onChangeAccountType: () => v
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/auth');
+    // Navigate with state to indicate we came from sign out
+    navigate('/auth', { state: { fromSignOut: true } });
     toast({
       title: "Signed out successfully",
       description: "You have been logged out of your account",

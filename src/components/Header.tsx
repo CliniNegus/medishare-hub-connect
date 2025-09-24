@@ -54,8 +54,8 @@ const Header = () => {
       // Call the signOut method from AuthContext
       await signOut();
       
-      // Navigate to auth page
-      navigate('/auth');
+      // Navigate with state to indicate we came from sign out
+      navigate('/auth', { state: { fromSignOut: true } });
       
       console.log('Sign out completed successfully');
       
