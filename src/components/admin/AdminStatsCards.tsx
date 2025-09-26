@@ -85,7 +85,7 @@ const AdminStatsCards = ({ stats }: StatsProps) => {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="stats-grid mb-6 sm:mb-8">
       {statsConfig.map((stat, index) => {
         const Icon = stat.icon;
         
@@ -96,20 +96,20 @@ const AdminStatsCards = ({ stats }: StatsProps) => {
             style={{ animationDelay: `${index * 100}ms` }}
           >
             <CardHeader className="flex flex-row items-center justify-between pb-2 relative">
-              <CardTitle className="text-sm font-semibold text-gray-700">
+              <CardTitle className="text-xs sm:text-sm font-semibold text-gray-700 text-responsive">
                 {stat.title}
               </CardTitle>
-              <div className={`p-2 rounded-xl bg-gradient-to-r ${stat.gradient} shadow-md`}>
-                <Icon className="h-5 w-5 text-white" />
+              <div className={`p-1.5 sm:p-2 rounded-xl bg-gradient-to-r ${stat.gradient} shadow-md`}>
+                <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
               </div>
             </CardHeader>
             <CardContent className="relative">
-              <div className="text-3xl font-bold text-gray-900 mb-1">
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
                 {stat.value}
               </div>
-              <div className="flex items-center text-sm">
-                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                <span className="text-green-600 font-medium">{stat.change}</span>
+              <div className="flex items-center text-xs sm:text-sm">
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 mr-1" />
+                <span className="text-green-600 font-medium text-responsive">{stat.change}</span>
               </div>
               
               {/* Decorative elements */}
