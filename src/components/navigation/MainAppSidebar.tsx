@@ -148,7 +148,7 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
           <div className="h-8 w-8 bg-[#E02020] rounded-lg flex items-center justify-center">
             <Package className="h-5 w-5 text-white" />
           </div>
-          {state === 'open' && (
+          {state === 'expanded' && (
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-bold text-[#333333] truncate">CliniBuilds</h2>
               {profile && (
@@ -180,7 +180,7 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
                   >
                     <NavLink to={item.path} className="flex items-center gap-2">
                       <item.icon className="h-4 w-4" />
-                      {state === 'open' && <span>{item.label}</span>}
+                      {state === 'expanded' && <span>{item.label}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -200,7 +200,7 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
                 tooltip={state === 'collapsed' ? item.description : undefined}
               >
                 <item.icon className="h-4 w-4" />
-                {state === 'open' && <span>{item.label}</span>}
+                {state === 'expanded' && <span>{item.label}</span>}
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

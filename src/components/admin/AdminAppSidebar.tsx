@@ -93,7 +93,7 @@ export function AdminAppSidebar({ activeTab, setActiveTab }: AdminAppSidebarProp
           <div className="h-8 w-8 bg-[#E02020] rounded-lg flex items-center justify-center">
             <Package className="h-5 w-5 text-white" />
           </div>
-          {state === 'open' && (
+          {state === 'expanded' && (
             <div>
               <h2 className="text-lg font-bold text-white">CliniBuilds</h2>
               <p className="text-xs text-gray-300">Admin Panel</p>
@@ -121,9 +121,9 @@ export function AdminAppSidebar({ activeTab, setActiveTab }: AdminAppSidebarProp
                       <div className="flex items-center justify-between w-full">
                         <div className="flex items-center gap-2">
                           <item.icon className="h-4 w-4" />
-                          {state === 'open' && <span>{item.label}</span>}
+                          {state === 'expanded' && <span>{item.label}</span>}
                         </div>
-                        {state === 'open' && (
+                        {state === 'expanded' && (
                           <div className="ml-auto">
                             {financeSubmenuOpen ? (
                               <ChevronDown className="h-4 w-4" />
@@ -136,12 +136,12 @@ export function AdminAppSidebar({ activeTab, setActiveTab }: AdminAppSidebarProp
                     ) : (
                       <div className="flex items-center gap-2">
                         <item.icon className="h-4 w-4" />
-                        {state === 'open' && <span>{item.label}</span>}
+                        {state === 'expanded' && <span>{item.label}</span>}
                       </div>
                     )}
                   </SidebarMenuButton>
 
-                  {item.hasSubmenu && financeSubmenuOpen && state === 'open' && (
+                  {item.hasSubmenu && financeSubmenuOpen && state === 'expanded' && (
                     <SidebarMenuSub>
                       {item.submenu?.map((submenuItem) => (
                         <SidebarMenuSubItem key={submenuItem.id}>
@@ -173,7 +173,7 @@ export function AdminAppSidebar({ activeTab, setActiveTab }: AdminAppSidebarProp
                 onClick={() => handleMenuClick(item)}
               >
                 <item.icon className="h-4 w-4" />
-                {state === 'open' && <span>{item.label}</span>}
+                {state === 'expanded' && <span>{item.label}</span>}
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
