@@ -1,14 +1,17 @@
 
 import React, { useState } from 'react';
 import AdminSidebar from '@/components/admin/AdminSidebar';
+import AdminSidebarMobile from '@/components/admin/AdminSidebarMobile';
 import AdminHeader from '@/components/admin/AdminHeader';
 import TabContent from '@/components/admin/TabContent';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { useAdminDashboardData } from '@/hooks/useAdminDashboardData';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const isMobile = useIsMobile();
   
   // Initialize admin notifications
   useAdminNotifications();
@@ -68,19 +71,31 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 overflow-x-hidden">
       <div className="flex">
-        <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-        <div className="ml-64 flex-1">
+        {/* Desktop Sidebar */}
+        <div className="hidden lg:block">
+          <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
+        
+        <div className="w-full lg:ml-64 flex-1">
           {/* Modern content wrapper with subtle animations */}
           <div className="min-h-screen">
             {/* Header with enhanced styling */}
             <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
-              <AdminHeader />
+              <div className="flex items-center">
+                {/* Mobile Sidebar Toggle */}
+                <div className="lg:hidden mr-4">
+                  <AdminSidebarMobile activeTab={activeTab} setActiveTab={setActiveTab} />
+                </div>
+                <div className="flex-1">
+                  <AdminHeader />
+                </div>
+              </div>
             </div>
             
             {/* Main content area with improved spacing and animations */}
-            <main className="p-6 animate-fade-in">
+            <main className="p-4 sm:p-6 animate-fade-in">
               <TabContent
                 activeTab={activeTab}
                 stats={stats}

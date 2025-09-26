@@ -51,11 +51,11 @@ const HospitalDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5]">
+    <div className="min-h-screen bg-[#F5F5F5] overflow-x-hidden">
       {/* Hero Section with Gradient Background */}
       <div className="relative bg-gradient-to-r from-[#E02020] to-[#c01c1c] text-white">
         <div className="absolute inset-0 bg-black opacity-10"></div>
-        <div className="relative z-10 px-4 sm:px-6 py-6 sm:py-8">
+        <div className="relative z-10 px-4 sm:px-6 py-4 sm:py-6 lg:py-8">
           <div className="container-responsive">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6">
               <div className="flex-1">
@@ -118,7 +118,7 @@ const HospitalDashboard = () => {
 
         {/* Dashboard Tabs */}
         <Card className="shadow-lg border-0 mb-8">
-          <CardContent className="p-0">
+          <CardContent className="p-0 overflow-hidden">
             <HospitalDashboardTabs
               activeTab={activeTab}
               setActiveTab={setActiveTab}

@@ -12,8 +12,10 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2 } from 'lucide-react';
 import { Equipment } from '@/hooks/useEquipmentManagement';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 import EquipmentViewModal from './EquipmentViewModal';
 import EquipmentEditModal from './EquipmentEditModal';
+import EquipmentTableMobile from './EquipmentTableMobile';
 
 interface EquipmentTableProps {
   equipment: Equipment[];
@@ -23,6 +25,7 @@ interface EquipmentTableProps {
 
 const EquipmentTable = ({ equipment, loading, onUpdateEquipment }: EquipmentTableProps) => {
   const { user, profile } = useAuth();
+  const isMobile = useIsMobile();
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -82,60 +85,72 @@ const EquipmentTable = ({ equipment, loading, onUpdateEquipment }: EquipmentTabl
 
   return (
     <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Equipment</TableHead>
-            <TableHead>Manufacturer</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Location</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {equipment.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell className="font-medium">
-                <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
-                  {truncateId(item.id)}
-                </span>
-              </TableCell>
-              <TableCell className="font-medium">{item.name}</TableCell>
-              <TableCell>{item.manufacturer || 'Unknown'}</TableCell>
-              <TableCell>
-                <Badge className={getStatusBadgeColor(item.status)}>
-                  {item.status || 'Unknown'}
-                </Badge>
-              </TableCell>
-              <TableCell>{item.location || 'Not specified'}</TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  {/* Only show edit button if user can edit this equipment */}
-                  {canEditEquipment(item) && (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="border-[#E02020] text-[#E02020] hover:bg-red-50"
-                      onClick={() => handleEditEquipment(item)}
-                    >
-                      Edit
-                    </Button>
-                  )}
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="border-gray-300 hover:bg-gray-50"
-                    onClick={() => handleViewEquipment(item)}
-                  >
-                    View
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      {/* Mobile view - Card layout */}
+      {isMobile ? (
+        <EquipmentTableMobile 
+          equipment={equipment}
+          onViewEquipment={handleViewEquipment}
+          onEditEquipment={handleEditEquipment}
+        />
+      ) : (
+        /* Desktop view - Table layout */
+        <div className="table-responsive">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>ID</TableHead>
+                <TableHead>Equipment</TableHead>
+                <TableHead>Manufacturer</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {equipment.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell className="font-medium">
+                    <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                      {truncateId(item.id)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="font-medium">{item.name}</TableCell>
+                  <TableCell>{item.manufacturer || 'Unknown'}</TableCell>
+                  <TableCell>
+                    <Badge className={getStatusBadgeColor(item.status)}>
+                      {item.status || 'Unknown'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{item.location || 'Not specified'}</TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      {/* Only show edit button if user can edit this equipment */}
+                      {canEditEquipment(item) && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="border-[#E02020] text-[#E02020] hover:bg-red-50"
+                          onClick={() => handleEditEquipment(item)}
+                        >
+                          Edit
+                        </Button>
+                      )}
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="border-gray-300 hover:bg-gray-50"
+                        onClick={() => handleViewEquipment(item)}
+                      >
+                        View
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
       {/* View Modal */}
       <EquipmentViewModal

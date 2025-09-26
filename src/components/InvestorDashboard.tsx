@@ -378,7 +378,7 @@ const InvestorDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background transition-colors duration-300">
+    <div className="min-h-screen bg-background transition-colors duration-300 overflow-x-hidden">
       {/* Modern Hero Section with Streamlined Navbar */}
       <div className="relative bg-gradient-to-r from-[#E02020] to-[#c01c1c] text-white">
         <div className="absolute inset-0 bg-black/10"></div>

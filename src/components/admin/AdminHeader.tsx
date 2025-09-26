@@ -95,48 +95,54 @@ const AdminHeader = () => {
   };
 
   return (
-    <header className="flex justify-between items-center p-6 bg-gradient-to-r from-white to-gray-50/50">
+    <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 sm:p-6 bg-gradient-to-r from-white to-gray-50/50 gap-4">
       {/* Left side - Title with modern styling */}
-      <div className="flex flex-col">
-        <h1 className="text-3xl font-bold text-[#333333] tracking-tight">
+      <div className="flex flex-col min-w-0 flex-1">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#333333] tracking-tight">
           Admin Dashboard
         </h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-xs sm:text-sm text-gray-500 mt-1">
           Manage your platform and monitor system health
         </p>
       </div>
       
       {/* Right side - Actions with enhanced design */}
-      <div className="flex items-center space-x-3">
-        {/* Add Equipment Button */}
-        <Button 
-          className="bg-gradient-to-r from-[#E02020] to-[#c01010] hover:from-[#c01010] hover:to-[#a00808] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-          onClick={handleAddEquipmentClick}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Equipment
-        </Button>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+        <div className="btn-stack">
+          {/* Add Equipment Button */}
+          <Button 
+            className="bg-gradient-to-r from-[#E02020] to-[#c01010] hover:from-[#c01010] hover:to-[#a00808] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 btn-mobile"
+            onClick={handleAddEquipmentClick}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            <span className="hidden sm:inline">Add Equipment</span>
+            <span className="sm:hidden">Equipment</span>
+          </Button>
 
-        {/* Add Product Button */}
-        <Button 
-          className="bg-gradient-to-r from-[#333333] to-[#1a1a1a] hover:from-[#1a1a1a] hover:to-[#000000] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-          onClick={handleAddProductClick}
-        >
-          <Package className="mr-2 h-4 w-4" />
-          Add Product
-        </Button>
+          {/* Add Product Button */}
+          <Button 
+            className="bg-gradient-to-r from-[#333333] to-[#1a1a1a] hover:from-[#1a1a1a] hover:to-[#000000] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 btn-mobile"
+            onClick={handleAddProductClick}
+          >
+            <Package className="mr-2 h-4 w-4" />
+            <span className="hidden sm:inline">Add Product</span>
+            <span className="sm:hidden">Product</span>
+          </Button>
+        </div>
         
-        {/* Notification Bell with modern styling */}
-        <NotificationDropdown />
-        
-        {/* Calendar Button with subtle styling */}
-        <Button 
-          variant="outline" 
-          size="icon"
-          className="border-gray-200 hover:border-[#E02020] hover:bg-[#E02020]/5 transition-all duration-200"
-        >
-          <Calendar className="h-5 w-5 text-gray-600" />
-        </Button>
+        <div className="flex items-center space-x-2">
+          {/* Notification Bell with modern styling */}
+          <NotificationDropdown />
+          
+          {/* Calendar Button with subtle styling */}
+          <Button 
+            variant="outline" 
+            size="icon"
+            className="border-gray-200 hover:border-[#E02020] hover:bg-[#E02020]/5 transition-all duration-200"
+          >
+            <Calendar className="h-5 w-5 text-gray-600" />
+          </Button>
+        </div>
         
         {/* User Menu with enhanced design */}
         <DropdownMenu>
