@@ -43,6 +43,14 @@ html, body {
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-muted: 220 14.3% 95.9%;
+    --sidebar-muted-foreground: 220 8.9% 46.1%;
+    --sidebar-accent: 220 14.3% 95.9%;
+    --sidebar-accent-foreground: 220 8.9% 46.1%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 32.6% 17.5%;
   }
 
   .dark {
@@ -72,6 +80,14 @@ html, body {
     --chart-3: 30 80% 60%;
     --chart-4: 280 65% 65%;
     --chart-5: 340 75% 60%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-muted: 240 3.7% 15.9%;
+    --sidebar-muted-foreground: 240 5% 64.9%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 32.6% 17.5%;
   }
 }
 
@@ -224,15 +240,7 @@ html, body {
   .custom-marker {
     cursor: pointer;
     transition: transform 0.2s ease;
-  --sidebar-background: 240 5.9% 10%;
-  --sidebar-foreground: 0 0% 98%;
-  --sidebar-muted: 240 3.7% 15.9%;
-  --sidebar-muted-foreground: 240 5% 64.9%;
-  --sidebar-accent: 240 3.7% 15.9%;
-  --sidebar-accent-foreground: 0 0% 98%;
-  --sidebar-border: 240 3.7% 15.9%;
-  --sidebar-ring: 217.2 32.6% 17.5%;
-}
+  }
 
   .custom-marker:hover {
     transform: scale(1.1);
@@ -248,14 +256,7 @@ html, body {
 
   .custom-popup .mapboxgl-popup-tip {
     border-top-color: hsl(var(--card));
-  --sidebar-background: 0 0% 98%;
-  --sidebar-foreground: 240 5.3% 26.1%;
-  --sidebar-muted: 220 14.3% 95.9%;
-  --sidebar-muted-foreground: 220 8.9% 46.1%;
-  --sidebar-accent: 220 14.3% 95.9%;
-  --sidebar-accent-foreground: 220 8.9% 46.1%;
-  --sidebar-border: 220 13% 91%;
-  --sidebar-ring: 217.2 32.6% 17.5%;
+  }
 }
 
 .text-clinibuilds-dark {
