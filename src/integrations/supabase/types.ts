@@ -365,6 +365,7 @@ export type Database = {
       }
       equipment: {
         Row: {
+          booking_count: number | null
           category: string | null
           condition: string | null
           created_at: string
@@ -372,6 +373,8 @@ export type Database = {
           downtime_hours: number | null
           id: string
           image_url: string | null
+          is_featured: boolean | null
+          last_popularity_update: string | null
           lease_rate: number | null
           location: string | null
           manufacturer: string | null
@@ -381,6 +384,7 @@ export type Database = {
           pay_per_use_enabled: boolean | null
           pay_per_use_price: number | null
           payment_status: string | null
+          popularity_score: number | null
           price: number | null
           quantity: number | null
           remote_control_enabled: boolean | null
@@ -395,6 +399,7 @@ export type Database = {
           usage_hours: number | null
         }
         Insert: {
+          booking_count?: number | null
           category?: string | null
           condition?: string | null
           created_at?: string
@@ -402,6 +407,8 @@ export type Database = {
           downtime_hours?: number | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
+          last_popularity_update?: string | null
           lease_rate?: number | null
           location?: string | null
           manufacturer?: string | null
@@ -411,6 +418,7 @@ export type Database = {
           pay_per_use_enabled?: boolean | null
           pay_per_use_price?: number | null
           payment_status?: string | null
+          popularity_score?: number | null
           price?: number | null
           quantity?: number | null
           remote_control_enabled?: boolean | null
@@ -425,6 +433,7 @@ export type Database = {
           usage_hours?: number | null
         }
         Update: {
+          booking_count?: number | null
           category?: string | null
           condition?: string | null
           created_at?: string
@@ -432,6 +441,8 @@ export type Database = {
           downtime_hours?: number | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
+          last_popularity_update?: string | null
           lease_rate?: number | null
           location?: string | null
           manufacturer?: string | null
@@ -441,6 +452,7 @@ export type Database = {
           pay_per_use_enabled?: boolean | null
           pay_per_use_price?: number | null
           payment_status?: string | null
+          popularity_score?: number | null
           price?: number | null
           quantity?: number | null
           remote_control_enabled?: boolean | null
@@ -1726,6 +1738,21 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_top_popular_equipment: {
+        Args: { limit_count?: number }
+        Returns: {
+          booking_count: number
+          category: string
+          id: string
+          image_url: string
+          is_featured: boolean
+          location: string
+          manufacturer: string
+          name: string
+          popularity_score: number
+          status: string
+        }[]
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -1771,6 +1798,10 @@ export type Database = {
           subject_param: string
         }
         Returns: string
+      }
+      update_equipment_popularity_score: {
+        Args: { equipment_id_param: string }
+        Returns: undefined
       }
       update_user_last_active: {
         Args: { user_uuid: string }

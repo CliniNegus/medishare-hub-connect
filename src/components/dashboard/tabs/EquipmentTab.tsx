@@ -7,6 +7,7 @@ import EquipmentStats from '../EquipmentStats';
 import FinancingSection from '../FinancingSection';
 import EquipmentList from '../EquipmentList';
 import ClusterMap from '@/components/ClusterMap';
+import PopularEquipmentSection from '../PopularEquipmentSection';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Calculator, Clock } from 'lucide-react';
@@ -97,6 +98,7 @@ const EquipmentTab: React.FC<EquipmentTabProps> = ({
           </div>
         </div>
         
+        <PopularEquipmentSection onBookEquipment={onBookEquipment} />
         <EquipmentStats />
         <FinancingSection />
         <EquipmentList 

@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import DashboardContent from '../dashboard/DashboardContent';
+import PopularEquipmentSection from '../dashboard/PopularEquipmentSection';
 import { EquipmentProps } from '../EquipmentCard';
 import { ClusterNode } from '../ClusterMap';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -82,21 +83,24 @@ const EquipmentTabContent: React.FC<EquipmentTabContentProps> = ({
           </TabsList>
 
           <TabsContent value="overview" className="mt-4">
-            <DashboardContent
-              activeTab={activeTab}
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              equipmentData={equipmentData}
-              clusterNodes={clusterNodes}
-              selectedClusterNode={selectedClusterNode}
-              setSelectedClusterNode={setSelectedClusterNode}
-              onBookEquipment={onBookEquipment}
-              recentTransactions={recentTransactions}
-              statusFilter={statusFilter}
-              setStatusFilter={setStatusFilter}
-              categoryFilter={categoryFilter}
-              setCategoryFilter={setCategoryFilter}
-            />
+            <div className="space-y-6">
+              <PopularEquipmentSection onBookEquipment={onBookEquipment} />
+              <DashboardContent
+                activeTab={activeTab}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                equipmentData={equipmentData}
+                clusterNodes={clusterNodes}
+                selectedClusterNode={selectedClusterNode}
+                setSelectedClusterNode={setSelectedClusterNode}
+                onBookEquipment={onBookEquipment}
+                recentTransactions={recentTransactions}
+                statusFilter={statusFilter}
+                setStatusFilter={setStatusFilter}
+                categoryFilter={categoryFilter}
+                setCategoryFilter={setCategoryFilter}
+              />
+            </div>
           </TabsContent>
 
           <TabsContent value="maintenance" className="mt-4">

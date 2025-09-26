@@ -3,6 +3,7 @@ import React from 'react';
 import AdminStatsCards from '../AdminStatsCards';
 import QuickActions from '../QuickActions';
 import DataTabs from '../data-tabs';
+import EquipmentPopularityManager from '../equipment/EquipmentPopularityManager';
 
 interface OverviewTabContentProps {
   stats: {
@@ -27,9 +28,10 @@ const OverviewTabContent: React.FC<OverviewTabContentProps> = ({
   recentTransactions
 }) => {
   return (
-    <div>
+    <div className="space-y-6">
       <AdminStatsCards stats={stats} />
       <QuickActions />
+      <EquipmentPopularityManager />
       <DataTabs 
         recentEquipment={recentEquipment}
         maintenanceSchedule={maintenanceSchedule}

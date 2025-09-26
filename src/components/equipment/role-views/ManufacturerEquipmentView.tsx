@@ -11,6 +11,7 @@ import {
 import { useEquipmentData } from '@/hooks/use-equipment-data';
 import { formatCurrency } from '@/utils/formatters';
 import { useAuth } from '@/contexts/AuthContext';
+import PopularEquipmentSection from '@/components/dashboard/PopularEquipmentSection';
 import AddEquipmentModal from '@/components/admin/equipment/AddEquipmentModal';
 import EquipmentEditModal from '@/components/admin/equipment/EquipmentEditModal';
 import EquipmentViewModal from '@/components/admin/equipment/EquipmentViewModal';
@@ -168,6 +169,9 @@ const ManufacturerEquipmentView = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Most Popular Equipment */}
+      <PopularEquipmentSection />
 
       {/* Equipment Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
