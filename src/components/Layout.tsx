@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import ChangeAccountTypeModal from './ChangeAccountTypeModal';
-import Sidebar from './navigation/Sidebar';
 import MobileNavigation from './navigation/MobileNavigation';
 import FloatingActionButton from './FloatingActionButton';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -11,6 +10,8 @@ import { HelpBar } from './help/HelpBar';
 import { TutorialProvider } from '@/contexts/TutorialContext';
 import RoleDashboardTutorial from './tutorials/RoleDashboardTutorial';
 import NotificationSystemInitializer from './notifications/NotificationSystemInitializer';
+import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
+import { MainAppSidebar } from './navigation/MainAppSidebar';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,7 +20,6 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [accountTypeModalOpen, setAccountTypeModalOpen] = useState(false);
   
   if (!user) {
@@ -28,53 +28,38 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   
   return (
     <TutorialProvider>
-      <div className="flex min-h-screen bg-[#FFFFFF]">
-        {isMobile && (
-          <div className="fixed top-0 left-0 right-0 bg-white text-[#333333] z-30 px-4 py-3 flex justify-between items-center shadow-md">
-            <h1 className="text-xl font-bold text-[#E02020]">CliniBuilds</h1>
-            <Button 
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
-              variant="ghost"
-              className="text-[#333333] p-2"
-            >
-              {mobileMenuOpen ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              )}
-            </Button>
-          </div>
-        )}
-
-        <Sidebar onChangeAccountType={() => setAccountTypeModalOpen(true)} />
-        
-        <MobileNavigation 
-          mobileMenuOpen={mobileMenuOpen}
-          onClose={() => setMobileMenuOpen(false)}
-          onChangeAccountType={() => setAccountTypeModalOpen(true)}
-        />
-        
-        <div className={`flex-1 ${isMobile ? 'pt-16' : 'ml-64'}`}>
-          <main className="h-screen overflow-y-auto bg-[#FFFFFF]">
-            {children}
-          </main>
+      <SidebarProvider defaultOpen={!isMobile}>
+        <div className="min-h-screen flex w-full bg-[#FFFFFF] overflow-x-hidden">
+          <MainAppSidebar onChangeAccountType={() => setAccountTypeModalOpen(true)} />
+          <SidebarInset>
+            <header className="flex h-16 items-center px-4 border-b border-gray-200 bg-white sticky top-0 z-10">
+              <SidebarTrigger />
+              <div className="flex-1 flex justify-between items-center ml-4">
+                <h1 className="text-xl font-bold text-[#E02020] sm:block hidden">CliniBuilds</h1>
+                <div className="flex items-center space-x-2">
+                  {user && <HelpBar />}
+                  {user && <FloatingActionButton />}
+                </div>
+              </div>
+            </header>
+            
+            <main className="flex-1 overflow-y-auto overflow-x-hidden bg-[#FFFFFF] max-w-full">
+              <div className="max-w-full overflow-x-hidden p-4 sm:p-6">
+                {children}
+              </div>
+            </main>
+          </SidebarInset>
+          
+          <ChangeAccountTypeModal 
+            open={accountTypeModalOpen} 
+            onOpenChange={setAccountTypeModalOpen} 
+          />
+          
+          {user && <NotificationSystemInitializer />}
+          
+          <RoleDashboardTutorial />
         </div>
-        
-        <ChangeAccountTypeModal 
-          open={accountTypeModalOpen} 
-          onOpenChange={setAccountTypeModalOpen} 
-        />
-        
-        {user && <HelpBar />}
-        {user && <FloatingActionButton />}
-        {user && <NotificationSystemInitializer />}
-        
-        <RoleDashboardTutorial />
-      </div>
+      </SidebarProvider>
     </TutorialProvider>
   );
 };
