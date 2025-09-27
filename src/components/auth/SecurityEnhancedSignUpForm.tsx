@@ -51,7 +51,7 @@ const SecurityEnhancedSignUpForm: React.FC<SecurityEnhancedSignUpFormProps> = ({
 
   const PasswordStrengthIndicator = () => (
     <div className="mt-2 space-y-2">
-      <div className="text-sm font-medium text-gray-700">Password Requirements:</div>
+      <div className="text-sm font-medium text-foreground">Password Requirements:</div>
       <div className="space-y-1 text-xs">
         {Object.entries({
           'At least 8 characters': passwordStrength.checks.length,
@@ -60,7 +60,7 @@ const SecurityEnhancedSignUpForm: React.FC<SecurityEnhancedSignUpFormProps> = ({
           'One number': passwordStrength.checks.number,
           'One special character': passwordStrength.checks.special
         }).map(([requirement, met]) => (
-          <div key={requirement} className={`flex items-center gap-1 ${met ? 'text-green-600' : 'text-gray-500'}`}>
+          <div key={requirement} className={`flex items-center gap-1 ${met ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}>
             {met ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
             {requirement}
           </div>
@@ -169,15 +169,15 @@ const SecurityEnhancedSignUpForm: React.FC<SecurityEnhancedSignUpFormProps> = ({
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1 text-center">
         <div className="flex items-center justify-center mb-2">
-          <Shield className="h-8 w-8 text-[#E02020]" />
+          <Shield className="h-8 w-8 text-primary" />
         </div>
-        <CardTitle className="text-2xl font-bold text-[#333333]">Create Secure Account</CardTitle>
+        <CardTitle className="text-2xl font-bold text-foreground">Create Secure Account</CardTitle>
       </CardHeader>
       
       <CardContent>
         {error && (
-          <Alert className="mb-4 border-red-200 bg-red-50">
-            <AlertDescription className="text-red-800">
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription>
               {error}
             </AlertDescription>
           </Alert>
@@ -227,7 +227,7 @@ const SecurityEnhancedSignUpForm: React.FC<SecurityEnhancedSignUpFormProps> = ({
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
               disabled={loading}
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -252,7 +252,7 @@ const SecurityEnhancedSignUpForm: React.FC<SecurityEnhancedSignUpFormProps> = ({
           
           <Button 
             type="submit" 
-            className="w-full bg-[#E02020] hover:bg-[#c01010]"
+            className="w-full bg-primary hover:bg-primary/90"
             disabled={loading || !passwordStrength.isStrong}
           >
             {loading ? "Creating account..." : "Create Account"}

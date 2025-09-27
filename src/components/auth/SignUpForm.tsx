@@ -195,8 +195,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
       <CardContent className="space-y-8 pt-6 px-8">
         <div className="grid grid-cols-1 gap-6">
           <div className="space-y-3">
-            <Label htmlFor="email-signup" className="text-sm font-bold text-[#333333] flex items-center gap-2">
-              <Mail className="h-4 w-4 text-[#E02020]" />
+            <Label htmlFor="email-signup" className="text-sm font-bold text-foreground flex items-center gap-2">
+              <Mail className="h-4 w-4 text-primary" />
               Email Address
             </Label>
             <div className="relative group">
@@ -207,14 +207,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-14 pl-4 pr-4 border-2 border-gray-200 focus:border-[#E02020] rounded-xl transition-all duration-300 text-base font-medium placeholder:text-gray-400 bg-white/80 backdrop-blur-sm hover:bg-white focus:bg-white group-hover:border-gray-300"
+                className="h-14 pl-4 pr-4 border-2 border-border focus:border-primary rounded-xl transition-all duration-300 text-base font-medium placeholder:text-muted-foreground bg-background/80 backdrop-blur-sm hover:bg-background focus:bg-background group-hover:border-border"
               />
             </div>
           </div>
           
           <div className="space-y-3">
-            <Label htmlFor="full-name" className="text-sm font-bold text-[#333333] flex items-center gap-2">
-              <User className="h-4 w-4 text-[#E02020]" />
+            <Label htmlFor="full-name" className="text-sm font-bold text-foreground flex items-center gap-2">
+              <User className="h-4 w-4 text-primary" />
               Full Name
             </Label>
             <div className="relative group">
@@ -225,14 +225,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
-                className="h-14 pl-4 pr-4 border-2 border-gray-200 focus:border-[#E02020] rounded-xl transition-all duration-300 text-base font-medium placeholder:text-gray-400 bg-white/80 backdrop-blur-sm hover:bg-white focus:bg-white group-hover:border-gray-300"
+                className="h-14 pl-4 pr-4 border-2 border-border focus:border-primary rounded-xl transition-all duration-300 text-base font-medium placeholder:text-muted-foreground bg-background/80 backdrop-blur-sm hover:bg-background focus:bg-background group-hover:border-border"
               />
             </div>
           </div>
           
           <div className="space-y-3">
-            <Label htmlFor="organization" className="text-sm font-bold text-[#333333] flex items-center gap-2">
-              <Building className="h-4 w-4 text-[#E02020]" />
+            <Label htmlFor="organization" className="text-sm font-bold text-foreground flex items-center gap-2">
+              <Building className="h-4 w-4 text-primary" />
               Organization
             </Label>
             <div className="relative group">
@@ -243,14 +243,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
                 value={organization}
                 onChange={(e) => setOrganization(e.target.value)}
                 required
-                className="h-14 pl-4 pr-4 border-2 border-gray-200 focus:border-[#E02020] rounded-xl transition-all duration-300 text-base font-medium placeholder:text-gray-400 bg-white/80 backdrop-blur-sm hover:bg-white focus:bg-white group-hover:border-gray-300"
+                className="h-14 pl-4 pr-4 border-2 border-border focus:border-primary rounded-xl transition-all duration-300 text-base font-medium placeholder:text-muted-foreground bg-background/80 backdrop-blur-sm hover:bg-background focus:bg-background group-hover:border-border"
               />
             </div>
           </div>
           
           <div className="space-y-4">
-            <Label htmlFor="password-signup" className="text-sm font-bold text-[#333333] flex items-center gap-2">
-              <Lock className="h-4 w-4 text-[#E02020]" />
+            <Label htmlFor="password-signup" className="text-sm font-bold text-foreground flex items-center gap-2">
+              <Lock className="h-4 w-4 text-primary" />
               Create Password
             </Label>
             <div className="relative group">
@@ -261,35 +261,35 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
                 value={password}
                 onChange={handlePasswordChange}
                 required
-                className={`h-14 pl-4 pr-14 border-2 rounded-xl transition-all duration-300 text-base font-medium placeholder:text-gray-400 bg-white/80 backdrop-blur-sm hover:bg-white focus:bg-white ${
-                  passwordValidationMessage ? "border-red-500 focus:border-red-500" : "border-gray-200 focus:border-[#E02020] group-hover:border-gray-300"
+                className={`h-14 pl-4 pr-14 border-2 rounded-xl transition-all duration-300 text-base font-medium placeholder:text-muted-foreground bg-background/80 backdrop-blur-sm hover:bg-background focus:bg-background ${
+                  passwordValidationMessage ? "border-destructive focus:border-destructive" : "border-border focus:border-primary group-hover:border-border"
                 }`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#E02020] transition-colors duration-200 p-1"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors duration-200 p-1"
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
             
             {password && (
-              <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+              <div className="bg-gradient-to-br from-muted/30 to-background rounded-2xl p-6 border border-border shadow-sm">
                 <div className="flex items-center gap-2 mb-4">
-                  <Sparkles className="h-4 w-4 text-[#E02020]" />
-                  <p className="text-sm font-bold text-[#333333]">Password Requirements:</p>
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <p className="text-sm font-bold text-foreground">Password Requirements:</p>
                 </div>
                 <div className="grid grid-cols-1 gap-3">
                   {passwordRequirements.map((req, index) => (
                     <div key={index} className="flex items-center space-x-3">
                       <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${
-                        req.met ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
+                        req.met ? 'bg-green-500/20 text-green-600 dark:bg-green-500/30 dark:text-green-400' : 'bg-muted text-muted-foreground'
                       }`}>
                         <CheckCircle className="h-3 w-3" />
                       </div>
                       <span className={`text-sm font-medium transition-all duration-300 ${
-                        req.met ? 'text-green-700' : 'text-gray-500'
+                        req.met ? 'text-green-700 dark:text-green-400' : 'text-muted-foreground'
                       }`}>
                         {req.text}
                       </span>
@@ -300,9 +300,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
             )}
             
             {passwordValidationMessage && (
-              <Alert variant="destructive" className="bg-red-50 border-red-200 rounded-xl">
+              <Alert variant="destructive" className="rounded-xl">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-red-800 font-medium">
+                <AlertDescription className="font-medium">
                   {passwordValidationMessage}
                 </AlertDescription>
               </Alert>
@@ -321,14 +321,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
               />
               <Label 
                 htmlFor="terms-checkbox" 
-                className="text-sm font-medium text-[#333333] leading-relaxed cursor-pointer"
+                className="text-sm font-medium text-foreground leading-relaxed cursor-pointer"
               >
                 I agree to the{' '}
                 <a 
                   href="/terms-of-service" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-[#E02020] hover:text-[#c01010] underline font-semibold transition-colors duration-200"
+                  className="text-primary hover:text-primary/80 underline font-semibold transition-colors duration-200"
                 >
                   Terms of Service
                 </a>
@@ -337,7 +337,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
                   href="/privacy-policy" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-[#E02020] hover:text-[#c01010] underline font-semibold transition-colors duration-200"
+                  className="text-primary hover:text-primary/80 underline font-semibold transition-colors duration-200"
                 >
                   Privacy Policy
                 </a>
@@ -346,9 +346,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
             </div>
             
             {termsError && (
-              <Alert variant="destructive" className="bg-red-50 border-red-200 rounded-xl" id="terms-error">
+              <Alert variant="destructive" className="rounded-xl" id="terms-error">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-red-800 font-medium">
+                <AlertDescription className="font-medium">
                   {termsError}
                 </AlertDescription>
               </Alert>
@@ -360,7 +360,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
       <CardFooter className="pb-8 px-8">
         <Button 
           type="submit" 
-          className="w-full h-14 bg-gradient-to-r from-[#E02020] to-[#c01010] hover:from-[#c01010] hover:to-[#a00808] text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105" 
+          className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105" 
           disabled={loading || validating}
         >
           {loading ? (

@@ -100,7 +100,7 @@ const HospitalRegistrationForm = () => {
     <Card className="max-w-4xl mx-auto">
       <CardHeader>
         <CardTitle className="text-2xl flex items-center gap-2">
-          <Hospital className="h-6 w-6 text-red-600" />
+          <Hospital className="h-6 w-6 text-primary" />
           Hospital Registration
         </CardTitle>
       </CardHeader>
@@ -170,7 +170,7 @@ const HospitalRegistrationForm = () => {
           {/* Location Information */}
           <div>
             <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-red-600" />
+              <MapPin className="h-5 w-5 text-primary" />
               Location Information
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -251,7 +251,7 @@ const HospitalRegistrationForm = () => {
           {/* Capacity & Specialization */}
           <div>
             <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-              <Activity className="h-5 w-5 text-red-600" />
+              <Activity className="h-5 w-5 text-primary" />
               Capacity & Specialization
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -305,7 +305,7 @@ const HospitalRegistrationForm = () => {
         <CardFooter>
           <Button 
             type="submit" 
-            className="w-full bg-red-600 hover:bg-red-700" 
+            className="w-full bg-primary hover:bg-primary/90" 
             disabled={loading}
           >
             {loading ? "Processing..." : "Register Hospital"}
