@@ -128,19 +128,7 @@ html, body {
 
   /* Mobile-responsive container utilities */
   .container-responsive {
-    @apply px-2 sm:px-4 md:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden w-full;
-  }
-
-  /* Extra small breakpoint for very small devices */
-  @media (max-width: 480px) {
-    .xs\:flex-row { flex-direction: row; }
-    .xs\:items-center { align-items: center; }
-    .xs\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .xs\:text-xl { font-size: 1.25rem; line-height: 1.75rem; }
-    .xs\:text-lg { font-size: 1.125rem; line-height: 1.75rem; }
-    .xs\:h-24 { height: 6rem; }
-    .xs\:inline { display: inline; }
-    .xs\:hidden { display: none; }
+    @apply px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden;
   }
   
   .grid-responsive {
@@ -232,20 +220,7 @@ html, body {
   
   /* Mobile stats card adjustments */
   .stats-grid {
-    @apply grid gap-3 sm:gap-4 lg:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full max-w-full overflow-hidden;
-  }
-
-  /* Prevent any horizontal overflow */
-  .overflow-x-hidden {
-    overflow-x: hidden !important;
-  }
-
-  .max-w-full {
-    max-width: 100% !important;
-  }
-
-  .w-full {
-    width: 100% !important;
+    @apply grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
   }
   
   /* Mobile dropdown improvements */

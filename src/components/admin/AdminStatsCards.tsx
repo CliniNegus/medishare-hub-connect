@@ -85,36 +85,36 @@ const AdminStatsCards = ({ stats }: StatsProps) => {
   ];
 
   return (
-    <div className="stats-grid mb-4 sm:mb-6 md:mb-8 w-full max-w-full">
+    <div className="stats-grid mb-6 sm:mb-8">
       {statsConfig.map((stat, index) => {
         const Icon = stat.icon;
         
         return (
           <Card 
             key={stat.title}
-            className={`relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 bg-gradient-to-br ${stat.bgGradient} animate-fade-in w-full max-w-full`}
+            className={`relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 bg-gradient-to-br ${stat.bgGradient} animate-fade-in`}
             style={{ animationDelay: `${index * 100}ms` }}
           >
-            <CardHeader className="flex flex-row items-center justify-between pb-2 relative p-3 sm:p-4">
-              <CardTitle className="text-xs sm:text-sm font-semibold text-foreground text-responsive min-w-0 flex-1 truncate pr-2">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 relative">
+              <CardTitle className="text-xs sm:text-sm font-semibold text-gray-700 text-responsive">
                 {stat.title}
               </CardTitle>
-              <div className={`p-1.5 sm:p-2 rounded-xl bg-gradient-to-r ${stat.gradient} shadow-md flex-shrink-0`}>
-                <Icon className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-white" />
+              <div className={`p-1.5 sm:p-2 rounded-xl bg-gradient-to-r ${stat.gradient} shadow-md`}>
+                <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
               </div>
             </CardHeader>
-            <CardContent className="relative p-3 sm:p-4">
-              <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-1">
+            <CardContent className="relative">
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
                 {stat.value}
               </div>
               <div className="flex items-center text-xs sm:text-sm">
-                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 mr-1 flex-shrink-0" />
-                <span className="text-green-600 font-medium text-responsive truncate">{stat.change}</span>
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 mr-1" />
+                <span className="text-green-600 font-medium text-responsive">{stat.change}</span>
               </div>
               
-              {/* Decorative elements - Hidden on very small screens */}
-              <div className="hidden sm:block absolute top-0 right-0 w-20 h-20 md:w-32 md:h-32 bg-white/20 rounded-full -mr-10 md:-mr-16 -mt-10 md:-mt-16" />
-              <div className="hidden sm:block absolute bottom-0 left-0 w-12 h-12 md:w-20 md:h-20 bg-white/10 rounded-full -ml-6 md:-ml-10 -mb-6 md:-mb-10" />
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full -mr-16 -mt-16" />
+              <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full -ml-10 -mb-10" />
             </CardContent>
           </Card>
         );
