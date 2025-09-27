@@ -44,50 +44,50 @@ const RecentBookingsSection: React.FC = () => {
   }
 
   return (
-    <Card className="border-[#E02020]/20">
-      <CardHeader className="bg-[#E02020]/5 border-b border-[#E02020]/20">
-        <CardTitle className="text-[#333333] flex items-center">
-          <Calendar className="h-5 w-5 mr-2 text-[#E02020]" />
-          Recent Bookings
+    <Card className="border-[#E02020]/20 w-full max-w-full">
+      <CardHeader className="bg-[#E02020]/5 border-b border-[#E02020]/20 p-3 sm:p-4 md:p-6">
+        <CardTitle className="text-foreground flex items-center text-sm sm:text-base md:text-lg">
+          <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-[#E02020] flex-shrink-0" />
+          <span className="truncate">Recent Bookings</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent className="p-3 sm:p-4 md:p-6">
         {bookings.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <Calendar className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-            <p>No recent bookings found</p>
+          <div className="text-center py-6 sm:py-8 text-muted-foreground">
+            <Calendar className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 text-muted-foreground/50" />
+            <p className="text-sm sm:text-base">No recent bookings found</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {bookings.map((booking) => (
-              <div key={booking.id} className="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h3 className="font-semibold text-[#333333]">{booking.equipment?.name || 'Unknown Equipment'}</h3>
-                    <p className="text-sm text-gray-600 flex items-center mt-1">
-                      <MapPin className="h-3 w-3 mr-1" />
-                      {booking.equipment?.location || 'Location not specified'}
+              <div key={booking.id} className="border rounded-lg p-3 sm:p-4 bg-card shadow-sm hover:shadow-md transition-shadow w-full max-w-full">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-3 mb-3">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-foreground text-sm sm:text-base truncate">{booking.equipment?.name || 'Unknown Equipment'}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground flex items-center mt-1">
+                      <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
+                      <span className="truncate">{booking.equipment?.location || 'Location not specified'}</span>
                     </p>
                   </div>
-                  <Badge className={`capitalize ${getStatusColor(booking.status)}`}>
+                  <Badge className={`capitalize ${getStatusColor(booking.status)} flex-shrink-0 text-xs`}>
                     {booking.status.replace('_', ' ')}
                   </Badge>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center text-gray-600">
-                    <Clock className="h-4 w-4 mr-2" />
-                    {new Date(booking.start_time).toLocaleDateString()}
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
+                  <div className="flex items-center text-muted-foreground">
+                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">{new Date(booking.start_time).toLocaleDateString()}</span>
                   </div>
-                  <div className="flex items-center text-gray-600">
-                    <DollarSign className="h-4 w-4 mr-2" />
-                    ${booking.price_paid?.toLocaleString() || '0'}
+                  <div className="flex items-center text-muted-foreground">
+                    <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">${booking.price_paid?.toLocaleString() || '0'}</span>
                   </div>
                 </div>
                 
                 {booking.notes && (
-                  <div className="mt-3 text-sm text-gray-600">
-                    <span className="font-medium">Notes:</span> {booking.notes}
+                  <div className="mt-3 text-xs sm:text-sm text-muted-foreground">
+                    <span className="font-medium">Notes:</span> <span className="break-words">{booking.notes}</span>
                   </div>
                 )}
               </div>
