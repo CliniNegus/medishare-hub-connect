@@ -192,7 +192,7 @@ const SecurityEnhancedSignUpForm: React.FC<SecurityEnhancedSignUpFormProps> = ({
               onChange={(e) => setFullName(e.target.value)}
               required
               autoComplete="name"
-              className="w-full"
+              className="w-full text-foreground"
               disabled={loading}
               maxLength={100}
             />
@@ -206,7 +206,7 @@ const SecurityEnhancedSignUpForm: React.FC<SecurityEnhancedSignUpFormProps> = ({
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
-              className="w-full"
+              className="w-full text-foreground"
               disabled={loading}
               maxLength={254}
             />
@@ -220,7 +220,7 @@ const SecurityEnhancedSignUpForm: React.FC<SecurityEnhancedSignUpFormProps> = ({
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="new-password"
-              className="w-full pr-10"
+              className="w-full pr-10 text-foreground"
               disabled={loading}
               maxLength={128}
             />
@@ -244,7 +244,7 @@ const SecurityEnhancedSignUpForm: React.FC<SecurityEnhancedSignUpFormProps> = ({
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               autoComplete="new-password"
-              className="w-full"
+              className="w-full text-foreground"
               disabled={loading}
               maxLength={128}
             />

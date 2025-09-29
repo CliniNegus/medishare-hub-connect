@@ -257,8 +257,8 @@ const SignInForm: React.FC<SignInFormProps> = ({
       <CardContent className="space-y-8 pt-6 px-8">
         <div className="space-y-6">
           <div className="space-y-3">
-            <Label htmlFor="email" className="text-sm font-bold text-[#333333] flex items-center gap-2">
-              <Mail className="h-4 w-4 text-[#E02020]" />
+            <Label htmlFor="email" className="text-sm font-bold text-foreground flex items-center gap-2">
+              <Mail className="h-4 w-4 text-primary" />
               Email Address
             </Label>
             <div className="relative group">
@@ -269,14 +269,14 @@ const SignInForm: React.FC<SignInFormProps> = ({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-14 pl-4 pr-4 border-2 border-gray-200 focus:border-[#E02020] rounded-xl transition-all duration-300 text-base font-medium placeholder:text-gray-400 bg-white/80 backdrop-blur-sm hover:bg-white focus:bg-white group-hover:border-gray-300"
+                className="h-14 pl-4 pr-4 border-2 border-border focus:border-primary rounded-xl transition-all duration-300 text-base font-medium placeholder:text-muted-foreground bg-background/80 backdrop-blur-sm hover:bg-background focus:bg-background group-hover:border-border text-foreground"
               />
             </div>
           </div>
           
           <div className="space-y-3">
-            <Label htmlFor="password" className="text-sm font-bold text-[#333333] flex items-center gap-2">
-              <Lock className="h-4 w-4 text-[#E02020]" />
+            <Label htmlFor="password" className="text-sm font-bold text-foreground flex items-center gap-2">
+              <Lock className="h-4 w-4 text-primary" />
               Password
             </Label>
             <div className="relative group">
@@ -287,12 +287,12 @@ const SignInForm: React.FC<SignInFormProps> = ({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="h-14 pl-4 pr-14 border-2 border-gray-200 focus:border-[#E02020] rounded-xl transition-all duration-300 text-base font-medium placeholder:text-gray-400 bg-white/80 backdrop-blur-sm hover:bg-white focus:bg-white group-hover:border-gray-300"
+                className="h-14 pl-4 pr-14 border-2 border-border focus:border-primary rounded-xl transition-all duration-300 text-base font-medium placeholder:text-muted-foreground bg-background/80 backdrop-blur-sm hover:bg-background focus:bg-background group-hover:border-border text-foreground"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#E02020] transition-colors duration-200 p-1"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors duration-200 p-1"
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
@@ -303,7 +303,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
                 variant="link" 
                 type="button" 
                 onClick={onForgotPassword}
-                className="text-sm text-[#E02020] hover:text-[#c01010] p-0 h-auto font-semibold transition-colors duration-200 underline-offset-4 hover:underline"
+                className="text-sm text-primary hover:text-primary/80 p-0 h-auto font-semibold transition-colors duration-200 underline-offset-4 hover:underline"
               >
                 Forgot your password?
               </Button>
@@ -313,11 +313,11 @@ const SignInForm: React.FC<SignInFormProps> = ({
       </CardContent>
       
       <CardFooter className="pb-8 px-8">
-        <Button 
-          type="submit" 
-          className="w-full h-14 bg-gradient-to-r from-[#E02020] to-[#c01010] hover:from-[#c01010] hover:to-[#a00808] text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105" 
-          disabled={loading}
-        >
+          <Button 
+            type="submit" 
+            className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105" 
+            disabled={loading}
+          >
           {loading ? (
             <div className="flex items-center space-x-3">
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

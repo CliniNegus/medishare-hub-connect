@@ -153,7 +153,7 @@ const SecurityEnhancedSignInForm: React.FC<SecurityEnhancedSignInFormProps> = ({
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
-              className="w-full"
+              className="w-full text-foreground"
               disabled={loading || rateLimited}
             />
           </div>
@@ -166,13 +166,13 @@ const SecurityEnhancedSignInForm: React.FC<SecurityEnhancedSignInFormProps> = ({
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="current-password"
-              className="w-full pr-10"
+              className="w-full pr-10 text-foreground"
               disabled={loading || rateLimited}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
               disabled={loading || rateLimited}
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -181,7 +181,7 @@ const SecurityEnhancedSignInForm: React.FC<SecurityEnhancedSignInFormProps> = ({
           
           <Button 
             type="submit" 
-            className="w-full bg-[#E02020] hover:bg-[#c01010]"
+            className="w-full bg-primary hover:bg-primary/90"
             disabled={loading || rateLimited}
           >
             {loading ? "Signing in..." : "Sign In"}
