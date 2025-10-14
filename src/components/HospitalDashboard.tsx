@@ -51,16 +51,16 @@ const HospitalDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] overflow-x-hidden">
+    <div className="min-h-screen bg-[#F5F5F5] w-full max-w-full overflow-x-hidden box-border">
       {/* Hero Section with Gradient Background */}
-      <div className="relative bg-gradient-to-r from-[#E02020] to-[#c01c1c] text-white">
+      <div className="relative bg-gradient-to-r from-[#E02020] to-[#c01c1c] text-white w-full">
         <div className="absolute inset-0 bg-black opacity-10"></div>
-        <div className="relative z-10 px-4 sm:px-6 py-4 sm:py-6 lg:py-8">
-          <div className="container-responsive">
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6">
-              <div className="flex-1">
+        <div className="relative z-10 px-4 sm:px-6 py-4 sm:py-6 lg:py-8 w-full max-w-full">
+          <div className="w-full max-w-7xl mx-auto">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6 w-full">
+              <div className="flex-1 min-w-0">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Hospital Dashboard</h1>
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold">Hospital Dashboard</h1>
                   <Badge variant="secondary" className="bg-white/20 text-white border-white/30 w-fit">
                     <Sparkles className="h-3 w-3 mr-1" />
                     Active
@@ -68,20 +68,20 @@ const HospitalDashboard = () => {
                 </div>
                 <div className="space-y-1">
                   {profile && (
-                    <p className="text-white/90 text-lg">
+                    <p className="text-white/90 text-sm sm:text-base lg:text-lg">
                       Welcome back, {profile.full_name || user?.email?.split('@')[0]}
                     </p>
                   )}
                   {profile?.organization && (
-                    <p className="text-white/75 flex items-center">
-                      <Building2 className="h-4 w-4 mr-1" />
-                      {profile.organization}
+                    <p className="text-white/75 flex items-center text-xs sm:text-sm">
+                      <Building2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                      <span className="truncate">{profile.organization}</span>
                     </p>
                   )}
                 </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                 {/* Theme Toggle */}
                 <ThemeToggleButton />
                 
@@ -93,11 +93,11 @@ const HospitalDashboard = () => {
                 {/* Account Settings */}
                 <Button 
                   variant="outline"
-                  className="bg-white/10 border-white/30 text-white hover:bg-white hover:text-[#E02020] transition-all duration-200 backdrop-blur-sm"
+                  className="bg-white/10 border-white/30 text-white hover:bg-white hover:text-[#E02020] transition-all duration-200 backdrop-blur-sm text-xs sm:text-sm px-3 py-2"
                   onClick={() => setAccountTypeModalOpen(true)}
                 >
-                  <UserCog className="mr-2 h-4 w-4" />
-                  Account Settings
+                  <UserCog className="mr-1.5 h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="whitespace-nowrap">Account Settings</span>
                 </Button>
               </div>
             </div>
@@ -106,19 +106,19 @@ const HospitalDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="px-4 sm:px-6 -mt-4 relative z-20">
+      <div className="px-4 sm:px-6 -mt-4 relative z-20 w-full max-w-full box-border">
         {/* Quick Stats Overview - Now functional with real data */}
         <DashboardStatsSection />
 
         {/* Recent Activity Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8 w-full max-w-full">
           <RecentBookingsSection />
           <RecentOrdersSection />
         </div>
 
         {/* Dashboard Tabs */}
-        <Card className="shadow-lg border-0 mb-8">
-          <CardContent className="p-0 overflow-hidden">
+        <Card className="shadow-lg border-0 mb-8 w-full max-w-full">
+          <CardContent className="p-0 overflow-hidden w-full max-w-full">
             <HospitalDashboardTabs
               activeTab={activeTab}
               setActiveTab={setActiveTab}

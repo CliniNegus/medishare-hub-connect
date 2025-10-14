@@ -378,39 +378,39 @@ const InvestorDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background transition-colors duration-300 overflow-x-hidden">
+    <div className="min-h-screen bg-background transition-colors duration-300 w-full max-w-full overflow-x-hidden box-border">
       {/* Modern Hero Section with Streamlined Navbar */}
-      <div className="relative bg-gradient-to-r from-[#E02020] to-[#c01c1c] text-white">
+      <div className="relative bg-gradient-to-r from-[#E02020] to-[#c01c1c] text-white w-full">
         <div className="absolute inset-0 bg-black/10"></div>
-        <div className="relative z-10 px-4 sm:px-6 py-4 sm:py-6">
-          <div className="container-responsive">
-            <div className="flex justify-between items-center">
+        <div className="relative z-10 px-4 sm:px-6 py-4 sm:py-6 w-full max-w-full">
+          <div className="w-full max-w-7xl mx-auto">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 w-full">
               {/* Left Section - Brand and Welcome */}
-              <div className="flex items-center space-x-4 lg:space-x-6">
+              <div className="flex items-start min-w-0 flex-1">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-1">
-                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Investor Hub</h1>
-                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30 w-fit">
-                      <Sparkles className="h-3 w-3 mr-1" />
-                      Premium
+                    <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-white">Investor Hub</h1>
+                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30 w-fit text-xs">
+                      <Sparkles className="h-3 w-3 mr-1 flex-shrink-0" />
+                      <span>Premium</span>
                     </Badge>
                   </div>
                   {profile && (
-                    <p className="text-white/90">
+                    <p className="text-white/90 text-sm sm:text-base truncate">
                       Welcome back, {profile.full_name || user?.email?.split('@')[0]}
                     </p>
                   )}
                   {profile?.organization && (
-                    <p className="text-white/75 text-sm flex items-center mt-1">
-                      <Building className="h-3 w-3 mr-1" />
-                      {profile.organization}
+                    <p className="text-white/75 text-xs sm:text-sm flex items-center mt-1">
+                      <Building className="h-3 w-3 mr-1 flex-shrink-0" />
+                      <span className="truncate">{profile.organization}</span>
                     </p>
                   )}
                 </div>
               </div>
               
               {/* Right Section - Actions and User Menu - Optimized */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                 {/* Quick Action - New Investment - Responsive */}
                 <div className="hidden sm:flex">
                   <Dialog open={investmentDialogOpen} onOpenChange={setInvestmentDialogOpen}>
@@ -663,74 +663,74 @@ const InvestorDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="px-6 -mt-4 relative z-20">
+      <div className="px-4 sm:px-6 -mt-4 relative z-20 w-full max-w-full box-border">
         {/* Quick Stats Overview */}
-        <Card className="mb-8 shadow-lg border-0">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-xl font-semibold text-[#333333] flex items-center">
-                  <Activity className="h-5 w-5 mr-2 text-[#E02020]" />
-                  Investment Overview
+        <Card className="mb-8 shadow-lg border-0 w-full max-w-full">
+          <CardHeader className="pb-3 sm:pb-4 p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-lg sm:text-xl font-semibold text-[#333333] flex items-center">
+                  <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-[#E02020] flex-shrink-0" />
+                  <span>Investment Overview</span>
                 </CardTitle>
-                <CardDescription>Your portfolio performance at a glance</CardDescription>
+                <CardDescription className="text-xs sm:text-sm">Your portfolio performance at a glance</CardDescription>
               </div>
-              <div className="flex items-center text-sm text-green-600 bg-green-50 px-3 py-1 rounded-full">
-                <TrendingUp className="h-4 w-4 mr-1" />
-                Portfolio growth: +12.4%
+              <div className="flex items-center text-xs sm:text-sm text-green-600 bg-green-50 px-2 sm:px-3 py-1 rounded-full whitespace-nowrap">
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                <span>Growth: +12.4%</span>
               </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-blue-600 font-medium">Total Invested</p>
-                    <p className="text-2xl font-bold text-blue-800">${(stats.totalInvested / 1000).toFixed(0)}k</p>
-                    <p className="text-xs text-blue-600 mt-1">Across {stats.activeInvestments} investments</p>
+          <CardContent className="p-4 sm:p-6 w-full max-w-full box-border">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full max-w-full">
+              <div className="bg-blue-50 p-3 sm:p-4 rounded-lg border border-blue-200 w-full">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm text-blue-600 font-medium truncate">Total Invested</p>
+                    <p className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-800">${(stats.totalInvested / 1000).toFixed(0)}k</p>
+                    <p className="text-xs text-blue-600 mt-1 truncate">Across {stats.activeInvestments} investments</p>
                   </div>
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Briefcase className="h-5 w-5 text-blue-600" />
+                  <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg flex-shrink-0">
+                    <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                   </div>
                 </div>
               </div>
-              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-green-600 font-medium">Average ROI</p>
-                    <p className="text-2xl font-bold text-green-800">{stats.averageRoi}%</p>
+              <div className="bg-green-50 p-3 sm:p-4 rounded-lg border border-green-200 w-full">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm text-green-600 font-medium truncate">Average ROI</p>
+                    <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-800">{stats.averageRoi}%</p>
                     <div className="flex items-center text-xs text-green-600 mt-1">
-                      <ArrowUpRight className="h-3 w-3 mr-1" />
-                      <span>+0.5% from last month</span>
+                      <ArrowUpRight className="h-3 w-3 mr-1 flex-shrink-0" />
+                      <span className="truncate">+0.5% last month</span>
                     </div>
                   </div>
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <TrendingUp className="h-5 w-5 text-green-600" />
+                  <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg flex-shrink-0">
+                    <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                   </div>
                 </div>
               </div>
-              <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-purple-600 font-medium">Projected Earnings</p>
-                    <p className="text-2xl font-bold text-purple-800">${(stats.projectedEarnings / 1000).toFixed(1)}k</p>
-                    <p className="text-xs text-purple-600 mt-1">Next 12 months</p>
+              <div className="bg-purple-50 p-3 sm:p-4 rounded-lg border border-purple-200 w-full">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm text-purple-600 font-medium truncate">Projected Earnings</p>
+                    <p className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-800">${(stats.projectedEarnings / 1000).toFixed(1)}k</p>
+                    <p className="text-xs text-purple-600 mt-1 truncate">Next 12 months</p>
                   </div>
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <Target className="h-5 w-5 text-purple-600" />
+                  <div className="p-1.5 sm:p-2 bg-purple-100 rounded-lg flex-shrink-0">
+                    <Target className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
                   </div>
                 </div>
               </div>
-              <div className="bg-[#E02020]/10 p-4 rounded-lg border border-[#E02020]/20">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-[#E02020] font-medium">Available Balance</p>
-                    <p className="text-2xl font-bold text-[#E02020]">${(stats.walletBalance / 1000).toFixed(0)}k</p>
-                    <p className="text-xs text-[#E02020] mt-1">Ready to invest</p>
+              <div className="bg-[#E02020]/10 p-3 sm:p-4 rounded-lg border border-[#E02020]/20 w-full">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm text-[#E02020] font-medium truncate">Available Balance</p>
+                    <p className="text-lg sm:text-xl lg:text-2xl font-bold text-[#E02020]">${(stats.walletBalance / 1000).toFixed(0)}k</p>
+                    <p className="text-xs text-[#E02020] mt-1 truncate">Ready to invest</p>
                   </div>
-                  <div className="p-2 bg-[#E02020]/10 rounded-lg">
-                    <PiggyBank className="h-5 w-5 text-[#E02020]" />
+                  <div className="p-1.5 sm:p-2 bg-[#E02020]/10 rounded-lg flex-shrink-0">
+                    <PiggyBank className="h-4 w-4 sm:h-5 sm:w-5 text-[#E02020]" />
                   </div>
                 </div>
               </div>

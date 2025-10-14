@@ -27,22 +27,22 @@ const AdminDashboard = () => {
   if (loading) {
     return (
       <SidebarProvider defaultOpen={!isMobile}>
-        <div className="min-h-screen flex w-full bg-gradient-to-br from-gray-50 via-white to-gray-100 overflow-x-hidden">
+        <div className="min-h-screen flex w-full max-w-full bg-gradient-to-br from-gray-50 via-white to-gray-100 overflow-x-hidden box-border">
           <AdminAppSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-          <SidebarInset>
-            <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
-              <div className="flex h-16 items-center px-4 gap-4">
+          <SidebarInset className="w-full max-w-full">
+            <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm w-full">
+              <div className="flex h-14 sm:h-16 items-center px-3 sm:px-4 gap-2 sm:gap-4">
                 <SidebarTrigger />
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <AdminHeader />
                 </div>
               </div>
             </header>
             
-            <main className="flex-1 p-4 md:p-6">
-              <div className="space-y-6">
+            <main className="flex-1 p-3 sm:p-4 md:p-6 w-full max-w-full box-border">
+              <div className="space-y-4 sm:space-y-6 w-full max-w-full">
                 {/* Loading skeleton for stats cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-full max-w-full">
                   {Array.from({ length: 4 }).map((_, i) => (
                     <div key={i} className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
                       <div className="flex items-center justify-between mb-4">
@@ -80,19 +80,19 @@ const AdminDashboard = () => {
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-gray-50 via-white to-gray-100 overflow-x-hidden">
+      <div className="min-h-screen flex w-full max-w-full bg-gradient-to-br from-gray-50 via-white to-gray-100 overflow-x-hidden box-border">
         <AdminAppSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-        <SidebarInset>
-          <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
-            <div className="flex h-16 items-center px-4 gap-4">
+        <SidebarInset className="w-full max-w-full">
+          <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm w-full">
+            <div className="flex h-14 sm:h-16 items-center px-3 sm:px-4 gap-2 sm:gap-4">
               <SidebarTrigger />
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <AdminHeader />
               </div>
             </div>
           </header>
           
-          <main className="flex-1 p-4 md:p-6">
+          <main className="flex-1 p-3 sm:p-4 md:p-6 w-full max-w-full box-border">
             <TabContent 
               activeTab={activeTab} 
               stats={stats}
