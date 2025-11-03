@@ -89,7 +89,7 @@ const DeleteAccountRequest = () => {
       console.error('Error submitting deletion request:', error);
       toast({
         title: "Error",
-        description: "Failed to submit your request. Please try again or contact support@clinibuilds.com",
+        description: error?.message || "Failed to submit your request. Please try again or contact support@negusmed.com",
         variant: "destructive",
       });
     } finally {
@@ -279,10 +279,10 @@ const DeleteAccountRequest = () => {
             <p className="text-sm text-muted-foreground text-center">
               If you have any issues or questions, please contact us at{' '}
               <a 
-                href="mailto:support@clinibuilds.com" 
+                href="mailto:support@negusmed.com" 
                 className="text-primary hover:underline font-medium"
               >
-                support@clinibuilds.com
+                support@negusmed.com
               </a>
             </p>
           </CardContent>

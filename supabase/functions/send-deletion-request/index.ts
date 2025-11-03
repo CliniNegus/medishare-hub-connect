@@ -77,7 +77,7 @@ Please process within 7 business days as per Google Play's Data Deletion Policy.
 
     if (insertError) {
       console.error('Error inserting deletion request:', insertError);
-      throw new Error('Failed to submit deletion request');
+      throw new Error(`Failed to submit deletion request: ${insertError.message}`);
     }
 
     // Send email notification to support
@@ -131,7 +131,10 @@ Please process within 7 business days as per Google Play's Data Deletion Policy.
   } catch (error: any) {
     console.error('Error in send-deletion-request function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message || 'An unexpected error occurred',
+        details: 'Please try again or contact support@negusmed.com directly'
+      }),
       {
         status: 500,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
