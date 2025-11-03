@@ -156,6 +156,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
+      // Check if account is scheduled for deletion
+      if (data?.is_deleted && data?.can_restore_until) {
+        const canRestoreUntil = new Date(data.can_restore_until);
+        const now = new Date();
+        
+        if (now > canRestoreUntil) {
+          // Grace period expired, sign out user
+          toast({
+            title: "Account Deleted",
+            description: "Your account has been permanently deleted.",
+            variant: "destructive",
+          });
+          await signOut();
+          return;
+        }
+      }
+
       setProfile(data);
     } catch (error) {
       console.error('Error in fetchProfile:', error);

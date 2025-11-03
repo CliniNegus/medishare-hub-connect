@@ -24,6 +24,7 @@ import RecentBookingsSection from './hospital-dashboard/RecentBookingsSection';
 import RecentOrdersSection from './hospital-dashboard/RecentOrdersSection';
 import NotificationDropdown from './notifications/NotificationDropdown';
 import { ThemeToggleButton } from './ThemeToggle';
+import { AccountDeletionBanner } from './account/AccountDeletionBanner';
 
 const HospitalDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -107,6 +108,11 @@ const HospitalDashboard = () => {
 
       {/* Main Content */}
       <div className="px-4 sm:px-6 -mt-4 relative z-20 w-full max-w-full box-border">
+        {/* Account Deletion Banner */}
+        {profile?.is_deleted && profile?.can_restore_until && (
+          <AccountDeletionBanner canRestoreUntil={profile.can_restore_until} />
+        )}
+        
         {/* Quick Stats Overview - Now functional with real data */}
         <DashboardStatsSection />
 

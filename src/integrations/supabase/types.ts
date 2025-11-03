@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_actions: {
+        Row: {
+          action_type: string
+          admin_id: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          target_user_email: string | null
+          target_user_id: string | null
+          target_user_name: string | null
+        }
+        Insert: {
+          action_type: string
+          admin_id: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          target_user_email?: string | null
+          target_user_id?: string | null
+          target_user_name?: string | null
+        }
+        Update: {
+          action_type?: string
+          admin_id?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          target_user_email?: string | null
+          target_user_id?: string | null
+          target_user_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_actions_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_actions_target_user_id_fkey"
+            columns: ["target_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       archived_data: {
         Row: {
           archived_at: string
@@ -49,7 +97,7 @@ export type Database = {
           action: string
           created_at: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           new_values: Json | null
           old_values: Json | null
           resource_id: string | null
@@ -61,7 +109,7 @@ export type Database = {
           action: string
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           new_values?: Json | null
           old_values?: Json | null
           resource_id?: string | null
@@ -73,7 +121,7 @@ export type Database = {
           action?: string
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           new_values?: Json | null
           old_values?: Json | null
           resource_id?: string | null
@@ -328,7 +376,7 @@ export type Database = {
           email: string
           expires_at: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           sent_at: string | null
           token_hash: string
           user_agent: string | null
@@ -341,7 +389,7 @@ export type Database = {
           email: string
           expires_at: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           sent_at?: string | null
           token_hash: string
           user_agent?: string | null
@@ -354,7 +402,7 @@ export type Database = {
           email?: string
           expires_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           sent_at?: string | null
           token_hash?: string
           user_agent?: string | null
@@ -1255,12 +1303,16 @@ export type Database = {
       profiles: {
         Row: {
           bio: string | null
+          can_restore_until: string | null
           created_at: string
+          deleted_at: string | null
+          deletion_initiated_by: string | null
           email: string
           email_verified_at: string | null
           full_name: string | null
           gender: string | null
           id: string
+          is_deleted: boolean | null
           is_new_user: boolean | null
           last_active: string | null
           location: string | null
@@ -1278,12 +1330,16 @@ export type Database = {
         }
         Insert: {
           bio?: string | null
+          can_restore_until?: string | null
           created_at?: string
+          deleted_at?: string | null
+          deletion_initiated_by?: string | null
           email: string
           email_verified_at?: string | null
           full_name?: string | null
           gender?: string | null
           id: string
+          is_deleted?: boolean | null
           is_new_user?: boolean | null
           last_active?: string | null
           location?: string | null
@@ -1301,12 +1357,16 @@ export type Database = {
         }
         Update: {
           bio?: string | null
+          can_restore_until?: string | null
           created_at?: string
+          deleted_at?: string | null
+          deletion_initiated_by?: string | null
           email?: string
           email_verified_at?: string | null
           full_name?: string | null
           gender?: string | null
           id?: string
+          is_deleted?: boolean | null
           is_new_user?: boolean | null
           last_active?: string | null
           location?: string | null
@@ -1322,7 +1382,15 @@ export type Database = {
           verification_token_sent_at?: string | null
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_deletion_initiated_by_fkey"
+            columns: ["deletion_initiated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       security_audit_log: {
         Row: {
@@ -1330,7 +1398,7 @@ export type Database = {
           event_details: Json | null
           event_type: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           user_agent: string | null
           user_id: string | null
         }
@@ -1339,7 +1407,7 @@ export type Database = {
           event_details?: Json | null
           event_type: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
           user_id?: string | null
         }
@@ -1348,7 +1416,7 @@ export type Database = {
           event_details?: Json | null
           event_type?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
           user_id?: string | null
         }
@@ -1657,10 +1725,7 @@ export type Database = {
         Args: { equipment_id: string }
         Returns: boolean
       }
-      check_auth_rate_limit: {
-        Args: { user_email: string }
-        Returns: boolean
-      }
+      check_auth_rate_limit: { Args: { user_email: string }; Returns: boolean }
       create_admin_user: {
         Args: {
           admin_email: string
@@ -1714,13 +1779,16 @@ export type Database = {
           updated_at: string
           user_id: string | null
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "orders"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
-      generate_verification_token: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_verification_token: { Args: never; Returns: string }
       get_public_equipment: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           category: string
           condition: string
@@ -1753,13 +1821,15 @@ export type Database = {
           status: string
         }[]
       }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_email_verified: {
-        Args: { user_email: string }
-        Returns: boolean
+      is_admin: { Args: never; Returns: boolean }
+      is_email_verified: { Args: { user_email: string }; Returns: boolean }
+      log_admin_action: {
+        Args: {
+          action_type_param: string
+          details_param?: Json
+          target_user_id_param: string
+        }
+        Returns: string
       }
       log_audit_event: {
         Args: {
@@ -1780,9 +1850,14 @@ export type Database = {
         }
         Returns: undefined
       }
-      mark_overdue_maintenance: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
+      mark_overdue_maintenance: { Args: never; Returns: undefined }
+      permanent_delete_account: {
+        Args: { target_user_id: string }
+        Returns: boolean
+      }
+      restore_deleted_account: {
+        Args: { target_user_id: string }
+        Returns: boolean
       }
       schedule_maintenance_notifications: {
         Args: { maintenance_id_param: string }
@@ -1799,6 +1874,10 @@ export type Database = {
         }
         Returns: string
       }
+      soft_delete_account: {
+        Args: { grace_period_days?: number; target_user_id: string }
+        Returns: boolean
+      }
       update_equipment_popularity_score: {
         Args: { equipment_id_param: string }
         Returns: undefined
@@ -1807,10 +1886,7 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: undefined
       }
-      validate_email: {
-        Args: { email_input: string }
-        Returns: boolean
-      }
+      validate_email: { Args: { email_input: string }; Returns: boolean }
       verify_email_token: {
         Args: { token_hash_param: string }
         Returns: boolean

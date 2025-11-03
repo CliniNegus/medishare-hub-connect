@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import InvestorWallet from "@/components/InvestorWallet";
 import NotificationDropdown from "@/components/notifications/NotificationDropdown";
+import { AccountDeletionBanner } from './account/AccountDeletionBanner';
 
 interface Investment {
   id: string;
@@ -664,6 +665,11 @@ const InvestorDashboard = () => {
 
       {/* Main Content */}
       <div className="px-4 sm:px-6 -mt-4 relative z-20 w-full max-w-full box-border">
+        {/* Account Deletion Banner */}
+        {profile?.is_deleted && profile?.can_restore_until && (
+          <AccountDeletionBanner canRestoreUntil={profile.can_restore_until} />
+        )}
+        
         {/* Quick Stats Overview */}
         <Card className="mb-8 shadow-lg border-0 w-full max-w-full">
           <CardHeader className="pb-3 sm:pb-4 p-4 sm:p-6">

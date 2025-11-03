@@ -10,10 +10,13 @@ import {
 } from './manufacturer-dashboard';
 import { TrendingUp, Activity } from 'lucide-react';
 import { Card, CardContent } from "./ui/card";
+import { useAuth } from '@/contexts/AuthContext';
+import { AccountDeletionBanner } from './account/AccountDeletionBanner';
 
 const ManufacturerDashboard = () => {
   const { virtualShops, loadingShops } = useManufacturerShops();
   const { stats, loading: statsLoading, error } = useManufacturerStats();
+  const { profile } = useAuth();
 
   return (
     <div className="min-h-screen bg-gray-50 w-full max-w-full overflow-x-hidden box-border">
@@ -27,6 +30,11 @@ const ManufacturerDashboard = () => {
 
       {/* Main Content */}
       <div className="px-4 sm:px-6 -mt-4 relative z-20 w-full max-w-full box-border">
+        {/* Account Deletion Banner */}
+        {profile?.is_deleted && profile?.can_restore_until && (
+          <AccountDeletionBanner canRestoreUntil={profile.can_restore_until} />
+        )}
+        
         {/* Performance Overview */}
         <Card className="mb-8 shadow-lg border-0 w-full max-w-full">
           <CardContent className="p-4 sm:p-6 w-full max-w-full box-border">
