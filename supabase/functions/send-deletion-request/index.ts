@@ -38,6 +38,16 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // First, try to find user by email
+    const { data: userData } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
+
+    // Use found user_id or generate a placeholder UUID for non-existing users
+    const userId = userData?.id || '00000000-0000-0000-0000-000000000000';
+
     // Insert deletion request into support_requests table
     const requestMessage = `
 Account Deletion Request
@@ -54,6 +64,7 @@ Please process within 7 business days as per Google Play's Data Deletion Policy.
     const { error: insertError } = await supabase
       .from('support_requests')
       .insert({
+        user_id: userId,
         subject: `Account Deletion Request - ${full_name}`,
         message: requestMessage,
         priority: 'high',
