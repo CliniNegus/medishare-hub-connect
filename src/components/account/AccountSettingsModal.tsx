@@ -74,7 +74,7 @@ export const AccountSettingsModal = ({ open, onOpenChange }: AccountSettingsModa
             </Button>
 
             <p className="text-xs text-muted-foreground text-center mt-2">
-              Deleting your account will mark it for deletion with a 7-day grace period
+              Choose between soft delete (7-day grace period) or immediate permanent deletion
             </p>
           </div>
         </DialogContent>
