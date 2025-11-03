@@ -6,6 +6,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY');
+const SUPPORT_EMAIL = 'support@negusmed.com';
+
 interface DeletionRequest {
   full_name: string;
   email: string;
@@ -75,6 +78,41 @@ Please process within 7 business days as per Google Play's Data Deletion Policy.
     if (insertError) {
       console.error('Error inserting deletion request:', insertError);
       throw new Error('Failed to submit deletion request');
+    }
+
+    // Send email notification to support
+    try {
+      const emailResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': BREVO_API_KEY!,
+        },
+        body: JSON.stringify({
+          sender: { email: 'noreply@clinibuilds.com', name: 'Clinibuilds' },
+          to: [{ email: SUPPORT_EMAIL }],
+          subject: `Account Deletion Request - ${full_name}`,
+          htmlContent: `
+            <h2>Account Deletion Request</h2>
+            <p><strong>Full Name:</strong> ${full_name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Account Type:</strong> ${account_type}</p>
+            ${message ? `<p><strong>Reason:</strong> ${message}</p>` : ''}
+            <p><em>This request was submitted via the public deletion request form.</em></p>
+            <p><em>Please process within 7 business days as per Google Play's Data Deletion Policy.</em></p>
+          `,
+        }),
+      });
+
+      if (!emailResponse.ok) {
+        console.error('Failed to send email notification:', await emailResponse.text());
+      } else {
+        console.log('Email notification sent successfully to:', SUPPORT_EMAIL);
+      }
+    } catch (emailError) {
+      console.error('Error sending email notification:', emailError);
+      // Don't fail the request if email fails
     }
 
     console.log('Deletion request submitted successfully for:', email);
