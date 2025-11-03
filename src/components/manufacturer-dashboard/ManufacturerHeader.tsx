@@ -16,14 +16,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import AddProductModal from '@/components/admin/AddProductModal';
-import ChangeAccountTypeModal from '@/components/ChangeAccountTypeModal';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
+import { AccountSettingsModal } from '@/components/account/AccountSettingsModal';
 
 const ManufacturerHeader = () => {
   const { profile, user, signOut } = useAuth();
   const navigate = useNavigate();
   const [addProductModalOpen, setAddProductModalOpen] = useState(false);
-  const [changeAccountTypeOpen, setChangeAccountTypeOpen] = useState(false);
+  const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
 
   const handleAddProduct = () => {
     setAddProductModalOpen(true);
@@ -48,7 +48,7 @@ const ManufacturerHeader = () => {
   };
 
   const handleChangeAccountType = () => {
-    setChangeAccountTypeOpen(true);
+    setAccountSettingsOpen(true);
   };
 
   const getUserInitials = () => {
@@ -217,9 +217,9 @@ const ManufacturerHeader = () => {
         onProductAdded={handleProductAdded}
       />
       
-      <ChangeAccountTypeModal
-        open={changeAccountTypeOpen}
-        onOpenChange={setChangeAccountTypeOpen}
+      <AccountSettingsModal
+        open={accountSettingsOpen}
+        onOpenChange={setAccountSettingsOpen}
       />
     </>
   );

@@ -8,7 +8,6 @@ import DashboardContent from './dashboard/DashboardContent';
 import { EquipmentProps } from './EquipmentCard';
 import { Button } from "@/components/ui/button";
 import { UserCog, Activity, Building2, TrendingUp, Sparkles } from "lucide-react";
-import ChangeAccountTypeModal from './ChangeAccountTypeModal';
 import { useUserRole } from '@/contexts/UserRoleContext';
 import { useAuth } from '@/contexts/AuthContext';
 import EquipmentTabContent from './hospital-dashboard/EquipmentTabContent';
@@ -25,6 +24,7 @@ import RecentOrdersSection from './hospital-dashboard/RecentOrdersSection';
 import NotificationDropdown from './notifications/NotificationDropdown';
 import { ThemeToggleButton } from './ThemeToggle';
 import { AccountDeletionBanner } from './account/AccountDeletionBanner';
+import { AccountSettingsModal } from './account/AccountSettingsModal';
 
 const HospitalDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -34,7 +34,7 @@ const HospitalDashboard = () => {
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState<EquipmentProps | null>(null);
   const [activeTab, setActiveTab] = useState("equipment");
-  const [accountTypeModalOpen, setAccountTypeModalOpen] = useState(false);
+  const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
   const { profile } = useUserRole();
   const { user } = useAuth();
 
@@ -95,7 +95,7 @@ const HospitalDashboard = () => {
                 <Button 
                   variant="outline"
                   className="bg-white/10 border-white/30 text-white hover:bg-white hover:text-[#E02020] transition-all duration-200 backdrop-blur-sm text-xs sm:text-sm px-3 py-2"
-                  onClick={() => setAccountTypeModalOpen(true)}
+                  onClick={() => setAccountSettingsOpen(true)}
                 >
                   <UserCog className="mr-1.5 h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
                   <span className="whitespace-nowrap">Account Settings</span>
@@ -156,9 +156,9 @@ const HospitalDashboard = () => {
         />
       )}
       
-      <ChangeAccountTypeModal 
-        open={accountTypeModalOpen}
-        onOpenChange={setAccountTypeModalOpen}
+      <AccountSettingsModal 
+        open={accountSettingsOpen}
+        onOpenChange={setAccountSettingsOpen}
       />
     </div>
   );

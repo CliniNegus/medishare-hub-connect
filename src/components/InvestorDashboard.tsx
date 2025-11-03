@@ -15,7 +15,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from 'react-router-dom';
-import ChangeAccountTypeModal from "@/components/ChangeAccountTypeModal";
 import InvestmentForm from "@/components/investment/InvestmentForm";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
@@ -32,6 +31,7 @@ import {
 import InvestorWallet from "@/components/InvestorWallet";
 import NotificationDropdown from "@/components/notifications/NotificationDropdown";
 import { AccountDeletionBanner } from './account/AccountDeletionBanner';
+import { AccountSettingsModal } from './account/AccountSettingsModal';
 
 interface Investment {
   id: string;
@@ -228,7 +228,7 @@ const InvestorDashboard = () => {
 
   const [activeTab, setActiveTab] = useState('portfolio');
   const [investmentDialogOpen, setInvestmentDialogOpen] = useState(false);
-  const [changeAccountTypeOpen, setChangeAccountTypeOpen] = useState(false);
+  const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
   const [dialogTabValue, setDialogTabValue] = useState('investment-form');
 
   const { profile, user, signOut } = useAuth();
@@ -317,7 +317,7 @@ const InvestorDashboard = () => {
   }, [signOut, toast, navigate]);
 
   const handleChangeAccountType = useCallback(() => {
-    setChangeAccountTypeOpen(true);
+    setAccountSettingsOpen(true);
   }, []);
 
   const handleInvestmentSuccess = () => {
@@ -1093,9 +1093,9 @@ const InvestorDashboard = () => {
         </Card>
       </div>
       
-      <ChangeAccountTypeModal 
-        open={changeAccountTypeOpen} 
-        onOpenChange={setChangeAccountTypeOpen} 
+      <AccountSettingsModal 
+        open={accountSettingsOpen} 
+        onOpenChange={setAccountSettingsOpen} 
       />
     </div>
   );
