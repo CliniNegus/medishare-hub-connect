@@ -457,9 +457,10 @@ const Index: React.FC = () => {
               <p className="text-sm text-white/60">
                 © {new Date().getFullYear()} CliniBuilds. All rights reserved.
               </p>
-              <div className="flex gap-6 text-sm">
-                <Link to="/terms-of-service" className="text-white/60 hover:text-white transition-colors">Terms of Use</Link>
+              <div className="flex flex-wrap gap-6 text-sm justify-center">
+                <Link to="/terms-of-service" className="text-white/60 hover:text-white transition-colors">Terms of Service</Link>
                 <Link to="/privacy-policy" className="text-white/60 hover:text-white transition-colors">Privacy Policy</Link>
+                <Link to="/delete-account" className="text-white/60 hover:text-white transition-colors">Request Data Deletion</Link>
               </div>
             </div>
           </div>

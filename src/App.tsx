@@ -45,6 +45,7 @@ import NotificationsPage from './components/notifications/NotificationsPage';
 import CompleteProfile from './pages/CompleteProfile';
 import NotFound from './pages/NotFound';
 import EquipmentPage from './pages/EquipmentPage';
+import DeleteAccountRequest from './pages/DeleteAccountRequest';
 
 
 const queryClient = new QueryClient({
@@ -70,6 +71,7 @@ function App() {
                     <Route path="/" element={<Index />} />
                     <Route path="/terms-of-service" element={<TermsOfService />} />
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                    <Route path="/delete-account" element={<DeleteAccountRequest />} />
                     <Route path="/shop" element={<PublicShop />} />
                     <Route path="/product/:id" element={<ProductDetailsPage />} />
                     <Route path="/payment-cancelled" element={<PaymentCancelled />} />
