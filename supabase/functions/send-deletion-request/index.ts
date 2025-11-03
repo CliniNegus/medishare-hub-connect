@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -32,88 +33,40 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Here you can integrate with Brevo API to send email notification to admin
-    const brevoApiKey = Deno.env.get('BREVO_API_KEY');
-    
-    if (!brevoApiKey) {
-      console.error('BREVO_API_KEY not configured');
-      // Still return success to user, but log the error
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: 'Deletion request received (email notification pending configuration)' 
-        }),
-        {
-          status: 200,
-          headers: { 'Content-Type': 'application/json', ...corsHeaders },
-        }
-      );
+    // Create Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Insert deletion request into support_requests table
+    const requestMessage = `
+Account Deletion Request
+
+Full Name: ${full_name}
+Email: ${email}
+Account Type: ${account_type}
+${message ? `\nReason: ${message}` : ''}
+
+This request was submitted via the public deletion request form.
+Please process within 7 business days as per Google Play's Data Deletion Policy.
+    `.trim();
+
+    const { error: insertError } = await supabase
+      .from('support_requests')
+      .insert({
+        subject: `Account Deletion Request - ${full_name}`,
+        message: requestMessage,
+        priority: 'high',
+        status: 'open',
+        category: 'account'
+      });
+
+    if (insertError) {
+      console.error('Error inserting deletion request:', insertError);
+      throw new Error('Failed to submit deletion request');
     }
 
-    // Send email notification to admin using Brevo
-    const emailPayload = {
-      sender: { email: "noreply@clinibuilds.com", name: "CliniBuilds" },
-      to: [{ email: "support@clinibuilds.com", name: "CliniBuilds Support" }],
-      subject: `Account Deletion Request from ${full_name}`,
-      htmlContent: `
-        <h2>New Account Deletion Request</h2>
-        <p>A user has requested account deletion:</p>
-        <ul>
-          <li><strong>Full Name:</strong> ${full_name}</li>
-          <li><strong>Email:</strong> ${email}</li>
-          <li><strong>Account Type:</strong> ${account_type}</li>
-          <li><strong>Submission Date:</strong> ${new Date().toISOString()}</li>
-        </ul>
-        ${message ? `<p><strong>Reason:</strong><br>${message}</p>` : ''}
-        <hr>
-        <p><small>Please process this deletion request within 7 business days as per Google Play's Data Deletion Policy.</small></p>
-      `,
-    };
-
-    const emailResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'api-key': brevoApiKey,
-      },
-      body: JSON.stringify(emailPayload),
-    });
-
-    if (!emailResponse.ok) {
-      const errorData = await emailResponse.text();
-      console.error('Brevo API error:', errorData);
-      throw new Error('Failed to send email notification');
-    }
-
-    console.log('Deletion request email sent successfully for:', email);
-
-    // Also send confirmation email to the user
-    const userEmailPayload = {
-      sender: { email: "noreply@clinibuilds.com", name: "CliniBuilds" },
-      to: [{ email: email, name: full_name }],
-      subject: "Account Deletion Request Received - CliniBuilds",
-      htmlContent: `
-        <h2>Account Deletion Request Received</h2>
-        <p>Dear ${full_name},</p>
-        <p>We have received your request to delete your CliniBuilds account and associated data.</p>
-        <p>Our team will verify your information and process the deletion within <strong>7 business days</strong>.</p>
-        <p>Once the deletion is complete, you will receive a final confirmation email.</p>
-        <hr>
-        <p>If you did not make this request or have any questions, please contact us at support@clinibuilds.com immediately.</p>
-        <p>Best regards,<br>The CliniBuilds Team</p>
-      `,
-    };
-
-    await fetch('https://api.brevo.com/v3/smtp/email', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'api-key': brevoApiKey,
-      },
-      body: JSON.stringify(userEmailPayload),
-    });
+    console.log('Deletion request submitted successfully for:', email);
 
     return new Response(
       JSON.stringify({ 
