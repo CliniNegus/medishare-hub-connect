@@ -25,6 +25,7 @@ import NotificationDropdown from './notifications/NotificationDropdown';
 import { ThemeToggleButton } from './ThemeToggle';
 import { AccountDeletionBanner } from './account/AccountDeletionBanner';
 import { AccountSettingsModal } from './account/AccountSettingsModal';
+import CartSidebar from './shop/CartSidebar';
 
 const HospitalDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -160,6 +161,8 @@ const HospitalDashboard = () => {
         open={accountSettingsOpen}
         onOpenChange={setAccountSettingsOpen}
       />
+      
+      <CartSidebar />
     </div>
   );
 };
