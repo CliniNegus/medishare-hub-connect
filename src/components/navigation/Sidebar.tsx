@@ -165,7 +165,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onChangeAccountType }) => {
           </Link>
         )}
 
-        {['admin', 'manufacturer'].includes(role) && (
+        {['admin', 'manufacturer', 'hospital'].includes(role) && (
           <Link to="/products" className={getLinkClass('/products')}>
             <Cpu className="mr-3 h-5 w-5" />
             Products
