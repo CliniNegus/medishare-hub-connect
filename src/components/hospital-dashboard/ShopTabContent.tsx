@@ -1,27 +1,77 @@
-
-import React from 'react';
+import React, { useState } from 'react';
+import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import TrendingProducts from '@/components/shop/TrendingProducts';
+import ProductGrid from '@/components/shop/ProductGrid';
+import ShopFeatures from '@/components/shop/ShopFeatures';
+import { useCart } from '@/contexts/CartContext';
+import { useProducts } from '@/hooks/use-products';
+import ShopFilters from '@/components/shop/ShopFilters';
+import CategoryNavigation from '@/components/shop/CategoryNavigation';
 
-const ShopTabContent: React.FC = () => (
-  <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm mb-6 w-full max-w-full box-border">
-    <h2 className="text-base sm:text-lg lg:text-xl font-semibold mb-3 sm:mb-4">Medical Shop</h2>
-    <p className="text-gray-600 mb-3 sm:mb-4 text-xs sm:text-sm lg:text-base">Purchase disposables and smaller equipment directly</p>
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 mt-4 sm:mt-6 w-full max-w-full">
-      {Array(8).fill(null).map((_, idx) => (
-        <div key={idx} className="border rounded-lg p-3 sm:p-4 bg-white shadow-sm w-full">
-          <div className="bg-gray-100 h-20 sm:h-24 lg:h-32 rounded-md mb-2 sm:mb-3 flex items-center justify-center text-gray-400 text-xs sm:text-sm">
-            Product Image
-          </div>
-          <h3 className="font-medium text-xs sm:text-sm truncate">Disposable Item {idx + 1}</h3>
-          <p className="text-xs text-gray-500 mb-2 sm:mb-3 truncate">Pack of 100 units</p>
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 sm:justify-between sm:items-center mt-3 sm:mt-4">
-            <span className="font-medium text-red-600 text-xs sm:text-sm whitespace-nowrap">Ksh {(49 + idx * 10).toFixed(2)}</span>
-            <Button size="sm" variant="outline" className="text-xs whitespace-nowrap">Add to Cart</Button>
-          </div>
+const ShopTabContent: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [category, setCategory] = useState('all');
+  const [productType, setProductType] = useState('all');
+  const [sortBy, setSortBy] = useState('popularity');
+  const { totalItems, setIsOpen } = useCart();
+  
+  // Fetch categories using the hook
+  const { uniqueCategories } = useProducts();
+
+  return (
+    <div className="w-full space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-xl font-bold text-[#E02020]">Medical Shop</h2>
+          <p className="text-gray-600">Purchase disposables and smaller medical equipment</p>
         </div>
-      ))}
+        <Button 
+          className="bg-[#E02020] hover:bg-[#c01c1c] text-white"
+          onClick={() => setIsOpen(true)}
+        >
+          <ShoppingCart className="h-4 w-4 mr-2" />
+          View Cart ({totalItems})
+        </Button>
+      </div>
+      
+      <CategoryNavigation
+        selectedCategory={category}
+        onCategoryChange={setCategory}
+      />
+      
+      <ShopFilters
+        searchTerm={searchTerm}
+        category={category}
+        productType={productType}
+        sortBy={sortBy}
+        uniqueCategories={uniqueCategories}
+        onSearchChange={setSearchTerm}
+        onCategoryChange={setCategory}
+        onProductTypeChange={setProductType}
+        onSortByChange={setSortBy}
+      />
+      
+      <TrendingProducts />
+      
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold">All Products</h3>
+        </div>
+        
+        <ProductGrid 
+          filterOptions={{
+            category: category === 'all' ? undefined : category,
+            searchTerm,
+            productType: productType as 'all' | 'disposable' | 'reusable',
+            sortBy: sortBy as 'popularity' | 'price_low_to_high' | 'price_high_to_low' | 'newest'
+          }}
+        />
+      </div>
+      
+      <ShopFeatures />
     </div>
-  </div>
-);
+  );
+};
 
 export default ShopTabContent;
