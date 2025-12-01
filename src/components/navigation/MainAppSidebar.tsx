@@ -3,7 +3,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, TrendingUp, Package, Users, MapPin, 
   DollarSign, Settings, LogOut, Briefcase,
-  Activity, BarChart3, HelpCircle, FileText
+  Activity, BarChart3, HelpCircle, FileText, ShoppingCart
 } from 'lucide-react';
 import {
   Sidebar,
@@ -56,6 +56,13 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
       description: 'Buy and sell equipment'
     },
     ...(profile?.role === 'hospital' ? [
+      { 
+        id: 'products', 
+        label: 'Products', 
+        icon: ShoppingCart, 
+        path: '/products',
+        description: 'Medical shop and supplies'
+      },
       { 
         id: 'hospitals', 
         label: 'Hospitals', 
