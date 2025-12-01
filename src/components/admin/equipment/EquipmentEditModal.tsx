@@ -72,7 +72,39 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
 
     try {
       setLoading(true);
-      await onSave(equipment.id, formData);
+      
+      // Clean up the form data - only include fields that are actually set
+      const cleanedData: Partial<Equipment> = {};
+      
+      // String fields
+      if (formData.name !== undefined) cleanedData.name = formData.name;
+      if (formData.manufacturer !== undefined) cleanedData.manufacturer = formData.manufacturer || null;
+      if (formData.model !== undefined) cleanedData.model = formData.model || null;
+      if (formData.serial_number !== undefined) cleanedData.serial_number = formData.serial_number || null;
+      if (formData.sku !== undefined) cleanedData.sku = formData.sku || null;
+      if (formData.category !== undefined) cleanedData.category = formData.category || null;
+      if (formData.condition !== undefined) cleanedData.condition = formData.condition || null;
+      if (formData.location !== undefined) cleanedData.location = formData.location || null;
+      if (formData.status !== undefined) cleanedData.status = formData.status || null;
+      if (formData.sales_option !== undefined) cleanedData.sales_option = formData.sales_option || null;
+      if (formData.specs !== undefined) cleanedData.specs = formData.specs || null;
+      if (formData.description !== undefined) cleanedData.description = formData.description || null;
+      if (formData.image_url !== undefined) cleanedData.image_url = formData.image_url || null;
+      
+      // Numeric fields
+      if (formData.price !== undefined) cleanedData.price = formData.price;
+      if (formData.lease_rate !== undefined) cleanedData.lease_rate = formData.lease_rate;
+      if (formData.quantity !== undefined) cleanedData.quantity = formData.quantity;
+      if (formData.usage_hours !== undefined) cleanedData.usage_hours = formData.usage_hours;
+      if (formData.downtime_hours !== undefined) cleanedData.downtime_hours = formData.downtime_hours;
+      if (formData.revenue_generated !== undefined) cleanedData.revenue_generated = formData.revenue_generated;
+      if (formData.pay_per_use_price !== undefined) cleanedData.pay_per_use_price = formData.pay_per_use_price;
+      
+      // Boolean fields
+      if (formData.remote_control_enabled !== undefined) cleanedData.remote_control_enabled = formData.remote_control_enabled;
+      if (formData.pay_per_use_enabled !== undefined) cleanedData.pay_per_use_enabled = formData.pay_per_use_enabled;
+      
+      await onSave(equipment.id, cleanedData);
       onOpenChange(false);
     } catch (error) {
       console.error('Error updating equipment:', error);
@@ -233,14 +265,14 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
                 </Select>
               </div>
 
-              <div className="space-y-2">
+               <div className="space-y-2">
                 <Label htmlFor="quantity">Quantity</Label>
                 <Input
                   id="quantity"
                   type="number"
                   min="1"
-                  value={formData.quantity || ''}
-                  onChange={(e) => handleChange('quantity', e.target.value ? parseInt(e.target.value) : null)}
+                  value={formData.quantity ?? ''}
+                  onChange={(e) => handleChange('quantity', e.target.value ? parseInt(e.target.value, 10) : null)}
                   placeholder="Enter quantity"
                 />
               </div>
@@ -254,13 +286,14 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
+               <div className="space-y-2">
                 <Label htmlFor="price">Purchase Price (Ksh)</Label>
                 <Input
                   id="price"
                   type="number"
                   step="0.01"
-                  value={formData.price || ''}
+                  min="0"
+                  value={formData.price ?? ''}
                   onChange={(e) => handleChange('price', e.target.value ? parseFloat(e.target.value) : null)}
                   placeholder="Enter purchase price in KES"
                 />
@@ -272,7 +305,8 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
                   id="lease_rate"
                   type="number"
                   step="0.01"
-                  value={formData.lease_rate || ''}
+                  min="0"
+                  value={formData.lease_rate ?? ''}
                   onChange={(e) => handleChange('lease_rate', e.target.value ? parseFloat(e.target.value) : null)}
                   placeholder="Enter monthly lease rate in KES"
                 />
@@ -315,7 +349,7 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
                 <Label htmlFor="pay_per_use_enabled">Enable Pay Per Use</Label>
               </div>
 
-              {formData.pay_per_use_enabled && (
+               {formData.pay_per_use_enabled && (
                 <div className="space-y-2">
                   <Label htmlFor="pay_per_use_price">Daily Rate (Ksh)</Label>
                   <Input
@@ -323,12 +357,12 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
                     type="number"
                     step="0.01"
                     min="0.01"
-                    value={formData.pay_per_use_price || ''}
+                    value={formData.pay_per_use_price ?? ''}
                     onChange={(e) => handleChange('pay_per_use_price', e.target.value ? parseFloat(e.target.value) : null)}
                     placeholder="Enter price per use in KES"
                     required={formData.pay_per_use_enabled}
                   />
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     This is the amount users will be charged per calendar day
                   </p>
                 </div>
@@ -343,14 +377,14 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
+               <div className="space-y-2">
                 <Label htmlFor="usage_hours">Usage Hours</Label>
                 <Input
                   id="usage_hours"
                   type="number"
                   min="0"
-                  value={formData.usage_hours || ''}
-                  onChange={(e) => handleChange('usage_hours', e.target.value ? parseInt(e.target.value) : null)}
+                  value={formData.usage_hours ?? ''}
+                  onChange={(e) => handleChange('usage_hours', e.target.value ? parseInt(e.target.value, 10) : null)}
                   placeholder="Enter usage hours"
                 />
               </div>
@@ -361,8 +395,8 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
                   id="downtime_hours"
                   type="number"
                   min="0"
-                  value={formData.downtime_hours || ''}
-                  onChange={(e) => handleChange('downtime_hours', e.target.value ? parseInt(e.target.value) : null)}
+                  value={formData.downtime_hours ?? ''}
+                  onChange={(e) => handleChange('downtime_hours', e.target.value ? parseInt(e.target.value, 10) : null)}
                   placeholder="Enter downtime hours"
                 />
               </div>
@@ -374,7 +408,7 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
                   type="number"
                   step="0.01"
                   min="0"
-                  value={formData.revenue_generated || ''}
+                  value={formData.revenue_generated ?? ''}
                   onChange={(e) => handleChange('revenue_generated', e.target.value ? parseFloat(e.target.value) : null)}
                   placeholder="Enter revenue generated in KES"
                 />
