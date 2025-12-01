@@ -6,6 +6,7 @@ import { UserRoleProvider } from './contexts/UserRoleContext';
 
 import { ThemeProvider } from './contexts/ThemeContext';
 import { CartProvider } from './contexts/CartContext';
+import { WishlistProvider } from './contexts/WishlistContext';
 import { NotificationProvider } from './components/notifications/NotificationProvider';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
@@ -46,6 +47,7 @@ import CompleteProfile from './pages/CompleteProfile';
 import NotFound from './pages/NotFound';
 import EquipmentPage from './pages/EquipmentPage';
 import DeleteAccountRequest from './pages/DeleteAccountRequest';
+import WishlistPage from './pages/WishlistPage';
 
 
 const queryClient = new QueryClient({
@@ -65,9 +67,10 @@ function App() {
           <NotificationProvider>
             <UserRoleProvider>
               <CartProvider>
-                <ErrorBoundary>
-                <Router>
-                  <Routes>
+                <WishlistProvider>
+                  <ErrorBoundary>
+                  <Router>
+                    <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/terms-of-service" element={<TermsOfService />} />
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -263,6 +266,16 @@ function App() {
                        } 
                       />
                       <Route 
+                       path="/wishlist" 
+                       element={
+                         <ProtectedRoute>
+                           <Layout>
+                             <WishlistPage />
+                           </Layout>
+                         </ProtectedRoute>
+                       } 
+                      />
+                      <Route 
                        path="/notifications" 
                        element={
                          <ProtectedRoute>
@@ -273,9 +286,10 @@ function App() {
                       {/* Catch-all route for 404 */}
                       <Route path="*" element={<NotFound />} />
                    </Routes>
-                  <Toaster />
+                   <Toaster />
                 </Router>
                 </ErrorBoundary>
+                </WishlistProvider>
               </CartProvider>
             </UserRoleProvider>
           </NotificationProvider>

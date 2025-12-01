@@ -20,6 +20,7 @@ import {
   User,
   LogOut,
   UserCog,
+  Heart,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -169,6 +170,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onChangeAccountType }) => {
           <Link to="/products" className={getLinkClass('/products')}>
             <Cpu className="mr-3 h-5 w-5" />
             Products
+          </Link>
+        )}
+
+        {['hospital'].includes(role) && (
+          <Link to="/wishlist" className={getLinkClass('/wishlist')}>
+            <Heart className="mr-3 h-5 w-5" />
+            Wishlist
           </Link>
         )}
 

@@ -3,7 +3,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, TrendingUp, Package, Users, MapPin, 
   DollarSign, Settings, LogOut, Briefcase,
-  Activity, BarChart3, HelpCircle, FileText, ShoppingCart
+  Activity, BarChart3, HelpCircle, FileText, ShoppingCart, Heart
 } from 'lucide-react';
 import {
   Sidebar,
@@ -62,6 +62,13 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
         icon: ShoppingCart, 
         path: '/products',
         description: 'Medical shop and supplies'
+      },
+      { 
+        id: 'wishlist', 
+        label: 'Wishlist', 
+        icon: Heart, 
+        path: '/wishlist',
+        description: 'Saved products'
       },
       { 
         id: 'hospitals', 

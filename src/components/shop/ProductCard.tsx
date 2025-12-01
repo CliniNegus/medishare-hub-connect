@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { Product } from "@/hooks/use-products";
 import { useNavigate } from 'react-router-dom';
+import { WishlistButton } from './WishlistButton';
 
 interface ProductCardProps {
   product: Product;
@@ -50,6 +51,7 @@ const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
           alt={product.name} 
           className="max-h-full max-w-full p-4" 
         />
+        <WishlistButton productId={product.id} />
         {product.is_featured && (
           <Badge className="absolute top-2 left-2 bg-red-600">Popular</Badge>
         )}
