@@ -12,6 +12,14 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import SupportTicketForm from '@/components/support/SupportTicketForm';
+import SupportTicketsList from '@/components/support/SupportTicketsList';
 
 const HelpSupport = () => {
   const navigate = useNavigate();
@@ -158,21 +166,30 @@ const HelpSupport = () => {
           </div>
         </section>
 
+        {/* Submit Support Ticket */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-[#333333] mb-6">Need More Help?</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <SupportTicketForm />
+            <SupportTicketsList />
+          </div>
+        </section>
+
         {/* FAQs */}
         <section>
           <h2 className="text-2xl font-bold text-[#333333] mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-4">
+          <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq, index) => (
-              <Card key={index}>
-                <CardHeader>
-                  <CardTitle className="text-lg text-[#333333]">{faq.question}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">{faq.answer}</p>
-                </CardContent>
-              </Card>
+              <AccordionItem key={index} value={`item-${index}`}>
+                <AccordionTrigger className="text-left text-[#333333] hover:text-[#E02020]">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </div>
+          </Accordion>
         </section>
 
         {/* Additional Help */}
