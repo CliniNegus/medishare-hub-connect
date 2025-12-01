@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Store, Plus, TrendingUp, MapPin, Package } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { VirtualShop } from './hooks/useManufacturerShops';
+import { formatCurrency } from "@/utils/formatters";
 
 interface VirtualShopsSectionProps {
   virtualShops: VirtualShop[];
@@ -99,7 +100,7 @@ const VirtualShopsSection: React.FC<VirtualShopsSectionProps> = ({
                       <div className="flex items-center justify-center mb-1">
                         <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
                       </div>
-                      <p className="text-lg font-bold text-[#333333]">${shop.revenue_generated.toFixed(0)}</p>
+                      <p className="text-lg font-bold text-[#333333]">{formatCurrency(shop.revenue_generated)}</p>
                       <p className="text-xs text-gray-600">Revenue</p>
                     </div>
                   </div>
