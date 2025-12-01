@@ -49,6 +49,7 @@ import EquipmentPage from './pages/EquipmentPage';
 import DeleteAccountRequest from './pages/DeleteAccountRequest';
 import WishlistPage from './pages/WishlistPage';
 import HelpSupport from './pages/HelpSupport';
+import Analytics from './pages/Analytics';
 
 
 const queryClient = new QueryClient({
@@ -291,6 +292,14 @@ function App() {
                        element={
                          <ProtectedRoute>
                            <NotificationsPage />
+                         </ProtectedRoute>
+                       } 
+                      />
+                      <Route 
+                       path="/analytics" 
+                       element={
+                         <ProtectedRoute allowedRoles={['manufacturer', 'admin']}>
+                           <Analytics />
                          </ProtectedRoute>
                        } 
                       />

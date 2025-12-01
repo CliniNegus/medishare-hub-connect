@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useManufacturerShops } from './manufacturer-dashboard/hooks/useManufacturerShops';
 import { useManufacturerStats } from '@/hooks/use-manufacturer-stats';
 import { 
@@ -8,12 +9,14 @@ import {
   VirtualShopsSection, 
   DashboardTabs 
 } from './manufacturer-dashboard';
-import { TrendingUp, Activity } from 'lucide-react';
+import { TrendingUp, Activity, BarChart3 } from 'lucide-react';
 import { Card, CardContent } from "./ui/card";
+import { Button } from "./ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { AccountDeletionBanner } from './account/AccountDeletionBanner';
 
 const ManufacturerDashboard = () => {
+  const navigate = useNavigate();
   const { virtualShops, loadingShops } = useManufacturerShops();
   const { stats, loading: statsLoading, error } = useManufacturerStats();
   const { profile } = useAuth();
@@ -43,9 +46,21 @@ const ManufacturerDashboard = () => {
                 <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-[#E02020] flex-shrink-0" />
                 <span>Performance Overview</span>
               </h2>
-              <div className="flex items-center text-xs sm:text-sm text-green-600 bg-green-50 px-2 sm:px-3 py-1 rounded-full whitespace-nowrap">
-                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
-                <span>Real-time data</span>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center text-xs sm:text-sm text-green-600 bg-green-50 px-2 sm:px-3 py-1 rounded-full whitespace-nowrap">
+                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                  <span>Real-time data</span>
+                </div>
+                <Button
+                  onClick={() => navigate('/analytics')}
+                  variant="outline"
+                  size="sm"
+                  className="border-[#E02020] text-[#E02020] hover:bg-[#E02020] hover:text-white"
+                >
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">View Full Analytics</span>
+                  <span className="sm:hidden">Analytics</span>
+                </Button>
               </div>
             </div>
             
