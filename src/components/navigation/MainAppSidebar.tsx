@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, TrendingUp, Package, Users, MapPin, 
-  DollarSign, Settings, LogOut, Briefcase,
+  DollarSign, LogOut, Briefcase,
   Activity, BarChart3, HelpCircle, FileText, ShoppingCart, Heart
 } from 'lucide-react';
 import {
@@ -107,14 +107,6 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
       description: 'Account settings'
     },
     { 
-      id: 'admin', 
-      label: 'Admin Panel', 
-      icon: Settings, 
-      action: () => navigate('/admin'),
-      description: 'Administrative tools',
-      condition: profile?.role === 'admin'
-    },
-    { 
       id: 'change-role', 
       label: 'Change Role', 
       icon: Users, 
@@ -135,7 +127,7 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
       action: signOut,
       description: 'Exit application'
     },
-  ].filter(item => !item.condition || item.condition);
+  ];
 
   const handleNavigation = (item: any) => {
     if (item.action) {

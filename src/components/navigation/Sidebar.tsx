@@ -21,6 +21,7 @@ import {
   LogOut,
   UserCog,
   Heart,
+  HelpCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -205,6 +206,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onChangeAccountType }) => {
             System
           </Link>
         )}
+
+        <Link to="/help" className={getLinkClass('/help')}>
+          <HelpCircle className="mr-3 h-5 w-5" />
+          Help & Support
+        </Link>
 
         {role === 'admin' && (
           <Link to="/admin" className={getLinkClass('/admin')}>
