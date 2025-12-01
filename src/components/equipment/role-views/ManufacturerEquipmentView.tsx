@@ -9,6 +9,7 @@ import {
   DollarSign, TrendingUp, Settings, Eye
 } from 'lucide-react';
 import { useEquipmentData } from '@/hooks/use-equipment-data';
+import { useEquipmentManagement } from '@/hooks/useEquipmentManagement';
 import { formatCurrency } from '@/utils/formatters';
 import { useAuth } from '@/contexts/AuthContext';
 import PopularEquipmentSection from '@/components/dashboard/PopularEquipmentSection';
@@ -17,7 +18,8 @@ import EquipmentEditModal from '@/components/admin/equipment/EquipmentEditModal'
 import EquipmentViewModal from '@/components/admin/equipment/EquipmentViewModal';
 
 const ManufacturerEquipmentView = () => {
-  const { equipment, loading } = useEquipmentData();
+  const { equipment, loading, refetchEquipment } = useEquipmentData();
+  const { updateEquipment } = useEquipmentManagement();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -292,9 +294,11 @@ const ManufacturerEquipmentView = () => {
             equipment={selectedEquipment}
             open={editModalOpen}
             onOpenChange={setEditModalOpen}
-            onSave={async () => {
+            onSave={async (id, updates) => {
+              const updated = await updateEquipment(id, updates);
+              await refetchEquipment();
               setEditModalOpen(false);
-              return selectedEquipment;
+              return updated;
             }}
           />
           <EquipmentViewModal

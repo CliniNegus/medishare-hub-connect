@@ -14,7 +14,7 @@ import BookingModal from '@/components/BookingModal';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 const HospitalEquipmentView = () => {
-  const { equipment, loading } = useEquipmentData();
+  const { equipment, loading, refetchEquipment } = useEquipmentData();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
