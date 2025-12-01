@@ -203,7 +203,7 @@ const ManufacturerEquipmentView = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Revenue:</span>
-                  <span className="font-medium text-green-600">${(item.revenueGenerated || 0).toLocaleString()}</span>
+                  <span className="font-medium text-green-600">{formatCurrency(item.revenueGenerated || 0)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Type:</span>
@@ -222,7 +222,7 @@ const ManufacturerEquipmentView = () => {
                 {item.leaseRate && (
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Lease Rate:</span>
-                    <span className="font-medium">${item.leaseRate}/month</span>
+                    <span className="font-medium">{formatCurrency(item.leaseRate)}/month</span>
                   </div>
                 )}
                 {item.payPerUsePrice && (

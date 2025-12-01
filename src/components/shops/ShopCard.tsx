@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import ShopBadge from './ShopBadge';
 import EquipmentList from './EquipmentList';
 import { Shop } from './types';
+import { formatCurrency } from "@/utils/formatters";
 
 interface ShopCardProps {
   shop: Shop;
@@ -86,7 +87,7 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop, onRefresh }) => {
           </div>
           <div className="p-4 text-center">
             <p className="text-sm text-gray-500">Revenue Generated</p>
-            <p className="text-2xl font-semibold text-red-600">${shop.revenue_total.toFixed(2)}</p>
+            <p className="text-2xl font-semibold text-red-600">{formatCurrency(shop.revenue_total)}</p>
           </div>
           <div className="p-4 text-center">
             <p className="text-sm text-gray-500">Device Status</p>
