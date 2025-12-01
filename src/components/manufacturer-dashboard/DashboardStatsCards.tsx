@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Package, CircleDollarSign, CheckCircle, AlertCircle, Truck
 } from "lucide-react";
+import { formatCurrency } from "@/utils/formatters";
 
 interface StatsProps {
   totalEquipment: number;
@@ -58,7 +59,7 @@ const DashboardStatsCards = ({
     },
     {
       title: "Monthly Revenue",
-      value: `$${(monthlyRevenue / 1000).toFixed(1)}k`,
+      value: formatCurrency(monthlyRevenue),
       description: "From active leases",
       icon: CircleDollarSign,
       color: "text-[#E02020]",
