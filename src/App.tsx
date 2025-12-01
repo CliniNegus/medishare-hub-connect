@@ -48,6 +48,7 @@ import NotFound from './pages/NotFound';
 import EquipmentPage from './pages/EquipmentPage';
 import DeleteAccountRequest from './pages/DeleteAccountRequest';
 import WishlistPage from './pages/WishlistPage';
+import HelpSupport from './pages/HelpSupport';
 
 
 const queryClient = new QueryClient({
@@ -271,6 +272,16 @@ function App() {
                          <ProtectedRoute>
                            <Layout>
                              <WishlistPage />
+                           </Layout>
+                         </ProtectedRoute>
+                       } 
+                      />
+                      <Route 
+                       path="/help" 
+                       element={
+                         <ProtectedRoute>
+                           <Layout>
+                             <HelpSupport />
                            </Layout>
                          </ProtectedRoute>
                        } 
