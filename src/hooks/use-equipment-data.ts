@@ -183,10 +183,53 @@ export function useEquipmentData() {
     fetchEquipment();
   }, []);
   
+  const refetchEquipment = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('equipment')
+        .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, price, lease_rate, pay_per_use_price, pay_per_use_enabled, usage_hours, downtime_hours, revenue_generated, owner_id, created_at, updated_at')
+        .order('created_at', { ascending: false });
+        
+      if (error) throw error;
+      
+      const formattedEquipment: EquipmentItem[] = (data || []).map(item => ({
+        id: item.id,
+        name: item.name || 'Unnamed Equipment',
+        image_url: item.image_url || '/placeholder.svg',
+        description: item.description || 'No description available',
+        price: item.price || 0,
+        category: item.category || 'Medical Device',
+        manufacturer: item.manufacturer || 'Unknown',
+        type: item.status?.toLowerCase() === 'available' ? 'available' : 
+              item.status?.toLowerCase() === 'maintenance' ? 'maintenance' : 'in-use',
+        location: item.location || 'Main Hospital',
+        cluster: 'Hospital Network',
+        pricePerUse: item.pay_per_use_price || 0,
+        purchasePrice: item.price || 0,
+        leaseRate: item.lease_rate || 0,
+        nextAvailable: item.status !== 'available' ? '2025-06-01' : undefined,
+        payPerUseEnabled: item.pay_per_use_enabled || false,
+        payPerUsePrice: item.pay_per_use_price || 0,
+        status: item.status,
+        usageHours: item.usage_hours || Math.floor(Math.random() * 500),
+        revenueGenerated: item.revenue_generated || Math.floor(Math.random() * 50000),
+        ownerId: item.owner_id || 'system',
+      }));
+      
+      setEquipment(formattedEquipment);
+    } catch (err: any) {
+      console.error('Error refetching equipment:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return { 
     equipment, 
     loading, 
     error,
-    clusterNodes: sampleClusterNodes
+    clusterNodes: sampleClusterNodes,
+    refetchEquipment
   };
 }
