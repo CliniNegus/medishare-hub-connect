@@ -52,6 +52,7 @@ import HelpSupport from './pages/HelpSupport';
 import Analytics from './pages/Analytics';
 import ManufacturerProducts from './pages/ManufacturerProducts';
 import Marketplace from './pages/Marketplace';
+import ManufacturerOrders from './pages/ManufacturerOrders';
 
 
 const queryClient = new QueryClient({
@@ -318,6 +319,16 @@ function App() {
                        element={
                          <ProtectedRoute>
                            <Marketplace />
+                         </ProtectedRoute>
+                       } 
+                      />
+                      <Route 
+                       path="/manufacturer/orders" 
+                       element={
+                         <ProtectedRoute allowedRoles={['manufacturer', 'admin']}>
+                           <Layout>
+                             <ManufacturerOrders />
+                           </Layout>
                          </ProtectedRoute>
                        } 
                       />
