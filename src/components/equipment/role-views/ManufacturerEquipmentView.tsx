@@ -117,7 +117,7 @@ const ManufacturerEquipmentView = () => {
           </div>
           <div className="bg-white/10 rounded-lg p-3">
             <h3 className="font-semibold">Revenue Generated</h3>
-            <p className="text-2xl font-bold">${stats.totalRevenue.toLocaleString()}</p>
+            <p className="text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</p>
           </div>
           <div className="bg-white/10 rounded-lg p-3">
             <h3 className="font-semibold">Total Usage Hours</h3>
