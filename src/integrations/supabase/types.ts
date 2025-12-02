@@ -1247,6 +1247,7 @@ export type Database = {
           is_disposable: boolean | null
           is_featured: boolean | null
           manufacturer: string | null
+          manufacturer_id: string | null
           name: string
           price: number
           rating: number | null
@@ -1268,6 +1269,7 @@ export type Database = {
           is_disposable?: boolean | null
           is_featured?: boolean | null
           manufacturer?: string | null
+          manufacturer_id?: string | null
           name: string
           price: number
           rating?: number | null
@@ -1289,6 +1291,7 @@ export type Database = {
           is_disposable?: boolean | null
           is_featured?: boolean | null
           manufacturer?: string | null
+          manufacturer_id?: string | null
           name?: string
           price?: number
           rating?: number | null
