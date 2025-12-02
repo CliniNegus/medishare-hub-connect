@@ -76,47 +76,79 @@ export const ManufacturerOrderCard = ({ order, onUpdateStatus, onRefresh }: Manu
 
             {/* Order Details */}
             <div className="flex-1 space-y-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-xl font-semibold text-[#333333]">
-                    {order.equipment?.name || 'Unknown Equipment'}
-                  </h3>
-                  <p className="text-sm text-gray-600">Order ID: {order.id.slice(0, 8)}</p>
+              {/* Header Section */}
+              <div className="flex justify-between items-start pb-3 border-b">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xl font-bold text-[#333333]">
+                      {order.shipping_full_name || order.customer?.full_name || 'Customer'}
+                    </h3>
+                  </div>
+                  <p className="text-xs text-gray-500">Order ID: {order.id.slice(0, 8).toUpperCase()}</p>
                 </div>
                 {getStatusBadge(order.status)}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Product Information */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-semibold text-sm text-gray-700 mb-2">Product Ordered</h4>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="font-medium text-[#333333]">{order.equipment?.name || 'Unknown Equipment'}</p>
+                    {order.equipment?.manufacturer && (
+                      <p className="text-sm text-gray-600">by {order.equipment.manufacturer}</p>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-600">Quantity: 1</p>
+                    {order.equipment?.price && (
+                      <p className="text-sm text-gray-600">Unit Price: {formatCurrency(order.equipment.price)}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Customer Contact */}
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-sm text-gray-700">Customer Information</h4>
-                  <div className="space-y-1 text-sm">
-                    <p className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-gray-500" />
-                      {order.shipping_email || order.customer?.email || 'N/A'}
+                  <h4 className="font-semibold text-sm text-gray-700">Contact Information</h4>
+                  <div className="space-y-1.5 text-sm">
+                    <p className="flex items-start gap-2">
+                      <Mail className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                      <span className="break-all">{order.shipping_email || order.customer?.email || 'N/A'}</span>
                     </p>
                     <p className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-gray-500" />
-                      {order.shipping_phone_number || order.customer?.phone_number || 'N/A'}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-gray-500" />
-                      {order.shipping_address}
+                      <Phone className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                      <span>{order.shipping_phone_number || order.customer?.phone_number || 'N/A'}</span>
                     </p>
                   </div>
                 </div>
 
+                {/* Shipping Address */}
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-sm text-gray-700">Order Details</h4>
-                  <div className="space-y-1 text-sm">
+                  <h4 className="font-semibold text-sm text-gray-700">Delivery Address</h4>
+                  <div className="space-y-1.5 text-sm">
+                    <p className="flex items-start gap-2">
+                      <MapPin className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                      <span className="line-clamp-3">{order.shipping_address}</span>
+                    </p>
+                  </div>
+                </div>
+
+                {/* Order Summary */}
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm text-gray-700">Order Summary</h4>
+                  <div className="space-y-1.5 text-sm">
                     <p className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-gray-500" />
-                      {format(new Date(order.created_at), 'PPP')}
+                      <Calendar className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                      <span>{format(new Date(order.created_at), 'PPP')}</span>
                     </p>
-                    <p className="text-lg font-bold text-[#E02020]">
-                      {formatCurrency(order.amount)}
+                    <p className="flex items-center gap-2 text-gray-600">
+                      <span className="font-medium">Payment:</span>
+                      <span>{order.payment_method}</span>
                     </p>
-                    <p className="text-gray-600">
-                      Payment: {order.payment_method}
+                    <p className="text-xl font-bold text-[#E02020] mt-2">
+                      Total: {formatCurrency(order.amount)}
                     </p>
                   </div>
                 </div>
