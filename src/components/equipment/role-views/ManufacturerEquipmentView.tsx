@@ -18,9 +18,10 @@ import EquipmentEditModal from '@/components/admin/equipment/EquipmentEditModal'
 import EquipmentViewModal from '@/components/admin/equipment/EquipmentViewModal';
 
 const ManufacturerEquipmentView = () => {
-  const { equipment, loading, refetchEquipment } = useEquipmentData();
-  const { updateEquipment } = useEquipmentManagement();
   const { user } = useAuth();
+  // Fetch only equipment owned by current manufacturer
+  const { equipment, loading, refetchEquipment } = useEquipmentData({ ownerId: user?.id });
+  const { updateEquipment } = useEquipmentManagement();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -29,10 +30,8 @@ const ManufacturerEquipmentView = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState(null);
 
-  // Filter equipment by manufacturer - only show equipment owned by current user
-  const manufacturerEquipment = equipment.filter(item => item.ownerId === user?.id);
-
-  const filteredEquipment = manufacturerEquipment.filter(item => {
+  // All equipment is already filtered by owner at the query level
+  const filteredEquipment = equipment.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.category?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
@@ -41,15 +40,15 @@ const ManufacturerEquipmentView = () => {
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
-  const categories = [...new Set(manufacturerEquipment.map(item => item.category).filter(Boolean))];
+  const categories = [...new Set(equipment.map(item => item.category).filter(Boolean))];
 
   const stats = {
-    total: manufacturerEquipment.length,
-    available: manufacturerEquipment.filter(item => item.status === 'Available').length,
-    leased: manufacturerEquipment.filter(item => item.status === 'Leased').length,
-    maintenance: manufacturerEquipment.filter(item => item.status === 'Under Maintenance').length,
-    totalRevenue: manufacturerEquipment.reduce((sum, item) => sum + (item.revenueGenerated || 0), 0),
-    totalUsageHours: manufacturerEquipment.reduce((sum, item) => sum + (item.usageHours || 0), 0)
+    total: equipment.length,
+    available: equipment.filter(item => item.status === 'Available').length,
+    leased: equipment.filter(item => item.status === 'Leased').length,
+    maintenance: equipment.filter(item => item.status === 'Under Maintenance').length,
+    totalRevenue: equipment.reduce((sum, item) => sum + (item.revenueGenerated || 0), 0),
+    totalUsageHours: equipment.reduce((sum, item) => sum + (item.usageHours || 0), 0)
   };
 
   const handleEditEquipment = (equipment) => {
@@ -268,12 +267,12 @@ const ManufacturerEquipmentView = () => {
           <Package className="h-12 w-12 mx-auto text-gray-400 mb-4" />
           <h3 className="text-lg font-semibold text-gray-600 mb-2">No Equipment Found</h3>
           <p className="text-gray-500 mb-4">
-            {manufacturerEquipment.length === 0 
+            {equipment.length === 0 
               ? "You haven't added any equipment yet." 
               : "Try adjusting your search criteria or filters"
             }
           </p>
-          {manufacturerEquipment.length === 0 && (
+          {equipment.length === 0 && (
             <Button onClick={() => setAddModalOpen(true)} className="bg-[#E02020]">
               <Plus className="h-4 w-4 mr-2" />
               Add Your First Equipment
