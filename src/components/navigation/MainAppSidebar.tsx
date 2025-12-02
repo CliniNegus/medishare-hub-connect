@@ -94,6 +94,13 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
         icon: BarChart3, 
         path: '/analytics',
         description: 'Performance metrics'
+      },
+      { 
+        id: 'products', 
+        label: 'Products', 
+        icon: Package, 
+        path: '/manufacturer/products',
+        description: 'Manage your products'
       }
     ] : []),
   ];
