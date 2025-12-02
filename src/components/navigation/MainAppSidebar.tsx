@@ -3,7 +3,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, TrendingUp, Package, Users, MapPin, 
   DollarSign, LogOut, Briefcase,
-  Activity, BarChart3, HelpCircle, FileText, ShoppingCart, Heart
+  Activity, BarChart3, HelpCircle, FileText, ShoppingCart, Heart, ClipboardList
 } from 'lucide-react';
 import clinibuildsLogo from '@/assets/clinibuilds_logo.jpg';
 import {
@@ -102,6 +102,13 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
         icon: Package, 
         path: '/manufacturer/products',
         description: 'Manage your products'
+      },
+      { 
+        id: 'manufacturer-orders', 
+        label: 'Orders', 
+        icon: ClipboardList, 
+        path: '/manufacturer/orders',
+        description: 'Manage customer orders'
       }
     ] : []),
   ];
