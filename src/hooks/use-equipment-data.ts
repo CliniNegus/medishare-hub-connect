@@ -105,7 +105,11 @@ const sampleClusterNodes = [
   }
 ];
 
-export function useEquipmentData() {
+interface UseEquipmentDataOptions {
+  ownerId?: string;
+}
+
+export function useEquipmentData(options?: UseEquipmentDataOptions) {
   const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -126,10 +130,16 @@ export function useEquipmentData() {
         console.log('Equipment count check:', count);
         
         // Try to fetch basic equipment data - will only return data user has access to
-        const { data, error } = await supabase
+        let query = supabase
           .from('equipment')
-          .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, price, lease_rate, pay_per_use_price, pay_per_use_enabled, usage_hours, downtime_hours, revenue_generated, owner_id, created_at, updated_at')
-          .order('created_at', { ascending: false })
+          .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, price, lease_rate, pay_per_use_price, pay_per_use_enabled, usage_hours, downtime_hours, revenue_generated, owner_id, created_at, updated_at');
+        
+        // Filter by owner if provided
+        if (options?.ownerId) {
+          query = query.eq('owner_id', options.ownerId);
+        }
+        
+        const { data, error } = await query.order('created_at', { ascending: false })
           
         if (error) {
           console.error('Supabase error:', error);
@@ -181,15 +191,21 @@ export function useEquipmentData() {
     }
     
     fetchEquipment();
-  }, []);
+  }, [options?.ownerId]);
   
   const refetchEquipment = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      let query = supabase
         .from('equipment')
-        .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, price, lease_rate, pay_per_use_price, pay_per_use_enabled, usage_hours, downtime_hours, revenue_generated, owner_id, created_at, updated_at')
-        .order('created_at', { ascending: false });
+        .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, price, lease_rate, pay_per_use_price, pay_per_use_enabled, usage_hours, downtime_hours, revenue_generated, owner_id, created_at, updated_at');
+      
+      // Filter by owner if provided
+      if (options?.ownerId) {
+        query = query.eq('owner_id', options.ownerId);
+      }
+      
+      const { data, error } = await query.order('created_at', { ascending: false });
         
       if (error) throw error;
       
