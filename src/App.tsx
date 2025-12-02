@@ -50,6 +50,7 @@ import DeleteAccountRequest from './pages/DeleteAccountRequest';
 import WishlistPage from './pages/WishlistPage';
 import HelpSupport from './pages/HelpSupport';
 import Analytics from './pages/Analytics';
+import ManufacturerProducts from './pages/ManufacturerProducts';
 
 
 const queryClient = new QueryClient({
@@ -300,6 +301,14 @@ function App() {
                        element={
                          <ProtectedRoute allowedRoles={['manufacturer', 'admin']}>
                            <Analytics />
+                         </ProtectedRoute>
+                       } 
+                      />
+                      <Route 
+                       path="/manufacturer/products" 
+                       element={
+                         <ProtectedRoute allowedRoles={['manufacturer', 'admin']}>
+                           <ManufacturerProducts />
                          </ProtectedRoute>
                        } 
                       />
