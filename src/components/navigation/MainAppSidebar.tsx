@@ -5,6 +5,7 @@ import {
   DollarSign, LogOut, Briefcase,
   Activity, BarChart3, HelpCircle, FileText, ShoppingCart, Heart
 } from 'lucide-react';
+import clinibuildsLogo from '@/assets/clinibuilds_logo.jpg';
 import {
   Sidebar,
   SidebarContent,
@@ -158,19 +159,18 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
     <Sidebar className="bg-white border-r border-gray-200">
       <SidebarHeader className="p-4 border-b border-gray-200">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 bg-[#E02020] rounded-lg flex items-center justify-center">
-            <Package className="h-5 w-5 text-white" />
-          </div>
-          {state === 'expanded' && (
+          <img 
+            src={clinibuildsLogo} 
+            alt="CliniBuilds Logo" 
+            className="h-8 w-auto object-contain"
+          />
+          {state === 'expanded' && profile && (
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-bold text-[#333333] truncate">CliniBuilds</h2>
-              {profile && (
-                <div className="flex items-center gap-2 mt-1">
-                  <span className={`px-2 py-1 text-xs rounded-full ${getRoleColor(profile.role)}`}>
-                    {profile.role}
-                  </span>
-                </div>
-              )}
+              <div className="flex items-center gap-2">
+                <span className={`px-2 py-1 text-xs rounded-full ${getRoleColor(profile.role)}`}>
+                  {profile.role}
+                </span>
+              </div>
             </div>
           )}
         </div>
