@@ -26,84 +26,9 @@ export interface EquipmentItem {
   ownerId?: string;
 }
 
-// Add sample enhanced cluster data
-const sampleClusterNodes = [
-  {
-    id: 'cluster-1',
-    name: 'Lagos University Teaching Hospital',
-    lat: 6.5244,
-    lng: 3.3792,
-    equipmentCount: 24,
-    availableCount: 15,
-    inUseCount: 7,
-    maintenanceCount: 2,
-    type: 'hospital' as const,
-    status: 'operational' as const,
-    address: 'Idi-Araba, Surulere, Lagos State',
-    contact: '+234 801 234 5678',
-    lastUpdated: new Date().toISOString(),
-  },
-  {
-    id: 'cluster-2',
-    name: 'National Hospital Abuja',
-    lat: 9.0765,
-    lng: 7.3986,
-    equipmentCount: 18,
-    availableCount: 12,
-    inUseCount: 5,
-    maintenanceCount: 1,
-    type: 'hospital' as const,
-    status: 'operational' as const,
-    address: 'Central Business District, Abuja',
-    contact: '+234 809 876 5432',
-    lastUpdated: new Date().toISOString(),
-  },
-  {
-    id: 'cluster-3',
-    name: 'University College Hospital',
-    lat: 7.3775,
-    lng: 3.9470,
-    equipmentCount: 16,
-    availableCount: 8,
-    inUseCount: 6,
-    maintenanceCount: 2,
-    type: 'hospital' as const,
-    status: 'partial' as const,
-    address: 'Ibadan, Oyo State',
-    contact: '+234 805 123 4567',
-    lastUpdated: new Date().toISOString(),
-  },
-  {
-    id: 'cluster-4',
-    name: 'Federal Medical Centre',
-    lat: 6.2084,
-    lng: 6.9318,
-    equipmentCount: 12,
-    availableCount: 9,
-    inUseCount: 2,
-    maintenanceCount: 1,
-    type: 'clinic' as const,
-    status: 'operational' as const,
-    address: 'Owerri, Imo State',
-    contact: '+234 803 987 6543',
-    lastUpdated: new Date().toISOString(),
-  },
-  {
-    id: 'cluster-5',
-    name: 'Ahmadu Bello University Teaching Hospital',
-    lat: 11.1059,
-    lng: 7.7000,
-    equipmentCount: 20,
-    availableCount: 13,
-    inUseCount: 5,
-    maintenanceCount: 2,
-    type: 'hospital' as const,
-    status: 'operational' as const,
-    address: 'Zaria, Kaduna State',
-    contact: '+234 807 654 3210',
-    lastUpdated: new Date().toISOString(),
-  }
-];
+interface EquipmentRevenueMap {
+  [equipmentId: string]: number;
+}
 
 interface UseEquipmentDataOptions {
   ownerId?: string;
@@ -115,38 +40,63 @@ export function useEquipmentData(options?: UseEquipmentDataOptions) {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   
+  // Fetch revenue from completed orders for each equipment
+  const fetchEquipmentRevenue = async (): Promise<EquipmentRevenueMap> => {
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('equipment_id, amount')
+        .eq('status', 'completed');
+      
+      if (error) {
+        console.error('Error fetching order revenue:', error);
+        return {};
+      }
+      
+      // Calculate total revenue per equipment from completed orders
+      const revenueMap: EquipmentRevenueMap = {};
+      (data || []).forEach(order => {
+        if (order.equipment_id) {
+          revenueMap[order.equipment_id] = (revenueMap[order.equipment_id] || 0) + (order.amount || 0);
+        }
+      });
+      
+      return revenueMap;
+    } catch (err) {
+      console.error('Error calculating equipment revenue:', err);
+      return {};
+    }
+  };
+  
   useEffect(() => {
     async function fetchEquipment() {
       try {
         setLoading(true);
-        console.log('Fetching equipment data...');
-        console.log('Current auth user:', await supabase.auth.getUser());
+        setError(null);
         
-        // Check if we can access equipment table at all
-        const { count } = await supabase
-          .from('equipment')
-          .select('*', { count: 'exact', head: true });
+        // Fetch equipment and revenue data in parallel
+        const [equipmentResult, revenueMap] = await Promise.all([
+          (async () => {
+            let query = supabase
+              .from('equipment')
+              .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, price, lease_rate, pay_per_use_price, pay_per_use_enabled, usage_hours, downtime_hours, owner_id, created_at, updated_at');
+            
+            // Filter by owner if provided
+            if (options?.ownerId) {
+              query = query.eq('owner_id', options.ownerId);
+            }
+            
+            return query.order('created_at', { ascending: false });
+          })(),
+          fetchEquipmentRevenue()
+        ]);
         
-        console.log('Equipment count check:', count);
+        const { data, error: queryError } = equipmentResult;
         
-        // Try to fetch basic equipment data - will only return data user has access to
-        let query = supabase
-          .from('equipment')
-          .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, price, lease_rate, pay_per_use_price, pay_per_use_enabled, usage_hours, downtime_hours, revenue_generated, owner_id, created_at, updated_at');
-        
-        // Filter by owner if provided
-        if (options?.ownerId) {
-          query = query.eq('owner_id', options.ownerId);
+        if (queryError) {
+          console.error('Supabase error:', queryError);
+          throw queryError;
         }
-        
-        const { data, error } = await query.order('created_at', { ascending: false })
-          
-        if (error) {
-          console.error('Supabase error:', error);
-          throw error;
-        }
-        
-        console.log('Raw equipment data:', data);
         
         // Transform database data to match our EquipmentItem interface
         const formattedEquipment: EquipmentItem[] = (data || []).map(item => ({
@@ -160,26 +110,25 @@ export function useEquipmentData(options?: UseEquipmentDataOptions) {
           type: item.status?.toLowerCase() === 'available' ? 'available' : 
                 item.status?.toLowerCase() === 'maintenance' ? 'maintenance' : 'in-use',
           location: item.location || 'Main Hospital',
-          cluster: 'Hospital Network', // Default cluster name
+          cluster: 'Hospital Network',
           pricePerUse: item.pay_per_use_price || 0,
           purchasePrice: item.price || 0,
           leaseRate: item.lease_rate || 0,
           nextAvailable: item.status !== 'available' ? '2025-06-01' : undefined,
           payPerUseEnabled: item.pay_per_use_enabled || false,
           payPerUsePrice: item.pay_per_use_price || 0,
-          // Additional properties for admin/manufacturer views
           status: item.status,
-          usageHours: item.usage_hours || Math.floor(Math.random() * 500),
-          revenueGenerated: item.revenue_generated || Math.floor(Math.random() * 50000),
-          ownerId: item.owner_id || 'system', // Use actual owner_id from database
+          usageHours: item.usage_hours || 0,
+          // Revenue calculated from actual completed orders
+          revenueGenerated: revenueMap[item.id] || 0,
+          ownerId: item.owner_id || undefined,
         }));
         
-        console.log(`Loaded ${formattedEquipment.length} equipment items:`, formattedEquipment);
         setEquipment(formattedEquipment);
         
       } catch (err: any) {
         console.error('Error fetching equipment:', err);
-        setError(err.message);
+        setError(err.message || 'Failed to load equipment');
         toast({
           title: "Error loading equipment",
           description: err.message,
@@ -196,18 +145,28 @@ export function useEquipmentData(options?: UseEquipmentDataOptions) {
   const refetchEquipment = async () => {
     try {
       setLoading(true);
-      let query = supabase
-        .from('equipment')
-        .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, price, lease_rate, pay_per_use_price, pay_per_use_enabled, usage_hours, downtime_hours, revenue_generated, owner_id, created_at, updated_at');
+      setError(null);
       
-      // Filter by owner if provided
-      if (options?.ownerId) {
-        query = query.eq('owner_id', options.ownerId);
-      }
+      // Fetch equipment and revenue data in parallel
+      const [equipmentResult, revenueMap] = await Promise.all([
+        (async () => {
+          let query = supabase
+            .from('equipment')
+            .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, price, lease_rate, pay_per_use_price, pay_per_use_enabled, usage_hours, downtime_hours, owner_id, created_at, updated_at');
+          
+          // Filter by owner if provided
+          if (options?.ownerId) {
+            query = query.eq('owner_id', options.ownerId);
+          }
+          
+          return query.order('created_at', { ascending: false });
+        })(),
+        fetchEquipmentRevenue()
+      ]);
       
-      const { data, error } = await query.order('created_at', { ascending: false });
+      const { data, error: queryError } = equipmentResult;
         
-      if (error) throw error;
+      if (queryError) throw queryError;
       
       const formattedEquipment: EquipmentItem[] = (data || []).map(item => ({
         id: item.id,
@@ -228,14 +187,16 @@ export function useEquipmentData(options?: UseEquipmentDataOptions) {
         payPerUseEnabled: item.pay_per_use_enabled || false,
         payPerUsePrice: item.pay_per_use_price || 0,
         status: item.status,
-        usageHours: item.usage_hours || Math.floor(Math.random() * 500),
-        revenueGenerated: item.revenue_generated || Math.floor(Math.random() * 50000),
-        ownerId: item.owner_id || 'system',
+        usageHours: item.usage_hours || 0,
+        // Revenue calculated from actual completed orders
+        revenueGenerated: revenueMap[item.id] || 0,
+        ownerId: item.owner_id || undefined,
       }));
       
       setEquipment(formattedEquipment);
     } catch (err: any) {
       console.error('Error refetching equipment:', err);
+      setError(err.message || 'Failed to refresh equipment');
     } finally {
       setLoading(false);
     }
@@ -245,7 +206,6 @@ export function useEquipmentData(options?: UseEquipmentDataOptions) {
     equipment, 
     loading, 
     error,
-    clusterNodes: sampleClusterNodes,
     refetchEquipment
   };
 }

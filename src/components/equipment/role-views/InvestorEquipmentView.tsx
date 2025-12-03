@@ -5,13 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
-  Package, Search, TrendingUp, DollarSign, 
-  BarChart3, Calendar, Target, Activity,
+  Package, Search, TrendingUp, 
+  BarChart3, Target, AlertTriangle, RefreshCw,
   PieChart, LineChart
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { formatCurrency } from '@/utils/formatters';
 import { Line, LineChart as RechartsLineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
 
 const InvestorEquipmentView = () => {
@@ -25,6 +26,36 @@ const InvestorEquipmentView = () => {
   useEffect(() => {
     fetchInvestedEquipment();
   }, [user]);
+
+  // Fetch revenue from completed orders for given equipment IDs
+  const fetchEquipmentRevenue = async (equipmentIds: string[]): Promise<Record<string, number>> => {
+    if (equipmentIds.length === 0) return {};
+    
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('equipment_id, amount')
+        .eq('status', 'completed')
+        .in('equipment_id', equipmentIds);
+      
+      if (error) {
+        console.error('Error fetching order revenue:', error);
+        return {};
+      }
+      
+      const revenueMap: Record<string, number> = {};
+      (data || []).forEach(order => {
+        if (order.equipment_id) {
+          revenueMap[order.equipment_id] = (revenueMap[order.equipment_id] || 0) + (order.amount || 0);
+        }
+      });
+      
+      return revenueMap;
+    } catch (err) {
+      console.error('Error calculating equipment revenue:', err);
+      return {};
+    }
+  };
 
   const fetchInvestedEquipment = async () => {
     if (!user) return;
@@ -50,7 +81,6 @@ const InvestorEquipmentView = () => {
             location,
             image_url,
             usage_hours,
-            revenue_generated,
             price,
             lease_rate
           ),
@@ -62,9 +92,18 @@ const InvestorEquipmentView = () => {
 
       if (investmentsError) throw investmentsError;
 
-      // Transform the data to include investment metrics
+      // Get equipment IDs for revenue lookup
+      const equipmentIds = (investments || [])
+        .map(inv => inv.equipment?.id)
+        .filter(Boolean) as string[];
+      
+      // Fetch real revenue from completed orders
+      const revenueMap = await fetchEquipmentRevenue(equipmentIds);
+
+      // Transform the data to include investment metrics with real revenue
       const formattedEquipment = (investments || []).map(investment => ({
         ...investment.equipment,
+        revenue_generated: revenueMap[investment.equipment?.id] || 0,
         investment: {
           id: investment.id,
           amount: investment.amount,
@@ -109,23 +148,46 @@ const InvestorEquipmentView = () => {
       : 0
   };
 
-  // Mock data for charts (in a real app, this would come from analytics)
-  const revenueData = [
-    { month: 'Jan', revenue: 12000, usage: 85 },
-    { month: 'Feb', revenue: 15000, usage: 92 },
-    { month: 'Mar', revenue: 18000, usage: 78 },
-    { month: 'Apr', revenue: 22000, usage: 95 },
-    { month: 'May', revenue: 19000, usage: 88 },
-    { month: 'Jun', revenue: 25000, usage: 102 }
-  ];
+  // Generate chart data from actual investments
+  const equipmentTypeData = React.useMemo(() => {
+    const categoryGroups = investedEquipment.reduce((acc, item) => {
+      const category = item.category || 'Other';
+      acc[category] = (acc[category] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    
+    const colors = ['#E02020', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6'];
+    return Object.entries(categoryGroups).map(([name, value], index) => ({
+      name,
+      value,
+      color: colors[index % colors.length]
+    }));
+  }, [investedEquipment]);
 
-  const equipmentTypeData = [
-    { name: 'MRI Scanners', value: 35, color: '#E02020' },
-    { name: 'CT Scanners', value: 25, color: '#F59E0B' },
-    { name: 'Ultrasound', value: 20, color: '#10B981' },
-    { name: 'X-Ray', value: 15, color: '#3B82F6' },
-    { name: 'Others', value: 5, color: '#8B5CF6' }
-  ];
+  // Generate revenue trend data from actual investments (aggregated by investment date)
+  const revenueData = React.useMemo(() => {
+    if (investedEquipment.length === 0) {
+      return [];
+    }
+    
+    const monthlyData: Record<string, { revenue: number; usage: number }> = {};
+    investedEquipment.forEach(item => {
+      const date = new Date(item.investment?.date || Date.now());
+      const monthKey = date.toLocaleString('default', { month: 'short' });
+      
+      if (!monthlyData[monthKey]) {
+        monthlyData[monthKey] = { revenue: 0, usage: 0 };
+      }
+      monthlyData[monthKey].revenue += (item.revenue_generated || 0);
+      monthlyData[monthKey].usage += (item.usage_hours || 0);
+    });
+    
+    return Object.entries(monthlyData).map(([month, data]) => ({
+      month,
+      revenue: data.revenue,
+      usage: data.usage
+    }));
+  }, [investedEquipment]);
 
   const getInvestmentStatusColor = (status) => {
     switch (status) {
@@ -166,7 +228,7 @@ const InvestorEquipmentView = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white/10 rounded-lg p-3">
             <h3 className="font-semibold">Total Invested</h3>
-            <p className="text-2xl font-bold">${stats.totalInvested.toLocaleString()}</p>
+            <p className="text-2xl font-bold">{formatCurrency(stats.totalInvested)}</p>
           </div>
           <div className="bg-white/10 rounded-lg p-3">
             <h3 className="font-semibold">Equipment Count</h3>
@@ -178,13 +240,14 @@ const InvestorEquipmentView = () => {
           </div>
           <div className="bg-white/10 rounded-lg p-3">
             <h3 className="font-semibold">Total Revenue</h3>
-            <p className="text-2xl font-bold">${stats.totalRevenue.toLocaleString()}</p>
+            <p className="text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</p>
           </div>
         </div>
       </div>
 
       {/* Analytics Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {revenueData.length > 0 ? (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -200,7 +263,7 @@ const InvestorEquipmentView = () => {
                 <YAxis />
                 <Tooltip 
                   formatter={(value, name) => [
-                    name === 'revenue' ? `$${value.toLocaleString()}` : `${value}h`,
+                    name === 'revenue' ? formatCurrency(Number(value)) : `${value}h`,
                     name === 'revenue' ? 'Revenue' : 'Usage Hours'
                   ]}
                 />
@@ -210,6 +273,19 @@ const InvestorEquipmentView = () => {
             </ResponsiveContainer>
           </CardContent>
         </Card>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <LineChart className="h-5 w-5" />
+                Revenue & Usage Trends
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex items-center justify-center h-[300px] text-muted-foreground">
+              No data available yet
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader>
@@ -302,7 +378,7 @@ const InvestorEquipmentView = () => {
               <div className="bg-gray-50 rounded-lg p-3 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Investment:</span>
-                  <span className="font-medium">${(item.investment?.amount || 0).toLocaleString()}</span>
+                  <span className="font-medium">{formatCurrency(item.investment?.amount || 0)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Current ROI:</span>
@@ -312,11 +388,11 @@ const InvestorEquipmentView = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Usage Hours:</span>
-                  <span className="font-medium">{item.usageHours || 0}h</span>
+                  <span className="font-medium">{item.usage_hours || 0}h</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Revenue Generated:</span>
-                  <span className="font-medium text-green-600">${(item.revenueGenerated || 0).toLocaleString()}</span>
+                  <span className="font-medium text-green-600">{formatCurrency(item.revenue_generated || 0)}</span>
                 </div>
               </div>
 
@@ -328,10 +404,10 @@ const InvestorEquipmentView = () => {
                     <div className="w-16 bg-gray-200 rounded-full h-2">
                       <div 
                         className="bg-[#E02020] h-2 rounded-full" 
-                        style={{ width: `${Math.min(100, (item.usageHours || 0) / 100)}%` }}
+                        style={{ width: `${Math.min(100, (item.usage_hours || 0) / 100)}%` }}
                       ></div>
                     </div>
-                    <span className="text-xs font-medium">{Math.min(100, (item.usageHours || 0) / 100).toFixed(0)}%</span>
+                    <span className="text-xs font-medium">{Math.min(100, (item.usage_hours || 0) / 100).toFixed(0)}%</span>
                   </div>
                 </div>
               </div>

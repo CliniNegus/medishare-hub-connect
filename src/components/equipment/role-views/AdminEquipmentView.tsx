@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Package, Search, Plus, Edit, Eye, Shield,
-  BarChart3, Users, Settings, AlertTriangle
+  BarChart3, AlertTriangle, RefreshCw
 } from 'lucide-react';
 import { useEquipmentData } from '@/hooks/use-equipment-data';
 import { formatCurrency } from '@/utils/formatters';
@@ -15,7 +15,7 @@ import EquipmentEditModal from '@/components/admin/equipment/EquipmentEditModal'
 import EquipmentViewModal from '@/components/admin/equipment/EquipmentViewModal';
 
 const AdminEquipmentView = () => {
-  const { equipment, loading } = useEquipmentData();
+  const { equipment, loading, error, refetchEquipment } = useEquipmentData();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -76,9 +76,26 @@ const AdminEquipmentView = () => {
   if (loading) {
     return (
       <div className="p-6">
-        <div className="flex justify-center items-center h-64">
+        <div className="flex flex-col justify-center items-center h-64 gap-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E02020]"></div>
+          <p className="text-muted-foreground">Loading equipment data...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <Card className="p-12 text-center border-destructive">
+          <AlertTriangle className="h-12 w-12 mx-auto text-destructive mb-4" />
+          <h3 className="text-lg font-semibold text-destructive mb-2">Error Loading Equipment</h3>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <Button onClick={refetchEquipment} variant="outline">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Try Again
+          </Button>
+        </Card>
       </div>
     );
   }
@@ -95,13 +112,22 @@ const AdminEquipmentView = () => {
               <p className="text-white/90">Comprehensive equipment oversight and management</p>
             </div>
           </div>
-          <Button 
-            onClick={() => setAddModalOpen(true)}
-            className="bg-white text-[#E02020] hover:bg-white/90"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Equipment
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="ghost"
+              onClick={refetchEquipment}
+              className="text-white hover:bg-white/20"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Button 
+              onClick={() => setAddModalOpen(true)}
+              className="bg-white text-[#E02020] hover:bg-white/90"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Equipment
+            </Button>
+          </div>
         </div>
         
         {/* Comprehensive Stats Grid */}
@@ -124,11 +150,11 @@ const AdminEquipmentView = () => {
           </div>
           <div className="bg-white/10 rounded-lg p-3">
             <h3 className="font-semibold">Total Value</h3>
-            <p className="text-2xl font-bold">${stats.totalValue.toLocaleString()}</p>
+            <p className="text-2xl font-bold">{formatCurrency(stats.totalValue)}</p>
           </div>
           <div className="bg-white/10 rounded-lg p-3">
             <h3 className="font-semibold">Revenue</h3>
-            <p className="text-2xl font-bold">${stats.totalRevenue.toLocaleString()}</p>
+            <p className="text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</p>
           </div>
         </div>
       </div>
@@ -219,7 +245,7 @@ const AdminEquipmentView = () => {
               <div className="bg-gray-50 rounded-lg p-3 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Equipment ID:</span>
-                  <span className="font-mono text-xs">{item.id}</span>
+                  <span className="font-mono text-xs">{item.id.slice(0, 8)}...</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Usage Hours:</span>
@@ -227,7 +253,7 @@ const AdminEquipmentView = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Revenue:</span>
-                  <span className="font-medium text-green-600">${(item.revenueGenerated || 0).toLocaleString()}</span>
+                  <span className="font-medium text-green-600">{formatCurrency(item.revenueGenerated || 0)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Type:</span>
@@ -246,7 +272,7 @@ const AdminEquipmentView = () => {
                 {item.leaseRate && (
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Lease Rate:</span>
-                    <span className="font-medium">${item.leaseRate}/month</span>
+                    <span className="font-medium">{formatCurrency(item.leaseRate)}/month</span>
                   </div>
                 )}
                 {item.payPerUsePrice && (
@@ -322,6 +348,7 @@ const AdminEquipmentView = () => {
             open={editModalOpen}
             onOpenChange={setEditModalOpen}
             onSave={async () => {
+              await refetchEquipment();
               setEditModalOpen(false);
               return selectedEquipment;
             }}
