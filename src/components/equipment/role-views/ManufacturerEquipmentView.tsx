@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Package, Search, Plus, Edit, BarChart3, 
-  DollarSign, TrendingUp, Settings, Eye
+  Eye, Trash2
 } from 'lucide-react';
 import { useEquipmentData } from '@/hooks/use-equipment-data';
 import { useEquipmentManagement } from '@/hooks/useEquipmentManagement';
@@ -16,18 +16,20 @@ import PopularEquipmentSection from '@/components/dashboard/PopularEquipmentSect
 import AddEquipmentModal from '@/components/admin/equipment/AddEquipmentModal';
 import EquipmentEditModal from '@/components/admin/equipment/EquipmentEditModal';
 import EquipmentViewModal from '@/components/admin/equipment/EquipmentViewModal';
+import EquipmentDeleteDialog from '@/components/equipment/EquipmentDeleteDialog';
 
 const ManufacturerEquipmentView = () => {
   const { user } = useAuth();
   // Fetch only equipment owned by current manufacturer
   const { equipment, loading, error, refetchEquipment } = useEquipmentData({ ownerId: user?.id });
-  const { updateEquipment } = useEquipmentManagement();
+  const { updateEquipment, deleteEquipment } = useEquipmentManagement();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState(null);
 
   // All equipment is already filtered by owner at the query level
@@ -59,6 +61,20 @@ const ManufacturerEquipmentView = () => {
   const handleViewEquipment = (equipment) => {
     setSelectedEquipment(equipment);
     setViewModalOpen(true);
+  };
+
+  const handleDeleteEquipment = (equipment) => {
+    setSelectedEquipment(equipment);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async (): Promise<boolean> => {
+    if (!selectedEquipment) return false;
+    const success = await deleteEquipment(selectedEquipment.id);
+    if (success) {
+      await refetchEquipment();
+    }
+    return success;
   };
 
   const getStatusColor = (status) => {
@@ -250,8 +266,8 @@ const ManufacturerEquipmentView = () => {
                 )}
               </div>
 
-              {/* Action Buttons - Only show edit for owned equipment */}
-              <div className="grid grid-cols-3 gap-2">
+              {/* Action Buttons - Only show edit/delete for owned equipment */}
+              <div className="grid grid-cols-4 gap-2">
                 <Button 
                   variant="outline" 
                   size="sm"
@@ -272,6 +288,17 @@ const ManufacturerEquipmentView = () => {
                 <Button variant="outline" size="sm">
                   <BarChart3 className="h-4 w-4" />
                 </Button>
+                {/* Only show delete button for equipment owned by current manufacturer */}
+                {item.ownerId === user?.id && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleDeleteEquipment(item)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -320,6 +347,12 @@ const ManufacturerEquipmentView = () => {
             equipment={selectedEquipment}
             open={viewModalOpen}
             onOpenChange={setViewModalOpen}
+          />
+          <EquipmentDeleteDialog
+            open={deleteDialogOpen}
+            onOpenChange={setDeleteDialogOpen}
+            equipmentName={selectedEquipment.name}
+            onConfirm={confirmDelete}
           />
         </>
       )}
