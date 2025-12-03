@@ -178,7 +178,7 @@ const HospitalEquipmentView = () => {
                 {item.leaseRate && (
                   <div className="flex items-center gap-2">
                     <CreditCard className="h-4 w-4 text-gray-400" />
-                    <span>Lease: ${item.leaseRate}/month</span>
+                    <span>Lease: {formatCurrency(item.leaseRate)}/month</span>
                   </div>
                 )}
                 {item.price && (
@@ -233,7 +233,7 @@ const HospitalEquipmentView = () => {
                             <DialogTitle>Lease Equipment</DialogTitle>
                           </DialogHeader>
                           <div className="p-4">
-                            <p>Lease {item.name} for ${item.leaseRate}/month</p>
+                            <p>Lease {item.name} for {formatCurrency(item.leaseRate || 0)}/month</p>
                             <Button className="w-full mt-4 bg-[#E02020]">
                               Start Lease Application
                             </Button>
