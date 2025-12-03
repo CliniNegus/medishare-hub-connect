@@ -110,6 +110,47 @@ export const useEquipmentManagement = () => {
     }
   };
 
+  const deleteEquipment = async (id: string): Promise<boolean> => {
+    try {
+      // RLS policies will handle authorization - only owner or admin can delete
+      const { error } = await supabase
+        .from('equipment')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        // Handle specific authorization errors
+        if (error.code === '42501' || error.message.includes('policy')) {
+          toast({
+            title: "Access denied",
+            description: "You don't have permission to delete this equipment.",
+            variant: "destructive",
+          });
+          throw new Error("Access denied: You don't have permission to delete this equipment.");
+        }
+        throw error;
+      }
+
+      // Update local state
+      setEquipment(prev => prev.filter(item => item.id !== id));
+
+      toast({
+        title: "Equipment deleted",
+        description: "Equipment has been permanently removed from the system.",
+      });
+
+      return true;
+    } catch (err: any) {
+      console.error('Error deleting equipment:', err);
+      toast({
+        title: "Error deleting equipment",
+        description: err.message,
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchEquipment();
   }, []);
@@ -120,5 +161,6 @@ export const useEquipmentManagement = () => {
     error,
     fetchEquipment,
     updateEquipment,
+    deleteEquipment,
   };
 };

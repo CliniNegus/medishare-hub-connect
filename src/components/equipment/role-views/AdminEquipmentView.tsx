@@ -6,16 +6,19 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Package, Search, Plus, Edit, Eye, Shield,
-  BarChart3, AlertTriangle, RefreshCw
+  BarChart3, AlertTriangle, RefreshCw, Trash2
 } from 'lucide-react';
 import { useEquipmentData } from '@/hooks/use-equipment-data';
+import { useEquipmentManagement } from '@/hooks/useEquipmentManagement';
 import { formatCurrency } from '@/utils/formatters';
 import AddEquipmentModal from '@/components/admin/equipment/AddEquipmentModal';
 import EquipmentEditModal from '@/components/admin/equipment/EquipmentEditModal';
 import EquipmentViewModal from '@/components/admin/equipment/EquipmentViewModal';
+import EquipmentDeleteDialog from '@/components/equipment/EquipmentDeleteDialog';
 
 const AdminEquipmentView = () => {
   const { equipment, loading, error, refetchEquipment } = useEquipmentData();
+  const { deleteEquipment } = useEquipmentManagement();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -23,6 +26,7 @@ const AdminEquipmentView = () => {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState(null);
 
   const filteredEquipment = equipment.filter(item => {
@@ -56,6 +60,20 @@ const AdminEquipmentView = () => {
   const handleViewEquipment = (equipment) => {
     setSelectedEquipment(equipment);
     setViewModalOpen(true);
+  };
+
+  const handleDeleteEquipment = (equipment) => {
+    setSelectedEquipment(equipment);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async (): Promise<boolean> => {
+    if (!selectedEquipment) return false;
+    const success = await deleteEquipment(selectedEquipment.id);
+    if (success) {
+      await refetchEquipment();
+    }
+    return success;
   };
 
   const getStatusColor = (status) => {
@@ -292,7 +310,7 @@ const AdminEquipmentView = () => {
               )}
 
               {/* Admin Action Buttons */}
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 <Button 
                   variant="outline" 
                   size="sm"
@@ -309,6 +327,14 @@ const AdminEquipmentView = () => {
                 </Button>
                 <Button variant="outline" size="sm">
                   <BarChart3 className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleDeleteEquipment(item)}
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             </CardContent>
@@ -357,6 +383,12 @@ const AdminEquipmentView = () => {
             equipment={selectedEquipment}
             open={viewModalOpen}
             onOpenChange={setViewModalOpen}
+          />
+          <EquipmentDeleteDialog
+            open={deleteDialogOpen}
+            onOpenChange={setDeleteDialogOpen}
+            equipmentName={selectedEquipment.name}
+            onConfirm={confirmDelete}
           />
         </>
       )}
