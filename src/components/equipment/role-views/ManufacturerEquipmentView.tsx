@@ -20,7 +20,7 @@ import EquipmentViewModal from '@/components/admin/equipment/EquipmentViewModal'
 const ManufacturerEquipmentView = () => {
   const { user } = useAuth();
   // Fetch only equipment owned by current manufacturer
-  const { equipment, loading, refetchEquipment } = useEquipmentData({ ownerId: user?.id });
+  const { equipment, loading, error, refetchEquipment } = useEquipmentData({ ownerId: user?.id });
   const { updateEquipment } = useEquipmentManagement();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -77,9 +77,25 @@ const ManufacturerEquipmentView = () => {
   if (loading) {
     return (
       <div className="p-6">
-        <div className="flex justify-center items-center h-64">
+        <div className="flex flex-col justify-center items-center h-64 gap-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E02020]"></div>
+          <p className="text-muted-foreground">Loading equipment data...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <Card className="p-12 text-center border-destructive">
+          <Package className="h-12 w-12 mx-auto text-destructive mb-4" />
+          <h3 className="text-lg font-semibold text-destructive mb-2">Error Loading Equipment</h3>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <Button onClick={refetchEquipment} variant="outline">
+            Retry
+          </Button>
+        </Card>
       </div>
     );
   }
