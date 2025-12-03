@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Zap } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import { formatCurrency } from '@/utils/formatters';
 
 export interface EquipmentProps {
   id: string;
@@ -102,7 +103,7 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
           {payPerUseEnabled && payPerUsePrice && (
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-blue-600">Daily Rate:</span>
-              <span className="text-sm font-bold text-blue-600">Ksh {payPerUsePrice.toLocaleString()}/day</span>
+              <span className="text-sm font-bold text-blue-600">{formatCurrency(payPerUsePrice)}/day</span>
             </div>
           )}
         </div>

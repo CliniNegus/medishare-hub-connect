@@ -27,6 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import BookingPaymentButton from './payment/BookingPaymentButton';
+import { formatCurrency } from '@/utils/formatters';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -296,11 +297,11 @@ const BookingModal: React.FC<BookingModalProps> = ({
                     
                     <div className="flex justify-between">
                       <span className="text-gray-600">Daily rate:</span>
-                      <span className="font-medium">KES {pricePerUse.toLocaleString()}</span>
+                      <span className="font-medium">{formatCurrency(pricePerUse)}</span>
                     </div>
                     <div className="flex justify-between font-bold text-[#E02020]">
                       <span>Total price:</span>
-                      <span>KES {totalPrice.toLocaleString()}</span>
+                      <span>{formatCurrency(totalPrice)}</span>
                     </div>
                   </div>
                 </div>
@@ -465,11 +466,11 @@ const BookingModal: React.FC<BookingModalProps> = ({
                     
                     <div className="flex justify-between">
                       <span className="text-gray-600">Daily rate:</span>
-                      <span className="font-medium">KES {pricePerUse.toLocaleString()}</span>
+                      <span className="font-medium">{formatCurrency(pricePerUse)}</span>
                     </div>
                     <div className="flex justify-between font-bold text-[#E02020]">
                       <span>Total price:</span>
-                      <span>KES {totalPrice.toLocaleString()}</span>
+                      <span>{formatCurrency(totalPrice)}</span>
                     </div>
                   </div>
                 </div>
