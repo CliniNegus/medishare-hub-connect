@@ -8,7 +8,7 @@ import {
   Package, Search, Filter, Calendar, ShoppingCart, 
   CreditCard, Clock, MapPin, Activity 
 } from 'lucide-react';
-import { useEquipmentData } from '@/hooks/use-equipment-data';
+import { useEquipmentData, EquipmentItem } from '@/hooks/use-equipment-data';
 import { formatCurrency } from '@/utils/formatters';
 import BookingModal from '@/components/BookingModal';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -19,7 +19,7 @@ const HospitalEquipmentView = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
-  const [selectedEquipment, setSelectedEquipment] = useState(null);
+  const [selectedEquipment, setSelectedEquipment] = useState<EquipmentItem | null>(null);
 
   const filteredEquipment = equipment.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -36,8 +36,8 @@ const HospitalEquipmentView = () => {
 
   const categories = [...new Set(equipment.map(item => item.category).filter(Boolean))];
 
-  const handleBookEquipment = (equipment) => {
-    setSelectedEquipment(equipment);
+  const handleBookEquipment = (equipmentItem: EquipmentItem) => {
+    setSelectedEquipment(equipmentItem);
     setBookingModalOpen(true);
   };
 
