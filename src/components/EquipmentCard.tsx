@@ -59,22 +59,22 @@ const EquipmentCard: React.FC<EquipmentProps> = ({
 
   return (
     <Card className="card-hover overflow-hidden border-gray-200">
-      <div className="relative h-40 bg-gray-100">
+      <div className="relative bg-muted/30 p-3 flex items-center justify-center min-h-[120px] max-h-[200px] sm:max-h-[220px] md:max-h-[250px]">
         <img 
           src={image || "/placeholder.svg"} 
           alt={name} 
-          className="w-full h-full object-cover" 
+          className="w-full h-auto max-h-[180px] sm:max-h-[200px] md:max-h-[230px] object-contain rounded-md" 
         />
-        <div className="absolute top-2 right-2 flex gap-2">
+        <div className="absolute top-2 right-2 flex gap-1 sm:gap-2 flex-wrap justify-end max-w-[70%]">
           <Badge 
-            className={`${statusColors[status]}`}
+            className={`${statusColors[status]} text-xs`}
           >
             {statusLabels[status]}
           </Badge>
           {payPerUseEnabled && (
             <Badge 
               variant="outline"
-              className="bg-blue-50 text-blue-700 border-blue-200"
+              className="bg-blue-50 text-blue-700 border-blue-200 text-xs"
             >
               <Zap className="w-3 h-3 mr-1" />
               Pay Per Use
