@@ -23,7 +23,7 @@ import {
   XCircle,
   ExternalLink,
   Loader2,
-  Package
+  ArrowLeft
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -314,6 +314,17 @@ const Notifications = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      {/* Back Navigation */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate(-1)}
+        className="text-gray-600 hover:text-[#333333] -ml-2"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back
+      </Button>
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
