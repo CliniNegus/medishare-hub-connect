@@ -24,6 +24,20 @@ export interface EquipmentItem {
   usageHours?: number;
   revenueGenerated?: number;
   ownerId?: string;
+  // Fields needed for edit modal
+  model?: string;
+  serial_number?: string;
+  sku?: string;
+  condition?: string;
+  specs?: string;
+  quantity?: number;
+  sales_option?: string;
+  downtime_hours?: number;
+  remote_control_enabled?: boolean;
+  pay_per_use_enabled?: boolean;
+  pay_per_use_price?: number;
+  lease_rate?: number;
+  owner_id?: string;
 }
 
 interface EquipmentRevenueMap {
@@ -79,7 +93,7 @@ export function useEquipmentData(options?: UseEquipmentDataOptions) {
           (async () => {
             let query = supabase
               .from('equipment')
-              .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, price, lease_rate, pay_per_use_price, pay_per_use_enabled, usage_hours, downtime_hours, owner_id, created_at, updated_at');
+              .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, price, lease_rate, pay_per_use_price, pay_per_use_enabled, usage_hours, downtime_hours, owner_id, created_at, updated_at, serial_number, sku, quantity, remote_control_enabled');
             
             // Filter by owner if provided
             if (options?.ownerId) {
@@ -122,6 +136,20 @@ export function useEquipmentData(options?: UseEquipmentDataOptions) {
           // Revenue calculated from actual completed orders
           revenueGenerated: revenueMap[item.id] || 0,
           ownerId: item.owner_id || undefined,
+          // Fields needed for edit modal (snake_case for compatibility)
+          model: item.model || '',
+          serial_number: item.serial_number || '',
+          sku: item.sku || '',
+          condition: item.condition || '',
+          specs: item.specs || '',
+          quantity: item.quantity || 1,
+          sales_option: item.sales_option || 'both',
+          downtime_hours: item.downtime_hours || 0,
+          remote_control_enabled: item.remote_control_enabled || false,
+          pay_per_use_enabled: item.pay_per_use_enabled || false,
+          pay_per_use_price: item.pay_per_use_price || null,
+          lease_rate: item.lease_rate || null,
+          owner_id: item.owner_id || null,
         }));
         
         setEquipment(formattedEquipment);
@@ -152,7 +180,7 @@ export function useEquipmentData(options?: UseEquipmentDataOptions) {
         (async () => {
           let query = supabase
             .from('equipment')
-            .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, price, lease_rate, pay_per_use_price, pay_per_use_enabled, usage_hours, downtime_hours, owner_id, created_at, updated_at');
+            .select('id, name, manufacturer, category, condition, status, location, description, image_url, model, specs, sales_option, price, lease_rate, pay_per_use_price, pay_per_use_enabled, usage_hours, downtime_hours, owner_id, created_at, updated_at, serial_number, sku, quantity, remote_control_enabled');
           
           // Filter by owner if provided
           if (options?.ownerId) {
@@ -191,6 +219,20 @@ export function useEquipmentData(options?: UseEquipmentDataOptions) {
         // Revenue calculated from actual completed orders
         revenueGenerated: revenueMap[item.id] || 0,
         ownerId: item.owner_id || undefined,
+        // Fields needed for edit modal (snake_case for compatibility)
+        model: item.model || '',
+        serial_number: item.serial_number || '',
+        sku: item.sku || '',
+        condition: item.condition || '',
+        specs: item.specs || '',
+        quantity: item.quantity || 1,
+        sales_option: item.sales_option || 'both',
+        downtime_hours: item.downtime_hours || 0,
+        remote_control_enabled: item.remote_control_enabled || false,
+        pay_per_use_enabled: item.pay_per_use_enabled || false,
+        pay_per_use_price: item.pay_per_use_price || null,
+        lease_rate: item.lease_rate || null,
+        owner_id: item.owner_id || null,
       }));
       
       setEquipment(formattedEquipment);
