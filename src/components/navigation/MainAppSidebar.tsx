@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, TrendingUp, Package, Users, MapPin, 
-  DollarSign, LogOut, Briefcase,
+  DollarSign, LogOut, Briefcase, Bell,
   Activity, BarChart3, HelpCircle, FileText, ShoppingCart, Heart, ClipboardList
 } from 'lucide-react';
 import clinibuildsLogo from '@/assets/clinibuilds_logo.jpg';
@@ -20,6 +20,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuth } from '@/contexts/AuthContext';
+import { useNotificationContext } from '@/components/notifications/NotificationProvider';
 
 interface MainAppSidebarProps {
   onChangeAccountType: () => void;
@@ -30,6 +31,7 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
   const location = useLocation();
   const { state } = useSidebar();
   const { profile, signOut } = useAuth();
+  const { unreadCount } = useNotificationContext();
 
   const currentPath = location.pathname;
   const isActive = (path: string) => currentPath === path;
@@ -109,6 +111,14 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
         icon: ClipboardList, 
         path: '/manufacturer/orders',
         description: 'Manage customer orders'
+      },
+      { 
+        id: 'notifications', 
+        label: 'Notifications', 
+        icon: Bell, 
+        path: '/notifications',
+        description: 'View all notifications',
+        badge: unreadCount > 0 ? unreadCount : undefined
       }
     ] : []),
   ];
@@ -190,7 +200,7 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map((item) => (
+              {navigationItems.map((item: any) => (
                 <SidebarMenuItem key={item.id}>
                   <SidebarMenuButton
                     asChild
@@ -198,9 +208,16 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
                     className="text-[#333333] hover:bg-gray-100 data-[active=true]:bg-[#E02020] data-[active=true]:text-white"
                     tooltip={state === 'collapsed' ? item.description : undefined}
                   >
-                    <NavLink to={item.path} className="flex items-center gap-2">
+                    <NavLink to={item.path} className="flex items-center gap-2 relative">
                       <item.icon className="h-4 w-4" />
-                      {state === 'expanded' && <span>{item.label}</span>}
+                      {state === 'expanded' && (
+                        <span className="flex-1">{item.label}</span>
+                      )}
+                      {item.badge && (
+                        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#E02020] text-[10px] font-medium text-white">
+                          {item.badge > 9 ? '9+' : item.badge}
+                        </span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

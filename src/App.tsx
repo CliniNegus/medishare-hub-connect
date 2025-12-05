@@ -42,7 +42,7 @@ import PublicShop from './pages/PublicShop';
 import PaymentCancelled from './pages/PaymentCancelled';
 import PaymentSuccess from './pages/PaymentSuccess';
 import EmailVerification from './pages/EmailVerification';
-import NotificationsPage from './components/notifications/NotificationsPage';
+import Notifications from './pages/Notifications';
 import CompleteProfile from './pages/CompleteProfile';
 import NotFound from './pages/NotFound';
 import EquipmentPage from './pages/EquipmentPage';
@@ -294,7 +294,7 @@ function App() {
                        path="/notifications" 
                        element={
                          <ProtectedRoute>
-                           <NotificationsPage />
+                           <Notifications />
                          </ProtectedRoute>
                        } 
                       />
