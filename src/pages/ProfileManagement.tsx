@@ -1,10 +1,9 @@
-
 import React from 'react';
 import Layout from '@/components/Layout';
 import ProfileForm from '@/components/profile/ProfileForm';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { UserRound, Building, Bell, Shield } from 'lucide-react';
+import { UserRound, Building, Shield } from 'lucide-react';
 
 const ProfileManagement = () => {
   return (
@@ -26,10 +25,6 @@ const ProfileManagement = () => {
                 <Building className="h-4 w-4" />
                 <span>Organization</span>
               </TabsTrigger>
-              <TabsTrigger value="notifications" className="flex items-center gap-2">
-                <Bell className="h-4 w-4" />
-                <span>Notifications</span>
-              </TabsTrigger>
               <TabsTrigger value="security" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
                 <span>Security</span>
@@ -45,16 +40,6 @@ const ProfileManagement = () => {
                 <CardContent className="pt-6">
                   <div className="text-center py-12">
                     <p className="text-gray-500">Organization settings will be available soon.</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="notifications" className="space-y-4">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center py-12">
-                    <p className="text-gray-500">Notification preferences will be available soon.</p>
                   </div>
                 </CardContent>
               </Card>
