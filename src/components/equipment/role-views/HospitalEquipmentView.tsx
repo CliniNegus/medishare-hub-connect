@@ -157,11 +157,13 @@ const HospitalEquipmentView = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {item.image_url && (
-                <img 
-                  src={item.image_url} 
-                  alt={item.name}
-                  className="w-full h-32 object-cover rounded-lg"
-                />
+                <div className="bg-muted/30 p-2 flex items-center justify-center min-h-[100px] max-h-[160px] rounded-lg">
+                  <img 
+                    src={item.image_url} 
+                    alt={item.name}
+                    className="w-full h-auto max-h-[140px] object-contain rounded-md"
+                  />
+                </div>
               )}
               
               <div className="space-y-2 text-sm">
