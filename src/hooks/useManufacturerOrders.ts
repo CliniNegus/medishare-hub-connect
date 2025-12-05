@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import {
+  notifyHospitalOrderAccepted,
+  notifyHospitalOrderRejected,
+  notifyHospitalOrderShipped,
+  notifyHospitalOrderCompleted,
+  notifyHospitalOrderProcessing,
+} from './useManufacturerNotifications';
 
 export type OrderStatus = 'pending' | 'accepted' | 'declined' | 'processing' | 'shipped' | 'completed';
 
@@ -107,6 +114,9 @@ export const useManufacturerOrders = () => {
     declineReason?: string
   ) => {
     try {
+      // First, get the order details for notifications
+      const orderToUpdate = orders.find(o => o.id === orderId);
+      
       const updateData: any = {
         status: newStatus,
         updated_at: new Date().toISOString(),
@@ -123,9 +133,47 @@ export const useManufacturerOrders = () => {
 
       if (error) throw error;
 
-      // If accepting order, reduce stock (optional - implement if needed)
-      if (newStatus === 'accepted') {
-        // TODO: Implement stock reduction logic
+      // Send notifications to hospital based on status change
+      if (orderToUpdate?.user_id && orderToUpdate?.equipment) {
+        const equipmentName = orderToUpdate.equipment.name || 'Equipment';
+        const manufacturerName = orderToUpdate.equipment.manufacturer;
+
+        switch (newStatus) {
+          case 'accepted':
+            await notifyHospitalOrderAccepted(
+              orderToUpdate.user_id,
+              equipmentName,
+              manufacturerName
+            );
+            break;
+          case 'declined':
+            await notifyHospitalOrderRejected(
+              orderToUpdate.user_id,
+              equipmentName,
+              declineReason,
+              manufacturerName
+            );
+            break;
+          case 'processing':
+            await notifyHospitalOrderProcessing(
+              orderToUpdate.user_id,
+              equipmentName
+            );
+            break;
+          case 'shipped':
+            await notifyHospitalOrderShipped(
+              orderToUpdate.user_id,
+              equipmentName,
+              false
+            );
+            break;
+          case 'completed':
+            await notifyHospitalOrderCompleted(
+              orderToUpdate.user_id,
+              equipmentName
+            );
+            break;
+        }
       }
 
       toast({

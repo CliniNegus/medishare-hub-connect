@@ -3,6 +3,7 @@ import React from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { notifyManufacturerNewOrder } from './useManufacturerNotifications';
 
 interface UsePaystackPaymentProps {
   amount: number;
@@ -165,6 +166,9 @@ export const usePaystackPayment = ({
         console.error('Order creation error:', orderError);
         throw new Error('Failed to create order record');
       }
+
+      // Notify the equipment manufacturer about the new order
+      await notifyManufacturerNewOrder(equipmentId, amount, fullName);
 
       if (dbError) {
         console.error('Database error:', dbError);
