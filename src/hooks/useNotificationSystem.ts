@@ -2,6 +2,12 @@ import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import {
+  notifyManufacturerOrderCancelled,
+  notifyManufacturerPaymentConfirmed,
+  getEquipmentOwnerId,
+  createNotificationForUser,
+} from './useManufacturerNotifications';
 
 export const useNotificationSystem = () => {
   const { user, profile } = useAuth();
@@ -256,9 +262,9 @@ export const useNotificationSystem = () => {
           schema: 'public',
           table: 'orders'
         },
-        (payload) => {
-          const order = payload.new;
-          const oldOrder = payload.old;
+        async (payload) => {
+          const order = payload.new as any;
+          const oldOrder = payload.old as any;
           
           // If status changed, notify the customer
           if (order.status !== oldOrder.status && order.user_id) {
@@ -281,6 +287,15 @@ export const useNotificationSystem = () => {
               case 'cancelled':
                 type = 'error';
                 message = 'Your order has been cancelled';
+                // Notify manufacturer when hospital cancels order
+                if (order.equipment_id) {
+                  await notifyManufacturerOrderCancelled(
+                    order.equipment_id,
+                    order.amount,
+                    order.shipping_full_name,
+                    order.notes
+                  );
+                }
                 break;
             }
 
@@ -389,17 +404,55 @@ export const useNotificationSystem = () => {
           schema: 'public',
           table: 'transactions'
         },
-        (payload) => {
-          const transaction = payload.new;
+        async (payload) => {
+          const transaction = payload.new as any;
           
-          if (transaction.user_id === user.id && transaction.status === 'successful') {
+          if (transaction.user_id === user.id && transaction.status === 'success') {
             createNotification(
               user.id,
               'Payment Confirmed',
-              `Your payment of $${transaction.amount} has been processed successfully`,
+              `Your payment of KES ${transaction.amount?.toLocaleString()} has been processed successfully`,
               'success',
               `/orders`
             );
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'transactions'
+        },
+        async (payload) => {
+          const transaction = payload.new as any;
+          const oldTransaction = payload.old as any;
+          
+          // When payment status changes to success, notify manufacturer
+          if (transaction.status === 'success' && oldTransaction.status !== 'success') {
+            const metadata = transaction.metadata as any;
+            const equipmentId = metadata?.equipment_id;
+            
+            if (equipmentId) {
+              // Notify manufacturer about payment confirmation
+              await notifyManufacturerPaymentConfirmed(
+                equipmentId,
+                transaction.amount,
+                transaction.id
+              );
+            }
+            
+            // Also notify the customer
+            if (transaction.user_id) {
+              createNotification(
+                transaction.user_id,
+                'Payment Confirmed',
+                `Your payment of KES ${transaction.amount?.toLocaleString()} has been processed successfully`,
+                'success',
+                `/orders`
+              );
+            }
           }
         }
       )
