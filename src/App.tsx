@@ -53,6 +53,7 @@ import Analytics from './pages/Analytics';
 import ManufacturerProducts from './pages/ManufacturerProducts';
 import Marketplace from './pages/Marketplace';
 import ManufacturerOrders from './pages/ManufacturerOrders';
+import EquipmentSharing from './pages/EquipmentSharing';
 
 
 const queryClient = new QueryClient({
@@ -329,6 +330,14 @@ function App() {
                            <Layout>
                              <ManufacturerOrders />
                            </Layout>
+                         </ProtectedRoute>
+                       } 
+                      />
+                      <Route 
+                       path="/equipment-sharing" 
+                       element={
+                         <ProtectedRoute allowedRoles={['hospital', 'admin']}>
+                           <EquipmentSharing />
                          </ProtectedRoute>
                        } 
                       />

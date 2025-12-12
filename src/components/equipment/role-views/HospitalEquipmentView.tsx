@@ -6,20 +6,25 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Package, Search, Filter, Calendar, ShoppingCart, 
-  CreditCard, Clock, MapPin, Activity 
+  CreditCard, Clock, MapPin, Activity, ArrowLeftRight 
 } from 'lucide-react';
 import { useEquipmentData, EquipmentItem } from '@/hooks/use-equipment-data';
 import { formatCurrency } from '@/utils/formatters';
 import BookingModal from '@/components/BookingModal';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { RequestEquipmentModal } from '@/components/equipment-sharing/RequestEquipmentModal';
+import { useAuth } from '@/contexts/AuthContext';
 
 const HospitalEquipmentView = () => {
   const { equipment, loading, refetchEquipment } = useEquipmentData();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState<EquipmentItem | null>(null);
+  const [requestModalOpen, setRequestModalOpen] = useState(false);
+  const [requestEquipment, setRequestEquipment] = useState<{ id: string; name: string; owner_id: string } | null>(null);
 
   const filteredEquipment = equipment.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -39,6 +44,17 @@ const HospitalEquipmentView = () => {
   const handleBookEquipment = (equipmentItem: EquipmentItem) => {
     setSelectedEquipment(equipmentItem);
     setBookingModalOpen(true);
+  };
+
+  const handleRequestEquipment = (equipmentItem: EquipmentItem) => {
+    if (equipmentItem.ownerId && equipmentItem.ownerId !== user?.id) {
+      setRequestEquipment({
+        id: equipmentItem.id,
+        name: equipmentItem.name,
+        owner_id: equipmentItem.ownerId,
+      });
+      setRequestModalOpen(true);
+    }
   };
 
   const getStatusColor = (type) => {
@@ -278,6 +294,18 @@ const HospitalEquipmentView = () => {
             console.log('Booking confirmed:', { equipment: selectedEquipment.name, date, duration, notes });
             setBookingModalOpen(false);
           }}
+        />
+      )}
+
+      {/* Request Equipment Modal */}
+      {requestEquipment && (
+        <RequestEquipmentModal
+          open={requestModalOpen}
+          onClose={() => {
+            setRequestModalOpen(false);
+            setRequestEquipment(null);
+          }}
+          equipment={requestEquipment}
         />
       )}
     </div>
