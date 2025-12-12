@@ -54,6 +54,7 @@ import ManufacturerProducts from './pages/ManufacturerProducts';
 import Marketplace from './pages/Marketplace';
 import ManufacturerOrders from './pages/ManufacturerOrders';
 import EquipmentSharing from './pages/EquipmentSharing';
+import DemandForecasting from './pages/DemandForecasting';
 
 
 const queryClient = new QueryClient({
@@ -338,6 +339,14 @@ function App() {
                        element={
                          <ProtectedRoute allowedRoles={['hospital', 'admin']}>
                            <EquipmentSharing />
+                         </ProtectedRoute>
+                       } 
+                      />
+                      <Route 
+                       path="/demand-forecasting" 
+                       element={
+                         <ProtectedRoute allowedRoles={['hospital', 'admin']}>
+                           <DemandForecasting />
                          </ProtectedRoute>
                        } 
                       />

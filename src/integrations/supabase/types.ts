@@ -330,6 +330,109 @@ export type Database = {
         }
         Relationships: []
       }
+      demand_aggregations: {
+        Row: {
+          aggregation_date: string
+          available_supply: number | null
+          cluster_id: string | null
+          created_at: string
+          equipment_category: string
+          id: string
+          procurement_suggestion: Json | null
+          recommended_action: string | null
+          supply_gap: number | null
+          total_demand: number | null
+          updated_at: string
+        }
+        Insert: {
+          aggregation_date?: string
+          available_supply?: number | null
+          cluster_id?: string | null
+          created_at?: string
+          equipment_category: string
+          id?: string
+          procurement_suggestion?: Json | null
+          recommended_action?: string | null
+          supply_gap?: number | null
+          total_demand?: number | null
+          updated_at?: string
+        }
+        Update: {
+          aggregation_date?: string
+          available_supply?: number | null
+          cluster_id?: string | null
+          created_at?: string
+          equipment_category?: string
+          id?: string
+          procurement_suggestion?: Json | null
+          recommended_action?: string | null
+          supply_gap?: number | null
+          total_demand?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demand_aggregations_cluster_id_fkey"
+            columns: ["cluster_id"]
+            isOneToOne: false
+            referencedRelation: "hospital_clusters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      demand_forecasts: {
+        Row: {
+          ai_reasoning: string | null
+          cluster_id: string | null
+          confidence_score: number | null
+          created_at: string
+          demand_level: string | null
+          equipment_category: string
+          factors: Json | null
+          forecast_date: string
+          hospital_id: string | null
+          id: string
+          predicted_demand: number
+          updated_at: string
+        }
+        Insert: {
+          ai_reasoning?: string | null
+          cluster_id?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          demand_level?: string | null
+          equipment_category: string
+          factors?: Json | null
+          forecast_date: string
+          hospital_id?: string | null
+          id?: string
+          predicted_demand?: number
+          updated_at?: string
+        }
+        Update: {
+          ai_reasoning?: string | null
+          cluster_id?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          demand_level?: string | null
+          equipment_category?: string
+          factors?: Json | null
+          forecast_date?: string
+          hospital_id?: string | null
+          id?: string
+          predicted_demand?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demand_forecasts_cluster_id_fkey"
+            columns: ["cluster_id"]
+            isOneToOne: false
+            referencedRelation: "hospital_clusters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_templates: {
         Row: {
           content: string
@@ -1914,6 +2017,62 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      usage_patterns: {
+        Row: {
+          booking_count: number | null
+          created_at: string
+          date_recorded: string
+          day_of_week: number | null
+          equipment_category: string | null
+          equipment_id: string | null
+          hospital_id: string | null
+          id: string
+          is_holiday: boolean | null
+          metadata: Json | null
+          patient_volume: number | null
+          seasonal_factor: number | null
+          usage_hours: number | null
+        }
+        Insert: {
+          booking_count?: number | null
+          created_at?: string
+          date_recorded?: string
+          day_of_week?: number | null
+          equipment_category?: string | null
+          equipment_id?: string | null
+          hospital_id?: string | null
+          id?: string
+          is_holiday?: boolean | null
+          metadata?: Json | null
+          patient_volume?: number | null
+          seasonal_factor?: number | null
+          usage_hours?: number | null
+        }
+        Update: {
+          booking_count?: number | null
+          created_at?: string
+          date_recorded?: string
+          day_of_week?: number | null
+          equipment_category?: string | null
+          equipment_id?: string | null
+          hospital_id?: string | null
+          id?: string
+          is_holiday?: boolean | null
+          metadata?: Json | null
+          patient_volume?: number | null
+          seasonal_factor?: number | null
+          usage_hours?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "usage_patterns_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_mfa: {
         Row: {
