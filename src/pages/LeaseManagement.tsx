@@ -14,7 +14,7 @@ import LeaseAnalytics from "@/components/leases/LeaseAnalytics";
 import { useRealTimeLeases } from "@/hooks/use-real-time-leases";
 
 const LeaseManagement = () => {
-  const { user, profile } = useAuth();
+  const { user, hasRole, userRoles } = useAuth();
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,7 +50,7 @@ const LeaseManagement = () => {
   );
 
   // Check if user has permission to create leases
-  const canCreateLease = profile?.role === 'admin' || profile?.role === 'hospital' || profile?.role === 'investor';
+  const canCreateLease = hasRole('admin') || hasRole('hospital') || hasRole('investor');
 
   return (
     <div className="p-6 bg-white min-h-screen">
@@ -91,7 +91,7 @@ const LeaseManagement = () => {
             <LeaseForm 
               onSuccess={handleCreateSuccess} 
               onCancel={() => setShowForm(false)}
-              userRole={profile?.role}
+              userRole={userRoles.primaryRole}
               userId={user?.id}
             />
           </CardContent>
@@ -99,10 +99,10 @@ const LeaseManagement = () => {
       ) : (
         <>
           {/* Analytics Section */}
-          <LeaseAnalytics leases={leases} userRole={profile?.role} />
+          <LeaseAnalytics leases={leases} userRole={userRoles.primaryRole} />
           
           {/* Stats Section */}
-          <LeaseStats leases={leases} userRole={profile?.role} />
+          <LeaseStats leases={leases} userRole={userRoles.primaryRole} />
           
           {/* Search and Filter Section */}
           <div className="my-6 flex items-center gap-4">
@@ -162,7 +162,7 @@ const LeaseManagement = () => {
                       leases={filteredLeases.filter(l => l.status === 'active')} 
                       loading={loading} 
                       onRefresh={refetch}
-                      userRole={profile?.role}
+                      userRole={userRoles.primaryRole}
                     />
                   </TabsContent>
                   
@@ -171,7 +171,7 @@ const LeaseManagement = () => {
                       leases={filteredLeases.filter(l => l.status === 'completed')} 
                       loading={loading} 
                       onRefresh={refetch}
-                      userRole={profile?.role}
+                      userRole={userRoles.primaryRole}
                     />
                   </TabsContent>
                   
@@ -180,7 +180,7 @@ const LeaseManagement = () => {
                       leases={filteredLeases.filter(l => l.status === 'canceled')} 
                       loading={loading} 
                       onRefresh={refetch}
-                      userRole={profile?.role}
+                      userRole={userRoles.primaryRole}
                     />
                   </TabsContent>
                   
@@ -189,7 +189,7 @@ const LeaseManagement = () => {
                       leases={filteredLeases} 
                       loading={loading} 
                       onRefresh={refetch}
-                      userRole={profile?.role}
+                      userRole={userRoles.primaryRole}
                     />
                   </TabsContent>
                 </div>

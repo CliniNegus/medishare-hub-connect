@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export const useAdminNotifications = () => {
-  const { user, profile } = useAuth();
+  const { user, userRoles } = useAuth();
   const { toast } = useToast();
 
   // Function to create admin notifications for system events
@@ -15,7 +15,7 @@ export const useAdminNotifications = () => {
     type: 'info' | 'success' | 'warning' | 'error' = 'info',
     actionUrl?: string
   ) => {
-    if (!user || profile?.role !== 'admin') return;
+    if (!user || !userRoles.isAdmin) return;
 
     try {
       const { error } = await supabase
@@ -37,7 +37,7 @@ export const useAdminNotifications = () => {
 
   // Listen for real-time changes that should trigger admin notifications
   useEffect(() => {
-    if (!user || profile?.role !== 'admin') return;
+    if (!user || !userRoles.isAdmin) return;
 
     // Listen for new equipment submissions
     const equipmentChannel = supabase
@@ -174,7 +174,7 @@ export const useAdminNotifications = () => {
       supabase.removeChannel(supportChannel);
       supabase.removeChannel(maintenanceChannel);
     };
-  }, [user, profile]);
+  }, [user, userRoles.isAdmin]);
 
   return { createAdminNotification };
 };

@@ -33,7 +33,7 @@ interface Lease {
 export const useRealTimeLeases = (statusFilter?: string) => {
   const [leases, setLeases] = useState<Lease[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user, profile } = useAuth();
+  const { user, hasRole } = useAuth();
 
   const fetchLeases = async () => {
     if (!user) return;
@@ -61,9 +61,9 @@ export const useRealTimeLeases = (statusFilter?: string) => {
         `);
 
       // Filter based on user role
-      if (profile?.role === 'hospital') {
+      if (hasRole('hospital')) {
         query = query.eq('hospital_id', user.id);
-      } else if (profile?.role === 'investor') {
+      } else if (hasRole('investor')) {
         query = query.eq('investor_id', user.id);
       }
 
@@ -137,7 +137,7 @@ export const useRealTimeLeases = (statusFilter?: string) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, profile, statusFilter]);
+  }, [user, statusFilter, hasRole]);
 
   return { leases, loading, refetch: fetchLeases };
 };

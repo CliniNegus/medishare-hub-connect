@@ -32,7 +32,7 @@ const ChangeAccountTypeModal: React.FC<ChangeAccountTypeModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (selectedRole === profile?.role) {
+    if (selectedRole === role) {
       onOpenChange(false);
       return;
     }
@@ -127,7 +127,7 @@ const ChangeAccountTypeModal: React.FC<ChangeAccountTypeModalProps> = ({
           </Button>
           <Button 
             onClick={handleSubmit} 
-            disabled={isSubmitting || selectedRole === profile?.role}
+            disabled={isSubmitting || selectedRole === role}
             className="bg-red-600 hover:bg-red-700"
           >
             {isSubmitting ? "Updating..." : "Change Account Type"}

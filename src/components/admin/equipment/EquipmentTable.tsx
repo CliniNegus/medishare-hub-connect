@@ -24,7 +24,7 @@ interface EquipmentTableProps {
 }
 
 const EquipmentTable = ({ equipment, loading, onUpdateEquipment }: EquipmentTableProps) => {
-  const { user, profile } = useAuth();
+  const { user, userRoles } = useAuth();
   const isMobile = useIsMobile();
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -32,7 +32,7 @@ const EquipmentTable = ({ equipment, loading, onUpdateEquipment }: EquipmentTabl
 
   // Check if user can edit equipment (admin or owner)
   const canEditEquipment = (item: Equipment) => {
-    return profile?.role === 'admin' || item.owner_id === user?.id;
+    return userRoles.isAdmin || item.owner_id === user?.id;
   };
 
   const handleViewEquipment = (item: Equipment) => {

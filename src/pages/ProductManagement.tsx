@@ -32,7 +32,7 @@ interface Shop {
 
 const ProductManagement = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, hasRole } = useAuth();
   const { profile } = useUserRole();
   const { toast } = useToast();
   const [shops, setShops] = useState<Shop[]>([]);
@@ -54,7 +54,7 @@ const ProductManagement = () => {
   });
 
   // Check if user is manufacturer or admin
-  const isManagementRole = profile?.role === 'manufacturer' || profile?.role === 'admin';
+  const isManagementRole = hasRole('manufacturer') || hasRole('admin');
 
   const fetchShops = async () => {
     if (!user) return;
