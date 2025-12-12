@@ -20,6 +20,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserRole } from '@/contexts/UserRoleContext';
 import { useNotificationContext } from '@/components/notifications/NotificationProvider';
 
 interface MainAppSidebarProps {
@@ -31,6 +32,7 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
   const location = useLocation();
   const { state } = useSidebar();
   const { profile, signOut } = useAuth();
+  const { role: currentRole, hasRole } = useUserRole();
   const { unreadCount } = useNotificationContext();
 
   const currentPath = location.pathname;
@@ -58,7 +60,7 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
       path: '/marketplace',
       description: 'Buy and sell equipment'
     },
-    ...(profile?.role === 'hospital' ? [
+    ...(hasRole('hospital') ? [
       { 
         id: 'products', 
         label: 'Products', 
@@ -81,7 +83,7 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
         description: 'Hospital network'
       }
     ] : []),
-    ...(profile?.role === 'investor' ? [
+    ...(hasRole('investor') ? [
       { 
         id: 'investments', 
         label: 'Investments', 
@@ -90,7 +92,7 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
         description: 'Investment portfolio'
       }
     ] : []),
-    ...(profile?.role === 'manufacturer' ? [
+    ...(hasRole('manufacturer') ? [
       { 
         id: 'analytics', 
         label: 'Analytics', 
@@ -181,11 +183,11 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
             alt="CliniBuilds Logo" 
             className="h-8 w-auto object-contain"
           />
-          {state === 'expanded' && profile && (
+          {state === 'expanded' && currentRole && (
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className={`px-2 py-1 text-xs rounded-full ${getRoleColor(profile.role)}`}>
-                  {profile.role}
+                <span className={`px-2 py-1 text-xs rounded-full ${getRoleColor(currentRole)}`}>
+                  {currentRole}
                 </span>
               </div>
             </div>
