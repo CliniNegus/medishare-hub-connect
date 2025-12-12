@@ -575,6 +575,162 @@ export type Database = {
           },
         ]
       }
+      equipment_requests: {
+        Row: {
+          created_at: string
+          end_date: string
+          equipment_id: string | null
+          id: string
+          notes: string | null
+          owning_hospital_id: string
+          purpose: string | null
+          request_type: string
+          requesting_hospital_id: string
+          responded_at: string | null
+          response_notes: string | null
+          start_date: string
+          status: string
+          updated_at: string
+          urgency: string | null
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          equipment_id?: string | null
+          id?: string
+          notes?: string | null
+          owning_hospital_id: string
+          purpose?: string | null
+          request_type?: string
+          requesting_hospital_id: string
+          responded_at?: string | null
+          response_notes?: string | null
+          start_date: string
+          status?: string
+          updated_at?: string
+          urgency?: string | null
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          equipment_id?: string | null
+          id?: string
+          notes?: string | null
+          owning_hospital_id?: string
+          purpose?: string | null
+          request_type?: string
+          requesting_hospital_id?: string
+          responded_at?: string | null
+          response_notes?: string | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+          urgency?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_requests_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment_transfers: {
+        Row: {
+          agreement_id: string | null
+          carrier: string | null
+          condition_on_delivery: string | null
+          condition_on_pickup: string | null
+          condition_on_return: string | null
+          created_at: string
+          delivery_date: string | null
+          equipment_id: string | null
+          from_hospital_id: string
+          id: string
+          notes: string | null
+          pickup_date: string | null
+          request_id: string | null
+          return_date: string | null
+          return_scheduled_date: string | null
+          scheduled_date: string
+          status: string
+          to_hospital_id: string
+          tracking_number: string | null
+          transfer_type: string
+          updated_at: string
+        }
+        Insert: {
+          agreement_id?: string | null
+          carrier?: string | null
+          condition_on_delivery?: string | null
+          condition_on_pickup?: string | null
+          condition_on_return?: string | null
+          created_at?: string
+          delivery_date?: string | null
+          equipment_id?: string | null
+          from_hospital_id: string
+          id?: string
+          notes?: string | null
+          pickup_date?: string | null
+          request_id?: string | null
+          return_date?: string | null
+          return_scheduled_date?: string | null
+          scheduled_date: string
+          status?: string
+          to_hospital_id: string
+          tracking_number?: string | null
+          transfer_type?: string
+          updated_at?: string
+        }
+        Update: {
+          agreement_id?: string | null
+          carrier?: string | null
+          condition_on_delivery?: string | null
+          condition_on_pickup?: string | null
+          condition_on_return?: string | null
+          created_at?: string
+          delivery_date?: string | null
+          equipment_id?: string | null
+          from_hospital_id?: string
+          id?: string
+          notes?: string | null
+          pickup_date?: string | null
+          request_id?: string | null
+          return_date?: string | null
+          return_scheduled_date?: string | null
+          scheduled_date?: string
+          status?: string
+          to_hospital_id?: string
+          tracking_number?: string | null
+          transfer_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_transfers_agreement_id_fkey"
+            columns: ["agreement_id"]
+            isOneToOne: false
+            referencedRelation: "sharing_agreements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_transfers_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_transfers_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hospital_clusters: {
         Row: {
           created_at: string
@@ -1424,6 +1580,81 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      sharing_agreements: {
+        Row: {
+          borrower_hospital_id: string
+          created_at: string
+          daily_rate: number | null
+          deposit_amount: number | null
+          end_date: string
+          equipment_id: string | null
+          id: string
+          insurance_required: boolean | null
+          lender_hospital_id: string
+          maintenance_responsibility: string | null
+          request_id: string | null
+          signed_by_borrower: boolean | null
+          signed_by_lender: boolean | null
+          start_date: string
+          status: string
+          terms: string | null
+          updated_at: string
+        }
+        Insert: {
+          borrower_hospital_id: string
+          created_at?: string
+          daily_rate?: number | null
+          deposit_amount?: number | null
+          end_date: string
+          equipment_id?: string | null
+          id?: string
+          insurance_required?: boolean | null
+          lender_hospital_id: string
+          maintenance_responsibility?: string | null
+          request_id?: string | null
+          signed_by_borrower?: boolean | null
+          signed_by_lender?: boolean | null
+          start_date: string
+          status?: string
+          terms?: string | null
+          updated_at?: string
+        }
+        Update: {
+          borrower_hospital_id?: string
+          created_at?: string
+          daily_rate?: number | null
+          deposit_amount?: number | null
+          end_date?: string
+          equipment_id?: string | null
+          id?: string
+          insurance_required?: boolean | null
+          lender_hospital_id?: string
+          maintenance_responsibility?: string | null
+          request_id?: string | null
+          signed_by_borrower?: boolean | null
+          signed_by_lender?: boolean | null
+          start_date?: string
+          status?: string
+          terms?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sharing_agreements_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sharing_agreements_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shipping_addresses: {
         Row: {

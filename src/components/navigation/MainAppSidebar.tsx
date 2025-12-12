@@ -3,7 +3,8 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, TrendingUp, Package, Users, MapPin, 
   DollarSign, LogOut, Briefcase, Bell,
-  Activity, BarChart3, HelpCircle, FileText, ShoppingCart, Heart, ClipboardList
+  Activity, BarChart3, HelpCircle, FileText, ShoppingCart, Heart, ClipboardList,
+  ArrowLeftRight
 } from 'lucide-react';
 import clinibuildsLogo from '@/assets/clinibuilds_logo.jpg';
 import {
@@ -74,6 +75,13 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
         icon: Heart, 
         path: '/wishlist',
         description: 'Saved products'
+      },
+      { 
+        id: 'equipment-sharing', 
+        label: 'Equipment Sharing', 
+        icon: ArrowLeftRight, 
+        path: '/equipment-sharing',
+        description: 'Request & share equipment'
       },
       { 
         id: 'hospitals', 
