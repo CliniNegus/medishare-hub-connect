@@ -15,11 +15,11 @@ const EquipmentTableMobile = ({
   onViewEquipment, 
   onEditEquipment 
 }: EquipmentTableMobileProps) => {
-  const { user, profile } = useAuth();
+  const { user, userRoles } = useAuth();
 
   // Check if user can edit equipment (admin or owner)
   const canEditEquipment = (item: Equipment) => {
-    return profile?.role === 'admin' || item.owner_id === user?.id;
+    return userRoles.isAdmin || item.owner_id === user?.id;
   };
 
   const getStatusBadgeColor = (status: string | null) => {

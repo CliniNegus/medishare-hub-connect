@@ -26,7 +26,7 @@ interface SettingsState {
 }
 
 export const useSystemSettings = () => {
-  const { user, profile } = useAuth();
+  const { user, userRoles } = useAuth();
   const { toast } = useToast();
   const [settings, setSettings] = useState<SettingsState>({
     systemName: 'CliniBuilds Dashboard',
@@ -43,7 +43,7 @@ export const useSystemSettings = () => {
 
   // Load settings from database
   const loadSettings = async () => {
-    if (!user || profile?.role !== 'admin') {
+    if (!user || !userRoles.isAdmin) {
       setLoading(false);
       return;
     }
@@ -83,7 +83,7 @@ export const useSystemSettings = () => {
 
   // Save settings to database
   const saveSettings = async (newSettings: Partial<SettingsState>) => {
-    if (!user || profile?.role !== 'admin') {
+    if (!user || !userRoles.isAdmin) {
       toast({
         title: 'Access Denied',
         description: 'Only administrators can modify system settings',
@@ -145,7 +145,7 @@ export const useSystemSettings = () => {
 
   useEffect(() => {
     loadSettings();
-  }, [user, profile]);
+  }, [user, userRoles.isAdmin]);
 
   return {
     settings,

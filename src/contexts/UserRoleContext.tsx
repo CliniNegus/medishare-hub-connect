@@ -35,19 +35,15 @@ export const UserRoleProvider: React.FC<UserRoleProviderProps> = ({ children }) 
     if (authUserRoles.primaryRole) {
       setCurrentRole(authUserRoles.primaryRole);
       setIsLoading(false);
-    } else if (profile?.role) {
-      // Fallback to profile.role for backwards compatibility
-      setCurrentRole(profile.role as UserRole);
-      setIsLoading(false);
-    } else if (user && !profile) {
-      // User exists but no profile loaded yet
+    } else if (user && !authUserRoles.primaryRole) {
+      // User exists but no role loaded yet
       setIsLoading(true);
     } else if (!user) {
       // No user logged in
       setCurrentRole(null);
       setIsLoading(false);
     }
-  }, [user, profile, authUserRoles.primaryRole]);
+  }, [user, authUserRoles.primaryRole]);
 
   const handleSetCurrentRole = (role: UserRole) => {
     setCurrentRole(role);
@@ -69,7 +65,7 @@ export const UserRoleProvider: React.FC<UserRoleProviderProps> = ({ children }) 
 
   // Check if user has a specific role using the user_roles table
   const isUserRegisteredAs = (role: UserRole): boolean => {
-    return authUserRoles.roles.includes(role) || profile?.role === role;
+    return authUserRoles.roles.includes(role);
   };
 
   // Check if user is authorized for a specific role or set of roles
@@ -80,9 +76,9 @@ export const UserRoleProvider: React.FC<UserRoleProviderProps> = ({ children }) 
     if (authUserRoles.isAdmin) return true;
     
     if (Array.isArray(requiredRole)) {
-      return requiredRole.some(r => authUserRoles.roles.includes(r) || profile?.role === r);
+      return requiredRole.some(r => authUserRoles.roles.includes(r));
     }
-    return authUserRoles.roles.includes(requiredRole) || profile?.role === requiredRole;
+    return authUserRoles.roles.includes(requiredRole);
   };
 
   // Check if user has a specific role

@@ -41,7 +41,7 @@ const STEPS = [
 ];
 
 const ProfileCompletionForm = () => {
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile, userRoles } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -174,16 +174,10 @@ const ProfileCompletionForm = () => {
       });
 
       // Redirect based on user role
-      const userRole = profile?.role || 'hospital';
-      switch (userRole) {
-        case 'admin':
-          navigate('/admin');
-          break;
-        case 'manufacturer':
-          navigate('/dashboard');
-          break;
-        default:
-          navigate('/dashboard');
+      if (userRoles.isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
       }
     } catch (error: any) {
       toast({

@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 import ProfileCompletionForm from '@/components/profile/ProfileCompletionForm';
 
 const CompleteProfile = () => {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, userRoles } = useAuth();
 
   if (loading) {
     return (
@@ -23,15 +23,10 @@ const CompleteProfile = () => {
 
   // If profile is already completed, redirect to dashboard
   if (profile?.profile_completed) {
-    const userRole = profile?.role || 'hospital';
-    switch (userRole) {
-      case 'admin':
-        return <Navigate to="/admin" replace />;
-      case 'manufacturer':
-        return <Navigate to="/dashboard" replace />;
-      default:
-        return <Navigate to="/dashboard" replace />;
+    if (userRoles.isAdmin) {
+      return <Navigate to="/admin" replace />;
     }
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <ProfileCompletionForm />;

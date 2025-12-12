@@ -10,7 +10,7 @@ import {
 } from './useManufacturerNotifications';
 
 export const useNotificationSystem = () => {
-  const { user, profile } = useAuth();
+  const { user, hasRole } = useAuth();
   const { toast } = useToast();
 
   // Function to create notifications for users
@@ -544,7 +544,7 @@ export const useNotificationSystem = () => {
             );
             
             // If user is manufacturer/owner, notify them too
-            if (profile?.role === 'manufacturer' || profile?.role === 'admin') {
+            if (hasRole('manufacturer') || hasRole('admin')) {
               createNotification(
                 user.id,
                 'Maintenance Alert',
@@ -698,7 +698,7 @@ export const useNotificationSystem = () => {
     return () => {
       channels.forEach(channel => supabase.removeChannel(channel));
     };
-  }, [user, profile]);
+  }, [user, hasRole]);
 
   return { createNotification, notifyAllAdmins, notifyUsersByRole };
 };

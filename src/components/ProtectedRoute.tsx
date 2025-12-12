@@ -15,7 +15,7 @@ const ProtectedRoute = ({
   requireAdmin = false,
   allowedRoles 
 }: ProtectedRouteProps) => {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, userRoles } = useAuth();
   const { isRoleAuthorized } = useUserRole();
   const location = useLocation();
 
@@ -35,12 +35,12 @@ const ProtectedRoute = ({
 
   // Automatic redirection to admin dashboard for admin users
   // Only redirect if they're not already trying to access the admin route
-  if (profile?.role === 'admin' && !requireAdmin && location.pathname !== '/admin') {
+  if (userRoles.isAdmin && !requireAdmin && location.pathname !== '/admin') {
     return <Navigate to="/admin" replace />;
   }
 
   // Check admin role if required
-  if (requireAdmin && profile?.role !== 'admin') {
+  if (requireAdmin && !userRoles.isAdmin) {
     return <Navigate to="/dashboard" replace />;
   }
 
