@@ -4,7 +4,7 @@ import {
   Home, TrendingUp, Package, Users, MapPin, 
   DollarSign, LogOut, Briefcase, Bell,
   Activity, BarChart3, HelpCircle, FileText, ShoppingCart, Heart, ClipboardList,
-  ArrowLeftRight
+  ArrowLeftRight, Brain
 } from 'lucide-react';
 import clinibuildsLogo from '@/assets/clinibuilds_logo.jpg';
 import {
@@ -82,6 +82,13 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
         icon: ArrowLeftRight, 
         path: '/equipment-sharing',
         description: 'Request & share equipment'
+      },
+      { 
+        id: 'demand-forecasting', 
+        label: 'Demand Forecast', 
+        icon: Brain, 
+        path: '/demand-forecasting',
+        description: 'AI-powered demand predictions'
       },
       { 
         id: 'hospitals', 
