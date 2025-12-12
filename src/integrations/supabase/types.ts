@@ -1564,84 +1564,126 @@ export type Database = {
       }
       profiles: {
         Row: {
+          bed_capacity: number | null
           bio: string | null
           can_restore_until: string | null
+          certifications: string[] | null
+          coordinates: Json | null
           created_at: string
           deleted_at: string | null
           deletion_initiated_by: string | null
           email: string
           email_verified_at: string | null
+          equipment_needs: string[] | null
+          financing_needs: string[] | null
           full_name: string | null
           gender: string | null
+          hospital_type: string | null
           id: string
+          investment_budget_range: string | null
+          investment_experience: string | null
+          investment_interests: string[] | null
           is_deleted: boolean | null
           is_new_user: boolean | null
           last_active: string | null
           location: string | null
           logo_url: string | null
+          manufacturing_location: string | null
+          onboarding_completed: boolean | null
           organization: string | null
           phone: string | null
+          products_available: string[] | null
           profile_completed: boolean | null
           profile_completion_step: number | null
           profile_draft: Json | null
           role: string | null
+          target_markets: string[] | null
           updated_at: string
           verification_attempts: number | null
           verification_token_sent_at: string | null
+          wallet_address: string | null
           website: string | null
         }
         Insert: {
+          bed_capacity?: number | null
           bio?: string | null
           can_restore_until?: string | null
+          certifications?: string[] | null
+          coordinates?: Json | null
           created_at?: string
           deleted_at?: string | null
           deletion_initiated_by?: string | null
           email: string
           email_verified_at?: string | null
+          equipment_needs?: string[] | null
+          financing_needs?: string[] | null
           full_name?: string | null
           gender?: string | null
+          hospital_type?: string | null
           id: string
+          investment_budget_range?: string | null
+          investment_experience?: string | null
+          investment_interests?: string[] | null
           is_deleted?: boolean | null
           is_new_user?: boolean | null
           last_active?: string | null
           location?: string | null
           logo_url?: string | null
+          manufacturing_location?: string | null
+          onboarding_completed?: boolean | null
           organization?: string | null
           phone?: string | null
+          products_available?: string[] | null
           profile_completed?: boolean | null
           profile_completion_step?: number | null
           profile_draft?: Json | null
           role?: string | null
+          target_markets?: string[] | null
           updated_at?: string
           verification_attempts?: number | null
           verification_token_sent_at?: string | null
+          wallet_address?: string | null
           website?: string | null
         }
         Update: {
+          bed_capacity?: number | null
           bio?: string | null
           can_restore_until?: string | null
+          certifications?: string[] | null
+          coordinates?: Json | null
           created_at?: string
           deleted_at?: string | null
           deletion_initiated_by?: string | null
           email?: string
           email_verified_at?: string | null
+          equipment_needs?: string[] | null
+          financing_needs?: string[] | null
           full_name?: string | null
           gender?: string | null
+          hospital_type?: string | null
           id?: string
+          investment_budget_range?: string | null
+          investment_experience?: string | null
+          investment_interests?: string[] | null
           is_deleted?: boolean | null
           is_new_user?: boolean | null
           last_active?: string | null
           location?: string | null
           logo_url?: string | null
+          manufacturing_location?: string | null
+          onboarding_completed?: boolean | null
           organization?: string | null
           phone?: string | null
+          products_available?: string[] | null
           profile_completed?: boolean | null
           profile_completion_step?: number | null
           profile_draft?: Json | null
           role?: string | null
+          target_markets?: string[] | null
           updated_at?: string
           verification_attempts?: number | null
           verification_token_sent_at?: string | null
+          wallet_address?: string | null
           website?: string | null
         }
         Relationships: [

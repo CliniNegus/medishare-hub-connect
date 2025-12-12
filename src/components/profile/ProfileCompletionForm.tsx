@@ -27,7 +27,6 @@ interface ProfileData {
   full_name: string;
   phone: string;
   logo_url: string;
-  gender: string;
   location: string;
   organization: string;
   bio: string;
@@ -50,7 +49,6 @@ const ProfileCompletionForm = () => {
     full_name: '',
     phone: '',
     logo_url: '',
-    gender: '',
     location: '',
     organization: '',
     bio: ''
@@ -62,7 +60,6 @@ const ProfileCompletionForm = () => {
         full_name: profile.full_name || '',
         phone: profile.phone || '',
         logo_url: profile.logo_url || '',
-        gender: profile.gender || '',
         location: profile.location || '',
         organization: profile.organization || '',
         bio: profile.bio || ''
@@ -84,13 +81,13 @@ const ProfileCompletionForm = () => {
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
-        return !!(formData.full_name && formData.gender);
+        return !!formData.full_name;
       case 2:
         return !!(formData.phone && formData.location);
       case 3:
         return !!formData.organization;
       case 4:
-        return true; // Profile picture is optional
+        return true;
       default:
         return false;
     }
@@ -139,7 +136,7 @@ const ProfileCompletionForm = () => {
     if (!user) return;
 
     // Validate all required fields
-    const requiredFields = ['full_name', 'phone', 'location', 'organization', 'gender'];
+    const requiredFields = ['full_name', 'phone', 'location', 'organization'];
     const missingFields = requiredFields.filter(field => !formData[field as keyof ProfileData]);
     
     if (missingFields.length > 0) {
@@ -257,23 +254,14 @@ const ProfileCompletionForm = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Gender <span className="text-red-500">*</span>
-                  </label>
-                  <Select value={formData.gender} onValueChange={(value) => setFormData(prev => ({ ...prev, gender: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your gender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                      <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <label className="block text-sm font-medium mb-1">Bio (Optional)</label>
+                  <Textarea
+                    value={formData.bio}
+                    onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
+                    placeholder="Tell us about yourself"
+                    rows={3}
+                  />
                 </div>
-
-                <div>
                   <label className="block text-sm font-medium mb-1">Bio (Optional)</label>
                   <Textarea
                     value={formData.bio}
