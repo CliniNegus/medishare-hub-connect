@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { AlertCircle, Mail, User, Building, Lock, Eye, EyeOff, CheckCircle, Arro
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useEmailVerification } from '@/hooks/useEmailVerification';
+import GoogleIcon from "@/components/icons/GoogleIcon";
 
 interface SignUpFormProps {
   onSuccess: () => void;
@@ -19,6 +21,7 @@ interface SignUpFormProps {
 
 const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata }) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { sendVerificationEmail } = useEmailVerification();
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
@@ -30,6 +33,30 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
   const [passwordValidationMessage, setPasswordValidationMessage] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [termsError, setTermsError] = useState<string | null>(null);
+
+  const handleGoogleSignUp = async () => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/onboarding/${metadata?.role || 'hospital'}`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
+        }
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        title: "Google sign-up failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      setLoading(false);
+    }
+  };
 
   const validatePassword = async (password: string) => {
     try {
@@ -154,8 +181,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
           // Don't block user flow for email failures
         }
         
-        // Proceed with success regardless of email delivery
-        onSuccess();
+        // Redirect to role-specific onboarding
+        const role = metadata?.role || 'hospital';
+        navigate(`/onboarding/${role}`);
       } else {
         throw new Error("User creation failed - no user data returned");
       }
@@ -192,7 +220,31 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
 
   return (
     <form onSubmit={handleSignUp} className="space-y-0">
-      <CardContent className="space-y-8 pt-6 px-8">
+      <CardContent className="space-y-6 pt-6 px-8">
+        {/* Google Sign Up Button */}
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleGoogleSignUp}
+          disabled={loading}
+          className="w-full h-14 border-2 rounded-xl font-semibold transition-all duration-300 hover:bg-muted/50"
+        >
+          <GoogleIcon className="w-5 h-5 mr-3" />
+          Continue with Google
+        </Button>
+
+        {/* Divider */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-4 text-muted-foreground font-medium">
+              or continue with email
+            </span>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 gap-6">
           <div className="space-y-3">
             <Label htmlFor="email-signup" className="text-sm font-bold text-foreground flex items-center gap-2">

@@ -10,6 +10,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { Eye, EyeOff, Mail, Lock, Shield, ArrowRight } from "lucide-react";
 import { useEmailVerification } from "@/hooks/useEmailVerification";
 import EmailVerificationAlert from "@/components/auth/EmailVerificationAlert";
+import GoogleIcon from "@/components/icons/GoogleIcon";
 
 interface SignInFormProps {
   onSuccess: () => void;
@@ -252,9 +253,53 @@ const SignInForm: React.FC<SignInFormProps> = ({
     );
   }
 
+  const handleGoogleSignIn = async () => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        title: "Google sign-in failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      setLoading(false);
+    }
+  };
+
   return (
     <form onSubmit={handleSignIn} className="space-y-0">
-      <CardContent className="space-y-8 pt-6 px-8">
+      <CardContent className="space-y-6 pt-6 px-8">
+        {/* Google Sign In Button */}
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleGoogleSignIn}
+          disabled={loading}
+          className="w-full h-14 border-2 rounded-xl font-semibold transition-all duration-300 hover:bg-muted/50"
+        >
+          <GoogleIcon className="w-5 h-5 mr-3" />
+          Continue with Google
+        </Button>
+
+        {/* Divider */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-4 text-muted-foreground font-medium">
+              or continue with email
+            </span>
+          </div>
+        </div>
+
         <div className="space-y-6">
           <div className="space-y-3">
             <Label htmlFor="email" className="text-sm font-bold text-foreground flex items-center gap-2">
