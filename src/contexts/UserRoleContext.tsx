@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useAuth } from './AuthContext';
+import { useAuth, AppRole } from './AuthContext';
 
-export type UserRole = 'hospital' | 'manufacturer' | 'investor' | 'admin';
+export type UserRole = AppRole;
 
 interface UserRoleContextType {
   role: UserRole | null;
@@ -11,9 +11,12 @@ interface UserRoleContextType {
   updateUserRole: (role: UserRole) => Promise<void>;
   isLoading: boolean;
   canSwitchRole: boolean;
-  profile: any; // This will come from auth context
+  profile: any;
+  userRoles: UserRole[];
+  isAdmin: boolean;
   isUserRegisteredAs: (role: UserRole) => boolean;
   isRoleAuthorized: (requiredRole?: UserRole | UserRole[]) => boolean;
+  hasRole: (role: UserRole) => boolean;
 }
 
 const UserRoleContext = createContext<UserRoleContextType | undefined>(undefined);
@@ -23,12 +26,17 @@ interface UserRoleProviderProps {
 }
 
 export const UserRoleProvider: React.FC<UserRoleProviderProps> = ({ children }) => {
-  const { user, profile, updateProfileRole } = useAuth();
+  const { user, profile, userRoles: authUserRoles, updateUserRole: authUpdateUserRole, hasRole: authHasRole } = useAuth();
   const [currentRole, setCurrentRole] = useState<UserRole | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (profile?.role) {
+    // Use the primary role from user_roles table
+    if (authUserRoles.primaryRole) {
+      setCurrentRole(authUserRoles.primaryRole);
+      setIsLoading(false);
+    } else if (profile?.role) {
+      // Fallback to profile.role for backwards compatibility
       setCurrentRole(profile.role as UserRole);
       setIsLoading(false);
     } else if (user && !profile) {
@@ -39,7 +47,7 @@ export const UserRoleProvider: React.FC<UserRoleProviderProps> = ({ children }) 
       setCurrentRole(null);
       setIsLoading(false);
     }
-  }, [user, profile]);
+  }, [user, profile, authUserRoles.primaryRole]);
 
   const handleSetCurrentRole = (role: UserRole) => {
     setCurrentRole(role);
@@ -51,31 +59,39 @@ export const UserRoleProvider: React.FC<UserRoleProviderProps> = ({ children }) 
 
   const handleUpdateUserRole = async (role: UserRole) => {
     try {
-      if (updateProfileRole) {
-        await updateProfileRole(role);
-        setCurrentRole(role);
-      }
+      await authUpdateUserRole(role);
+      setCurrentRole(role);
     } catch (error) {
       console.error('Error updating user role:', error);
       throw error;
     }
   };
 
+  // Check if user has a specific role using the user_roles table
   const isUserRegisteredAs = (role: UserRole): boolean => {
-    return profile?.role === role;
+    return authUserRoles.roles.includes(role) || profile?.role === role;
   };
 
+  // Check if user is authorized for a specific role or set of roles
   const isRoleAuthorized = (requiredRole?: UserRole | UserRole[]): boolean => {
     if (!requiredRole) return true;
-    if (profile?.role === 'admin') return true;
+    
+    // Admins can access everything
+    if (authUserRoles.isAdmin) return true;
+    
     if (Array.isArray(requiredRole)) {
-      return requiredRole.includes(profile?.role as UserRole);
+      return requiredRole.some(r => authUserRoles.roles.includes(r) || profile?.role === r);
     }
-    return profile?.role === requiredRole;
+    return authUserRoles.roles.includes(requiredRole) || profile?.role === requiredRole;
+  };
+
+  // Check if user has a specific role
+  const hasRole = (role: UserRole): boolean => {
+    return authHasRole(role);
   };
 
   // Users can only "switch" to their actual role or admin can switch to any role
-  const canSwitchRole = profile?.role === 'admin';
+  const canSwitchRole = authUserRoles.isAdmin;
 
   const value: UserRoleContextType = {
     role: currentRole,
@@ -86,8 +102,11 @@ export const UserRoleProvider: React.FC<UserRoleProviderProps> = ({ children }) 
     isLoading,
     canSwitchRole,
     profile,
+    userRoles: authUserRoles.roles,
+    isAdmin: authUserRoles.isAdmin,
     isUserRegisteredAs,
     isRoleAuthorized,
+    hasRole,
   };
 
   return (

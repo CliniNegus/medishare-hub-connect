@@ -8,12 +8,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Hospital, Factory, PiggyBank, ChevronDown, ShieldAlert } from "lucide-react";
 import { useUserRole, UserRole } from '@/contexts/UserRoleContext';
-import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from "@/components/ui/use-toast";
 
 const UserRoleSelector = () => {
-  const { role, setRole, updateUserRole } = useUserRole();
-  const { profile } = useAuth();
+  const { role, setRole, updateUserRole, userRoles, isAdmin } = useUserRole();
   const { toast } = useToast();
 
   const roleIcons = {
@@ -31,9 +29,8 @@ const UserRoleSelector = () => {
   };
 
   const handleRoleChange = async (newRole: UserRole) => {
-    if (!profile) return;
-    
-    if (profile.role === 'admin') {
+    // Admins can switch to any role
+    if (isAdmin) {
       setRole(newRole);
       toast({
         title: "View Changed",
@@ -42,30 +39,25 @@ const UserRoleSelector = () => {
       return;
     }
     
-    if (profile.role && profile.role !== newRole) {
+    // Check if user has this role in the user_roles table
+    if (!userRoles.includes(newRole)) {
       toast({
         title: "Access Restricted",
-        description: `You are registered as a ${roleLabels[profile.role as UserRole]}. You cannot access ${roleLabels[newRole]} features.`,
+        description: `You are not registered as a ${roleLabels[newRole]}. You cannot access ${roleLabels[newRole]} features.`,
         variant: "destructive"
       });
       return;
     }
     
-    if (!profile.role) {
-      try {
-        await updateUserRole(newRole);
-      } catch (error) {
-        console.error("Failed to update user role:", error);
-      }
-    } else {
-      setRole(newRole);
-    }
+    // User has the role, allow switching
+    setRole(newRole);
   };
 
-  const availableRoles: UserRole[] = profile?.role === 'admin' 
+  // Available roles based on what the user has in user_roles table
+  const availableRoles: UserRole[] = isAdmin 
     ? ['hospital', 'manufacturer', 'investor', 'admin']
-    : profile?.role 
-      ? [profile.role as UserRole] 
+    : userRoles.length > 0 
+      ? userRoles 
       : ['hospital', 'manufacturer', 'investor'];
 
   return (

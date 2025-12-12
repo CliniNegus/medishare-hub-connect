@@ -1,17 +1,28 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+
+export type AppRole = 'admin' | 'manufacturer' | 'hospital' | 'investor';
+
+interface UserRolesState {
+  roles: AppRole[];
+  primaryRole: AppRole | null;
+  isAdmin: boolean;
+}
 
 interface AuthContextType {
   session: Session | null;
   user: User | null;
   profile: any | null;
+  userRoles: UserRolesState;
   loading: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
-  updateProfileRole: (role: string) => Promise<void>;
+  refreshRoles: () => Promise<void>;
+  updateUserRole: (role: AppRole) => Promise<void>;
+  hasRole: (role: AppRole) => boolean;
   setSessionTimeout: (minutes: number) => void;
 }
 
@@ -21,6 +32,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
+  const [userRoles, setUserRoles] = useState<UserRolesState>({
+    roles: [],
+    primaryRole: null,
+    isAdmin: false,
+  });
   const [loading, setLoading] = useState(true);
   const [sessionTimeoutId, setSessionTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const [sessionTimeoutMinutes, setSessionTimeoutMinutes] = useState<number>(30); // Default 30 minutes
@@ -107,6 +123,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, [user]);
 
+  // Fetch user roles from user_roles table
+  const fetchUserRoles = useCallback(async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId);
+
+      if (error) {
+        console.error('Error fetching user roles:', error);
+        return;
+      }
+
+      const roles = (data?.map(r => r.role) || []) as AppRole[];
+      const isAdmin = roles.includes('admin');
+      
+      // Priority order for primary role: admin > manufacturer > hospital > investor
+      const rolePriority: AppRole[] = ['admin', 'manufacturer', 'hospital', 'investor'];
+      const primaryRole = rolePriority.find(r => roles.includes(r)) || null;
+
+      setUserRoles({
+        roles,
+        primaryRole,
+        isAdmin,
+      });
+    } catch (error) {
+      console.error('Error in fetchUserRoles:', error);
+    }
+  }, []);
+
   useEffect(() => {
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -116,8 +162,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (event === 'SIGNED_OUT') {
           setProfile(null);
+          setUserRoles({ roles: [], primaryRole: null, isAdmin: false });
         } else if (event === 'SIGNED_IN' && newSession?.user) {
           fetchProfile(newSession.user.id);
+          fetchUserRoles(newSession.user.id);
           // Update activity on sign in
           updateUserActivity();
         }
@@ -131,6 +179,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (currentSession?.user) {
         fetchProfile(currentSession.user.id);
+        fetchUserRoles(currentSession.user.id);
         // Update activity for existing session
         updateUserActivity();
       }
@@ -141,7 +190,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [fetchUserRoles]);
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -184,19 +233,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await fetchProfile(user.id);
   };
 
-  const updateProfileRole = async (role: string) => {
+  const refreshRoles = async () => {
+    if (!user) return;
+    await fetchUserRoles(user.id);
+  };
+
+  // Update user role - adds role to user_roles table
+  const updateUserRole = async (role: AppRole) => {
     if (!user) return;
     
     try {
+      // Insert the role into user_roles table
       const { error } = await supabase
-        .from('profiles')
-        .update({ role })
-        .eq('id', user.id);
+        .from('user_roles')
+        .upsert({ user_id: user.id, role }, { onConflict: 'user_id,role' });
         
       if (error) throw error;
       
-      // Refresh profile to get updated data
-      await refreshProfile();
+      // Also update profile.role for backwards compatibility during migration
+      await supabase
+        .from('profiles')
+        .update({ role })
+        .eq('id', user.id);
+      
+      // Refresh roles and profile to get updated data
+      await Promise.all([refreshRoles(), refreshProfile()]);
       
       toast({
         title: "Role updated",
@@ -210,6 +271,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
     }
   };
+
+  const hasRole = useCallback((role: AppRole): boolean => {
+    return userRoles.roles.includes(role);
+  }, [userRoles.roles]);
 
   const setSessionTimeout = (minutes: number) => {
     setSessionTimeoutMinutes(minutes);
@@ -228,6 +293,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(null);
       setUser(null);
       setProfile(null);
+      setUserRoles({ roles: [], primaryRole: null, isAdmin: false });
       
       // Sign out from Supabase with proper scope
       await supabase.auth.signOut({ scope: 'global' });
@@ -254,10 +320,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       session, 
       user, 
       profile, 
+      userRoles,
       loading, 
       signOut, 
       refreshProfile,
-      updateProfileRole,
+      refreshRoles,
+      updateUserRole,
+      hasRole,
       setSessionTimeout
     }}>
       {children}
