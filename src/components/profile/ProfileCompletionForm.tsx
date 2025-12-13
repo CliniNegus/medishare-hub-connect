@@ -262,14 +262,6 @@ const ProfileCompletionForm = () => {
                     rows={3}
                   />
                 </div>
-                  <label className="block text-sm font-medium mb-1">Bio (Optional)</label>
-                  <Textarea
-                    value={formData.bio}
-                    onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
-                    placeholder="Tell us about yourself"
-                    rows={3}
-                  />
-                </div>
               </div>
             )}
 
