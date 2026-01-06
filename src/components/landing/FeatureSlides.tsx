@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Hospital, 
   Factory, 
@@ -24,7 +24,7 @@ interface FeatureSlide {
     icon: React.ReactNode;
     title: string;
     description: string;
-    imageSrc?: string; // Optional image source
+    imageSrc?: string;
   }[];
 }
 
@@ -99,14 +99,30 @@ const featureSlides: FeatureSlide[] = [
   }
 ];
 
+const AUTOPLAY_INTERVAL = 6000;
+const RESUME_DELAY = 8000;
+
 const FeatureSlides: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [lastInteraction, setLastInteraction] = useState<number>(0);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   
-  // Function to handle custom image upload (placeholder for now)
+  // Check for reduced motion preference
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+    
+    const handleChange = (e: MediaQueryListEvent) => {
+      setPrefersReducedMotion(e.matches);
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+  
   const handleImageUpload = (slideIndex: number, featureIndex: number) => {
     console.log(`Upload image for slide ${slideIndex}, feature ${featureIndex}`);
-    // In a real implementation, this would trigger a file upload dialog
   };
 
   const nextSlide = useCallback(() => {
@@ -117,23 +133,50 @@ const FeatureSlides: React.FC = () => {
     setCurrentSlide((prev) => (prev - 1 + featureSlides.length) % featureSlides.length);
   }, []);
 
-  // Auto-rotate slides
+  // Handle manual navigation with interaction tracking
+  const handleManualPrev = useCallback(() => {
+    setLastInteraction(Date.now());
+    prevSlide();
+  }, [prevSlide]);
+
+  const handleManualNext = useCallback(() => {
+    setLastInteraction(Date.now());
+    nextSlide();
+  }, [nextSlide]);
+
+  const handleDotClick = useCallback((index: number) => {
+    setLastInteraction(Date.now());
+    setCurrentSlide(index);
+  }, []);
+
+  // Auto-rotate slides with resume delay after manual navigation
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    if (!isAutoPlaying || prefersReducedMotion) return;
     
-    const interval = setInterval(() => {
-      nextSlide();
-    }, 5000); // Rotate every 5 seconds
+    const now = Date.now();
+    const timeSinceInteraction = now - lastInteraction;
     
+    // If user recently interacted, wait for resume delay
+    if (lastInteraction > 0 && timeSinceInteraction < RESUME_DELAY) {
+      const timeout = setTimeout(() => {
+        setLastInteraction(0); // Reset to allow autoplay
+      }, RESUME_DELAY - timeSinceInteraction);
+      return () => clearTimeout(timeout);
+    }
+    
+    const interval = setInterval(nextSlide, AUTOPLAY_INTERVAL);
     return () => clearInterval(interval);
-  }, [nextSlide, isAutoPlaying]);
+  }, [nextSlide, isAutoPlaying, lastInteraction, prefersReducedMotion]);
   
   // Pause auto-rotation when hovering
   const handleMouseEnter = () => setIsAutoPlaying(false);
   const handleMouseLeave = () => setIsAutoPlaying(true);
   
   // Toggle auto-play
-  const toggleAutoPlay = () => setIsAutoPlaying(prev => !prev);
+  const toggleAutoPlay = () => {
+    setIsAutoPlaying(prev => !prev);
+    setLastInteraction(Date.now());
+  };
 
   return (
     <div 
@@ -198,7 +241,7 @@ const FeatureSlides: React.FC = () => {
         <Button 
           variant="outline" 
           size="icon" 
-          onClick={prevSlide}
+          onClick={handleManualPrev}
           className="bg-white border-red-200 hover:bg-red-50 text-red-500"
         >
           <ChevronLeft className="h-5 w-5" />
@@ -209,7 +252,7 @@ const FeatureSlides: React.FC = () => {
           {featureSlides.map((_, index) => (
             <button
               key={index}
-              onClick={() => setCurrentSlide(index)}
+              onClick={() => handleDotClick(index)}
               className={cn(
                 "h-2 w-2 rounded-full transition-all",
                 currentSlide === index 
@@ -224,7 +267,7 @@ const FeatureSlides: React.FC = () => {
         <Button 
           variant="outline" 
           size="icon" 
-          onClick={nextSlide}
+          onClick={handleManualNext}
           className="bg-white border-red-200 hover:bg-red-50 text-red-500"
         >
           <ChevronRight className="h-5 w-5" />
