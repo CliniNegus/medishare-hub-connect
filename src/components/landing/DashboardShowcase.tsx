@@ -1,7 +1,5 @@
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -20,11 +18,30 @@ interface ShowcaseItem {
   alt: string;
 }
 
+const AUTOPLAY_INTERVAL = 6000;
+const RESUME_DELAY = 8000;
+
 const DashboardShowcase: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [showcaseItems, setShowcaseItems] = useState<ShowcaseItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [lastInteraction, setLastInteraction] = useState<number>(0);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  // Check for reduced motion preference
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+    
+    const handleChange = (e: MediaQueryListEvent) => {
+      setPrefersReducedMotion(e.matches);
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   // Fetch showcase data from Supabase
   useEffect(() => {
@@ -75,11 +92,43 @@ const DashboardShowcase: React.FC = () => {
     
     carouselApi.on("select", onSelect);
     
-    // Cleanup function
     return () => {
       carouselApi.off("select", onSelect);
     };
   }, [carouselApi]);
+
+  // Autoplay logic with resume delay after manual navigation
+  useEffect(() => {
+    if (!carouselApi || !isAutoPlaying || prefersReducedMotion || showcaseItems.length === 0) return;
+    
+    const now = Date.now();
+    const timeSinceInteraction = now - lastInteraction;
+    
+    // If user recently interacted, wait for resume delay
+    if (lastInteraction > 0 && timeSinceInteraction < RESUME_DELAY) {
+      const timeout = setTimeout(() => {
+        setLastInteraction(0); // Reset to allow autoplay
+      }, RESUME_DELAY - timeSinceInteraction);
+      return () => clearTimeout(timeout);
+    }
+    
+    const interval = setInterval(() => {
+      carouselApi.scrollNext();
+    }, AUTOPLAY_INTERVAL);
+    
+    return () => clearInterval(interval);
+  }, [carouselApi, isAutoPlaying, lastInteraction, prefersReducedMotion, showcaseItems.length]);
+
+  // Handle manual dot click with interaction tracking
+  const handleDotClick = (index: number) => {
+    setLastInteraction(Date.now());
+    carouselApi?.scrollTo(index);
+    setCurrentIndex(index);
+  };
+
+  // Pause on hover
+  const handleMouseEnter = () => setIsAutoPlaying(false);
+  const handleMouseLeave = () => setIsAutoPlaying(true);
 
   // Show loading state or empty state
   if (loading || showcaseItems.length === 0) {
@@ -102,7 +151,11 @@ const DashboardShowcase: React.FC = () => {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
+    <div 
+      className="w-full max-w-6xl mx-auto"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <Carousel
         className="w-full"
         opts={{
@@ -144,15 +197,15 @@ const DashboardShowcase: React.FC = () => {
         </CarouselContent>
         
         <div className="flex items-center justify-center mt-4 gap-3">
-          <CarouselPrevious className="static transform-none" />
+          <CarouselPrevious 
+            className="static transform-none" 
+            onClick={() => setLastInteraction(Date.now())}
+          />
           <div className="flex items-center space-x-2">
             {showcaseItems.map((_, index) => (
               <button
                 key={index}
-                onClick={() => {
-                  carouselApi?.scrollTo(index);
-                  setCurrentIndex(index);
-                }}
+                onClick={() => handleDotClick(index)}
                 className={cn(
                   "h-2 w-2 rounded-full transition-all",
                   currentIndex === index 
@@ -163,7 +216,10 @@ const DashboardShowcase: React.FC = () => {
               />
             ))}
           </div>
-          <CarouselNext className="static transform-none" />
+          <CarouselNext 
+            className="static transform-none" 
+            onClick={() => setLastInteraction(Date.now())}
+          />
         </div>
       </Carousel>
     </div>

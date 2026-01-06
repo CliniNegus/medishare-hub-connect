@@ -84,12 +84,12 @@ const Index: React.FC = () => {
             <div className="flex justify-between items-center py-4">
               {/* Logo in Navigation - Made more visible */}
               <div className="flex items-center gap-3">
-                <div className="relative">
+                <div className="flex-shrink-0">
                   <OptimizedImage
                     src="https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/Clinibuilds%20Logo.jpg"
                     alt="CliniBuilds Logo"
-                    height={50}
-                    className="object-contain rounded-lg shadow-md"
+                    height={44}
+                    className="object-contain rounded-lg shadow-md h-9 md:h-11 w-auto"
                   />
                 </div>
               </div>
@@ -99,10 +99,10 @@ const Index: React.FC = () => {
                 <a href="#features" className="text-[#333333] hover:text-[#E02020] font-medium transition-colors">Features</a>
                 <a href="#showcase" className="text-[#333333] hover:text-[#E02020] font-medium transition-colors">Platform</a>
                 <a href="#benefits" className="text-[#333333] hover:text-[#E02020] font-medium transition-colors">Benefits</a>
-                <Button asChild variant="outline" className="border-[#E02020] text-[#E02020] hover:bg-[#E02020] hover:text-white">
+                <Button asChild variant="outline" className="border-[#E02020] text-[#E02020] hover:bg-[#E02020] hover:text-white font-semibold focus-visible:ring-2 focus-visible:ring-[#E02020] focus-visible:ring-offset-2">
                   <Link to="/auth">Sign In</Link>
                 </Button>
-                <Button asChild className="bg-[#E02020] hover:bg-[#E02020]/90">
+                <Button asChild className="bg-[#E02020] hover:bg-[#E02020]/90 text-white font-semibold focus-visible:ring-2 focus-visible:ring-[#E02020] focus-visible:ring-offset-2">
                   <Link to="/shop">Browse Shop</Link>
                 </Button>
               </div>
@@ -124,10 +124,10 @@ const Index: React.FC = () => {
                   <a href="#showcase" className="text-[#333333] hover:text-[#E02020] font-medium">Platform</a>
                   <a href="#benefits" className="text-[#333333] hover:text-[#E02020] font-medium">Benefits</a>
                   <div className="flex flex-col gap-3 pt-4 border-t border-gray-200">
-                    <Button asChild variant="outline" className="border-[#E02020] text-[#E02020]">
+                    <Button asChild variant="outline" className="border-[#E02020] text-[#E02020] hover:bg-[#E02020] hover:text-white font-semibold">
                       <Link to="/auth">Sign In</Link>
                     </Button>
-                    <Button asChild className="bg-[#E02020] hover:bg-[#E02020]/90">
+                    <Button asChild className="bg-[#E02020] hover:bg-[#E02020]/90 text-white font-semibold">
                       <Link to="/shop">Browse Shop</Link>
                     </Button>
                   </div>
@@ -195,13 +195,13 @@ const Index: React.FC = () => {
             
             {/* Call to Action Buttons */}
             <div className="flex flex-col sm:flex-row justify-center gap-6 max-w-lg mx-auto">
-              <Button asChild size="lg" className="bg-gradient-to-r from-[#E02020] to-[#E02020]/90 hover:from-[#E02020]/90 hover:to-[#E02020] text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group text-base">
+              <Button asChild size="lg" className="bg-gradient-to-r from-[#E02020] to-[#E02020]/90 hover:from-[#E02020]/90 hover:to-[#E02020] text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group text-base focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#E02020]">
                 <Link to="/shop" className="flex items-center gap-2">
                   Browse Medical Supplies
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="border-2 border-[#333333] text-[#333333] hover:bg-[#333333] hover:text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 text-base">
+              <Button asChild variant="outline" size="lg" className="border-2 border-[#333333] text-[#333333] hover:bg-[#333333] hover:text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 text-base focus-visible:ring-2 focus-visible:ring-[#333333] focus-visible:ring-offset-2">
                 <Link to="/auth">Get Started</Link>
               </Button>
             </div>
@@ -315,13 +315,13 @@ const Index: React.FC = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row justify-center gap-6 max-w-lg mx-auto">
-                <Button asChild size="lg" className="bg-gradient-to-r from-[#E02020] to-[#E02020]/90 hover:from-[#E02020]/90 hover:to-[#E02020] text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group">
+                <Button asChild size="lg" className="bg-gradient-to-r from-[#E02020] to-[#E02020]/90 hover:from-[#E02020]/90 hover:to-[#E02020] text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#E02020]">
                   <Link to="/auth" className="flex items-center gap-2">
                     Sign Up Now
                     <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="border-2 border-[#333333] text-[#333333] hover:bg-[#333333] hover:text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300">
+                <Button asChild variant="outline" size="lg" className="border-2 border-[#333333] text-[#333333] hover:bg-[#333333] hover:text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 focus-visible:ring-2 focus-visible:ring-[#333333] focus-visible:ring-offset-2">
                   <Link to="/dashboard">Explore Dashboard</Link>
                 </Button>
               </div>
@@ -357,12 +357,14 @@ const Index: React.FC = () => {
               {/* Company Info */}
               <div className="lg:col-span-2">
                 <div className="flex items-center gap-3 mb-6">
-                  <OptimizedImage
-                    src="https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/Clinibuilds%20Logo.jpg"
-                    alt="CliniBuilds Logo"
-                    height={40}
-                    className="object-contain rounded-md bg-white/20 p-1"
-                  />
+                  <div className="flex-shrink-0">
+                    <OptimizedImage
+                      src="https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/Clinibuilds%20Logo.jpg"
+                      alt="CliniBuilds Logo"
+                      height={48}
+                      className="object-contain rounded-md bg-white p-1 max-w-[200px] h-auto"
+                    />
+                  </div>
                   <h2 className="text-2xl font-bold">CliniBuilds</h2>
                 </div>
                 <p className="text-white/80 mb-6 leading-relaxed">
