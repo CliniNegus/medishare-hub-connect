@@ -256,6 +256,10 @@ const SignInForm: React.FC<SignInFormProps> = ({
   const handleGoogleSignIn = async () => {
     try {
       setLoading(true);
+      
+      // Clear any stale OAuth state
+      localStorage.removeItem('pending_oauth_role');
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -266,19 +270,11 @@ const SignInForm: React.FC<SignInFormProps> = ({
           },
         }
       });
+      
       if (error) throw error;
     } catch (error: any) {
       // Handle specific OAuth errors with user-friendly messages
-      let errorMessage = error.message;
-      const message = error?.message?.toLowerCase() || '';
-      
-      if (message.includes('popup') || message.includes('blocked')) {
-        errorMessage = 'Popup was blocked. Please allow popups for this site and try again.';
-      } else if (message.includes('cancelled') || message.includes('canceled') || message.includes('closed')) {
-        errorMessage = 'Sign-in was cancelled. Please try again.';
-      } else if (message.includes('network') || message.includes('fetch')) {
-        errorMessage = 'Network error. Please check your connection and try again.';
-      }
+      const errorMessage = getGoogleAuthErrorMessage(error);
       
       toast({
         title: "Google sign-in failed",
@@ -288,6 +284,25 @@ const SignInForm: React.FC<SignInFormProps> = ({
       setLoading(false);
     }
   };
+
+  // Helper function for Google auth error messages
+  function getGoogleAuthErrorMessage(error: any): string {
+    const message = error?.message?.toLowerCase() || '';
+    
+    if (message.includes('popup') || message.includes('blocked')) {
+      return 'Popup was blocked. Please allow popups for this site and try again.';
+    }
+    if (message.includes('cancelled') || message.includes('canceled') || message.includes('closed')) {
+      return 'Sign-in was cancelled. Please try again when ready.';
+    }
+    if (message.includes('network') || message.includes('fetch')) {
+      return 'Network error. Please check your connection and try again.';
+    }
+    if (message.includes('expired') || message.includes('invalid')) {
+      return 'Your session has expired. Please try again.';
+    }
+    return error?.message || 'An unexpected error occurred. Please try again.';
+  }
 
   return (
     <form onSubmit={handleSignIn} className="space-y-0">
