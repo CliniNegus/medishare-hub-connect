@@ -7,6 +7,7 @@ import { Loader2 } from 'lucide-react';
 /**
  * OAuth callback handler for Google sign-in
  * Determines if user is new or existing and routes appropriately
+ * Enforces profile completion before granting access
  */
 const AuthCallback = () => {
   const navigate = useNavigate();
@@ -32,10 +33,10 @@ const AuthCallback = () => {
         
         const user = session.user;
         
-        // Check if user has a profile and if onboarding is complete
+        // Check if user has a profile
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('id, onboarding_completed, profile_completed, role, full_name')
+          .select('id, onboarding_completed, profile_completed, role, full_name, organization, phone, location')
           .eq('id', user.id)
           .single();
         
@@ -43,15 +44,59 @@ const AuthCallback = () => {
           console.error('Error fetching profile:', profileError);
         }
         
+        // Check if user has roles assigned
+        const { data: userRoles } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id);
+        
+        const hasRoleAssigned = userRoles && userRoles.length > 0;
+        
         // For Google OAuth users, sync their profile data
-        if (user.app_metadata?.provider === 'google' || user.identities?.some(i => i.provider === 'google')) {
+        const isGoogleUser = user.app_metadata?.provider === 'google' || 
+                            user.identities?.some(i => i.provider === 'google');
+        
+        if (isGoogleUser && profile?.id) {
           await syncGoogleProfileData(user, profile);
         }
         
-        // Determine redirect based on profile state
-        if (!profile || (!profile.onboarding_completed && !profile.profile_completed)) {
-          // New user or incomplete profile - go to onboarding
-          const role = profile?.role || user.user_metadata?.role || 'hospital';
+        // Check for pending OAuth role (set during signup flow)
+        const pendingRole = localStorage.getItem('pending_oauth_role');
+        
+        // Determine if user needs onboarding
+        const needsOnboarding = !profile || 
+                                !profile.onboarding_completed || 
+                                !profile.profile_completed ||
+                                !hasRoleAssigned ||
+                                !hasRequiredFields(profile);
+        
+        if (needsOnboarding) {
+          // Get role from: pending OAuth role > profile role > user metadata > default
+          const role = pendingRole || profile?.role || user.user_metadata?.role || 'hospital';
+          
+          // Clear pending role
+          if (pendingRole) {
+            localStorage.removeItem('pending_oauth_role');
+          }
+          
+          // If this is a new user or missing role, ensure profile has role set
+          if (profile?.id && !profile.role) {
+            await supabase
+              .from('profiles')
+              .update({ role, updated_at: new Date().toISOString() })
+              .eq('id', user.id);
+          }
+          
+          // Ensure user_roles entry exists
+          if (!hasRoleAssigned && role !== 'admin') {
+            await supabase
+              .from('user_roles')
+              .upsert({ 
+                user_id: user.id, 
+                role: role as any,
+                updated_at: new Date().toISOString()
+              }, { onConflict: 'user_id,role' });
+          }
           
           toast({
             title: 'Welcome to CliniBuilds! 🎉',
@@ -60,11 +105,24 @@ const AuthCallback = () => {
           
           navigate(`/onboarding/${role}`, { replace: true });
         } else {
-          // Existing user with completed profile - go to dashboard
-          toast({
-            title: 'Welcome back!',
-            description: 'You have been signed in successfully.',
-          });
+          // Existing user with completed profile
+          // Check if Google account was linked to existing email account
+          const isAccountLinking = checkAccountLinking(user);
+          
+          if (isAccountLinking) {
+            toast({
+              title: 'Account linked successfully! 🔗',
+              description: 'Your Google account has been linked to your existing account.',
+            });
+          } else {
+            toast({
+              title: 'Welcome back!',
+              description: 'You have been signed in successfully.',
+            });
+          }
+          
+          // Clear any pending OAuth role
+          localStorage.removeItem('pending_oauth_role');
           
           // Route to role-specific dashboard
           const dashboardRoute = getDashboardRoute(profile.role);
@@ -73,11 +131,11 @@ const AuthCallback = () => {
       } catch (error: any) {
         console.error('Auth callback error:', error);
         setStatus('error');
-        setErrorMessage(error.message || 'Authentication failed');
+        setErrorMessage(getAuthErrorMessage(error));
         
         toast({
           title: 'Authentication failed',
-          description: error.message || 'Please try again.',
+          description: getAuthErrorMessage(error),
           variant: 'destructive',
         });
         
@@ -118,6 +176,45 @@ const AuthCallback = () => {
 };
 
 /**
+ * Check if user has all required profile fields
+ */
+function hasRequiredFields(profile: any): boolean {
+  if (!profile) return false;
+  
+  // Basic required fields for all users
+  const basicFields = ['role'];
+  
+  // Role-specific required fields
+  const roleFields: Record<string, string[]> = {
+    hospital: ['hospital_type', 'location'],
+    manufacturer: ['organization', 'manufacturing_location'],
+    investor: ['investment_experience', 'investment_budget_range'],
+  };
+  
+  // Check basic fields
+  for (const field of basicFields) {
+    if (!profile[field]) return false;
+  }
+  
+  // Check role-specific fields
+  const role = profile.role || 'hospital';
+  const requiredFields = roleFields[role] || [];
+  
+  // For now, we just check if onboarding is marked as complete
+  // The actual field validation happens in the onboarding forms
+  return profile.onboarding_completed === true;
+}
+
+/**
+ * Check if this is an account linking scenario
+ */
+function checkAccountLinking(user: any): boolean {
+  const identities = user.identities || [];
+  // If user has multiple identities, it's a linked account
+  return identities.length > 1;
+}
+
+/**
  * Sync Google profile data to our profiles table
  */
 async function syncGoogleProfileData(user: any, existingProfile: any) {
@@ -147,6 +244,35 @@ async function syncGoogleProfileData(user: any, existingProfile: any) {
       .update(updates)
       .eq('id', user.id);
   }
+}
+
+/**
+ * Get user-friendly error message from auth errors
+ */
+function getAuthErrorMessage(error: any): string {
+  const message = error?.message?.toLowerCase() || '';
+  
+  if (message.includes('popup') || message.includes('blocked')) {
+    return 'Popup was blocked. Please allow popups for this site and try again.';
+  }
+  
+  if (message.includes('cancelled') || message.includes('canceled') || message.includes('closed')) {
+    return 'Sign-in was cancelled. Please try again.';
+  }
+  
+  if (message.includes('network') || message.includes('fetch')) {
+    return 'Network error. Please check your connection and try again.';
+  }
+  
+  if (message.includes('invalid') || message.includes('expired')) {
+    return 'Your session has expired. Please sign in again.';
+  }
+  
+  if (message.includes('unauthorized')) {
+    return 'Authentication failed. Please try again or contact support.';
+  }
+  
+  return error?.message || 'An unexpected error occurred. Please try again.';
 }
 
 /**

@@ -43,29 +43,22 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
         localStorage.setItem('pending_oauth_role', metadata.role);
       }
       
+      // Always redirect to callback - it handles routing based on profile state
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/onboarding/${metadata?.role || 'hospital'}`,
+          redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
           }
         }
       });
+      
       if (error) throw error;
     } catch (error: any) {
       // Handle specific OAuth errors with user-friendly messages
-      let errorMessage = error.message;
-      const message = error?.message?.toLowerCase() || '';
-      
-      if (message.includes('popup') || message.includes('blocked')) {
-        errorMessage = 'Popup was blocked. Please allow popups for this site and try again.';
-      } else if (message.includes('cancelled') || message.includes('canceled') || message.includes('closed')) {
-        errorMessage = 'Sign-up was cancelled. Please try again.';
-      } else if (message.includes('network') || message.includes('fetch')) {
-        errorMessage = 'Network error. Please check your connection and try again.';
-      }
+      const errorMessage = getGoogleSignUpErrorMessage(error);
       
       toast({
         title: "Google sign-up failed",
@@ -75,6 +68,25 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
       setLoading(false);
     }
   };
+
+  // Helper function for Google auth error messages
+  function getGoogleSignUpErrorMessage(error: any): string {
+    const message = error?.message?.toLowerCase() || '';
+    
+    if (message.includes('popup') || message.includes('blocked')) {
+      return 'Popup was blocked. Please allow popups for this site and try again.';
+    }
+    if (message.includes('cancelled') || message.includes('canceled') || message.includes('closed')) {
+      return 'Sign-up was cancelled. Please try again when ready.';
+    }
+    if (message.includes('network') || message.includes('fetch')) {
+      return 'Network error. Please check your connection and try again.';
+    }
+    if (message.includes('expired') || message.includes('invalid')) {
+      return 'Your session has expired. Please try again.';
+    }
+    return error?.message || 'An unexpected error occurred. Please try again.';
+  }
 
   const validatePassword = async (password: string) => {
     try {

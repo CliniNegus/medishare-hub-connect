@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { UserRole } from '@/contexts/UserRoleContext';
@@ -9,22 +9,25 @@ interface GoogleAuthOptions {
   onError?: (message: string) => void;
 }
 
+/**
+ * Custom hook for Google OAuth authentication
+ * Handles both sign-in and sign-up flows with proper error handling
+ */
 export const useGoogleAuth = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const initiateGoogleAuth = async ({ mode, role, onError }: GoogleAuthOptions) => {
+  const initiateGoogleAuth = useCallback(async ({ mode, role, onError }: GoogleAuthOptions) => {
     try {
       setLoading(true);
       
-      // Determine redirect URL based on mode
-      // For signin: go to dashboard (existing users)
-      // For signup: go to onboarding (new users need to complete profile)
-      const redirectPath = mode === 'signup' 
-        ? `/onboarding/${role || 'hospital'}`
-        : '/auth/callback';
+      // Store role for signup flow - callback will use this
+      if (mode === 'signup' && role) {
+        localStorage.setItem('pending_oauth_role', role);
+      }
       
-      const redirectTo = `${window.location.origin}${redirectPath}`;
+      // Always redirect to callback - it handles routing based on profile state
+      const redirectTo = `${window.location.origin}/auth/callback`;
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -32,12 +35,9 @@ export const useGoogleAuth = () => {
           redirectTo,
           queryParams: {
             access_type: 'offline',
-            prompt: 'consent',
+            // Use 'select_account' for sign-in, 'consent' for sign-up
+            prompt: mode === 'signup' ? 'consent' : 'select_account',
           },
-          // Pass role in scopes for new signups
-          ...(mode === 'signup' && role && {
-            scopes: 'openid email profile',
-          }),
         },
       });
       
@@ -56,31 +56,59 @@ export const useGoogleAuth = () => {
       onError?.(errorMessage);
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  const retryGoogleAuth = useCallback((options: GoogleAuthOptions) => {
+    // Clear any stale state before retry
+    localStorage.removeItem('pending_oauth_role');
+    initiateGoogleAuth(options);
+  }, [initiateGoogleAuth]);
 
   return {
     loading,
     initiateGoogleAuth,
+    retryGoogleAuth,
   };
 };
 
+/**
+ * Get user-friendly error message for Google OAuth errors
+ */
 function getGoogleAuthErrorMessage(error: any): string {
   const message = error?.message?.toLowerCase() || '';
+  const code = error?.code?.toLowerCase() || '';
   
-  if (message.includes('popup') || message.includes('blocked')) {
+  // Popup blocked
+  if (message.includes('popup') || message.includes('blocked') || code.includes('popup')) {
     return 'Popup was blocked. Please allow popups for this site and try again.';
   }
   
-  if (message.includes('cancelled') || message.includes('canceled') || message.includes('closed')) {
-    return 'Sign-in was cancelled. Please try again.';
+  // User cancelled
+  if (message.includes('cancelled') || message.includes('canceled') || 
+      message.includes('closed') || message.includes('user denied')) {
+    return 'Sign-in was cancelled. Please try again when ready.';
   }
   
-  if (message.includes('network') || message.includes('fetch')) {
+  // Network errors
+  if (message.includes('network') || message.includes('fetch') || 
+      message.includes('timeout') || message.includes('connection')) {
     return 'Network error. Please check your connection and try again.';
   }
   
-  if (message.includes('invalid') || message.includes('unauthorized')) {
+  // Invalid/expired session
+  if (message.includes('invalid') || message.includes('expired') ||
+      message.includes('token')) {
+    return 'Your session has expired. Please try signing in again.';
+  }
+  
+  // Unauthorized
+  if (message.includes('unauthorized') || message.includes('forbidden')) {
     return 'Authentication failed. Please try again or contact support.';
+  }
+  
+  // Provider error
+  if (message.includes('provider') || message.includes('oauth')) {
+    return 'Unable to connect to Google. Please try again later.';
   }
   
   return error?.message || 'An unexpected error occurred. Please try again.';
