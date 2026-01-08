@@ -37,6 +37,12 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
   const handleGoogleSignUp = async () => {
     try {
       setLoading(true);
+      
+      // Store the selected role in localStorage for the callback to use
+      if (metadata?.role) {
+        localStorage.setItem('pending_oauth_role', metadata.role);
+      }
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -49,9 +55,21 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
       });
       if (error) throw error;
     } catch (error: any) {
+      // Handle specific OAuth errors with user-friendly messages
+      let errorMessage = error.message;
+      const message = error?.message?.toLowerCase() || '';
+      
+      if (message.includes('popup') || message.includes('blocked')) {
+        errorMessage = 'Popup was blocked. Please allow popups for this site and try again.';
+      } else if (message.includes('cancelled') || message.includes('canceled') || message.includes('closed')) {
+        errorMessage = 'Sign-up was cancelled. Please try again.';
+      } else if (message.includes('network') || message.includes('fetch')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      }
+      
       toast({
         title: "Google sign-up failed",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
       setLoading(false);
