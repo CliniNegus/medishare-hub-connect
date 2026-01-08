@@ -42,6 +42,7 @@ import PublicShop from './pages/PublicShop';
 import PaymentCancelled from './pages/PaymentCancelled';
 import PaymentSuccess from './pages/PaymentSuccess';
 import EmailVerification from './pages/EmailVerification';
+import AuthCallback from './pages/AuthCallback';
 import Notifications from './pages/Notifications';
 import CompleteProfile from './pages/CompleteProfile';
 import NotFound from './pages/NotFound';
@@ -88,6 +89,7 @@ function App() {
                     <Route path="/payment-success" element={<PaymentSuccess />} />
                     <Route path="/verify" element={<EmailVerification />} />
                     <Route path="/auth" element={<Auth />} />
+                    <Route path="/auth/callback" element={<AuthCallback />} />
                     <Route path="/complete-profile" element={<CompleteProfile />} />
                     <Route path="/onboarding/:role?" element={<Onboarding />} />
                     <Route path="/admin-auth" element={<AdminAuth />} />

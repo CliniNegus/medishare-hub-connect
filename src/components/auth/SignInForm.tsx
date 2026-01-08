@@ -259,14 +259,30 @@ const SignInForm: React.FC<SignInFormProps> = ({
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'select_account',
+          },
         }
       });
       if (error) throw error;
     } catch (error: any) {
+      // Handle specific OAuth errors with user-friendly messages
+      let errorMessage = error.message;
+      const message = error?.message?.toLowerCase() || '';
+      
+      if (message.includes('popup') || message.includes('blocked')) {
+        errorMessage = 'Popup was blocked. Please allow popups for this site and try again.';
+      } else if (message.includes('cancelled') || message.includes('canceled') || message.includes('closed')) {
+        errorMessage = 'Sign-in was cancelled. Please try again.';
+      } else if (message.includes('network') || message.includes('fetch')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      }
+      
       toast({
         title: "Google sign-in failed",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
       setLoading(false);
