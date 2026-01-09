@@ -152,34 +152,63 @@ const ProfileCompletionForm = () => {
   };
 
   const saveUserRole = async (role: AccountType) => {
-    if (!user || !role) return false;
+    if (!role) return false;
     
     try {
+      // Get fresh session to ensure we have the correct user ID
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
+      if (!currentSession?.user?.id) {
+        toast({
+          title: "Session expired",
+          description: "Please log in again to continue.",
+          variant: "destructive",
+        });
+        return false;
+      }
+      
+      const userId = currentSession.user.id;
+      console.log('Saving role for user:', userId, 'Role:', role);
+      
       // Check if role already exists
-      const { data: existingRole } = await supabase
+      const { data: existingRole, error: selectError } = await supabase
         .from('user_roles')
         .select('id')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .eq('role', role)
         .maybeSingle();
       
+      if (selectError) {
+        console.error('Error checking existing role:', selectError);
+      }
+      
       if (existingRole) {
+        console.log('Role already exists:', existingRole);
         // Role already exists, no need to insert
+        if (refreshRoles) {
+          await refreshRoles();
+        }
         return true;
       }
       
       // Insert the new role
-      const { error } = await supabase
+      const { error: insertError } = await supabase
         .from('user_roles')
-        .insert({ user_id: user.id, role });
+        .insert({ user_id: userId, role });
       
-      if (error) {
+      if (insertError) {
+        console.error('Error inserting role:', insertError);
         // If it's a duplicate key error, treat as success
-        if (error.code === '23505') {
+        if (insertError.code === '23505') {
+          if (refreshRoles) {
+            await refreshRoles();
+          }
           return true;
         }
-        throw error;
+        throw insertError;
       }
+      
+      console.log('Role saved successfully');
       
       // Refresh roles in context
       if (refreshRoles) {
@@ -191,7 +220,7 @@ const ProfileCompletionForm = () => {
       console.error('Error saving user role:', error);
       toast({
         title: "Error saving account type",
-        description: error.message,
+        description: error.message || "Failed to save account type. Please try again.",
         variant: "destructive",
       });
       return false;
