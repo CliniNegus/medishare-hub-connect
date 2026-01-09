@@ -15,11 +15,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setThemeState] = useState<Theme>('light');
 
   useEffect(() => {
-    // Check for saved theme preference or system preference
+    // Only use saved theme, default to light for CliniBuilds branding consistency
     const savedTheme = localStorage.getItem('theme') as Theme | null;
-    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    
-    const initialTheme = savedTheme || systemTheme;
+    const initialTheme = savedTheme || 'light';
     setThemeState(initialTheme);
   }, []);
 
