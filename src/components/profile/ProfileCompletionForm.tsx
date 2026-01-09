@@ -239,14 +239,8 @@ const ProfileCompletionForm = () => {
       return;
     }
 
-    // If on step 1, save the role to database
-    if (currentStep === 1 && selectedAccountType) {
-      setLoading(true);
-      const success = await saveUserRole(selectedAccountType);
-      setLoading(false);
-      if (!success) return;
-    }
-
+    // Don't save role here - save it at the end with profile completion
+    // Just move to next step and save draft
     if (currentStep < STEPS.length) {
       setCurrentStep(currentStep + 1);
       await saveDraft();
@@ -277,9 +271,20 @@ const ProfileCompletionForm = () => {
       return;
     }
 
+    // Validate account type is selected
+    if (!selectedAccountType) {
+      toast({
+        title: "Account type required",
+        description: "Please go back and select an account type.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
-      const { error } = await supabase
+      // First, save the profile data
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
           ...formData,
@@ -290,7 +295,19 @@ const ProfileCompletionForm = () => {
         })
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      // Now save the role (profile is guaranteed to exist now)
+      const roleSuccess = await saveUserRole(selectedAccountType);
+      if (!roleSuccess) {
+        // Revert profile completion if role save fails
+        await supabase
+          .from('profiles')
+          .update({ profile_completed: false })
+          .eq('id', user.id);
+        setLoading(false);
+        return;
+      }
 
       await refreshProfile();
 
@@ -299,14 +316,12 @@ const ProfileCompletionForm = () => {
         description: "Welcome to the platform! You can now access all features.",
       });
 
-      // Redirect based on user role (use selectedAccountType as fallback since roles may take a moment to update)
-      const effectiveRole = userRoles.primaryRole || selectedAccountType;
-      
+      // Redirect based on selected account type
       if (userRoles.isAdmin) {
         navigate('/admin');
-      } else if (effectiveRole === 'manufacturer') {
+      } else if (selectedAccountType === 'manufacturer') {
         navigate('/manufacturer/products');
-      } else if (effectiveRole === 'investor') {
+      } else if (selectedAccountType === 'investor') {
         navigate('/investor');
       } else {
         navigate('/dashboard');
