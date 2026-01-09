@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import { Eye, EyeOff, Mail, Lock, Shield, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Shield, ArrowRight, Loader2 } from "lucide-react";
 import { useEmailVerification } from "@/hooks/useEmailVerification";
+import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
 import EmailVerificationAlert from "@/components/auth/EmailVerificationAlert";
 import GoogleIcon from "@/components/icons/GoogleIcon";
 
@@ -26,6 +26,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
   onForgotPassword 
 }) => {
   const { toast } = useToast();
+  const { isLoading: googleLoading, loadingMessage, initiateGoogleOAuth } = useGoogleOAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -127,10 +128,6 @@ const SignInForm: React.FC<SignInFormProps> = ({
     try {
       setLoading(true);
       
-      // This is a simplified implementation for demo purposes
-      // In a real app, you would validate the MFA code against a TOTP algorithm
-      // For this example, we'll accept any 6-digit code
-      
       // After verification, sign the user back in
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -154,6 +151,10 @@ const SignInForm: React.FC<SignInFormProps> = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSignIn = async () => {
+    await initiateGoogleOAuth({ mode: 'signin' });
   };
 
   if (showEmailVerificationAlert && unverifiedEmail) {
@@ -228,7 +229,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
             >
               {loading ? (
                 <div className="flex items-center space-x-3">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <Loader2 className="w-5 h-5 animate-spin" />
                   <span>Verifying...</span>
                 </div>
               ) : (
@@ -253,56 +254,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
     );
   }
 
-  const handleGoogleSignIn = async () => {
-    try {
-      setLoading(true);
-      
-      // Clear any stale OAuth state
-      localStorage.removeItem('pending_oauth_role');
-      
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'select_account',
-          },
-        }
-      });
-      
-      if (error) throw error;
-    } catch (error: any) {
-      // Handle specific OAuth errors with user-friendly messages
-      const errorMessage = getGoogleAuthErrorMessage(error);
-      
-      toast({
-        title: "Google sign-in failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      setLoading(false);
-    }
-  };
-
-  // Helper function for Google auth error messages
-  function getGoogleAuthErrorMessage(error: any): string {
-    const message = error?.message?.toLowerCase() || '';
-    
-    if (message.includes('popup') || message.includes('blocked')) {
-      return 'Popup was blocked. Please allow popups for this site and try again.';
-    }
-    if (message.includes('cancelled') || message.includes('canceled') || message.includes('closed')) {
-      return 'Sign-in was cancelled. Please try again when ready.';
-    }
-    if (message.includes('network') || message.includes('fetch')) {
-      return 'Network error. Please check your connection and try again.';
-    }
-    if (message.includes('expired') || message.includes('invalid')) {
-      return 'Your session has expired. Please try again.';
-    }
-    return error?.message || 'An unexpected error occurred. Please try again.';
-  }
+  const isAnyLoading = loading || googleLoading;
 
   return (
     <form onSubmit={handleSignIn} className="space-y-0">
@@ -312,11 +264,20 @@ const SignInForm: React.FC<SignInFormProps> = ({
           type="button"
           variant="outline"
           onClick={handleGoogleSignIn}
-          disabled={loading}
+          disabled={isAnyLoading}
           className="w-full h-14 border-2 rounded-xl font-semibold transition-all duration-300 hover:bg-muted/50"
         >
-          <GoogleIcon className="w-5 h-5 mr-3" />
-          Continue with Google
+          {googleLoading ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-3 animate-spin" />
+              {loadingMessage || 'Redirecting to Google...'}
+            </>
+          ) : (
+            <>
+              <GoogleIcon className="w-5 h-5 mr-3" />
+              Continue with Google
+            </>
+          )}
         </Button>
 
         {/* Divider */}
@@ -345,6 +306,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isAnyLoading}
                 className="h-14 pl-4 pr-4 border-2 border-border focus:border-primary rounded-xl transition-all duration-300 text-base font-medium placeholder:text-muted-foreground bg-background/80 backdrop-blur-sm hover:bg-background focus:bg-background group-hover:border-border text-foreground"
               />
             </div>
@@ -363,6 +325,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={isAnyLoading}
                 className="h-14 pl-4 pr-14 border-2 border-border focus:border-primary rounded-xl transition-all duration-300 text-base font-medium placeholder:text-muted-foreground bg-background/80 backdrop-blur-sm hover:bg-background focus:bg-background group-hover:border-border text-foreground"
               />
               <button
@@ -389,14 +352,14 @@ const SignInForm: React.FC<SignInFormProps> = ({
       </CardContent>
       
       <CardFooter className="pb-8 px-8">
-          <Button 
-            type="submit" 
-            className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105" 
-            disabled={loading}
-          >
+        <Button 
+          type="submit" 
+          className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105" 
+          disabled={isAnyLoading}
+        >
           {loading ? (
             <div className="flex items-center space-x-3">
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <Loader2 className="w-5 h-5 animate-spin" />
               <span>Signing you in...</span>
             </div>
           ) : (
