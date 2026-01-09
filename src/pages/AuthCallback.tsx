@@ -33,18 +33,49 @@ const AuthCallback = () => {
         
         const user = session.user;
         
-        // Check if user has a profile
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('id, onboarding_completed, profile_completed, role, full_name, organization, phone, location')
-          .eq('id', user.id)
-          .single();
+        // Wait for profile to exist (database trigger may take a moment)
+        let profile = await waitForProfile(user.id);
         
-        if (profileError && profileError.code !== 'PGRST116') {
-          console.error('Error fetching profile:', profileError);
+        // Check for pending OAuth role (set during signup flow)
+        const pendingRole = localStorage.getItem('pending_oauth_role');
+        const effectiveRole = pendingRole || profile?.role || user.user_metadata?.role || 'hospital';
+        
+        // Clear pending role immediately
+        if (pendingRole) {
+          localStorage.removeItem('pending_oauth_role');
         }
         
-        // Check if user has roles assigned
+        // For Google OAuth users, ensure profile is properly set up
+        const isGoogleUser = user.app_metadata?.provider === 'google' || 
+                            user.identities?.some(i => i.provider === 'google');
+        
+        if (isGoogleUser && profile?.id) {
+          // Sync Google data and set role
+          const updates: Record<string, any> = {
+            updated_at: new Date().toISOString(),
+          };
+          
+          if (!profile.role) {
+            updates.role = effectiveRole;
+          }
+          
+          if (!profile.full_name && user.user_metadata?.full_name) {
+            updates.full_name = user.user_metadata.full_name;
+          }
+          
+          if (user.user_metadata?.avatar_url) {
+            updates.logo_url = user.user_metadata.avatar_url;
+          }
+          
+          if (Object.keys(updates).length > 1) {
+            await supabase
+              .from('profiles')
+              .update(updates)
+              .eq('id', user.id);
+          }
+        }
+        
+        // Ensure user_roles entry exists
         const { data: userRoles } = await supabase
           .from('user_roles')
           .select('role')
@@ -52,51 +83,33 @@ const AuthCallback = () => {
         
         const hasRoleAssigned = userRoles && userRoles.length > 0;
         
-        // For Google OAuth users, sync their profile data
-        const isGoogleUser = user.app_metadata?.provider === 'google' || 
-                            user.identities?.some(i => i.provider === 'google');
-        
-        if (isGoogleUser && profile?.id) {
-          await syncGoogleProfileData(user, profile);
+        if (!hasRoleAssigned && effectiveRole !== 'admin') {
+          await supabase
+            .from('user_roles')
+            .upsert({ 
+              user_id: user.id, 
+              role: effectiveRole as any,
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'user_id,role' });
         }
         
-        // Check for pending OAuth role (set during signup flow)
-        const pendingRole = localStorage.getItem('pending_oauth_role');
+        // Re-fetch profile to get latest state
+        const { data: updatedProfile } = await supabase
+          .from('profiles')
+          .select('id, onboarding_completed, profile_completed, role, full_name, organization, phone, location')
+          .eq('id', user.id)
+          .single();
+        
+        profile = updatedProfile;
         
         // Determine if user needs onboarding
         const needsOnboarding = !profile || 
                                 !profile.onboarding_completed || 
                                 !profile.profile_completed ||
-                                !hasRoleAssigned ||
                                 !hasRequiredFields(profile);
         
         if (needsOnboarding) {
-          // Get role from: pending OAuth role > profile role > user metadata > default
-          const role = pendingRole || profile?.role || user.user_metadata?.role || 'hospital';
-          
-          // Clear pending role
-          if (pendingRole) {
-            localStorage.removeItem('pending_oauth_role');
-          }
-          
-          // If this is a new user or missing role, ensure profile has role set
-          if (profile?.id && !profile.role) {
-            await supabase
-              .from('profiles')
-              .update({ role, updated_at: new Date().toISOString() })
-              .eq('id', user.id);
-          }
-          
-          // Ensure user_roles entry exists
-          if (!hasRoleAssigned && role !== 'admin') {
-            await supabase
-              .from('user_roles')
-              .upsert({ 
-                user_id: user.id, 
-                role: role as any,
-                updated_at: new Date().toISOString()
-              }, { onConflict: 'user_id,role' });
-          }
+          const role = profile?.role || effectiveRole;
           
           toast({
             title: 'Welcome to CliniBuilds! 🎉',
@@ -176,32 +189,36 @@ const AuthCallback = () => {
 };
 
 /**
+ * Wait for profile to exist (database trigger may take a moment)
+ */
+async function waitForProfile(userId: string, maxRetries = 5): Promise<any> {
+  for (let i = 0; i < maxRetries; i++) {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('id, onboarding_completed, profile_completed, role, full_name, organization, phone, location')
+      .eq('id', userId)
+      .single();
+    
+    if (profile && !error) {
+      return profile;
+    }
+    
+    // Wait 500ms before retrying
+    if (i < maxRetries - 1) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+  }
+  
+  return null;
+}
+
+/**
  * Check if user has all required profile fields
  */
 function hasRequiredFields(profile: any): boolean {
   if (!profile) return false;
   
-  // Basic required fields for all users
-  const basicFields = ['role'];
-  
-  // Role-specific required fields
-  const roleFields: Record<string, string[]> = {
-    hospital: ['hospital_type', 'location'],
-    manufacturer: ['organization', 'manufacturing_location'],
-    investor: ['investment_experience', 'investment_budget_range'],
-  };
-  
-  // Check basic fields
-  for (const field of basicFields) {
-    if (!profile[field]) return false;
-  }
-  
-  // Check role-specific fields
-  const role = profile.role || 'hospital';
-  const requiredFields = roleFields[role] || [];
-  
   // For now, we just check if onboarding is marked as complete
-  // The actual field validation happens in the onboarding forms
   return profile.onboarding_completed === true;
 }
 
