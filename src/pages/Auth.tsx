@@ -19,7 +19,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [selectedRole, setSelectedRole] = useState<UserRole>('hospital');
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [activeTab, setActiveTab] = useState('signin');
 
@@ -215,7 +215,10 @@ const Auth = () => {
             <TabsContent value="signup" className="mt-0">
               {/* Modern role selector */}
               <div className="px-6 mb-8">
-                <h3 className="text-lg font-bold text-[#333333] mb-4 text-center">Choose Your Account Type</h3>
+                <h3 className="text-lg font-bold text-[#333333] mb-2 text-center">Choose Your Account Type</h3>
+                <p className="text-sm text-destructive mb-4 text-center font-medium">
+                  {!selectedRole ? '⚠️ Please select a role to continue' : ''}
+                </p>
                 <div className="grid grid-cols-3 gap-3">
                   {['hospital', 'manufacturer', 'investor'].map((role) => (
                     <div 
@@ -252,14 +255,15 @@ const Auth = () => {
                   ))}
                 </div>
                 <p className="text-sm text-gray-500 mt-4 text-center font-medium">
-                  {roleDescriptions[selectedRole]}
+                  {selectedRole ? roleDescriptions[selectedRole] : 'Select your role to see description'}
                 </p>
               </div>
               
               <SignUpForm 
                 onSuccess={handleSignUpSuccess}
                 onError={handleError}
-                metadata={{ role: selectedRole }}
+                metadata={selectedRole ? { role: selectedRole } : undefined}
+                hasSelectedRole={!!selectedRole}
               />
             </TabsContent>
             
