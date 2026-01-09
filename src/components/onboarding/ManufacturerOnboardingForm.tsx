@@ -64,7 +64,7 @@ const STEPS = [
 ];
 
 const ManufacturerOnboardingForm = () => {
-  const { user, refreshProfile } = useAuth();
+  const { user, refreshProfile, refreshRoles } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
@@ -161,7 +161,8 @@ const ManufacturerOnboardingForm = () => {
 
       if (error) throw error;
 
-      await refreshProfile();
+      // Refresh both profile and roles to ensure dashboard loads correctly
+      await Promise.all([refreshProfile(), refreshRoles()]);
 
       toast({
         title: "Welcome to CliniBuilds!",
