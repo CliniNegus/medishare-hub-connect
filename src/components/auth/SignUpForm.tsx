@@ -18,9 +18,10 @@ interface SignUpFormProps {
   onSuccess: () => void;
   onError: (message: string) => void;
   metadata?: { role: UserRole };
+  hasSelectedRole?: boolean;
 }
 
-const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata }) => {
+const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata, hasSelectedRole = false }) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { sendVerificationEmail } = useEmailVerification();
@@ -38,6 +39,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
   const [termsError, setTermsError] = useState<string | null>(null);
 
   const handleGoogleSignUp = async () => {
+    if (!hasSelectedRole) {
+      onError('Please select your account type above before continuing with Google.');
+      return;
+    }
     const role = metadata?.role || 'hospital';
     await initiateGoogleOAuth({ role, mode: 'signup' });
   };
@@ -195,7 +200,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
     { text: "One special character", met: /[^A-Za-z0-9]/.test(password) },
   ];
 
-  const roleLabel = metadata?.role ? metadata.role.charAt(0).toUpperCase() + metadata.role.slice(1) : 'Hospital';
+  const roleLabel = metadata?.role ? metadata.role.charAt(0).toUpperCase() + metadata.role.slice(1) : null;
   const isAnyLoading = loading || googleLoading;
 
   return (
@@ -207,7 +212,11 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
           variant="outline"
           onClick={handleGoogleSignUp}
           disabled={isAnyLoading}
-          className="w-full h-14 border-2 rounded-xl font-semibold transition-all duration-300 hover:bg-muted/50"
+          className={`w-full h-14 border-2 rounded-xl font-semibold transition-all duration-300 ${
+            hasSelectedRole 
+              ? 'hover:bg-muted/50 hover:border-primary' 
+              : 'opacity-70 border-dashed'
+          }`}
         >
           {googleLoading ? (
             <>
@@ -217,7 +226,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
           ) : (
             <>
               <GoogleIcon className="w-5 h-5 mr-3" />
-              Continue with Google as {roleLabel}
+              {hasSelectedRole 
+                ? `Continue with Google as ${roleLabel}` 
+                : 'Select a role above first'}
             </>
           )}
         </Button>
