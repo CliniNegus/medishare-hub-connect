@@ -103,10 +103,9 @@ const AuthCallback = () => {
         profile = updatedProfile;
         
         // Determine if user needs onboarding
-        const needsOnboarding = !profile || 
-                                !profile.onboarding_completed || 
-                                !profile.profile_completed ||
-                                !hasRequiredFields(profile);
+        // User is complete if EITHER flag is true (for backwards compatibility)
+        const isProfileComplete = profile?.onboarding_completed || profile?.profile_completed;
+        const needsOnboarding = !profile || !isProfileComplete;
         
         if (needsOnboarding) {
           const role = profile?.role || effectiveRole;
