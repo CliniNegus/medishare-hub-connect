@@ -4,14 +4,12 @@ import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from "@/integrations/supabase/client";
 import ImageUpload from '@/components/products/ImageUpload';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import { 
   UserRound, 
   MapPin, 
@@ -20,7 +18,10 @@ import {
   Upload,
   CheckCircle,
   ArrowLeft,
-  ArrowRight
+  ArrowRight,
+  Hospital,
+  Factory,
+  TrendingUp
 } from 'lucide-react';
 
 interface ProfileData {
@@ -32,19 +33,44 @@ interface ProfileData {
   bio: string;
 }
 
+type AccountType = 'hospital' | 'manufacturer' | 'investor' | null;
+
+const ACCOUNT_TYPES = [
+  { 
+    id: 'hospital' as const, 
+    title: 'Hospital / Clinic', 
+    description: 'Access equipment marketplace, manage inventory, and connect with manufacturers',
+    icon: Hospital
+  },
+  { 
+    id: 'manufacturer' as const, 
+    title: 'Manufacturer', 
+    description: 'List your medical equipment, manage orders, and reach healthcare facilities',
+    icon: Factory
+  },
+  { 
+    id: 'investor' as const, 
+    title: 'Investor', 
+    description: 'Discover investment opportunities in medical equipment and healthcare',
+    icon: TrendingUp
+  }
+];
+
 const STEPS = [
-  { id: 1, title: 'Basic Info', description: 'Your personal details' },
-  { id: 2, title: 'Contact & Location', description: 'How to reach you' },
-  { id: 3, title: 'Organization', description: 'Your workplace info' },
-  { id: 4, title: 'Profile Picture', description: 'Add your photo' }
+  { id: 1, title: 'Account Type', description: 'Choose your role' },
+  { id: 2, title: 'Basic Info', description: 'Your personal details' },
+  { id: 3, title: 'Contact & Location', description: 'How to reach you' },
+  { id: 4, title: 'Organization', description: 'Your workplace info' },
+  { id: 5, title: 'Profile Picture', description: 'Add your photo' }
 ];
 
 const ProfileCompletionForm = () => {
-  const { user, profile, refreshProfile, userRoles } = useAuth();
+  const { user, profile, refreshProfile, userRoles, refreshRoles } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [selectedAccountType, setSelectedAccountType] = useState<AccountType>(null);
   const [formData, setFormData] = useState<ProfileData>({
     full_name: '',
     phone: '',
@@ -64,14 +90,27 @@ const ProfileCompletionForm = () => {
         organization: profile.organization || '',
         bio: profile.bio || ''
       });
-      setCurrentStep(profile.profile_completion_step || 1);
+      
+      // If user already has a role, skip step 1
+      if (userRoles.primaryRole && userRoles.primaryRole !== 'admin') {
+        setSelectedAccountType(userRoles.primaryRole as AccountType);
+        setCurrentStep(Math.max(profile.profile_completion_step || 2, 2));
+      } else {
+        setCurrentStep(profile.profile_completion_step || 1);
+      }
       
       // Load draft if exists
-      if (profile.profile_draft && Object.keys(profile.profile_draft).length > 0) {
-        setFormData(prev => ({ ...prev, ...profile.profile_draft }));
+      if (profile.profile_draft && typeof profile.profile_draft === 'object') {
+        const draft = profile.profile_draft as Record<string, any>;
+        if (Object.keys(draft).length > 0) {
+          setFormData(prev => ({ ...prev, ...draft }));
+          if (draft.selectedAccountType) {
+            setSelectedAccountType(draft.selectedAccountType);
+          }
+        }
       }
     }
-  }, [profile]);
+  }, [profile, userRoles.primaryRole]);
 
   const getInitials = (name: string) => {
     if (!name) return "?";
@@ -81,12 +120,14 @@ const ProfileCompletionForm = () => {
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
-        return !!formData.full_name;
+        return !!selectedAccountType;
       case 2:
-        return !!(formData.phone && formData.location);
+        return !!formData.full_name;
       case 3:
-        return !!formData.organization;
+        return !!(formData.phone && formData.location);
       case 4:
+        return !!formData.organization;
+      case 5:
         return true;
       default:
         return false;
@@ -100,7 +141,7 @@ const ProfileCompletionForm = () => {
       await supabase
         .from('profiles')
         .update({
-          profile_draft: formData as any,
+          profile_draft: { ...formData, selectedAccountType } as any,
           profile_completion_step: currentStep,
           updated_at: new Date().toISOString()
         })
@@ -110,14 +151,62 @@ const ProfileCompletionForm = () => {
     }
   };
 
+  const saveUserRole = async (role: AccountType) => {
+    if (!user || !role) return false;
+    
+    try {
+      // Check if role already exists
+      const { data: existingRole } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('role', role)
+        .single();
+      
+      if (!existingRole) {
+        // Insert the new role
+        const { error } = await supabase
+          .from('user_roles')
+          .insert({ user_id: user.id, role });
+        
+        if (error) throw error;
+      }
+      
+      // Refresh roles in context
+      if (refreshRoles) {
+        await refreshRoles();
+      }
+      
+      return true;
+    } catch (error: any) {
+      console.error('Error saving user role:', error);
+      toast({
+        title: "Error saving account type",
+        description: error.message,
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   const handleNext = async () => {
     if (!validateStep(currentStep)) {
       toast({
         title: "Please fill required fields",
-        description: "All required fields must be completed before proceeding.",
+        description: currentStep === 1 
+          ? "Please select an account type to continue."
+          : "All required fields must be completed before proceeding.",
         variant: "destructive",
       });
       return;
+    }
+
+    // If on step 1, save the role to database
+    if (currentStep === 1 && selectedAccountType) {
+      setLoading(true);
+      const success = await saveUserRole(selectedAccountType);
+      setLoading(false);
+      if (!success) return;
     }
 
     if (currentStep < STEPS.length) {
@@ -127,7 +216,9 @@ const ProfileCompletionForm = () => {
   };
 
   const handlePrevious = () => {
-    if (currentStep > 1) {
+    // If user already has a role assigned, don't go back to step 1
+    const minStep = userRoles.primaryRole ? 2 : 1;
+    if (currentStep > minStep) {
       setCurrentStep(currentStep - 1);
     }
   };
@@ -170,12 +261,14 @@ const ProfileCompletionForm = () => {
         description: "Welcome to the platform! You can now access all features.",
       });
 
-      // Redirect based on user role
+      // Redirect based on user role (use selectedAccountType as fallback since roles may take a moment to update)
+      const effectiveRole = userRoles.primaryRole || selectedAccountType;
+      
       if (userRoles.isAdmin) {
         navigate('/admin');
-      } else if (userRoles.primaryRole === 'manufacturer') {
+      } else if (effectiveRole === 'manufacturer') {
         navigate('/manufacturer/products');
-      } else if (userRoles.primaryRole === 'investor') {
+      } else if (effectiveRole === 'investor') {
         navigate('/investor');
       } else {
         navigate('/dashboard');
@@ -235,6 +328,49 @@ const ProfileCompletionForm = () => {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold flex items-center">
                   <UserRound className="w-5 h-5 mr-2 text-[#E02020]" />
+                  Select Account Type <span className="text-red-500">*</span>
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Choose the type of account that best describes how you'll use the platform
+                </p>
+                
+                <div className="grid gap-4 mt-4">
+                  {ACCOUNT_TYPES.map((type) => {
+                    const Icon = type.icon;
+                    const isSelected = selectedAccountType === type.id;
+                    return (
+                      <div
+                        key={type.id}
+                        onClick={() => setSelectedAccountType(type.id)}
+                        className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                          isSelected 
+                            ? 'border-[#E02020] bg-red-50' 
+                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className={`p-3 rounded-full ${isSelected ? 'bg-[#E02020] text-white' : 'bg-gray-100'}`}>
+                            <Icon className="w-6 h-6" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold">{type.title}</h4>
+                            <p className="text-sm text-muted-foreground mt-1">{type.description}</p>
+                          </div>
+                          {isSelected && (
+                            <CheckCircle className="w-5 h-5 text-[#E02020]" />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {currentStep === 2 && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center">
+                  <UserRound className="w-5 h-5 mr-2 text-[#E02020]" />
                   Basic Information
                 </h3>
                 
@@ -269,7 +405,7 @@ const ProfileCompletionForm = () => {
               </div>
             )}
 
-            {currentStep === 2 && (
+            {currentStep === 3 && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold flex items-center">
                   <Phone className="w-5 h-5 mr-2 text-[#E02020]" />
@@ -306,7 +442,7 @@ const ProfileCompletionForm = () => {
               </div>
             )}
 
-            {currentStep === 3 && (
+            {currentStep === 4 && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold flex items-center">
                   <Building2 className="w-5 h-5 mr-2 text-[#E02020]" />
@@ -327,7 +463,7 @@ const ProfileCompletionForm = () => {
               </div>
             )}
 
-            {currentStep === 4 && (
+            {currentStep === 5 && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold flex items-center">
                   <Upload className="w-5 h-5 mr-2 text-[#E02020]" />
@@ -358,7 +494,7 @@ const ProfileCompletionForm = () => {
                 type="button"
                 variant="outline"
                 onClick={handlePrevious}
-                disabled={currentStep === 1}
+                disabled={currentStep === 1 || (currentStep === 2 && !!userRoles.primaryRole)}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Previous
@@ -378,10 +514,11 @@ const ProfileCompletionForm = () => {
                   <Button
                     type="button"
                     onClick={handleNext}
+                    disabled={loading}
                     className="bg-[#E02020] hover:bg-[#c01010]"
                   >
-                    Next
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    {loading ? "Saving..." : "Next"}
+                    {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
                   </Button>
                 ) : (
                   <Button
