@@ -7,10 +7,11 @@ import { Label } from "@/components/ui/label";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { UserRole } from '@/contexts/UserRoleContext';
-import { AlertCircle, Mail, User, Building, Lock, Eye, EyeOff, CheckCircle, ArrowRight, Sparkles } from "lucide-react";
+import { AlertCircle, Mail, User, Building, Lock, Eye, EyeOff, CheckCircle, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useEmailVerification } from '@/hooks/useEmailVerification';
+import { useGoogleOAuth } from '@/hooks/useGoogleOAuth';
 import GoogleIcon from "@/components/icons/GoogleIcon";
 
 interface SignUpFormProps {
@@ -23,6 +24,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
   const { toast } = useToast();
   const navigate = useNavigate();
   const { sendVerificationEmail } = useEmailVerification();
+  const { isLoading: googleLoading, loadingMessage, initiateGoogleOAuth } = useGoogleOAuth();
+  
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
   const [organization, setOrganization] = useState('');
@@ -35,58 +38,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
   const [termsError, setTermsError] = useState<string | null>(null);
 
   const handleGoogleSignUp = async () => {
-    try {
-      setLoading(true);
-      
-      // Always store the selected role - this is critical for OAuth flow
-      const roleToStore = metadata?.role || 'hospital';
-      localStorage.setItem('pending_oauth_role', roleToStore);
-      console.log('Stored pending OAuth role:', roleToStore);
-      
-      // Always redirect to callback - it handles routing based on profile state
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
-        }
-      });
-      
-      if (error) throw error;
-    } catch (error: any) {
-      // Handle specific OAuth errors with user-friendly messages
-      const errorMessage = getGoogleSignUpErrorMessage(error);
-      
-      toast({
-        title: "Google sign-up failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      setLoading(false);
-    }
+    const role = metadata?.role || 'hospital';
+    await initiateGoogleOAuth({ role, mode: 'signup' });
   };
-
-  // Helper function for Google auth error messages
-  function getGoogleSignUpErrorMessage(error: any): string {
-    const message = error?.message?.toLowerCase() || '';
-    
-    if (message.includes('popup') || message.includes('blocked')) {
-      return 'Popup was blocked. Please allow popups for this site and try again.';
-    }
-    if (message.includes('cancelled') || message.includes('canceled') || message.includes('closed')) {
-      return 'Sign-up was cancelled. Please try again when ready.';
-    }
-    if (message.includes('network') || message.includes('fetch')) {
-      return 'Network error. Please check your connection and try again.';
-    }
-    if (message.includes('expired') || message.includes('invalid')) {
-      return 'Your session has expired. Please try again.';
-    }
-    return error?.message || 'An unexpected error occurred. Please try again.';
-  }
 
   const validatePassword = async (password: string) => {
     try {
@@ -164,13 +118,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
         return;
       }
 
-      // TODO: Reinstate email verification requirement later
-      // TEMPORARY WORKAROUND: Create user without email confirmation for immediate access
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          // Disable email confirmation to prevent SMTP errors and allow immediate access
           emailRedirectTo: undefined,
           data: {
             full_name: fullName,
@@ -184,7 +135,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
       if (signUpError) {
         console.error("Signup error:", signUpError);
         
-        // Handle specific error cases
         if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
           onError('An account with this email already exists. Please sign in instead.');
         } else {
@@ -196,7 +146,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
       if (data?.user) {
         console.log("User created successfully, proceeding with immediate access...");
         
-        // TODO: Reinstate email verification sending after SMTP issues are resolved
         // Send verification email in background but don't block user access
         try {
           const emailResult = await sendVerificationEmail(email, fullName);
@@ -208,7 +157,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
           }
         } catch (emailErr: any) {
           console.error("Background email send error:", emailErr);
-          // Don't block user flow for email failures
         }
         
         // Redirect to role-specific onboarding
@@ -225,7 +173,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
     }
   };
 
-  // Handle password change to clear error message when user starts typing
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
     if (passwordValidationMessage) {
@@ -249,6 +196,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
   ];
 
   const roleLabel = metadata?.role ? metadata.role.charAt(0).toUpperCase() + metadata.role.slice(1) : 'Hospital';
+  const isAnyLoading = loading || googleLoading;
 
   return (
     <form onSubmit={handleSignUp} className="space-y-0">
@@ -258,11 +206,20 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
           type="button"
           variant="outline"
           onClick={handleGoogleSignUp}
-          disabled={loading}
+          disabled={isAnyLoading}
           className="w-full h-14 border-2 rounded-xl font-semibold transition-all duration-300 hover:bg-muted/50"
         >
-          <GoogleIcon className="w-5 h-5 mr-3" />
-          Continue with Google as {roleLabel}
+          {googleLoading ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-3 animate-spin" />
+              {loadingMessage || 'Redirecting to Google...'}
+            </>
+          ) : (
+            <>
+              <GoogleIcon className="w-5 h-5 mr-3" />
+              Continue with Google as {roleLabel}
+            </>
+          )}
         </Button>
 
         {/* Divider */}
@@ -291,6 +248,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isAnyLoading}
                 className="h-14 pl-4 pr-4 border-2 border-border focus:border-primary rounded-xl transition-all duration-300 text-base font-medium placeholder:text-muted-foreground bg-background/80 backdrop-blur-sm hover:bg-background focus:bg-background group-hover:border-border"
               />
             </div>
@@ -309,6 +267,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
+                disabled={isAnyLoading}
                 className="h-14 pl-4 pr-4 border-2 border-border focus:border-primary rounded-xl transition-all duration-300 text-base font-medium placeholder:text-muted-foreground bg-background/80 backdrop-blur-sm hover:bg-background focus:bg-background group-hover:border-border"
               />
             </div>
@@ -327,6 +286,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
                 value={organization}
                 onChange={(e) => setOrganization(e.target.value)}
                 required
+                disabled={isAnyLoading}
                 className="h-14 pl-4 pr-4 border-2 border-border focus:border-primary rounded-xl transition-all duration-300 text-base font-medium placeholder:text-muted-foreground bg-background/80 backdrop-blur-sm hover:bg-background focus:bg-background group-hover:border-border"
               />
             </div>
@@ -345,6 +305,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
                 value={password}
                 onChange={handlePasswordChange}
                 required
+                disabled={isAnyLoading}
                 className={`h-14 pl-4 pr-14 border-2 rounded-xl transition-all duration-300 text-base font-medium placeholder:text-muted-foreground bg-background/80 backdrop-blur-sm hover:bg-background focus:bg-background ${
                   passwordValidationMessage ? "border-destructive focus:border-destructive" : "border-border focus:border-primary group-hover:border-border"
                 }`}
@@ -402,6 +363,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
                 onCheckedChange={handleTermsChange}
                 className="mt-1"
                 aria-describedby="terms-error"
+                disabled={isAnyLoading}
               />
               <Label 
                 htmlFor="terms-checkbox" 
@@ -445,17 +407,12 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
         <Button 
           type="submit" 
           className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105" 
-          disabled={loading || validating}
+          disabled={isAnyLoading || validating}
         >
-          {loading ? (
+          {loading || validating ? (
             <div className="flex items-center space-x-3">
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              <span>Creating your account...</span>
-            </div>
-          ) : validating ? (
-            <div className="flex items-center space-x-3">
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              <span>Validating password...</span>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span>{validating ? 'Validating...' : 'Creating account...'}</span>
             </div>
           ) : (
             <div className="flex items-center space-x-2">
