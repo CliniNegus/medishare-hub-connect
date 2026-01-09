@@ -161,15 +161,24 @@ const ProfileCompletionForm = () => {
         .select('id')
         .eq('user_id', user.id)
         .eq('role', role)
-        .single();
+        .maybeSingle();
       
-      if (!existingRole) {
-        // Insert the new role
-        const { error } = await supabase
-          .from('user_roles')
-          .insert({ user_id: user.id, role });
-        
-        if (error) throw error;
+      if (existingRole) {
+        // Role already exists, no need to insert
+        return true;
+      }
+      
+      // Insert the new role
+      const { error } = await supabase
+        .from('user_roles')
+        .insert({ user_id: user.id, role });
+      
+      if (error) {
+        // If it's a duplicate key error, treat as success
+        if (error.code === '23505') {
+          return true;
+        }
+        throw error;
       }
       
       // Refresh roles in context
