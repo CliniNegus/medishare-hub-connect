@@ -1,12 +1,9 @@
 import React from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import ProfileCompletionForm from '@/components/profile/ProfileCompletionForm';
-import ManufacturerOnboardingForm from '@/components/onboarding/ManufacturerOnboardingForm';
-import InvestorOnboardingForm from '@/components/onboarding/InvestorOnboardingForm';
 
 const Onboarding = () => {
-  const { role } = useParams<{ role: string }>();
   const { user, profile, loading, userRoles } = useAuth();
 
   if (loading) {
@@ -38,20 +35,8 @@ const Onboarding = () => {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // Determine role from URL param or user profile
-  const effectiveRole = role || profile?.role || userRoles.primaryRole || 'hospital';
-
-  switch (effectiveRole) {
-    case 'hospital':
-    case 'clinic':
-      return <ProfileCompletionForm />;
-    case 'manufacturer':
-      return <ManufacturerOnboardingForm />;
-    case 'investor':
-      return <InvestorOnboardingForm />;
-    default:
-      return <ProfileCompletionForm />;
-  }
+  // Use ProfileCompletionForm for all account types
+  return <ProfileCompletionForm />;
 };
 
 export default Onboarding;

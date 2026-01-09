@@ -173,6 +173,10 @@ const ProfileCompletionForm = () => {
       // Redirect based on user role
       if (userRoles.isAdmin) {
         navigate('/admin');
+      } else if (userRoles.primaryRole === 'manufacturer') {
+        navigate('/manufacturer/products');
+      } else if (userRoles.primaryRole === 'investor') {
+        navigate('/investor');
       } else {
         navigate('/dashboard');
       }
