@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import HospitalOnboardingForm from '@/components/onboarding/HospitalOnboardingForm';
+import ProfileCompletionForm from '@/components/profile/ProfileCompletionForm';
 import ManufacturerOnboardingForm from '@/components/onboarding/ManufacturerOnboardingForm';
 import InvestorOnboardingForm from '@/components/onboarding/InvestorOnboardingForm';
 
@@ -44,13 +44,13 @@ const Onboarding = () => {
   switch (effectiveRole) {
     case 'hospital':
     case 'clinic':
-      return <HospitalOnboardingForm />;
+      return <ProfileCompletionForm />;
     case 'manufacturer':
       return <ManufacturerOnboardingForm />;
     case 'investor':
       return <InvestorOnboardingForm />;
     default:
-      return <HospitalOnboardingForm />;
+      return <ProfileCompletionForm />;
   }
 };
 
