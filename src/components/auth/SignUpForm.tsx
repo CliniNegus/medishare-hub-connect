@@ -38,10 +38,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
     try {
       setLoading(true);
       
-      // Store the selected role in localStorage for the callback to use
-      if (metadata?.role) {
-        localStorage.setItem('pending_oauth_role', metadata.role);
-      }
+      // Always store the selected role - this is critical for OAuth flow
+      const roleToStore = metadata?.role || 'hospital';
+      localStorage.setItem('pending_oauth_role', roleToStore);
+      console.log('Stored pending OAuth role:', roleToStore);
       
       // Always redirect to callback - it handles routing based on profile state
       const { error } = await supabase.auth.signInWithOAuth({
@@ -248,6 +248,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
     { text: "One special character", met: /[^A-Za-z0-9]/.test(password) },
   ];
 
+  const roleLabel = metadata?.role ? metadata.role.charAt(0).toUpperCase() + metadata.role.slice(1) : 'Hospital';
+
   return (
     <form onSubmit={handleSignUp} className="space-y-0">
       <CardContent className="space-y-6 pt-6 px-8">
@@ -260,7 +262,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata })
           className="w-full h-14 border-2 rounded-xl font-semibold transition-all duration-300 hover:bg-muted/50"
         >
           <GoogleIcon className="w-5 h-5 mr-3" />
-          Continue with Google
+          Continue with Google as {roleLabel}
         </Button>
 
         {/* Divider */}
