@@ -17,7 +17,7 @@ export type Database = {
       admin_actions: {
         Row: {
           action_type: string
-          admin_id: string
+          admin_id: string | null
           created_at: string | null
           details: Json | null
           id: string
@@ -27,7 +27,7 @@ export type Database = {
         }
         Insert: {
           action_type: string
-          admin_id: string
+          admin_id?: string | null
           created_at?: string | null
           details?: Json | null
           id?: string
@@ -37,7 +37,7 @@ export type Database = {
         }
         Update: {
           action_type?: string
-          admin_id?: string
+          admin_id?: string | null
           created_at?: string | null
           details?: Json | null
           id?: string
