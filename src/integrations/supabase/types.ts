@@ -1925,7 +1925,7 @@ export type Database = {
           created_at: string
           id: string
           message: string
-          sender_id: string
+          sender_id: string | null
           sender_type: string
           support_request_id: string
           updated_at: string
@@ -1934,7 +1934,7 @@ export type Database = {
           created_at?: string
           id?: string
           message: string
-          sender_id: string
+          sender_id?: string | null
           sender_type: string
           support_request_id: string
           updated_at?: string
@@ -1943,7 +1943,7 @@ export type Database = {
           created_at?: string
           id?: string
           message?: string
-          sender_id?: string
+          sender_id?: string | null
           sender_type?: string
           support_request_id?: string
           updated_at?: string
@@ -1973,7 +1973,7 @@ export type Database = {
           subject: string
           tags: string[] | null
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           admin_id?: string | null
@@ -1989,7 +1989,7 @@ export type Database = {
           subject: string
           tags?: string[] | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           admin_id?: string | null
@@ -2005,7 +2005,7 @@ export type Database = {
           subject?: string
           tags?: string[] | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -2019,7 +2019,7 @@ export type Database = {
           read_at: string | null
           recipient_id: string | null
           recipient_role: string | null
-          sender_id: string
+          sender_id: string | null
           status: string | null
           subject: string
           updated_at: string
@@ -2033,7 +2033,7 @@ export type Database = {
           read_at?: string | null
           recipient_id?: string | null
           recipient_role?: string | null
-          sender_id: string
+          sender_id?: string | null
           status?: string | null
           subject: string
           updated_at?: string
@@ -2047,7 +2047,7 @@ export type Database = {
           read_at?: string | null
           recipient_id?: string | null
           recipient_role?: string | null
-          sender_id?: string
+          sender_id?: string | null
           status?: string | null
           subject?: string
           updated_at?: string
