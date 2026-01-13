@@ -48,31 +48,19 @@ const handler = async (req: Request): Promise<Response> => {
       .eq('email', email)
       .maybeSingle();
 
-    // Use found user_id or generate a placeholder UUID for non-existing users
-    const userId = userData?.id || '00000000-0000-0000-0000-000000000000';
+    // Use found user_id or null for non-existing users
+    const userId = userData?.id || null;
 
-    // Insert deletion request into support_requests table
-    const requestMessage = `
-Account Deletion Request
-
-Full Name: ${full_name}
-Email: ${email}
-Account Type: ${account_type}
-${message ? `\nReason: ${message}` : ''}
-
-This request was submitted via the public deletion request form.
-Please process within 7 business days as per Google Play's Data Deletion Policy.
-    `.trim();
-
+    // Insert deletion request into deletion_requests table
     const { error: insertError } = await supabase
-      .from('support_requests')
+      .from('deletion_requests')
       .insert({
         user_id: userId,
-        subject: `Account Deletion Request - ${full_name}`,
-        message: requestMessage,
-        priority: 'high',
-        status: 'open',
-        category: 'account'
+        email: email,
+        full_name: full_name,
+        account_type: account_type,
+        reason: message || null,
+        status: 'pending'
       });
 
     if (insertError) {

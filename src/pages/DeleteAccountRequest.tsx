@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,9 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle, CheckCircle2, Trash2 } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Trash2, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { z } from 'zod';
 
 const deletionRequestSchema = z.object({
@@ -23,6 +24,7 @@ const deletionRequestSchema = z.object({
 type DeletionRequestData = z.infer<typeof deletionRequestSchema>;
 
 const DeleteAccountRequest = () => {
+  const { user, profile } = useAuth();
   const [formData, setFormData] = useState<DeletionRequestData>({
     full_name: '',
     email: '',
@@ -33,6 +35,18 @@ const DeleteAccountRequest = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
+
+  // Auto-fill form if user is logged in
+  useEffect(() => {
+    if (user && profile) {
+      setFormData(prev => ({
+        ...prev,
+        email: user.email || prev.email,
+        full_name: profile.full_name || prev.full_name,
+        account_type: (profile.role as 'hospital' | 'manufacturer' | 'investor' | 'other') || prev.account_type,
+      }));
+    }
+  }, [user, profile]);
 
   const handleInputChange = (field: keyof DeletionRequestData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -253,12 +267,18 @@ const DeleteAccountRequest = () => {
               <Separator />
 
               {/* Legal Disclaimer */}
-              <div className="bg-muted/50 p-4 rounded-lg border border-border">
-                <p className="text-sm text-muted-foreground">
-                  <strong>Important:</strong> By submitting this form, you acknowledge that your account 
-                  and related data will be permanently deleted and cannot be recovered once the process 
-                  is complete.
-                </p>
+              <div className="bg-destructive/5 p-4 rounded-lg border border-destructive/20">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" />
+                  <div className="text-sm text-muted-foreground">
+                    <p className="font-semibold text-foreground mb-1">Warning: This action is permanent</p>
+                    <p>
+                      Submitting this request will permanently delete your account and all associated data 
+                      after review by our team. This includes your profile, orders, equipment listings, 
+                      and all other records. <strong>This action cannot be undone.</strong>
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* Submit Button */}
