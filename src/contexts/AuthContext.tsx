@@ -154,9 +154,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    // Set up auth state listener first
+    let isMounted = true;
+
+    // Set up auth state listener first - MUST NOT be async to avoid deadlock
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, newSession) => {
+      (event, newSession) => {
+        // Synchronous state updates only in callback
         setSession(newSession);
         setUser(newSession?.user ?? null);
         
@@ -165,39 +168,54 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setUserRoles({ roles: [], primaryRole: null, isAdmin: false });
           setLoading(false);
         } else if (event === 'SIGNED_IN' && newSession?.user) {
-          // Ensure we wait for profile and roles before setting loading to false
-          setLoading(true);
-          await Promise.all([
-            fetchProfile(newSession.user.id),
-            fetchUserRoles(newSession.user.id)
-          ]);
-          updateUserActivity();
-          setLoading(false);
+          // Use setTimeout to defer async operations and avoid deadlock
+          setTimeout(async () => {
+            if (!isMounted) return;
+            setLoading(true);
+            try {
+              await Promise.all([
+                fetchProfile(newSession.user.id),
+                fetchUserRoles(newSession.user.id)
+              ]);
+              updateUserActivity();
+            } finally {
+              if (isMounted) {
+                setLoading(false);
+              }
+            }
+          }, 0);
         }
       }
     );
 
     // Check for existing session
     const initializeAuth = async () => {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
-      
-      if (currentSession?.user) {
-        // Wait for BOTH profile AND roles to be fetched before setting loading to false
-        await Promise.all([
-          fetchProfile(currentSession.user.id),
-          fetchUserRoles(currentSession.user.id)
-        ]);
-        updateUserActivity();
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        
+        if (!isMounted) return;
+        
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+        
+        if (currentSession?.user) {
+          await Promise.all([
+            fetchProfile(currentSession.user.id),
+            fetchUserRoles(currentSession.user.id)
+          ]);
+          updateUserActivity();
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-      
-      setLoading(false);
     };
 
     initializeAuth();
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, [fetchUserRoles]);
