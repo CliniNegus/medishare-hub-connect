@@ -11,29 +11,9 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
-  const { user, profile, refreshProfile, userRoles } = useAuth();
-  const { role, setRole, isUserRegisteredAs, hasRole, isAdmin } = useUserRole();
+  const { user, profile, refreshProfile, userRoles, loading: authLoading } = useAuth();
+  const { role, setRole, isUserRegisteredAs, isLoading: roleLoading } = useUserRole();
   const navigate = useNavigate();
-
-  // Check if user is authenticated and has a profile role set
-  useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
-    
-    // Use the primary role from user_roles table
-    if (user && userRoles.primaryRole) {
-      console.log("Dashboard: Setting role to", userRoles.primaryRole);
-      setRole(userRoles.primaryRole);
-      
-      // Redirect admin users to the admin dashboard
-      if (userRoles.isAdmin) {
-        navigate('/admin');
-        return;
-      }
-    }
-  }, [user, userRoles, navigate, setRole]);
 
   // Refresh profile when dashboard loads to ensure we have the latest data
   useEffect(() => {
@@ -42,11 +22,39 @@ const Dashboard = () => {
     }
   }, [refreshProfile, user]);
 
-  // For debugging
+  // Set role and handle admin redirect
   useEffect(() => {
-    console.log("Dashboard component - Current user role:", role);
-    console.log("Dashboard component - User roles from DB:", userRoles.roles);
-  }, [role, userRoles]);
+    if (authLoading || roleLoading) return;
+    
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    
+    // Use the primary role from user_roles table
+    const primaryRole = userRoles.primaryRole || profile?.role;
+    if (primaryRole) {
+      setRole(primaryRole);
+      
+      // Redirect admin users to the admin dashboard
+      if (userRoles.isAdmin) {
+        navigate('/admin');
+        return;
+      }
+    }
+  }, [user, userRoles, profile?.role, navigate, setRole, authLoading, roleLoading]);
+
+  // Show loading state while auth or roles are loading
+  if (authLoading || roleLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-muted-foreground">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   // If user doesn't have a profile role or tries to access a dashboard they're not registered for
   if (role && !isUserRegisteredAs(role)) {
@@ -72,14 +80,7 @@ const Dashboard = () => {
     );
   }
 
-  // For debugging
-  if (!profile && !userRoles.primaryRole) {
-    console.log("Dashboard - Profile and roles not loaded yet");
-    return <div className="h-screen flex items-center justify-center">Loading profile...</div>;
-  }
-
-  const currentRole = userRoles.primaryRole || profile?.role;
-  console.log("Dashboard - Rendering dashboard for role:", currentRole);
+  const currentRole = userRoles.primaryRole || profile?.role || role;
 
   // Render the dashboard based on the user's role
   switch (currentRole) {

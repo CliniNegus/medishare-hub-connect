@@ -26,24 +26,38 @@ interface UserRoleProviderProps {
 }
 
 export const UserRoleProvider: React.FC<UserRoleProviderProps> = ({ children }) => {
-  const { user, profile, userRoles: authUserRoles, updateUserRole: authUpdateUserRole, hasRole: authHasRole } = useAuth();
+  const { user, profile, userRoles: authUserRoles, updateUserRole: authUpdateUserRole, hasRole: authHasRole, loading: authLoading } = useAuth();
   const [currentRole, setCurrentRole] = useState<UserRole | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Use the primary role from user_roles table
-    if (authUserRoles.primaryRole) {
-      setCurrentRole(authUserRoles.primaryRole);
-      setIsLoading(false);
-    } else if (user && !authUserRoles.primaryRole) {
-      // User exists but no role loaded yet
+    // If auth is still loading, keep loading state
+    if (authLoading) {
       setIsLoading(true);
-    } else if (!user) {
-      // No user logged in
+      return;
+    }
+
+    // If no user, clear role and stop loading
+    if (!user) {
       setCurrentRole(null);
       setIsLoading(false);
+      return;
     }
-  }, [user, authUserRoles.primaryRole]);
+
+    // User exists - set role from user_roles table or profile
+    if (authUserRoles.primaryRole) {
+      setCurrentRole(authUserRoles.primaryRole);
+    } else if (profile?.role) {
+      // Fallback to profile role if no user_roles entry
+      setCurrentRole(profile.role as UserRole);
+    } else {
+      // No role found - user may need to complete onboarding
+      setCurrentRole(null);
+    }
+    
+    // Stop loading once we've determined the state
+    setIsLoading(false);
+  }, [user, authUserRoles.primaryRole, profile?.role, authLoading]);
 
   const handleSetCurrentRole = (role: UserRole) => {
     setCurrentRole(role);
