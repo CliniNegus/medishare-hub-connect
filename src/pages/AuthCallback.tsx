@@ -38,7 +38,7 @@ const STATUS_MESSAGES: Record<CallbackStatus, string> = {
  * 1. Wait for Supabase to exchange the OAuth code for a session
  * 2. Verify session is valid
  * 3. Check if user profile exists and is complete
- * 4. Route to onboarding (new users) or dashboard (returning users)
+ * 4. Route to complete-profile (new users) or dashboard (returning users)
  */
 const AuthCallback = () => {
   const navigate = useNavigate();
@@ -82,9 +82,8 @@ const AuthCallback = () => {
         updateStatus('checking_profile');
         let profile = await waitForProfile(user.id, 8, 500);
 
-        // Step 3: Get pending OAuth role and mode
+        // Get pending OAuth role
         const pendingRole = localStorage.getItem('pending_oauth_role');
-        const oauthMode = localStorage.getItem('oauth_mode');
         const effectiveRole = pendingRole || profile?.role || 'hospital';
 
         // Clean up localStorage
@@ -115,9 +114,7 @@ const AuthCallback = () => {
         const isProfileComplete = profile?.onboarding_completed || profile?.profile_completed;
         
         if (!profile || !isProfileComplete) {
-          // New user or incomplete profile - go to onboarding
-          const role = profile?.role || effectiveRole;
-          
+          // New user or incomplete profile - go to complete-profile
           toast({
             title: 'Welcome to CliniBuilds! 🎉',
             description: 'Please complete your profile to get started.',
@@ -125,7 +122,7 @@ const AuthCallback = () => {
 
           // Small delay to ensure state is persisted
           await delay(300);
-          navigate(`/onboarding/${role}`, { replace: true });
+          navigate('/complete-profile', { replace: true });
         } else {
           // Returning user with complete profile
           const isAccountLinking = (user.identities?.length || 0) > 1;

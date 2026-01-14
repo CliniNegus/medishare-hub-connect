@@ -41,25 +41,21 @@ const ProtectedRoute = ({
   }
 
   // Check if profile needs to be completed
-  // Skip this check for onboarding routes and complete-profile route
-  const isOnboardingRoute = location.pathname.startsWith('/onboarding');
+  // Skip this check for complete-profile route and auth callback
   const isCompleteProfileRoute = location.pathname === '/complete-profile';
   const isAuthCallbackRoute = location.pathname === '/auth/callback';
   
-  if (!isOnboardingRoute && !isCompleteProfileRoute && !isAuthCallbackRoute) {
-    // Check if onboarding is complete
-    const onboardingComplete = profile?.onboarding_completed || profile?.profile_completed;
+  if (!isCompleteProfileRoute && !isAuthCallbackRoute) {
+    // Check if profile is complete
+    const profileComplete = profile?.onboarding_completed || profile?.profile_completed;
     
-    if (!onboardingComplete) {
-      // Determine role for redirect
-      const role = profile?.role || userRoles.primaryRole || 'hospital';
-      return <Navigate to={`/onboarding/${role}`} replace />;
+    if (!profileComplete) {
+      return <Navigate to="/complete-profile" replace />;
     }
     
     // Additional check: ensure user has required role assignment (except for admin routes)
     if (!requireAdmin && !userRoles.primaryRole && !userRoles.isAdmin) {
-      const role = profile?.role || 'hospital';
-      return <Navigate to={`/onboarding/${role}`} replace />;
+      return <Navigate to="/complete-profile" replace />;
     }
   }
 
@@ -67,7 +63,6 @@ const ProtectedRoute = ({
   // Only redirect if they're not already trying to access the admin route
   if (userRoles.isAdmin && !requireAdmin && 
       !location.pathname.startsWith('/admin') && 
-      !isOnboardingRoute && 
       !isCompleteProfileRoute) {
     return <Navigate to="/admin" replace />;
   }

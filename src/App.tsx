@@ -56,7 +56,6 @@ import Marketplace from './pages/Marketplace';
 import ManufacturerOrders from './pages/ManufacturerOrders';
 import EquipmentSharing from './pages/EquipmentSharing';
 import DemandForecasting from './pages/DemandForecasting';
-import Onboarding from './pages/Onboarding';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -91,7 +90,6 @@ function App() {
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/auth/callback" element={<AuthCallback />} />
                     <Route path="/complete-profile" element={<CompleteProfile />} />
-                    <Route path="/onboarding/:role?" element={<Onboarding />} />
                     <Route path="/admin-auth" element={<AdminAuth />} />
                     <Route 
                       path="/dashboard" 
