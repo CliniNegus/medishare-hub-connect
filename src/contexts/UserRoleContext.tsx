@@ -28,19 +28,19 @@ interface UserRoleProviderProps {
 export const UserRoleProvider: React.FC<UserRoleProviderProps> = ({ children }) => {
   const { user, profile, userRoles: authUserRoles, updateUserRole: authUpdateUserRole, hasRole: authHasRole, loading: authLoading } = useAuth();
   const [currentRole, setCurrentRole] = useState<UserRole | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+
+  // Derive loading state directly from authLoading - no separate state needed
+  const isLoading = authLoading;
 
   useEffect(() => {
-    // If auth is still loading, keep loading state
+    // Don't update role while auth is loading
     if (authLoading) {
-      setIsLoading(true);
       return;
     }
 
-    // If no user, clear role and stop loading
+    // If no user, clear role
     if (!user) {
       setCurrentRole(null);
-      setIsLoading(false);
       return;
     }
 
@@ -54,9 +54,6 @@ export const UserRoleProvider: React.FC<UserRoleProviderProps> = ({ children }) 
       // No role found - user may need to complete onboarding
       setCurrentRole(null);
     }
-    
-    // Stop loading once we've determined the state
-    setIsLoading(false);
   }, [user, authUserRoles.primaryRole, profile?.role, authLoading]);
 
   const handleSetCurrentRole = (role: UserRole) => {
