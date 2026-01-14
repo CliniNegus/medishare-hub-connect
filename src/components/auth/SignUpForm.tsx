@@ -164,9 +164,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata, h
           console.error("Background email send error:", emailErr);
         }
         
-        // Redirect to role-specific onboarding
-        const role = metadata?.role || 'hospital';
-        navigate(`/onboarding/${role}`);
+        // Redirect to complete profile
+        navigate('/complete-profile');
       } else {
         throw new Error("User creation failed - no user data returned");
       }
