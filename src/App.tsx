@@ -368,6 +368,7 @@ function App() {
               </CartProvider>
             </UserRoleProvider>
           </NotificationProvider>
+        </DemoProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
