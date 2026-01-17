@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from './contexts/AuthContext';
 import { UserRoleProvider } from './contexts/UserRoleContext';
+import { DemoProvider } from './contexts/DemoContext';
 
 import { ThemeProvider } from './contexts/ThemeContext';
 import { CartProvider } from './contexts/CartContext';
@@ -11,6 +12,7 @@ import { NotificationProvider } from './components/notifications/NotificationPro
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
+import MarketingLayout from './components/MarketingLayout';
 
 // Page imports
 import Index from './pages/Index';
@@ -56,6 +58,7 @@ import Marketplace from './pages/Marketplace';
 import ManufacturerOrders from './pages/ManufacturerOrders';
 import EquipmentSharing from './pages/EquipmentSharing';
 import DemandForecasting from './pages/DemandForecasting';
+import ManufacturerOnboarding from './pages/ManufacturerOnboarding';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -71,25 +74,29 @@ function App() {
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <NotificationProvider>
-            <UserRoleProvider>
-              <CartProvider>
-                <WishlistProvider>
-                  <ErrorBoundary>
-                  <Router>
-                    <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/terms-of-service" element={<TermsOfService />} />
-                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                    <Route path="/delete-account" element={<DeleteAccountRequest />} />
-                    <Route path="/shop" element={<PublicShop />} />
-                    <Route path="/product/:id" element={<ProductDetailsPage />} />
-                    <Route path="/payment-cancelled" element={<PaymentCancelled />} />
-                    <Route path="/payment-success" element={<PaymentSuccess />} />
-                    <Route path="/verify" element={<EmailVerification />} />
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/auth/callback" element={<AuthCallback />} />
-                    <Route path="/complete-profile" element={<CompleteProfile />} />
+          <DemoProvider>
+            <NotificationProvider>
+              <UserRoleProvider>
+                <CartProvider>
+                  <WishlistProvider>
+                    <ErrorBoundary>
+                    <Router>
+                      <Routes>
+                      {/* Marketing pages with forced light mode */}
+                      <Route path="/" element={<MarketingLayout><Index /></MarketingLayout>} />
+                      <Route path="/terms-of-service" element={<MarketingLayout><TermsOfService /></MarketingLayout>} />
+                      <Route path="/privacy-policy" element={<MarketingLayout><PrivacyPolicy /></MarketingLayout>} />
+                      <Route path="/delete-account" element={<MarketingLayout><DeleteAccountRequest /></MarketingLayout>} />
+                      <Route path="/shop" element={<MarketingLayout><PublicShop /></MarketingLayout>} />
+                      <Route path="/auth" element={<MarketingLayout><Auth /></MarketingLayout>} />
+                      <Route path="/product/:id" element={<ProductDetailsPage />} />
+                      <Route path="/payment-cancelled" element={<PaymentCancelled />} />
+                      <Route path="/payment-success" element={<PaymentSuccess />} />
+                      <Route path="/verify" element={<EmailVerification />} />
+                      <Route path="/auth/callback" element={<AuthCallback />} />
+                      <Route path="/complete-profile" element={<CompleteProfile />} />
+                      {/* Manufacturer Onboarding */}
+                      <Route path="/manufacturer/onboarding" element={<ProtectedRoute allowedRoles={['manufacturer']}><ManufacturerOnboarding /></ProtectedRoute>} />
                     <Route path="/admin-auth" element={<AdminAuth />} />
                     <Route 
                       path="/dashboard" 
