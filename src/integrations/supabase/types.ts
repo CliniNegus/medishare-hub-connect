@@ -1279,6 +1279,96 @@ export type Database = {
           },
         ]
       }
+      manufacturer_onboarding: {
+        Row: {
+          business_model: string | null
+          catalog_file_url: string | null
+          company_name: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          country: string | null
+          created_at: string | null
+          credit_limit: number | null
+          current_step: number | null
+          id: string
+          payment_cycle: number | null
+          product_categories: string[] | null
+          returns_policy: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          shop_description: string | null
+          shop_logo_url: string | null
+          shop_name: string | null
+          status: string | null
+          submitted_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          business_model?: string | null
+          catalog_file_url?: string | null
+          company_name?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string | null
+          credit_limit?: number | null
+          current_step?: number | null
+          id?: string
+          payment_cycle?: number | null
+          product_categories?: string[] | null
+          returns_policy?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          shop_description?: string | null
+          shop_logo_url?: string | null
+          shop_name?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          business_model?: string | null
+          catalog_file_url?: string | null
+          company_name?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string | null
+          credit_limit?: number | null
+          current_step?: number | null
+          id?: string
+          payment_cycle?: number | null
+          product_categories?: string[] | null
+          returns_policy?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          shop_description?: string | null
+          shop_logo_url?: string | null
+          shop_name?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manufacturer_onboarding_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manufacturer_onboarding_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       manufacturer_payouts: {
         Row: {
           amount: number

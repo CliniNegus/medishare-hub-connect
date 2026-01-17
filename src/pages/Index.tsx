@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import FeatureSlides from '@/components/landing/FeatureSlides';
 import OptimizedImage from '@/components/OptimizedImage';
 import DashboardShowcase from '@/components/landing/DashboardShowcase';
+import DemoAccessModal from '@/components/demo/DemoAccessModal';
 import { InputValidator, useFormValidation } from '@/components/security/InputValidator';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -21,13 +22,14 @@ import {
   Twitter,
   Instagram,
   Linkedin,
-  Facebook
+  Play
 } from "lucide-react";
 
 const Index: React.FC = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-  const [newsletterEmail, setNewsletterEmail] = React.useState('');
-  const [isSubscribing, setIsSubscribing] = React.useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
   const { errors, validateField, clearError } = useFormValidation();
   const { toast } = useToast();
 
@@ -82,14 +84,14 @@ const Index: React.FC = () => {
         <nav className="relative bg-white/90 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
           <div className="container mx-auto px-6">
             <div className="flex justify-between items-center py-4">
-              {/* Logo in Navigation - Made more visible */}
+              {/* Logo in Navigation - Increased visibility */}
               <div className="flex items-center gap-3">
                 <div className="flex-shrink-0">
                   <OptimizedImage
                     src="https://bqgipoqlxizdpryguzac.supabase.co/storage/v1/object/public/assets/Clinibuilds%20Logo.jpg"
                     alt="CliniBuilds Logo"
-                    height={44}
-                    className="object-contain rounded-lg shadow-md h-9 md:h-11 w-auto"
+                    height={48}
+                    className="object-contain rounded-lg shadow-md h-10 md:h-12 w-auto"
                   />
                 </div>
               </div>
@@ -177,32 +179,40 @@ const Index: React.FC = () => {
                 Connecting hospitals, manufacturers, and investors for efficient medical equipment sharing, 
                 reducing costs and improving healthcare outcomes.
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-[#333333]/60">
-                <div className="flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full">
+              <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-[#333333]/70">
+                <div className="flex items-center gap-2 bg-white/60 px-4 py-2 rounded-full border border-gray-200">
                   <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span>500+ Hospitals</span>
+                  <span className="font-medium">260+ Facilities Onboarded</span>
                 </div>
-                <div className="flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full">
+                <div className="flex items-center gap-2 bg-white/60 px-4 py-2 rounded-full border border-gray-200">
                   <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span>95% Cost Reduction</span>
+                  <span className="font-medium">300+ Device Bookings</span>
                 </div>
-                <div className="flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full">
+                <div className="flex items-center gap-2 bg-white/60 px-4 py-2 rounded-full border border-gray-200">
                   <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span>Real-time Tracking</span>
+                  <span className="font-medium">200+ Surgeries Enabled</span>
                 </div>
               </div>
             </div>
             
             {/* Call to Action Buttons */}
-            <div className="flex flex-col sm:flex-row justify-center gap-6 max-w-lg mx-auto">
-              <Button asChild size="lg" className="bg-gradient-to-r from-[#E02020] to-[#E02020]/90 hover:from-[#E02020]/90 hover:to-[#E02020] text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group text-base focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#E02020]">
-                <Link to="/shop" className="flex items-center gap-2">
-                  Browse Medical Supplies
+            <div className="flex flex-col sm:flex-row justify-center gap-4 max-w-2xl mx-auto">
+              <Button asChild size="lg" className="bg-[#E02020] hover:bg-[#c01c1c] text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group text-base">
+                <Link to="/auth" className="flex items-center gap-2">
+                  Get Started
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="border-2 border-[#333333] text-[#333333] hover:bg-[#333333] hover:text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 text-base focus-visible:ring-2 focus-visible:ring-[#333333] focus-visible:ring-offset-2">
-                <Link to="/auth">Get Started</Link>
+              <Button 
+                onClick={() => setDemoModalOpen(true)}
+                size="lg" 
+                className="bg-[#333333] hover:bg-[#1a1a1a] text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 text-base"
+              >
+                <Play className="h-5 w-5 mr-2" />
+                View Demo
+              </Button>
+              <Button asChild variant="outline" size="lg" className="border-2 border-[#333333] text-[#333333] hover:bg-[#333333] hover:text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 text-base">
+                <Link to="/shop">Browse Shop</Link>
               </Button>
             </div>
           </div>
@@ -263,15 +273,15 @@ const Index: React.FC = () => {
                     <p className="text-[#333333]/60">Real results from our platform users</p>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-2 gap-4">
                     {[
-                      { value: "45%", label: "Cost Reduction", color: "from-red-500 to-pink-500" },
-                      { value: "60%", label: "Faster Deployment", color: "from-blue-500 to-cyan-500" },
-                      { value: "32%", label: "More Patients Served", color: "from-green-500 to-emerald-500" },
-                      { value: "28%", label: "Maintenance Cost Reduction", color: "from-purple-500 to-violet-500" }
+                      { value: "400K+", label: "Patients Impacted", color: "from-red-500 to-pink-500" },
+                      { value: "$450K+", label: "Cumulative Revenue", color: "from-blue-500 to-cyan-500" },
+                      { value: "~$250K", label: "Funding Raised", color: "from-green-500 to-emerald-500" },
+                      { value: "200+", label: "Surgeries Enabled", color: "from-purple-500 to-violet-500" }
                     ].map((stat, index) => (
-                      <div key={index} className="text-center p-6 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100 hover:shadow-lg transition-all duration-300 group">
-                        <div className={`text-4xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mb-3 group-hover:scale-110 transition-transform`}>
+                      <div key={index} className="text-center p-5 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100 hover:shadow-lg transition-all duration-300 group">
+                        <div className={`text-3xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform`}>
                           {stat.value}
                         </div>
                         <div className="text-sm font-medium text-[#333333]">{stat.label}</div>
@@ -456,18 +466,21 @@ const Index: React.FC = () => {
 
             {/* Bottom Footer */}
             <div className="mt-12 pt-8 border-t border-white/20 flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-sm text-white/60">
+              <p className="text-sm text-white opacity-70">
                 © {new Date().getFullYear()} CliniBuilds. All rights reserved.
               </p>
               <div className="flex flex-wrap gap-6 text-sm justify-center">
-                <Link to="/terms-of-service" className="text-white/60 hover:text-white transition-colors">Terms of Service</Link>
-                <Link to="/privacy-policy" className="text-white/60 hover:text-white transition-colors">Privacy Policy</Link>
-                <Link to="/delete-account" className="text-white/60 hover:text-white transition-colors">Request Data Deletion</Link>
+                <Link to="/terms-of-service" className="text-white opacity-80 hover:opacity-100 transition-opacity font-medium">Terms of Service</Link>
+                <Link to="/privacy-policy" className="text-white opacity-80 hover:opacity-100 transition-opacity font-medium">Privacy Policy</Link>
+                <Link to="/delete-account" className="text-white opacity-80 hover:opacity-100 transition-opacity font-medium">Request Data Deletion</Link>
               </div>
             </div>
           </div>
         </footer>
       </div>
+
+      {/* Demo Access Modal */}
+      <DemoAccessModal open={demoModalOpen} onOpenChange={setDemoModalOpen} />
     </div>
   );
 };
