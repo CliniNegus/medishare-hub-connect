@@ -301,14 +301,6 @@ const ProductFormDialog: React.FC<ProductFormDialogProps> = ({
               <Label htmlFor="is_disposable">Disposable Product</Label>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="is_featured"
-                checked={formData.is_featured}
-                onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
-              />
-              <Label htmlFor="is_featured">Featured Product</Label>
-            </div>
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
