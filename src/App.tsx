@@ -58,6 +58,7 @@ import Marketplace from './pages/Marketplace';
 import ManufacturerOrders from './pages/ManufacturerOrders';
 import EquipmentSharing from './pages/EquipmentSharing';
 import DemandForecasting from './pages/DemandForecasting';
+import CatalogUpload from './pages/CatalogUpload';
 import ManufacturerOnboarding from './pages/ManufacturerOnboarding';
 
 const queryClient = new QueryClient({
@@ -355,6 +356,14 @@ function App() {
                        element={
                          <ProtectedRoute allowedRoles={['hospital', 'admin']}>
                            <DemandForecasting />
+                         </ProtectedRoute>
+                       } 
+                      />
+                      <Route 
+                       path="/manufacturer/catalog-upload" 
+                       element={
+                         <ProtectedRoute allowedRoles={['manufacturer', 'admin']}>
+                           <CatalogUpload />
                          </ProtectedRoute>
                        } 
                       />

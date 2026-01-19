@@ -4,7 +4,7 @@ import {
   Home, TrendingUp, Package, Users, MapPin, 
   DollarSign, LogOut, Briefcase, Bell,
   Activity, BarChart3, HelpCircle, FileText, ShoppingCart, Heart, ClipboardList,
-  ArrowLeftRight, Brain
+  ArrowLeftRight, Brain, FileSpreadsheet
 } from 'lucide-react';
 import clinibuildsLogo from '@/assets/clinibuilds_logo.jpg';
 import {
@@ -121,6 +121,13 @@ export function MainAppSidebar({ onChangeAccountType }: MainAppSidebarProps) {
         icon: Package, 
         path: '/manufacturer/products',
         description: 'Manage your products'
+      },
+      { 
+        id: 'catalog-upload', 
+        label: 'Catalog Upload', 
+        icon: FileSpreadsheet, 
+        path: '/manufacturer/catalog-upload',
+        description: 'Bulk upload via CSV'
       },
       { 
         id: 'manufacturer-orders', 
