@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Upload, X, Loader2 } from "lucide-react";
+import { useProductImageUpload } from "@/hooks/useProductImageUpload";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ProductFormValues {
   name: string;
@@ -40,6 +43,11 @@ const ProductFormDialog: React.FC<ProductFormDialogProps> = ({
   initialValues,
   isLoading,
 }) => {
+  const { user } = useAuth();
+  const { uploading, uploadImage } = useProductImageUpload();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [imagePreview, setImagePreview] = useState<string | undefined>(undefined);
+  
   const [formData, setFormData] = useState<ProductFormValues>({
     name: '',
     description: '',
@@ -73,6 +81,7 @@ const ProductFormDialog: React.FC<ProductFormDialogProps> = ({
         weight: initialValues.weight || 0,
         has_variants: initialValues.has_variants || false,
       });
+      setImagePreview(initialValues.image_url || undefined);
     } else {
       setFormData({
         name: '',
@@ -89,8 +98,38 @@ const ProductFormDialog: React.FC<ProductFormDialogProps> = ({
         weight: 0,
         has_variants: false,
       });
+      setImagePreview(undefined);
     }
   }, [initialValues, open]);
+
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user?.id) return;
+
+    // Show local preview immediately
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    // Upload to Supabase
+    const publicUrl = await uploadImage(file, user.id);
+    if (publicUrl) {
+      setFormData(prev => ({ ...prev, image_url: publicUrl }));
+    } else {
+      // Reset preview if upload failed
+      setImagePreview(formData.image_url || undefined);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImagePreview(undefined);
+    setFormData(prev => ({ ...prev, image_url: '' }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -206,14 +245,51 @@ const ProductFormDialog: React.FC<ProductFormDialogProps> = ({
             </div>
 
             <div className="col-span-2">
-              <Label htmlFor="image_url">Image URL</Label>
-              <Input
-                id="image_url"
-                type="url"
-                value={formData.image_url}
-                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                placeholder="https://example.com/image.jpg"
-              />
+              <Label>Product Image</Label>
+              <div className="mt-2">
+                {imagePreview ? (
+                  <div className="relative w-full h-40 border-2 border-border rounded-lg overflow-hidden bg-muted">
+                    <img 
+                      src={imagePreview} 
+                      alt="Product preview" 
+                      className="w-full h-full object-contain"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 h-8 w-8"
+                      onClick={handleRemoveImage}
+                      disabled={uploading}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                    {uploading && (
+                      <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-lg cursor-pointer bg-muted/50 hover:bg-muted transition-colors">
+                    <div className="flex flex-col items-center justify-center py-4">
+                      <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">
+                        <span className="font-semibold">Click to upload</span> or drag and drop
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">PNG, JPG, WebP or GIF (max 5MB)</p>
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      className="hidden"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      onChange={handleImageSelect}
+                      disabled={uploading || isLoading}
+                    />
+                  </label>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center space-x-2">
