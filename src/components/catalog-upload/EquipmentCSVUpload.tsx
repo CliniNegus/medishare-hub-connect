@@ -149,7 +149,7 @@ const EquipmentCSVUpload: React.FC = () => {
             onAllowNewChange={setAllowNewInUpdateMode}
           />
           
-          <FileDropzone<EquipmentCSVRow>
+          <FileDropzone
             onFileSelect={handleFileSelect}
             onError={handleFileError}
             type="equipment"
