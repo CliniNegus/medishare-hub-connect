@@ -60,6 +60,7 @@ import EquipmentSharing from './pages/EquipmentSharing';
 import DemandForecasting from './pages/DemandForecasting';
 import CatalogUpload from './pages/CatalogUpload';
 import ManufacturerOnboarding from './pages/ManufacturerOnboarding';
+import AdminCatalogUploads from './pages/admin/AdminCatalogUploads';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -146,6 +147,14 @@ function App() {
                       element={
                         <ProtectedRoute requireAdmin>
                           <ManageInvestorAccounts />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/catalog-uploads" 
+                      element={
+                        <ProtectedRoute requireAdmin>
+                          <AdminCatalogUploads />
                         </ProtectedRoute>
                       } 
                     />

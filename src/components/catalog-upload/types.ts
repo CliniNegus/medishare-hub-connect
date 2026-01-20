@@ -40,5 +40,38 @@ export interface ValidationError {
 export interface UploadResult {
   success: number;
   failed: number;
+  created: number;
+  updated: number;
+  skipped: number;
   errors: ValidationError[];
+}
+
+export type UploadMode = 'add' | 'update';
+export type FileType = 'csv' | 'xlsx';
+
+export type RecordStatus = 'new' | 'update' | 'error' | 'skip';
+
+export interface PreviewRecord<T> {
+  data: T;
+  status: RecordStatus;
+  existingData?: T;
+  changes?: { field: string; oldValue: any; newValue: any }[];
+  errors: ValidationError[];
+  rowIndex: number;
+}
+
+export interface CatalogUploadLog {
+  id: string;
+  manufacturer_id: string;
+  file_name: string;
+  file_type: FileType;
+  upload_mode: UploadMode;
+  catalog_type: 'products' | 'equipment';
+  records_created: number;
+  records_updated: number;
+  records_skipped: number;
+  records_failed: number;
+  error_details: ValidationError[];
+  created_at: string;
+  completed_at: string | null;
 }
