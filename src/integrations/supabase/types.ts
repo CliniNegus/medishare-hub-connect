@@ -178,6 +178,62 @@ export type Database = {
           },
         ]
       }
+      catalog_upload_logs: {
+        Row: {
+          catalog_type: string
+          completed_at: string | null
+          created_at: string
+          error_details: Json | null
+          file_name: string
+          file_type: string
+          id: string
+          manufacturer_id: string
+          records_created: number
+          records_failed: number
+          records_skipped: number
+          records_updated: number
+          upload_mode: string
+        }
+        Insert: {
+          catalog_type: string
+          completed_at?: string | null
+          created_at?: string
+          error_details?: Json | null
+          file_name: string
+          file_type: string
+          id?: string
+          manufacturer_id: string
+          records_created?: number
+          records_failed?: number
+          records_skipped?: number
+          records_updated?: number
+          upload_mode: string
+        }
+        Update: {
+          catalog_type?: string
+          completed_at?: string | null
+          created_at?: string
+          error_details?: Json | null
+          file_name?: string
+          file_type?: string
+          id?: string
+          manufacturer_id?: string
+          records_created?: number
+          records_failed?: number
+          records_skipped?: number
+          records_updated?: number
+          upload_mode?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_upload_logs_manufacturer_id_fkey"
+            columns: ["manufacturer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           address: string | null
