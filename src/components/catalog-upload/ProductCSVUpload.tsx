@@ -148,7 +148,7 @@ const ProductCSVUpload: React.FC = () => {
             onAllowNewChange={setAllowNewInUpdateMode}
           />
           
-          <FileDropzone<ProductCSVRow>
+          <FileDropzone
             onFileSelect={handleFileSelect}
             onError={handleFileError}
             type="products"
