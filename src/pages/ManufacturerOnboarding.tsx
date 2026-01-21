@@ -25,6 +25,7 @@ import {
   Upload,
   Download
 } from 'lucide-react';
+import { BusinessModelSelector, BusinessModelType } from '@/components/manufacturer-onboarding';
 
 const STEPS = [
   { id: 1, title: 'Company Details', icon: Building2 },
@@ -60,6 +61,8 @@ const COUNTRIES = [
   'Other',
 ];
 
+// BusinessModelType is now imported from @/components/manufacturer-onboarding
+
 interface OnboardingData {
   company_name: string;
   country: string;
@@ -70,7 +73,8 @@ interface OnboardingData {
   shop_description: string;
   shop_logo_url: string;
   catalog_file_url: string;
-  business_model: 'consignment' | 'pay_per_use' | 'direct_purchase' | null;
+  business_model: BusinessModelType | null;
+  business_models: BusinessModelType[];
   credit_limit: number | null;
   payment_cycle: 30 | 60 | 90 | null;
   returns_policy: string;
@@ -98,6 +102,7 @@ const ManufacturerOnboarding: React.FC = () => {
     shop_logo_url: '',
     catalog_file_url: '',
     business_model: null,
+    business_models: [],
     credit_limit: null,
     payment_cycle: null,
     returns_policy: '',
@@ -139,6 +144,7 @@ const ManufacturerOnboarding: React.FC = () => {
           shop_logo_url: existing.shop_logo_url || '',
           catalog_file_url: existing.catalog_file_url || '',
           business_model: existing.business_model as OnboardingData['business_model'],
+          business_models: (existing.business_models as BusinessModelType[]) || [],
           credit_limit: existing.credit_limit,
           payment_cycle: existing.payment_cycle as OnboardingData['payment_cycle'],
           returns_policy: existing.returns_policy || '',
@@ -184,7 +190,35 @@ const ManufacturerOnboarding: React.FC = () => {
     }
   };
 
+  const validateStep = (step: number): boolean => {
+    switch (step) {
+      case 1:
+        return !!(data.company_name && data.country && data.contact_email && data.product_categories.length > 0);
+      case 2:
+        return !!data.shop_name;
+      case 3:
+        return true; // Catalog is optional
+      case 4:
+        return data.business_models.length > 0;
+      case 5:
+        return true; // Terms are optional
+      default:
+        return true;
+    }
+  };
+
   const handleNext = async () => {
+    if (!validateStep(currentStep)) {
+      toast({
+        title: 'Please complete required fields',
+        description: currentStep === 4 
+          ? 'Please select at least one business model to continue.'
+          : 'All required fields must be completed before proceeding.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     if (currentStep < 6) {
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);
@@ -490,49 +524,16 @@ const ManufacturerOnboarding: React.FC = () => {
 
             {/* Step 4: Business Model */}
             {currentStep === 4 && (
-              <div className="space-y-4">
-                {[
-                  {
-                    id: 'consignment' as const,
-                    title: 'Consignment / Credit Stock',
-                    description: 'Hospital pays only when equipment is used. Ideal for high-value equipment with variable usage.',
-                  },
-                  {
-                    id: 'pay_per_use' as const,
-                    title: 'Pay-per-use / Leasing',
-                    description: 'Hospitals pay based on usage or monthly lease. Great for recurring revenue.',
-                  },
-                  {
-                    id: 'direct_purchase' as const,
-                    title: 'Direct Purchase Orders',
-                    description: 'Traditional sales model. Hospital pays upfront or on delivery.',
-                  },
-                ].map((model) => (
-                  <div
-                    key={model.id}
-                    onClick={() => setData({ ...data, business_model: model.id })}
-                    className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                      data.business_model === model.id
-                        ? 'border-[#E02020] bg-red-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        data.business_model === model.id ? 'border-[#E02020]' : 'border-gray-300'
-                      }`}>
-                        {data.business_model === model.id && (
-                          <div className="w-3 h-3 rounded-full bg-[#E02020]" />
-                        )}
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-[#333333]">{model.title}</h4>
-                        <p className="text-sm text-gray-600">{model.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <BusinessModelSelector
+                selectedModels={data.business_models}
+                onSelectionChange={(models) => setData({ 
+                  ...data, 
+                  business_models: models,
+                  business_model: models.length > 0 ? models[0] : null
+                })}
+                stepNumber={4}
+                showHeader={true}
+              />
             )}
 
             {/* Step 5: Terms */}
@@ -610,8 +611,12 @@ const ManufacturerOnboarding: React.FC = () => {
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h4 className="font-medium text-[#333333] mb-3">Business Terms</h4>
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <span className="text-gray-600">Business Model:</span>
-                    <span className="font-medium capitalize">{data.business_model?.replace('_', ' ') || '-'}</span>
+                    <span className="text-gray-600">Business Models:</span>
+                    <span className="font-medium">
+                      {data.business_models.length > 0 
+                        ? data.business_models.map(m => m.replace('_', ' ')).join(', ')
+                        : '-'}
+                    </span>
                     <span className="text-gray-600">Credit Limit:</span>
                     <span className="font-medium">{data.credit_limit ? `$${data.credit_limit.toLocaleString()}` : '-'}</span>
                     <span className="text-gray-600">Payment Cycle:</span>
