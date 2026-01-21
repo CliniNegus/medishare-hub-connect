@@ -25,7 +25,7 @@ import {
   Upload,
   Download
 } from 'lucide-react';
-import { BusinessModelSelector, BusinessModelType, CommercialTermsStep, CommercialTermsData } from '@/components/manufacturer-onboarding';
+import { BusinessModelSelector, BusinessModelType, CommercialTermsStep, CommercialTermsData, SubmitReviewStep } from '@/components/manufacturer-onboarding';
 
 const STEPS = [
   { id: 1, title: 'Company Details', icon: Building2 },
@@ -95,6 +95,9 @@ const ManufacturerOnboarding: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [onboardingId, setOnboardingId] = useState<string | null>(null);
   const [status, setStatus] = useState<string>('draft');
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [submittedAt, setSubmittedAt] = useState<string | null>(null);
+  const [rejectionReason, setRejectionReason] = useState<string | null>(null);
   
   const [data, setData] = useState<OnboardingData>({
     company_name: profile?.organization || '',
@@ -144,6 +147,9 @@ const ManufacturerOnboarding: React.FC = () => {
         setOnboardingId(existing.id);
         setCurrentStep(existing.current_step || 1);
         setStatus(existing.status || 'draft');
+        setSubmittedAt(existing.submitted_at || null);
+        // Reset confirmation when rejected to force re-confirmation
+        setIsConfirmed(existing.status === 'pending' || existing.status === 'approved');
         setData({
           company_name: existing.company_name || '',
           country: existing.country || '',
@@ -294,13 +300,34 @@ const ManufacturerOnboarding: React.FC = () => {
   const handleSubmit = async () => {
     if (!user || !onboardingId) return;
     
+    // Validate confirmation
+    if (!isConfirmed) {
+      toast({
+        title: 'Confirmation Required',
+        description: 'Please confirm that all information is accurate before submitting.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate Steps 4 and 5
+    if (!validateStep(4) || !validateStep(5)) {
+      toast({
+        title: 'Incomplete Setup',
+        description: 'Please complete Steps 4 and 5 before submitting.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setSubmitting(true);
     try {
+      const submissionTime = new Date().toISOString();
       const { error } = await supabase
         .from('manufacturer_onboarding')
         .update({
           status: 'pending',
-          submitted_at: new Date().toISOString(),
+          submitted_at: submissionTime,
           current_step: 6,
         })
         .eq('id', onboardingId);
@@ -308,6 +335,20 @@ const ManufacturerOnboarding: React.FC = () => {
       if (error) throw error;
 
       setStatus('pending');
+      setSubmittedAt(submissionTime);
+      
+      // Create notification for admins (optional enhancement)
+      try {
+        await supabase.from('notifications').insert({
+          user_id: user.id,
+          title: 'Onboarding Submitted',
+          message: `Your manufacturer onboarding application has been submitted for review.`,
+          type: 'info',
+        });
+      } catch (notifError) {
+        console.warn('Notification creation failed:', notifError);
+      }
+
       toast({
         title: 'Onboarding submitted!',
         description: 'Your application is now under review. We\'ll notify you once approved.',
@@ -342,30 +383,24 @@ const ManufacturerOnboarding: React.FC = () => {
     );
   }
 
-  if (status === 'pending' || status === 'approved') {
+  // Show status screen only for approved status (pending will show in-page)
+  if (status === 'approved') {
     return (
       <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-2xl mx-auto">
           <Card>
             <CardContent className="p-8 text-center">
-              <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
-                status === 'approved' ? 'bg-green-100' : 'bg-yellow-100'
-              }`}>
-                <CheckCircle className={`h-8 w-8 ${
-                  status === 'approved' ? 'text-green-600' : 'text-yellow-600'
-                }`} />
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center bg-green-100">
+                <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
               <h2 className="text-2xl font-bold text-[#333333] mb-2">
-                {status === 'approved' ? 'Onboarding Approved!' : 'Under Review'}
+                Onboarding Approved!
               </h2>
               <p className="text-gray-600 mb-6">
-                {status === 'approved' 
-                  ? 'Your manufacturer account is now fully activated. You can start managing your products and orders.'
-                  : 'Your application is being reviewed by our team. This typically takes 1-2 business days.'
-                }
+                Your manufacturer account is now fully activated. You can start managing your products and orders.
               </p>
-              <Button onClick={() => navigate('/dashboard')} className="bg-[#E02020] hover:bg-[#c01c1c]">
-                Go to Dashboard
+              <Button onClick={() => navigate('/manufacturer')} className="bg-[#E02020] hover:bg-[#c01c1c]">
+                Go to Manufacturer Dashboard
               </Button>
             </CardContent>
           </Card>
@@ -615,109 +650,32 @@ const ManufacturerOnboarding: React.FC = () => {
               />
             )}
 
-            {/* Step 6: Review */}
+            {/* Step 6: Review & Submit */}
             {currentStep === 6 && (
-              <div className="space-y-6">
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-medium text-[#333333] mb-3">Company Details</h4>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <span className="text-gray-600">Company:</span>
-                    <span className="font-medium">{data.company_name || '-'}</span>
-                    <span className="text-gray-600">Country:</span>
-                    <span className="font-medium">{data.country || '-'}</span>
-                    <span className="text-gray-600">Email:</span>
-                    <span className="font-medium">{data.contact_email || '-'}</span>
-                    <span className="text-gray-600">Phone:</span>
-                    <span className="font-medium">{data.contact_phone || '-'}</span>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-medium text-[#333333] mb-3">Shop Details</h4>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <span className="text-gray-600">Shop Name:</span>
-                    <span className="font-medium">{data.shop_name || '-'}</span>
-                    <span className="text-gray-600">Categories:</span>
-                    <span className="font-medium">{data.product_categories.join(', ') || '-'}</span>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-medium text-[#333333] mb-3">Business Models</h4>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <span className="text-gray-600">Selected Models:</span>
-                    <span className="font-medium">
-                      {data.business_models.length > 0 
-                        ? data.business_models.map(m => {
-                            if (m === 'consignment') return 'Consignment / Credit Stock';
-                            if (m === 'pay_per_use') return 'Pay-per-Use / Leasing';
-                            if (m === 'direct_purchase') return 'Direct Purchase Orders';
-                            return m;
-                          }).join(', ')
-                        : '-'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Commercial Terms by Business Model */}
-                {data.business_models.includes('consignment') && (
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-medium text-[#333333] mb-3">Consignment / Credit Stock Terms</h4>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <span className="text-gray-600">Credit Limit:</span>
-                      <span className="font-medium">{data.credit_limit ? `$${data.credit_limit.toLocaleString()}` : '-'}</span>
-                      <span className="text-gray-600">Payment Cycle:</span>
-                      <span className="font-medium">{data.payment_cycle ? `${data.payment_cycle} days` : '-'}</span>
-                      <span className="text-gray-600">Returns/DOA Policy:</span>
-                      <span className="font-medium">{data.returns_policy || '-'}</span>
-                    </div>
-                  </div>
-                )}
-
-                {data.business_models.includes('pay_per_use') && (
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-medium text-[#333333] mb-3">Pay-per-Use / Leasing Terms</h4>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <span className="text-gray-600">Billing Basis:</span>
-                      <span className="font-medium capitalize">{data.billing_basis || 'Daily'}</span>
-                      <span className="text-gray-600">Maintenance:</span>
-                      <span className="font-medium capitalize">{data.maintenance_responsibility || '-'}</span>
-                      <span className="text-gray-600">Usage Policy:</span>
-                      <span className="font-medium">{data.usage_policy || '-'}</span>
-                    </div>
-                  </div>
-                )}
-
-                {data.business_models.includes('direct_purchase') && (
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-medium text-[#333333] mb-3">Direct Purchase Terms</h4>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <span className="text-gray-600">Payment Terms:</span>
-                      <span className="font-medium">
-                        {data.direct_payment_terms === 'prepaid' && 'Prepaid'}
-                        {data.direct_payment_terms === 'net_30' && 'Net 30'}
-                        {data.direct_payment_terms === 'net_60' && 'Net 60'}
-                        {!data.direct_payment_terms && '-'}
-                      </span>
-                      {data.returns_policy && (
-                        <>
-                          <span className="text-gray-600">Returns Policy:</span>
-                          <span className="font-medium">{data.returns_policy}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-start gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <Checkbox id="confirm" />
-                  <label htmlFor="confirm" className="text-sm text-yellow-800">
-                    I confirm that all information provided is accurate and I agree to CliniBuilds' 
-                    <a href="/terms-of-service" className="underline ml-1">Terms of Service</a> and 
-                    <a href="/privacy-policy" className="underline ml-1">Privacy Policy</a>.
-                  </label>
-                </div>
-              </div>
+              <SubmitReviewStep
+                data={{
+                  company_name: data.company_name,
+                  country: data.country,
+                  contact_email: data.contact_email,
+                  contact_phone: data.contact_phone,
+                  product_categories: data.product_categories,
+                  shop_name: data.shop_name,
+                  shop_description: data.shop_description,
+                  business_models: data.business_models,
+                  credit_limit: data.credit_limit,
+                  payment_cycle: data.payment_cycle,
+                  returns_policy: data.returns_policy,
+                  billing_basis: data.billing_basis,
+                  usage_policy: data.usage_policy,
+                  maintenance_responsibility: data.maintenance_responsibility,
+                  direct_payment_terms: data.direct_payment_terms,
+                }}
+                status={status}
+                isConfirmed={isConfirmed}
+                onConfirmChange={setIsConfirmed}
+                submittedAt={submittedAt || undefined}
+                rejectionReason={rejectionReason || undefined}
+              />
             )}
           </CardContent>
         </Card>
@@ -734,14 +692,26 @@ const ManufacturerOnboarding: React.FC = () => {
           </Button>
           
           {currentStep < 6 ? (
-            <Button onClick={handleNext} className="bg-[#E02020] hover:bg-[#c01c1c]">
+            <Button 
+              onClick={handleNext} 
+              className="bg-[#E02020] hover:bg-[#c01c1c]"
+              disabled={status === 'pending'}
+            >
               Continue
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          ) : status === 'pending' ? (
+            <Button 
+              onClick={() => navigate('/manufacturer')} 
+              className="bg-[#E02020] hover:bg-[#c01c1c]"
+            >
+              Go to Dashboard
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           ) : (
             <Button 
               onClick={handleSubmit} 
-              disabled={submitting}
+              disabled={submitting || !isConfirmed}
               className="bg-[#E02020] hover:bg-[#c01c1c]"
             >
               {submitting ? (
@@ -751,7 +721,7 @@ const ManufacturerOnboarding: React.FC = () => {
                 </>
               ) : (
                 <>
-                  Submit for Review
+                  Submit for Approval
                   <CheckCircle className="h-4 w-4 ml-2" />
                 </>
               )}
