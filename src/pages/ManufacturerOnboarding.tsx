@@ -399,7 +399,7 @@ const ManufacturerOnboarding: React.FC = () => {
               <p className="text-gray-600 mb-6">
                 Your manufacturer account is now fully activated. You can start managing your products and orders.
               </p>
-              <Button onClick={() => navigate('/manufacturer')} className="bg-[#E02020] hover:bg-[#c01c1c]">
+              <Button onClick={() => navigate('/dashboard')} className="bg-[#E02020] hover:bg-[#c01c1c]">
                 Go to Manufacturer Dashboard
               </Button>
             </CardContent>
@@ -702,7 +702,7 @@ const ManufacturerOnboarding: React.FC = () => {
             </Button>
           ) : status === 'pending' ? (
             <Button 
-              onClick={() => navigate('/manufacturer')} 
+              onClick={() => navigate('/dashboard')} 
               className="bg-[#E02020] hover:bg-[#c01c1c]"
             >
               Go to Dashboard
