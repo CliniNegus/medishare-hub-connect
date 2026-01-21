@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, Package, Bell, Calendar, Settings, 
-  FileText, BarChart2, Clock, DollarSign, LogOut, Home, ChevronDown, ChevronRight, Receipt
+  FileText, BarChart2, Clock, DollarSign, LogOut, Home, ChevronDown, ChevronRight, Receipt, ClipboardCheck
 } from 'lucide-react';
 import { MobileHamburgerMenu } from '@/components/responsive';
 
@@ -26,6 +26,7 @@ const AdminSidebarMobile = ({ activeTab, setActiveTab }: AdminSidebarMobileProps
     { id: 'overview', label: 'Dashboard', icon: BarChart2 },
     { id: 'equipment', label: 'Equipment & Products', icon: Package },
     { id: 'users', label: 'Users', icon: Users },
+    { id: 'manufacturer-approvals', label: 'Manufacturer Approvals', icon: ClipboardCheck },
     { id: 'maintenance', label: 'Maintenance', icon: Clock },
     { 
       id: 'finance', 
