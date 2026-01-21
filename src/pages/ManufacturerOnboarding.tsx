@@ -25,7 +25,7 @@ import {
   Upload,
   Download
 } from 'lucide-react';
-import { BusinessModelSelector, BusinessModelType } from '@/components/manufacturer-onboarding';
+import { BusinessModelSelector, BusinessModelType, CommercialTermsStep, CommercialTermsData } from '@/components/manufacturer-onboarding';
 
 const STEPS = [
   { id: 1, title: 'Company Details', icon: Building2 },
@@ -75,9 +75,14 @@ interface OnboardingData {
   catalog_file_url: string;
   business_model: BusinessModelType | null;
   business_models: BusinessModelType[];
+  // Commercial Terms
   credit_limit: number | null;
   payment_cycle: 30 | 60 | 90 | null;
   returns_policy: string;
+  billing_basis: string;
+  usage_policy: string;
+  maintenance_responsibility: 'manufacturer' | 'shared' | null;
+  direct_payment_terms: 'prepaid' | 'net_30' | 'net_60' | null;
 }
 
 const ManufacturerOnboarding: React.FC = () => {
@@ -106,7 +111,13 @@ const ManufacturerOnboarding: React.FC = () => {
     credit_limit: null,
     payment_cycle: null,
     returns_policy: '',
+    billing_basis: 'daily',
+    usage_policy: '',
+    maintenance_responsibility: null,
+    direct_payment_terms: null,
   });
+
+  const [termsErrors, setTermsErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (user) {
@@ -148,6 +159,10 @@ const ManufacturerOnboarding: React.FC = () => {
           credit_limit: existing.credit_limit,
           payment_cycle: existing.payment_cycle as OnboardingData['payment_cycle'],
           returns_policy: existing.returns_policy || '',
+          billing_basis: existing.billing_basis || 'daily',
+          usage_policy: existing.usage_policy || '',
+          maintenance_responsibility: existing.maintenance_responsibility as OnboardingData['maintenance_responsibility'],
+          direct_payment_terms: existing.direct_payment_terms as OnboardingData['direct_payment_terms'],
         });
       }
     } catch (error: any) {
@@ -201,19 +216,63 @@ const ManufacturerOnboarding: React.FC = () => {
       case 4:
         return data.business_models.length > 0;
       case 5:
-        return true; // Terms are optional
+        return validateCommercialTerms();
       default:
         return true;
     }
   };
 
+  const validateCommercialTerms = (): boolean => {
+    const errors: Record<string, string> = {};
+    const hasConsignment = data.business_models.includes('consignment');
+    const hasPayPerUse = data.business_models.includes('pay_per_use');
+    const hasDirectPurchase = data.business_models.includes('direct_purchase');
+
+    // Consignment validation
+    if (hasConsignment) {
+      if (!data.credit_limit || data.credit_limit <= 0) {
+        errors.credit_limit = 'Credit limit is required and must be positive';
+      }
+      if (!data.payment_cycle) {
+        errors.payment_cycle = 'Payment cycle is required';
+      }
+      if (!data.returns_policy?.trim()) {
+        errors.returns_policy = 'Returns/DOA policy is required';
+      }
+    }
+
+    // Pay-per-use validation
+    if (hasPayPerUse) {
+      if (!data.maintenance_responsibility) {
+        errors.maintenance_responsibility = 'Maintenance responsibility is required';
+      }
+      if (!data.usage_policy?.trim()) {
+        errors.usage_policy = 'Usage policy is required';
+      }
+    }
+
+    // Direct purchase validation
+    if (hasDirectPurchase) {
+      if (!data.direct_payment_terms) {
+        errors.direct_payment_terms = 'Payment terms are required';
+      }
+    }
+
+    setTermsErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleNext = async () => {
     if (!validateStep(currentStep)) {
+      let description = 'All required fields must be completed before proceeding.';
+      if (currentStep === 4) {
+        description = 'Please select at least one business model to continue.';
+      } else if (currentStep === 5) {
+        description = 'Please complete all required commercial terms for your selected business models.';
+      }
       toast({
         title: 'Please complete required fields',
-        description: currentStep === 4 
-          ? 'Please select at least one business model to continue.'
-          : 'All required fields must be completed before proceeding.',
+        description,
         variant: 'destructive',
       });
       return;
@@ -538,47 +597,22 @@ const ManufacturerOnboarding: React.FC = () => {
 
             {/* Step 5: Terms */}
             {currentStep === 5 && (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="credit_limit">Credit Limit (USD)</Label>
-                    <Input
-                      id="credit_limit"
-                      type="number"
-                      value={data.credit_limit || ''}
-                      onChange={(e) => setData({ ...data, credit_limit: Number(e.target.value) || null })}
-                      placeholder="e.g., 500000"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Maximum credit you can extend to hospitals</p>
-                  </div>
-                  <div>
-                    <Label htmlFor="payment_cycle">Payment Cycle</Label>
-                    <Select 
-                      value={data.payment_cycle?.toString() || ''} 
-                      onValueChange={(value) => setData({ ...data, payment_cycle: Number(value) as 30 | 60 | 90 })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select payment cycle" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="30">Net 30 days</SelectItem>
-                        <SelectItem value="60">Net 60 days</SelectItem>
-                        <SelectItem value="90">Net 90 days</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="returns_policy">Returns & DOA Policy</Label>
-                  <Textarea
-                    id="returns_policy"
-                    value={data.returns_policy}
-                    onChange={(e) => setData({ ...data, returns_policy: e.target.value })}
-                    placeholder="Describe your return policy, DOA handling, and warranty terms..."
-                    rows={4}
-                  />
-                </div>
-              </>
+              <CommercialTermsStep
+                selectedBusinessModels={data.business_models}
+                termsData={{
+                  credit_limit: data.credit_limit,
+                  payment_cycle: data.payment_cycle,
+                  returns_policy: data.returns_policy,
+                  billing_basis: data.billing_basis,
+                  usage_policy: data.usage_policy,
+                  maintenance_responsibility: data.maintenance_responsibility,
+                  direct_payment_terms: data.direct_payment_terms,
+                }}
+                onTermsChange={(partialData) => setData({ ...data, ...partialData })}
+                isReadOnly={status === 'pending' || status === 'approved'}
+                stepNumber={5}
+                errors={termsErrors}
+              />
             )}
 
             {/* Step 6: Review */}
@@ -609,20 +643,71 @@ const ManufacturerOnboarding: React.FC = () => {
                 </div>
 
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-medium text-[#333333] mb-3">Business Terms</h4>
+                  <h4 className="font-medium text-[#333333] mb-3">Business Models</h4>
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <span className="text-gray-600">Business Models:</span>
+                    <span className="text-gray-600">Selected Models:</span>
                     <span className="font-medium">
                       {data.business_models.length > 0 
-                        ? data.business_models.map(m => m.replace('_', ' ')).join(', ')
+                        ? data.business_models.map(m => {
+                            if (m === 'consignment') return 'Consignment / Credit Stock';
+                            if (m === 'pay_per_use') return 'Pay-per-Use / Leasing';
+                            if (m === 'direct_purchase') return 'Direct Purchase Orders';
+                            return m;
+                          }).join(', ')
                         : '-'}
                     </span>
-                    <span className="text-gray-600">Credit Limit:</span>
-                    <span className="font-medium">{data.credit_limit ? `$${data.credit_limit.toLocaleString()}` : '-'}</span>
-                    <span className="text-gray-600">Payment Cycle:</span>
-                    <span className="font-medium">{data.payment_cycle ? `Net ${data.payment_cycle} days` : '-'}</span>
                   </div>
                 </div>
+
+                {/* Commercial Terms by Business Model */}
+                {data.business_models.includes('consignment') && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h4 className="font-medium text-[#333333] mb-3">Consignment / Credit Stock Terms</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <span className="text-gray-600">Credit Limit:</span>
+                      <span className="font-medium">{data.credit_limit ? `$${data.credit_limit.toLocaleString()}` : '-'}</span>
+                      <span className="text-gray-600">Payment Cycle:</span>
+                      <span className="font-medium">{data.payment_cycle ? `${data.payment_cycle} days` : '-'}</span>
+                      <span className="text-gray-600">Returns/DOA Policy:</span>
+                      <span className="font-medium">{data.returns_policy || '-'}</span>
+                    </div>
+                  </div>
+                )}
+
+                {data.business_models.includes('pay_per_use') && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h4 className="font-medium text-[#333333] mb-3">Pay-per-Use / Leasing Terms</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <span className="text-gray-600">Billing Basis:</span>
+                      <span className="font-medium capitalize">{data.billing_basis || 'Daily'}</span>
+                      <span className="text-gray-600">Maintenance:</span>
+                      <span className="font-medium capitalize">{data.maintenance_responsibility || '-'}</span>
+                      <span className="text-gray-600">Usage Policy:</span>
+                      <span className="font-medium">{data.usage_policy || '-'}</span>
+                    </div>
+                  </div>
+                )}
+
+                {data.business_models.includes('direct_purchase') && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h4 className="font-medium text-[#333333] mb-3">Direct Purchase Terms</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <span className="text-gray-600">Payment Terms:</span>
+                      <span className="font-medium">
+                        {data.direct_payment_terms === 'prepaid' && 'Prepaid'}
+                        {data.direct_payment_terms === 'net_30' && 'Net 30'}
+                        {data.direct_payment_terms === 'net_60' && 'Net 60'}
+                        {!data.direct_payment_terms && '-'}
+                      </span>
+                      {data.returns_policy && (
+                        <>
+                          <span className="text-gray-600">Returns Policy:</span>
+                          <span className="font-medium">{data.returns_policy}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex items-start gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <Checkbox id="confirm" />
