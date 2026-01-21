@@ -1338,6 +1338,7 @@ export type Database = {
       manufacturer_onboarding: {
         Row: {
           business_model: string | null
+          business_models: string[] | null
           catalog_file_url: string | null
           company_name: string | null
           contact_email: string | null
@@ -1362,6 +1363,7 @@ export type Database = {
         }
         Insert: {
           business_model?: string | null
+          business_models?: string[] | null
           catalog_file_url?: string | null
           company_name?: string | null
           contact_email?: string | null
@@ -1386,6 +1388,7 @@ export type Database = {
         }
         Update: {
           business_model?: string | null
+          business_models?: string[] | null
           catalog_file_url?: string | null
           company_name?: string | null
           contact_email?: string | null

@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { UserCog, Trash2, Shield } from "lucide-react";
+import { UserCog, Trash2, Shield, CreditCard } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { DeleteAccountDialog } from './DeleteAccountDialog';
 import ChangeAccountTypeModal from '../ChangeAccountTypeModal';
+import { BusinessModelModal } from '@/components/manufacturer-onboarding';
 
 interface AccountSettingsModalProps {
   open: boolean;
@@ -15,7 +17,11 @@ interface AccountSettingsModalProps {
 export const AccountSettingsModal = ({ open, onOpenChange }: AccountSettingsModalProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showChangeAccountType, setShowChangeAccountType] = useState(false);
+  const [showBusinessModelModal, setShowBusinessModelModal] = useState(false);
   const navigate = useNavigate();
+  const { userRoles } = useAuth();
+
+  const isManufacturer = userRoles?.primaryRole === 'manufacturer';
 
   const handleChangeAccountType = () => {
     onOpenChange(false);
@@ -30,6 +36,11 @@ export const AccountSettingsModal = ({ open, onOpenChange }: AccountSettingsModa
   const handleSecuritySettings = () => {
     onOpenChange(false);
     navigate('/security-settings');
+  };
+
+  const handleBusinessModelSettings = () => {
+    onOpenChange(false);
+    setShowBusinessModelModal(true);
   };
 
   return (
@@ -50,6 +61,18 @@ export const AccountSettingsModal = ({ open, onOpenChange }: AccountSettingsModa
               <Shield className="h-5 w-5 mr-3" />
               <span>Security Settings</span>
             </Button>
+
+            {/* Business Model Settings - Only for Manufacturers */}
+            {isManufacturer && (
+              <Button
+                variant="outline"
+                className="w-full justify-start text-foreground hover:text-foreground border-border hover:bg-accent"
+                onClick={handleBusinessModelSettings}
+              >
+                <CreditCard className="h-5 w-5 mr-3" />
+                <span>Business Model Settings</span>
+              </Button>
+            )}
 
             {/* Change Account Type */}
             <Button
@@ -88,6 +111,11 @@ export const AccountSettingsModal = ({ open, onOpenChange }: AccountSettingsModa
       <ChangeAccountTypeModal 
         open={showChangeAccountType}
         onOpenChange={setShowChangeAccountType}
+      />
+
+      <BusinessModelModal
+        open={showBusinessModelModal}
+        onOpenChange={setShowBusinessModelModal}
       />
     </>
   );
