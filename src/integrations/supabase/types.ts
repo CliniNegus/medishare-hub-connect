@@ -1337,6 +1337,7 @@ export type Database = {
       }
       manufacturer_onboarding: {
         Row: {
+          billing_basis: string | null
           business_model: string | null
           business_models: string[] | null
           catalog_file_url: string | null
@@ -1347,7 +1348,9 @@ export type Database = {
           created_at: string | null
           credit_limit: number | null
           current_step: number | null
+          direct_payment_terms: string | null
           id: string
+          maintenance_responsibility: string | null
           payment_cycle: number | null
           product_categories: string[] | null
           returns_policy: string | null
@@ -1359,9 +1362,11 @@ export type Database = {
           status: string | null
           submitted_at: string | null
           updated_at: string | null
+          usage_policy: string | null
           user_id: string
         }
         Insert: {
+          billing_basis?: string | null
           business_model?: string | null
           business_models?: string[] | null
           catalog_file_url?: string | null
@@ -1372,7 +1377,9 @@ export type Database = {
           created_at?: string | null
           credit_limit?: number | null
           current_step?: number | null
+          direct_payment_terms?: string | null
           id?: string
+          maintenance_responsibility?: string | null
           payment_cycle?: number | null
           product_categories?: string[] | null
           returns_policy?: string | null
@@ -1384,9 +1391,11 @@ export type Database = {
           status?: string | null
           submitted_at?: string | null
           updated_at?: string | null
+          usage_policy?: string | null
           user_id: string
         }
         Update: {
+          billing_basis?: string | null
           business_model?: string | null
           business_models?: string[] | null
           catalog_file_url?: string | null
@@ -1397,7 +1406,9 @@ export type Database = {
           created_at?: string | null
           credit_limit?: number | null
           current_step?: number | null
+          direct_payment_terms?: string | null
           id?: string
+          maintenance_responsibility?: string | null
           payment_cycle?: number | null
           product_categories?: string[] | null
           returns_policy?: string | null
@@ -1409,6 +1420,7 @@ export type Database = {
           status?: string | null
           submitted_at?: string | null
           updated_at?: string | null
+          usage_policy?: string | null
           user_id?: string
         }
         Relationships: [
