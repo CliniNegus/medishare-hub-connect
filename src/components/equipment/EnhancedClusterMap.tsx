@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, Search, Filter, Layers, Navigation, RefreshCw } from "lucide-react";
+import { MapPin, Search, RefreshCw } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -35,6 +35,55 @@ interface EnhancedClusterMapProps {
   centerLng?: number;
   onRefresh?: () => void;
 }
+
+// Security: Escape HTML special characters to prevent XSS
+const escapeHtml = (text: string): string => {
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return String(text).replace(/[&<>"']/g, (char) => map[char] || char);
+};
+
+// Security: Validate and sanitize numeric values
+const sanitizeNumber = (value: unknown): number => {
+  const num = Number(value);
+  return Number.isFinite(num) && num >= 0 ? Math.floor(num) : 0;
+};
+
+// Security: Validate status enum values
+const sanitizeStatus = (status: unknown): 'operational' | 'partial' | 'offline' => {
+  const validStatuses = ['operational', 'partial', 'offline'] as const;
+  return validStatuses.includes(status as typeof validStatuses[number]) 
+    ? (status as typeof validStatuses[number]) 
+    : 'offline';
+};
+
+// Security: Validate type enum values
+const sanitizeType = (type: unknown): 'hospital' | 'clinic' | 'warehouse' => {
+  const validTypes = ['hospital', 'clinic', 'warehouse'] as const;
+  return validTypes.includes(type as typeof validTypes[number]) 
+    ? (type as typeof validTypes[number]) 
+    : 'warehouse';
+};
+
+// Security: Sanitize and validate a complete node
+const sanitizeNode = (node: EnhancedClusterNode): EnhancedClusterNode => ({
+  ...node,
+  name: escapeHtml(node.name || ''),
+  address: escapeHtml(node.address || ''),
+  contact: escapeHtml(node.contact || ''),
+  equipmentCount: sanitizeNumber(node.equipmentCount),
+  availableCount: sanitizeNumber(node.availableCount),
+  inUseCount: sanitizeNumber(node.inUseCount),
+  maintenanceCount: sanitizeNumber(node.maintenanceCount),
+  status: sanitizeStatus(node.status),
+  type: sanitizeType(node.type),
+  lastUpdated: node.lastUpdated || new Date().toISOString(),
+});
 
 const EnhancedClusterMap: React.FC<EnhancedClusterMapProps> = ({ 
   nodes, 
@@ -109,22 +158,26 @@ const EnhancedClusterMap: React.FC<EnhancedClusterMapProps> = ({
       return matchesSearch && matchesStatus && matchesType;
     });
 
-    // Add markers for filtered nodes
-    filteredNodes.forEach(node => {
+    // Add markers for filtered nodes (with sanitization)
+    filteredNodes.forEach(rawNode => {
+      // Security: Sanitize all node data before rendering
+      const node = sanitizeNode(rawNode);
+      
       const markerElement = document.createElement('div');
       markerElement.className = 'custom-marker';
+      
+      // Build marker HTML with sanitized values
+      const statusClass = node.status === 'operational' ? 'bg-green-500' :
+                          node.status === 'partial' ? 'bg-yellow-500' : 'bg-red-500';
+      const typeClass = node.type === 'hospital' ? 'bg-blue-500' :
+                        node.type === 'clinic' ? 'bg-purple-500' : 'bg-gray-500';
+      
       markerElement.innerHTML = `
         <div class="relative">
-          <div class="w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-xs font-bold text-white cursor-pointer transition-transform hover:scale-110 ${
-            node.status === 'operational' ? 'bg-green-500' :
-            node.status === 'partial' ? 'bg-yellow-500' : 'bg-red-500'
-          }">
+          <div class="w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-xs font-bold text-white cursor-pointer transition-transform hover:scale-110 ${statusClass}">
             ${node.equipmentCount}
           </div>
-          <div class="absolute -top-1 -right-1 w-3 h-3 rounded-full border border-white ${
-            node.type === 'hospital' ? 'bg-blue-500' :
-            node.type === 'clinic' ? 'bg-purple-500' : 'bg-gray-500'
-          }"></div>
+          <div class="absolute -top-1 -right-1 w-3 h-3 rounded-full border border-white ${typeClass}"></div>
         </div>
       `;
 
@@ -132,7 +185,18 @@ const EnhancedClusterMap: React.FC<EnhancedClusterMapProps> = ({
         .setLngLat([node.lng, node.lat])
         .addTo(map.current!);
 
-      // Add popup
+      // Format the date safely
+      let formattedTime = 'Unknown';
+      try {
+        const date = new Date(node.lastUpdated);
+        if (!isNaN(date.getTime())) {
+          formattedTime = escapeHtml(date.toLocaleTimeString());
+        }
+      } catch {
+        formattedTime = 'Unknown';
+      }
+
+      // Add popup with sanitized content
       const popup = new mapboxgl.Popup({
         offset: 25,
         closeButton: false,
@@ -155,7 +219,7 @@ const EnhancedClusterMap: React.FC<EnhancedClusterMapProps> = ({
               <div class="font-medium text-orange-600">${node.maintenanceCount}</div>
             </div>
           </div>
-          <div class="text-xs text-gray-500">Updated: ${new Date(node.lastUpdated).toLocaleTimeString()}</div>
+          <div class="text-xs text-gray-500">Updated: ${formattedTime}</div>
         </div>
       `);
 
