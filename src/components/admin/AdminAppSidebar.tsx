@@ -3,7 +3,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Users, Package, Bell, Calendar, Settings, 
   FileText, BarChart2, Clock, DollarSign, LogOut, Home, 
-  Receipt, ChevronRight, ChevronDown, UserX
+  Receipt, ChevronRight, ChevronDown, UserX, ClipboardCheck
 } from 'lucide-react';
 import {
   Sidebar,
@@ -47,6 +47,7 @@ export function AdminAppSidebar({ activeTab, setActiveTab }: AdminAppSidebarProp
     { id: 'equipment', label: 'Equipment & Products', icon: Package },
     { id: 'users', label: 'Users', icon: Users },
     { id: 'deletion-requests', label: 'Deletion Requests', icon: UserX },
+    { id: 'manufacturer-approvals', label: 'Manufacturer Approvals', icon: ClipboardCheck },
     { id: 'maintenance', label: 'Maintenance', icon: Clock },
     { 
       id: 'finance', 

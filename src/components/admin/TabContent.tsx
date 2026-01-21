@@ -11,6 +11,7 @@ import ShopTabContent from './tabs/ShopTabContent';
 import AdminNotificationsDashboard from './notifications/AdminNotificationsDashboard';
 import CustomerStatements from './customer-statements/CustomerStatements';
 import DeletionRequestsManagement from './deletion-requests/DeletionRequestsManagement';
+import { ManufacturerApprovals } from './manufacturer-approvals';
 import { useEquipmentData } from './hooks/useEquipmentData';
 
 interface TabContentProps {
@@ -55,6 +56,8 @@ const TabContent: React.FC<TabContentProps> = ({
       return <UserManagement stats={stats} />;
     case 'deletion-requests':
       return <DeletionRequestsManagement />;
+    case 'manufacturer-approvals':
+      return <ManufacturerApprovals />;
     case 'maintenance':
       return <MaintenanceManagement 
         maintenanceSchedule={maintenanceSchedule} 
