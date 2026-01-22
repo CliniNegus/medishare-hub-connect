@@ -2160,9 +2160,11 @@ export type Database = {
       }
       support_requests: {
         Row: {
+          account_type: string | null
           admin_id: string | null
           admin_response: string | null
           assigned_admin_id: string | null
+          category: string | null
           created_at: string
           file_url: string | null
           id: string
@@ -2176,9 +2178,11 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          account_type?: string | null
           admin_id?: string | null
           admin_response?: string | null
           assigned_admin_id?: string | null
+          category?: string | null
           created_at?: string
           file_url?: string | null
           id?: string
@@ -2192,9 +2196,11 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          account_type?: string | null
           admin_id?: string | null
           admin_response?: string | null
           assigned_admin_id?: string | null
+          category?: string | null
           created_at?: string
           file_url?: string | null
           id?: string
