@@ -18,8 +18,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import SupportTicketForm from '@/components/support/SupportTicketForm';
-import SupportTicketsList from '@/components/support/SupportTicketsList';
+import { EnhancedSupportTicketForm } from '@/components/support/EnhancedSupportTicketForm';
+import { EnhancedSupportTicketsList } from '@/components/support/EnhancedSupportTicketsList';
 
 const HelpSupport = () => {
   const navigate = useNavigate();
@@ -170,8 +170,8 @@ const HelpSupport = () => {
         <section className="mb-12">
           <h2 className="text-2xl font-bold text-[#333333] mb-6">Need More Help?</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <SupportTicketForm />
-            <SupportTicketsList />
+            <EnhancedSupportTicketForm />
+            <EnhancedSupportTicketsList />
           </div>
         </section>
 

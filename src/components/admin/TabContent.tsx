@@ -12,6 +12,7 @@ import CustomerStatements from './customer-statements/CustomerStatements';
 import DeletionRequestsManagement from './deletion-requests/DeletionRequestsManagement';
 import { ManufacturerApprovals } from './manufacturer-approvals';
 import { AccountTypeRequestsManagement } from './account-type-requests';
+import { EnhancedSupportRequestsPanel } from './support/EnhancedSupportRequestsPanel';
 import { useEquipmentData } from './hooks/useEquipmentData';
 
 interface TabContentProps {
@@ -78,6 +79,8 @@ const TabContent: React.FC<TabContentProps> = ({
       return <SettingsPanel />;
     case 'notifications':
       return <AdminNotificationsDashboard />;
+    case 'support':
+      return <EnhancedSupportRequestsPanel />;
     case 'shop':
       return <ShopTabContent />;
     default:
