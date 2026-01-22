@@ -1,4 +1,3 @@
-
 import React from 'react';
 import EquipmentManagement from './equipment/EquipmentManagement';
 import UserManagement from './UserManagement';
@@ -12,6 +11,7 @@ import AdminNotificationsDashboard from './notifications/AdminNotificationsDashb
 import CustomerStatements from './customer-statements/CustomerStatements';
 import DeletionRequestsManagement from './deletion-requests/DeletionRequestsManagement';
 import { ManufacturerApprovals } from './manufacturer-approvals';
+import { AccountTypeRequestsManagement } from './account-type-requests';
 import { useEquipmentData } from './hooks/useEquipmentData';
 
 interface TabContentProps {
@@ -58,6 +58,8 @@ const TabContent: React.FC<TabContentProps> = ({
       return <DeletionRequestsManagement />;
     case 'manufacturer-approvals':
       return <ManufacturerApprovals />;
+    case 'account-type-requests':
+      return <AccountTypeRequestsManagement />;
     case 'maintenance':
       return <MaintenanceManagement 
         maintenanceSchedule={maintenanceSchedule} 
