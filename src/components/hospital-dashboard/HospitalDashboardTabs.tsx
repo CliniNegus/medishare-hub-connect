@@ -3,7 +3,7 @@ import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Package, Calendar, ShoppingCart, 
-  HeartPulse, CreditCard, BarChart3 
+  HeartPulse, CreditCard, BarChart3, Map 
 } from "lucide-react";
 import EquipmentTabContent from './EquipmentTabContent';
 import BookingsTabContent from './BookingsTabContent';
@@ -11,6 +11,7 @@ import TherapyTabContent from './TherapyTabContent';
 import FinancingTabContent from './FinancingTabContent';
 import ShopTabContent from './ShopTabContent';
 import HospitalAnalyticsTab from './HospitalAnalyticsTab';
+import { ClusterMapView } from '../cluster-map';
 import { EquipmentProps } from '../EquipmentCard';
 import { ClusterNode } from '../ClusterMap';
 
@@ -72,6 +73,11 @@ const HospitalDashboardTabs: React.FC<HospitalDashboardTabsProps> = ({
       icon: BarChart3,
     },
     {
+      value: 'cluster-map',
+      label: 'Cluster Map',
+      icon: Map,
+    },
+    {
       value: 'therapy',
       label: 'Therapy',
       icon: HeartPulse,
@@ -96,7 +102,7 @@ const HospitalDashboardTabs: React.FC<HospitalDashboardTabsProps> = ({
       </div>
       
       <Tabs defaultValue="equipment" className="space-y-6" onValueChange={setActiveTab} value={activeTab}>
-        <TabsList className="grid w-full grid-cols-6 bg-gray-100 p-1 rounded-lg">
+        <TabsList className="grid w-full grid-cols-7 bg-gray-100 p-1 rounded-lg">
           {tabConfig.map((tab) => (
             <TabsTrigger 
               key={tab.value}
@@ -141,6 +147,10 @@ const HospitalDashboardTabs: React.FC<HospitalDashboardTabsProps> = ({
 
         <TabsContent value="analytics" className="space-y-4 mt-6">
           <HospitalAnalyticsTab />
+        </TabsContent>
+
+        <TabsContent value="cluster-map" className="space-y-4 mt-6">
+          <ClusterMapView />
         </TabsContent>
 
         <TabsContent value="therapy" className="space-y-4 mt-6">

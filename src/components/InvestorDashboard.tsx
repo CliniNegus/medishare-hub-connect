@@ -32,6 +32,7 @@ import InvestorWallet from "@/components/InvestorWallet";
 import NotificationDropdown from "@/components/notifications/NotificationDropdown";
 import { AccountDeletionBanner } from './account/AccountDeletionBanner';
 import { AccountSettingsModal } from './account/AccountSettingsModal';
+import { InvestorClusterMapView } from './cluster-map';
 
 interface Investment {
   id: string;
@@ -753,7 +754,7 @@ const InvestorDashboard = () => {
             </div>
 
             <Tabs defaultValue="portfolio" className="space-y-6" onValueChange={setActiveTab} value={activeTab}>
-              <TabsList className="grid w-full grid-cols-5 bg-muted p-1 rounded-lg">
+              <TabsList className="grid w-full grid-cols-6 bg-muted p-1 rounded-lg">
                 <TabsTrigger value="portfolio" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200">
                   <Briefcase className="h-4 w-4" />
                   <span className="hidden sm:inline">Portfolio</span>
@@ -769,6 +770,10 @@ const InvestorDashboard = () => {
                 <TabsTrigger value="opportunities" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200">
                   <TrendingUp className="h-4 w-4" />
                   <span className="hidden sm:inline">Opportunities</span>
+                </TabsTrigger>
+                <TabsTrigger value="cluster-map" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200">
+                  <Map className="h-4 w-4" />
+                  <span className="hidden sm:inline">Cluster Map</span>
                 </TabsTrigger>
                 <TabsTrigger value="analytics" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200">
                   <BarChart2 className="h-4 w-4" />
@@ -1068,6 +1073,10 @@ const InvestorDashboard = () => {
                     </Table>
                   </CardContent>
                 </Card>
+              </TabsContent>
+
+              <TabsContent value="cluster-map" className="space-y-4 mt-6">
+                <InvestorClusterMapView />
               </TabsContent>
 
               <TabsContent value="analytics" className="space-y-4 mt-6">
