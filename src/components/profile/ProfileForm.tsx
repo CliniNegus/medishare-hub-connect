@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
@@ -31,6 +30,7 @@ import {
   Lock
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import PendingAccountTypeRequestBanner from './PendingAccountTypeRequestBanner';
 
 const ProfileForm = () => {
   const { user, profile, refreshProfile } = useAuth();
@@ -134,21 +134,23 @@ const ProfileForm = () => {
   }
 
   return (
-    <Card className="max-w-4xl mx-auto shadow-md border-gray-200">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-2xl font-bold text-[#E02020]">Personal Profile</CardTitle>
-            <CardDescription>Manage your personal information and organization details</CardDescription>
+    <>
+      <PendingAccountTypeRequestBanner />
+      <Card className="max-w-4xl mx-auto shadow-md border-gray-200">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-2xl font-bold text-[#E02020]">Personal Profile</CardTitle>
+              <CardDescription>Manage your personal information and organization details</CardDescription>
+            </div>
+            <Badge variant={role === 'admin' ? "destructive" : "secondary"} className="capitalize">
+              {role || 'User'}
+            </Badge>
           </div>
-          <Badge variant={role === 'admin' ? "destructive" : "secondary"} className="capitalize">
-            {role || 'User'}
-          </Badge>
-        </div>
-      </CardHeader>
-      
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-8">
+        </CardHeader>
+        
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Profile Avatar Section */}
             <div className="md:col-span-1">
@@ -338,6 +340,7 @@ const ProfileForm = () => {
         </form>
       </CardContent>
     </Card>
+    </>
   );
 };
 

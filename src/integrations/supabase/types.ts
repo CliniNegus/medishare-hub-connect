@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_type_change_requests: {
+        Row: {
+          admin_feedback: string | null
+          created_at: string
+          from_role: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          to_role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_feedback?: string | null
+          created_at?: string
+          from_role: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          to_role: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_feedback?: string | null
+          created_at?: string
+          from_role?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          to_role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       admin_actions: {
         Row: {
           action_type: string
@@ -2436,6 +2475,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_account_type_change: {
+        Args: { admin_user_id: string; request_id: string }
+        Returns: boolean
+      }
       archive_old_data: {
         Args: {
           cutoff_date: string
@@ -2544,6 +2587,10 @@ export type Database = {
           status: string
         }[]
       }
+      has_pending_account_type_request: {
+        Args: { user_uuid: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2583,6 +2630,10 @@ export type Database = {
       mark_overdue_maintenance: { Args: never; Returns: undefined }
       permanent_delete_account: {
         Args: { target_user_id: string }
+        Returns: boolean
+      }
+      reject_account_type_change: {
+        Args: { admin_user_id: string; feedback: string; request_id: string }
         Returns: boolean
       }
       restore_deleted_account: {

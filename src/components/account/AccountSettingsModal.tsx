@@ -6,7 +6,7 @@ import { UserCog, Trash2, Shield, CreditCard } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { DeleteAccountDialog } from './DeleteAccountDialog';
-import ChangeAccountTypeModal from '../ChangeAccountTypeModal';
+import AccountTypeChangeRequestModal from './AccountTypeChangeRequestModal';
 import { BusinessModelModal } from '@/components/manufacturer-onboarding';
 
 interface AccountSettingsModalProps {
@@ -108,7 +108,7 @@ export const AccountSettingsModal = ({ open, onOpenChange }: AccountSettingsModa
         onOpenChange={setShowDeleteDialog} 
       />
 
-      <ChangeAccountTypeModal 
+      <AccountTypeChangeRequestModal 
         open={showChangeAccountType}
         onOpenChange={setShowChangeAccountType}
       />
