@@ -4,13 +4,28 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { SupportRequestWithProfile, SupportMessage, SupportStatus, SupportCategory } from '@/types/support';
 
-interface AdminFilters {
+export interface AdminFilters {
   status?: SupportStatus | 'all';
   category?: SupportCategory | 'all';
   accountType?: string | 'all';
 }
 
-export function useAdminSupportTickets() {
+export interface AdminSupportTicketsState {
+  tickets: SupportRequestWithProfile[] | undefined;
+  ticketsLoading: boolean;
+  selectedTicket: SupportRequestWithProfile | null;
+  selectedTicketId: string | null;
+  setSelectedTicketId: (id: string | null) => void;
+  messages: SupportMessage[] | undefined;
+  messagesLoading: boolean;
+  filters: AdminFilters;
+  setFilters: React.Dispatch<React.SetStateAction<AdminFilters>>;
+  sendMessage: ReturnType<typeof useMutation<any, Error, { ticketId: string; message: string }>>;
+  updateStatus: ReturnType<typeof useMutation<void, Error, { ticketId: string; status: SupportStatus }>>;
+  refetchTickets: () => void;
+}
+
+export function useAdminSupportTickets(): AdminSupportTicketsState {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
@@ -43,7 +58,13 @@ export function useAdminSupportTickets() {
       }
 
       const { data, error } = await query;
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Error fetching support tickets:', error);
+        throw error;
+      }
+
+      console.log('Fetched support tickets:', data);
 
       return (data || []).map(item => ({
         ...item,
@@ -64,7 +85,10 @@ export function useAdminSupportTickets() {
         .eq('support_request_id', selectedTicketId)
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching ticket messages:', error);
+        throw error;
+      }
       return data as SupportMessage[];
     },
     enabled: !!selectedTicketId,

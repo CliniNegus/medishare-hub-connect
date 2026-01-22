@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,15 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { SUPPORT_STATUSES, SUPPORT_CATEGORIES, SupportStatus, SupportRequestWithProfile, SupportMessage } from '@/types/support';
 import { MessageCircle, Send, User, Clock, Paperclip, ExternalLink, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { UseMutationResult } from '@tanstack/react-query';
+import type { AdminSupportTicketsState } from '@/hooks/useAdminSupportTickets';
 
-interface AdminChatInterfaceProps {
-  selectedTicket: SupportRequestWithProfile | null;
-  messages: SupportMessage[] | undefined;
-  messagesLoading: boolean;
-  sendMessage: UseMutationResult<any, Error, { ticketId: string; message: string }, unknown>;
-  updateStatus: UseMutationResult<void, Error, { ticketId: string; status: SupportStatus }, unknown>;
-}
+type AdminChatInterfaceProps = Pick<
+  AdminSupportTicketsState,
+  'selectedTicket' | 'messages' | 'messagesLoading' | 'sendMessage' | 'updateStatus'
+>;
 
 export function AdminChatInterface({
   selectedTicket,
@@ -78,7 +75,7 @@ export function AdminChatInterface({
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <div className="flex items-center gap-1 text-muted-foreground">
                 <User className="h-4 w-4" />
-                {selectedTicket.profiles?.full_name || selectedTicket.profiles?.email}
+                {selectedTicket.profiles?.full_name || selectedTicket.profiles?.email || 'Unknown User'}
               </div>
               <Badge className={`${statusInfo?.color}`}>
                 {statusInfo?.label || selectedTicket.status}

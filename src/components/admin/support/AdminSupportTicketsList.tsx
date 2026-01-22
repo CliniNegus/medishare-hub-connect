@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -6,12 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { SUPPORT_STATUSES, SUPPORT_CATEGORIES, SupportStatus, SupportCategory, SupportRequestWithProfile } from '@/types/support';
 import { MessageCircle, User, Clock, Filter } from 'lucide-react';
 import { format } from 'date-fns';
-
-interface AdminFilters {
-  status?: SupportStatus | 'all';
-  category?: SupportCategory | 'all';
-  accountType?: string | 'all';
-}
+import type { AdminFilters } from '@/hooks/useAdminSupportTickets';
 
 interface AdminSupportTicketsListProps {
   tickets: SupportRequestWithProfile[] | undefined;
@@ -108,14 +102,14 @@ export function AdminSupportTicketsList({
             <div className="text-center text-muted-foreground py-8">
               Loading tickets...
             </div>
-          ) : tickets?.length === 0 ? (
+          ) : !tickets || tickets.length === 0 ? (
             <div className="text-center text-muted-foreground py-8">
               <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-30" />
               <p>No tickets found</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {tickets?.map((ticket) => {
+              {tickets.map((ticket) => {
                 const statusInfo = SUPPORT_STATUSES.find(s => s.value === ticket.status);
                 const categoryInfo = SUPPORT_CATEGORIES.find(c => c.value === ticket.category);
                 
