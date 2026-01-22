@@ -5,13 +5,26 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useAdminSupportTickets } from '@/hooks/useAdminSupportTickets';
-import { SUPPORT_STATUSES, SUPPORT_CATEGORIES, SupportStatus } from '@/types/support';
+import { SUPPORT_STATUSES, SUPPORT_CATEGORIES, SupportStatus, SupportRequestWithProfile, SupportMessage } from '@/types/support';
 import { MessageCircle, Send, User, Clock, Paperclip, ExternalLink, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { UseMutationResult } from '@tanstack/react-query';
 
-export function AdminChatInterface() {
-  const { selectedTicket, messages, messagesLoading, sendMessage, updateStatus } = useAdminSupportTickets();
+interface AdminChatInterfaceProps {
+  selectedTicket: SupportRequestWithProfile | null;
+  messages: SupportMessage[] | undefined;
+  messagesLoading: boolean;
+  sendMessage: UseMutationResult<any, Error, { ticketId: string; message: string }, unknown>;
+  updateStatus: UseMutationResult<void, Error, { ticketId: string; status: SupportStatus }, unknown>;
+}
+
+export function AdminChatInterface({
+  selectedTicket,
+  messages,
+  messagesLoading,
+  sendMessage,
+  updateStatus,
+}: AdminChatInterfaceProps) {
   const [newMessage, setNewMessage] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
