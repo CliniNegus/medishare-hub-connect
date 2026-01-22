@@ -3,14 +3,33 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useAdminSupportTickets } from '@/hooks/useAdminSupportTickets';
-import { SUPPORT_STATUSES, SUPPORT_CATEGORIES } from '@/types/support';
+import { SUPPORT_STATUSES, SUPPORT_CATEGORIES, SupportStatus, SupportCategory, SupportRequestWithProfile } from '@/types/support';
 import { MessageCircle, User, Clock, Filter } from 'lucide-react';
 import { format } from 'date-fns';
 
-export function AdminSupportTicketsList() {
-  const { tickets, ticketsLoading, selectedTicketId, setSelectedTicketId, filters, setFilters } = useAdminSupportTickets();
+interface AdminFilters {
+  status?: SupportStatus | 'all';
+  category?: SupportCategory | 'all';
+  accountType?: string | 'all';
+}
 
+interface AdminSupportTicketsListProps {
+  tickets: SupportRequestWithProfile[] | undefined;
+  ticketsLoading: boolean;
+  selectedTicketId: string | null;
+  setSelectedTicketId: (id: string | null) => void;
+  filters: AdminFilters;
+  setFilters: React.Dispatch<React.SetStateAction<AdminFilters>>;
+}
+
+export function AdminSupportTicketsList({
+  tickets,
+  ticketsLoading,
+  selectedTicketId,
+  setSelectedTicketId,
+  filters,
+  setFilters,
+}: AdminSupportTicketsListProps) {
   const accountTypes = [
     { value: 'all', label: 'All Account Types' },
     { value: 'hospital', label: 'Hospital' },
@@ -33,7 +52,7 @@ export function AdminSupportTicketsList() {
           </div>
           <Select
             value={filters.status || 'all'}
-            onValueChange={(val) => setFilters(prev => ({ ...prev, status: val as any }))}
+            onValueChange={(val) => setFilters(prev => ({ ...prev, status: val as SupportStatus | 'all' }))}
           >
             <SelectTrigger className="w-[140px] h-8 text-sm">
               <SelectValue placeholder="Status" />
@@ -50,7 +69,7 @@ export function AdminSupportTicketsList() {
 
           <Select
             value={filters.category || 'all'}
-            onValueChange={(val) => setFilters(prev => ({ ...prev, category: val as any }))}
+            onValueChange={(val) => setFilters(prev => ({ ...prev, category: val as SupportCategory | 'all' }))}
           >
             <SelectTrigger className="w-[140px] h-8 text-sm">
               <SelectValue placeholder="Category" />
