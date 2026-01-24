@@ -392,7 +392,7 @@ const ManufacturerOnboarding: React.FC = () => {
 
       // Navigate to manufacturer dashboard after short delay for toast visibility
       setTimeout(() => {
-        navigate('/dashboard', { replace: true });
+        navigate('/manufacturer/products', { replace: true });
       }, 1500);
     } catch (error: any) {
       toast({
