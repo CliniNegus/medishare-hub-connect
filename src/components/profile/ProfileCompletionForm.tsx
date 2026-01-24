@@ -239,6 +239,49 @@ const ProfileCompletionForm = () => {
       return;
     }
 
+    // Special handling for manufacturer - redirect to specialized onboarding after step 1
+    if (currentStep === 1 && selectedAccountType === 'manufacturer') {
+      setLoading(true);
+      try {
+        // Save the role first
+        const roleSuccess = await saveUserRole('manufacturer');
+        if (!roleSuccess) {
+          setLoading(false);
+          return;
+        }
+        
+        // Save basic profile data with role
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            ...formData,
+            profile_draft: {},
+            profile_completion_step: 1,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', user?.id);
+
+        if (profileError) throw profileError;
+
+        toast({
+          title: "Great choice!",
+          description: "Let's set up your manufacturer account.",
+        });
+
+        // Redirect to manufacturer-specific onboarding
+        navigate('/manufacturer/onboarding');
+        return;
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to proceed. Please try again.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+    }
+
     // Don't save role here - save it at the end with profile completion
     // Just move to next step and save draft
     if (currentStep < STEPS.length) {

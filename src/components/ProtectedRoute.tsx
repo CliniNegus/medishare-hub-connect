@@ -41,15 +41,23 @@ const ProtectedRoute = ({
   }
 
   // Check if profile needs to be completed
-  // Skip this check for complete-profile route and auth callback
+  // Skip this check for onboarding routes and auth callback
   const isCompleteProfileRoute = location.pathname === '/complete-profile';
   const isAuthCallbackRoute = location.pathname === '/auth/callback';
+  const isManufacturerOnboardingRoute = location.pathname === '/manufacturer/onboarding';
   
-  if (!isCompleteProfileRoute && !isAuthCallbackRoute) {
+  // Skip profile completion check for onboarding routes
+  const isOnboardingRoute = isCompleteProfileRoute || isAuthCallbackRoute || isManufacturerOnboardingRoute;
+  
+  if (!isOnboardingRoute) {
     // Check if profile is complete
     const profileComplete = profile?.onboarding_completed || profile?.profile_completed;
     
     if (!profileComplete) {
+      // Check if user has manufacturer role - redirect to manufacturer onboarding
+      if (userRoles.primaryRole === 'manufacturer') {
+        return <Navigate to="/manufacturer/onboarding" replace />;
+      }
       return <Navigate to="/complete-profile" replace />;
     }
     
@@ -63,7 +71,7 @@ const ProtectedRoute = ({
   // Only redirect if they're not already trying to access the admin route
   if (userRoles.isAdmin && !requireAdmin && 
       !location.pathname.startsWith('/admin') && 
-      !isCompleteProfileRoute) {
+      !isOnboardingRoute) {
     return <Navigate to="/admin" replace />;
   }
 

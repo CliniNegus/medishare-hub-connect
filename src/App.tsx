@@ -97,8 +97,8 @@ function App() {
                       <Route path="/verify" element={<EmailVerification />} />
                       <Route path="/auth/callback" element={<AuthCallback />} />
                       <Route path="/complete-profile" element={<CompleteProfile />} />
-                      {/* Manufacturer Onboarding */}
-                      <Route path="/manufacturer/onboarding" element={<ProtectedRoute allowedRoles={['manufacturer']}><ManufacturerOnboarding /></ProtectedRoute>} />
+                      {/* Manufacturer Onboarding - accessible during onboarding without strict role check */}
+                      <Route path="/manufacturer/onboarding" element={<ProtectedRoute><ManufacturerOnboarding /></ProtectedRoute>} />
                     <Route path="/admin-auth" element={<AdminAuth />} />
                     <Route 
                       path="/dashboard" 
