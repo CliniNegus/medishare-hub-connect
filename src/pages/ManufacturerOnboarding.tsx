@@ -87,7 +87,7 @@ interface OnboardingData {
 
 const ManufacturerOnboarding: React.FC = () => {
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile, refreshRoles } = useAuth();
   const { toast } = useToast();
   
   const [currentStep, setCurrentStep] = useState(1);
@@ -344,12 +344,14 @@ const ManufacturerOnboarding: React.FC = () => {
           onboarding_completed: true,
           organization: data.company_name,
           phone: data.contact_phone,
+          role: 'manufacturer',
           updated_at: submissionTime,
         })
         .eq('id', user.id);
 
       if (profileError) {
         console.error('Error updating profile:', profileError);
+        throw profileError;
       }
 
       // Ensure user_roles entry exists
@@ -368,9 +370,9 @@ const ManufacturerOnboarding: React.FC = () => {
           }, { onConflict: 'user_id,role' });
       }
 
-      setStatus('pending');
-      setSubmittedAt(submissionTime);
-      
+      // Refresh auth context to reflect updated profile and roles
+      await Promise.all([refreshProfile(), refreshRoles()]);
+
       // Create notification for admins (optional enhancement)
       try {
         await supabase.from('notifications').insert({
@@ -385,8 +387,13 @@ const ManufacturerOnboarding: React.FC = () => {
 
       toast({
         title: 'Onboarding submitted!',
-        description: 'Your application is now under review. We\'ll notify you once approved.',
+        description: 'Your application is now under review. Redirecting to dashboard...',
       });
+
+      // Navigate to manufacturer dashboard after short delay for toast visibility
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+      }, 1500);
     } catch (error: any) {
       toast({
         title: 'Submission failed',
