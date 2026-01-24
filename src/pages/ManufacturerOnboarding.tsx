@@ -323,6 +323,8 @@ const ManufacturerOnboarding: React.FC = () => {
     setSubmitting(true);
     try {
       const submissionTime = new Date().toISOString();
+      
+      // Update manufacturer onboarding status
       const { error } = await supabase
         .from('manufacturer_onboarding')
         .update({
@@ -333,6 +335,38 @@ const ManufacturerOnboarding: React.FC = () => {
         .eq('id', onboardingId);
 
       if (error) throw error;
+
+      // Mark profile as complete and update profile data
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          profile_completed: true,
+          onboarding_completed: true,
+          organization: data.company_name,
+          phone: data.contact_phone,
+          updated_at: submissionTime,
+        })
+        .eq('id', user.id);
+
+      if (profileError) {
+        console.error('Error updating profile:', profileError);
+      }
+
+      // Ensure user_roles entry exists
+      const { data: existingRoles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'manufacturer');
+
+      if (!existingRoles || existingRoles.length === 0) {
+        await supabase
+          .from('user_roles')
+          .upsert({
+            user_id: user.id,
+            role: 'manufacturer',
+          }, { onConflict: 'user_id,role' });
+      }
 
       setStatus('pending');
       setSubmittedAt(submissionTime);

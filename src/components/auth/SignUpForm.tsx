@@ -164,8 +164,13 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError, metadata, h
           console.error("Background email send error:", emailErr);
         }
         
-        // Redirect to complete profile
-        navigate('/complete-profile');
+        // Redirect based on role - manufacturers go to specialized onboarding
+        const selectedRole = metadata?.role || 'hospital';
+        if (selectedRole === 'manufacturer') {
+          navigate('/manufacturer/onboarding');
+        } else {
+          navigate('/complete-profile');
+        }
       } else {
         throw new Error("User creation failed - no user data returned");
       }

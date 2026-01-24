@@ -114,15 +114,28 @@ const AuthCallback = () => {
         const isProfileComplete = profile?.onboarding_completed || profile?.profile_completed;
         
         if (!profile || !isProfileComplete) {
-          // New user or incomplete profile - go to complete-profile
-          toast({
-            title: 'Welcome to CliniBuilds! 🎉',
-            description: 'Please complete your profile to get started.',
-          });
+          // New user or incomplete profile
+          
+          // For manufacturers, go directly to manufacturer onboarding
+          if (effectiveRole === 'manufacturer') {
+            toast({
+              title: 'Welcome to CliniBuilds! 🎉',
+              description: 'Let\'s set up your manufacturer account.',
+            });
+            
+            await delay(300);
+            navigate('/manufacturer/onboarding', { replace: true });
+          } else {
+            // For other roles, go to standard complete-profile
+            toast({
+              title: 'Welcome to CliniBuilds! 🎉',
+              description: 'Please complete your profile to get started.',
+            });
 
-          // Small delay to ensure state is persisted
-          await delay(300);
-          navigate('/complete-profile', { replace: true });
+            // Small delay to ensure state is persisted
+            await delay(300);
+            navigate('/complete-profile', { replace: true });
+          }
         } else {
           // Returning user with complete profile
           const isAccountLinking = (user.identities?.length || 0) > 1;

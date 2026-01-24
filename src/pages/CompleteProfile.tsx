@@ -29,6 +29,11 @@ const CompleteProfile = () => {
     return <Navigate to="/dashboard" replace />;
   }
 
+  // If user is a manufacturer with incomplete profile, redirect to manufacturer onboarding
+  if (userRoles.primaryRole === 'manufacturer') {
+    return <Navigate to="/manufacturer/onboarding" replace />;
+  }
+
   return <ProfileCompletionForm />;
 };
 
