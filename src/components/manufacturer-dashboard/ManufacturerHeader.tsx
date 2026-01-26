@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { ThemeToggleButton } from '../ThemeToggle';
-import { Store, Plus, Sparkles, Users, LogOut, UserCog, Bell, Search, Menu } from "lucide-react";
+import { Store, Plus, Sparkles, Users, LogOut, UserCog } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
@@ -66,92 +66,60 @@ const ManufacturerHeader = () => {
   return (
     <>
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           {/* Left Section - Logo, Brand and Welcome */}
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-4">
+            <div className="hidden sm:flex h-14 w-14 rounded-xl bg-white/15 backdrop-blur-sm items-center justify-center border border-white/20">
+              <Sparkles className="h-7 w-7 text-white" />
+            </div>
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <h1 className="text-2xl lg:text-3xl font-bold text-white">Manufacturer Hub</h1>
-                <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight">Manufacturer Hub</h1>
+                <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
                   <Sparkles className="h-3 w-3 mr-1" />
                   Pro
                 </Badge>
               </div>
               {profile && (
-                <p className="text-white/90">
-                  Welcome back, {profile.full_name || user?.email?.split('@')[0]}
+                <p className="text-white/90 text-sm sm:text-base">
+                  Welcome back, <span className="font-medium">{profile.full_name || user?.email?.split('@')[0]}</span>
                 </p>
               )}
               {profile?.organization && (
-                <p className="text-white/75 text-sm flex items-center mt-1">
-                  <Users className="h-3 w-3 mr-1" />
+                <p className="text-white/70 text-xs sm:text-sm flex items-center mt-0.5">
+                  <Users className="h-3 w-3 mr-1.5" />
                   {profile.organization}
                 </p>
               )}
             </div>
           </div>
           
-          {/* Right Section - Actions and User Menu - Optimized */}
-          <div className="flex items-center space-x-2">
-            {/* Quick Actions - Responsive */}
-            <div className="hidden sm:flex items-center space-x-2">
-              <Button 
-                variant="outline"
-                size="sm"
-                className="bg-white/10 border-white/30 text-white hover:bg-white hover:text-[#E02020] transition-all duration-200 hover:scale-105 px-2.5 py-2"
-                onClick={handleManageShops}
-              >
-                <Store className="h-4 w-4" />
-                <span className="hidden md:inline ml-2">Virtual Shops</span>
-              </Button>
-              <Button 
-                size="sm"
-                className="bg-white text-[#E02020] hover:bg-white/90 font-medium transition-all duration-200 hover:scale-105 px-2.5 py-2"
-                onClick={handleAddProduct}
-              >
-                <Plus className="h-4 w-4" />
-                <span className="hidden md:inline ml-2">Add Product</span>
-              </Button>
-            </div>
+          {/* Right Section - Actions and User Menu */}
+          <div className="flex items-center space-x-2 sm:space-x-3 w-full sm:w-auto justify-end">
+            {/* Virtual Shops Button - Always visible */}
+            <Button 
+              variant="outline"
+              size="sm"
+              className="bg-white/10 border-white/30 text-white hover:bg-white hover:text-[#E02020] transition-all duration-200 hover:scale-105 px-3 py-2"
+              onClick={handleManageShops}
+            >
+              <Store className="h-4 w-4" />
+              <span className="ml-2 hidden xs:inline">Virtual Shops</span>
+            </Button>
 
-            {/* Actions Dropdown for Mobile */}
-            <div className="sm:hidden">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-white hover:bg-white/10 p-2"
-                  >
-                    <Menu className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 bg-popover shadow-xl border border-border z-50">
-                  <DropdownMenuItem onClick={handleManageShops}>
-                    <Store className="mr-2 h-4 w-4" />
-                    <span>Virtual Shops</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleAddProduct}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    <span>Add Product</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            {/* Theme Toggle - Compact */}
+            {/* Theme Toggle */}
             <ThemeToggleButton />
 
-            {/* Notifications - Functional */}
+            {/* Notifications */}
             <div className="text-white [&>button]:text-white [&>button:hover]:bg-white/10 [&_svg]:text-white [&_.bg-\\[\\#E02020\\]]:bg-white [&_.bg-\\[\\#E02020\\]]:text-[#E02020]">
               <NotificationDropdown />
             </div>
 
-            {/* User Menu - Compact */}
+            {/* User Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 rounded-full hover:scale-105 transition-all duration-200">
-                  <Avatar className="h-9 w-9 border-2 border-white/20">
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full hover:scale-105 transition-all duration-200 p-0">
+                  <Avatar className="h-9 w-9 border-2 border-white/30 shadow-lg">
                     <AvatarImage src="" alt="User" />
                     <AvatarFallback className="bg-white text-[#E02020] font-semibold text-xs">
                       {getUserInitials()}
@@ -175,18 +143,16 @@ const ManufacturerHeader = () => {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 
-                {/* Mobile Actions - Only show on mobile */}
-                <div className="sm:hidden">
-                  <DropdownMenuItem onClick={handleManageShops}>
-                    <Store className="mr-2 h-4 w-4" />
-                    <span>Virtual Shops</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleAddProduct}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    <span>Add Product</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                </div>
+                {/* Quick Actions in dropdown */}
+                <DropdownMenuItem onClick={handleManageShops}>
+                  <Store className="mr-2 h-4 w-4" />
+                  <span>Virtual Shops</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleAddProduct}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  <span>Add Product</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
 
                 <DropdownMenuItem onClick={() => navigate('/profile')}>
                   <Users className="mr-2 h-4 w-4" />
