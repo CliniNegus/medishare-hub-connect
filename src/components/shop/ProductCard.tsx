@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingCart, Star, Eye } from "lucide-react";
+import { ShoppingCart, Star, Eye, Edit } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,16 +7,22 @@ import { useCart } from "@/contexts/CartContext";
 import { Product } from "@/hooks/use-products";
 import { useNavigate } from 'react-router-dom';
 import { WishlistButton } from './WishlistButton';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ProductCardProps {
   product: Product;
   onViewDetails: (product: Product) => void;
+  onEdit?: (product: Product) => void;
 }
 
-const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
+const ProductCard = ({ product, onViewDetails, onEdit }: ProductCardProps) => {
   const { addToCart } = useCart();
+  const { user, userRoles } = useAuth();
   const navigate = useNavigate();
   const inStock = product.stock_quantity > 0;
+
+  // Check if current user can edit this product (owner or admin)
+  const canEdit = userRoles.isAdmin || (user?.id && product.manufacturer_id === user.id);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -33,6 +39,11 @@ const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
   const handleViewDetails = (e: React.MouseEvent) => {
     e.stopPropagation();
     onViewDetails(product);
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit?.(product);
   };
 
   const handleCardClick = () => {
@@ -85,6 +96,16 @@ const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
             >
               <Eye className="h-3 w-3" />
             </Button>
+            {canEdit && onEdit && (
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="border-primary text-primary hover:bg-primary/10"
+                onClick={handleEdit}
+              >
+                <Edit className="h-3 w-3" />
+              </Button>
+            )}
             <Button 
               size="sm" 
               className="bg-red-600 hover:bg-red-700 text-white"

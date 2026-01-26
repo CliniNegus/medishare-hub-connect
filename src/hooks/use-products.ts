@@ -11,6 +11,7 @@ export interface Product {
   stock_quantity: number;
   image_url: string | null;
   manufacturer: string | null;
+  manufacturer_id: string | null;
   sku: string | null;
   is_disposable: boolean | null;
   is_featured: boolean | null;
