@@ -3,22 +3,28 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingCart, Star, X, Package, Calendar, Weight, Truck } from "lucide-react";
+import { ShoppingCart, Star, X, Package, Calendar, Weight, Truck, Edit } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
 import { Product } from '@/hooks/use-products';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ProductDetailsModalProps {
   product: Product | null;
   open: boolean;
   onClose: () => void;
+  onEdit?: (product: Product) => void;
 }
 
-const ProductDetailsModal = ({ product, open, onClose }: ProductDetailsModalProps) => {
+const ProductDetailsModal = ({ product, open, onClose, onEdit }: ProductDetailsModalProps) => {
   const { addToCart } = useCart();
+  const { user, userRoles } = useAuth();
   
   if (!product) return null;
   
   const inStock = product.stock_quantity > 0;
+  
+  // Check if current user can edit this product (owner or admin)
+  const canEdit = userRoles.isAdmin || (user?.id && product.manufacturer_id === user.id);
   
   const handleAddToCart = () => {
     if (inStock) {
@@ -29,6 +35,11 @@ const ProductDetailsModal = ({ product, open, onClose }: ProductDetailsModalProp
         image_url: product.image_url,
       });
     }
+  };
+
+  const handleEdit = () => {
+    onEdit?.(product);
+    onClose();
   };
 
   return (
@@ -176,12 +187,22 @@ const ProductDetailsModal = ({ product, open, onClose }: ProductDetailsModalProp
             <Button 
               variant="outline" 
               onClick={onClose}
-              className="order-2 sm:order-1"
+              className="order-3 sm:order-1"
             >
               Close
             </Button>
+            {canEdit && onEdit && (
+              <Button 
+                variant="outline"
+                className="border-primary text-primary hover:bg-primary/10 order-2 sm:order-2"
+                onClick={handleEdit}
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Product
+              </Button>
+            )}
             <Button 
-              className="bg-primary hover:bg-primary/90 text-primary-foreground flex-1 order-1 sm:order-2"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground flex-1 order-1 sm:order-3"
               disabled={!inStock}
               onClick={handleAddToCart}
             >
