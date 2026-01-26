@@ -375,43 +375,30 @@ const EquipmentEditModal: React.FC<EquipmentEditModalProps> = ({
             <h3 className="text-lg font-semibold text-[#333333] border-b border-gray-200 pb-2">
               Analytics & Performance
             </h3>
+            <p className="text-sm text-muted-foreground">
+              These values are automatically collected from usage metrics and cannot be edited manually.
+            </p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-               <div className="space-y-2">
-                <Label htmlFor="usage_hours">Usage Hours</Label>
-                <Input
-                  id="usage_hours"
-                  type="number"
-                  min="0"
-                  value={formData.usage_hours ?? ''}
-                  onChange={(e) => handleChange('usage_hours', e.target.value ? parseInt(e.target.value, 10) : null)}
-                  placeholder="Enter usage hours"
-                />
+              <div className="space-y-2">
+                <Label htmlFor="usage_hours" className="text-muted-foreground">Usage Hours</Label>
+                <div className="flex items-center h-10 px-3 py-2 rounded-md border border-input bg-muted text-muted-foreground">
+                  {formData.usage_hours ?? 0}h
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="downtime_hours">Downtime Hours</Label>
-                <Input
-                  id="downtime_hours"
-                  type="number"
-                  min="0"
-                  value={formData.downtime_hours ?? ''}
-                  onChange={(e) => handleChange('downtime_hours', e.target.value ? parseInt(e.target.value, 10) : null)}
-                  placeholder="Enter downtime hours"
-                />
+                <Label htmlFor="downtime_hours" className="text-muted-foreground">Downtime Hours</Label>
+                <div className="flex items-center h-10 px-3 py-2 rounded-md border border-input bg-muted text-muted-foreground">
+                  {formData.downtime_hours ?? 0}h
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="revenue_generated">Revenue Generated (Ksh)</Label>
-                <Input
-                  id="revenue_generated"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.revenue_generated ?? ''}
-                  onChange={(e) => handleChange('revenue_generated', e.target.value ? parseFloat(e.target.value) : null)}
-                  placeholder="Enter revenue generated in KES"
-                />
+                <Label htmlFor="revenue_generated" className="text-muted-foreground">Revenue Generated (Ksh)</Label>
+                <div className="flex items-center h-10 px-3 py-2 rounded-md border border-input bg-muted text-muted-foreground">
+                  Ksh {(formData.revenue_generated ?? 0).toLocaleString()}
+                </div>
               </div>
             </div>
 
