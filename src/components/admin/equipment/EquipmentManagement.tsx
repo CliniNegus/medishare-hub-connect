@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, Wrench, ShoppingBag } from "lucide-react";
+import { Package, Wrench, ShoppingBag, Eye } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import EquipmentHeader from './EquipmentHeader';
 import EquipmentTable from './EquipmentTable';
 import EquipmentCategories from './EquipmentCategories';
@@ -13,8 +14,14 @@ const EquipmentManagement = () => {
   const [activeTab, setActiveTab] = useState('equipment');
   const [showAddEquipmentModal, setShowAddEquipmentModal] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [visibilityFilter, setVisibilityFilter] = useState('all');
   
   const { equipment, loading, updateEquipment } = useEquipmentManagement();
+
+  const filteredEquipment = useMemo(() => {
+    if (visibilityFilter === 'all') return equipment;
+    return equipment.filter(e => e.visibility_status === visibilityFilter);
+  }, [equipment, visibilityFilter]);
 
   const handleAddEquipmentClick = () => {
     setShowAddEquipmentModal(true);
@@ -62,9 +69,27 @@ const EquipmentManagement = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="equipment" className="mt-6">
+        <TabsContent value="equipment" className="mt-6 space-y-4">
+          {/* Visibility Filter */}
+          <div className="flex items-center gap-2">
+            <Eye className="h-4 w-4 text-gray-500" />
+            <span className="text-sm font-medium text-gray-700">Filter by Visibility:</span>
+            <Select value={visibilityFilter} onValueChange={setVisibilityFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by visibility" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Visibility</SelectItem>
+                <SelectItem value="hidden">Hidden</SelectItem>
+                <SelectItem value="visible_all">Visible to All</SelectItem>
+                <SelectItem value="visible_hospitals">Hospitals Only</SelectItem>
+                <SelectItem value="visible_investors">Investors Only</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
           <EquipmentTable 
-            equipment={equipment}
+            equipment={filteredEquipment}
             loading={loading}
             onUpdateEquipment={handleEquipmentUpdated}
           />

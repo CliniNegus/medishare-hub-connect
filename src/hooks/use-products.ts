@@ -1,6 +1,9 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from '@/contexts/AuthContext';
+
+export type VisibilityStatus = 'hidden' | 'visible_all' | 'visible_hospitals' | 'visible_investors';
 
 export interface Product {
   id: string;
@@ -19,6 +22,7 @@ export interface Product {
   dimensions: any | null;
   rating: number | null;
   tags: string[] | null;
+  visibility_status?: string | null;
 }
 
 export interface ProductFilterOptions {
@@ -30,6 +34,7 @@ export interface ProductFilterOptions {
 }
 
 export const useProducts = (options?: ProductFilterOptions) => {
+  const { user, userRoles } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -68,6 +73,26 @@ export const useProducts = (options?: ProductFilterOptions) => {
         let query = supabase
           .from('products')
           .select('*', { count: 'exact' });
+        
+        // Apply visibility filter based on user role
+        // Admins see everything, manufacturers see their own, others see based on visibility
+        const primaryRole = userRoles.primaryRole;
+        
+        if (!userRoles.isAdmin) {
+          if (primaryRole === 'manufacturer' && user?.id) {
+            // Manufacturers can see all their own products plus visible products
+            query = query.or(`manufacturer_id.eq.${user.id},visibility_status.eq.visible_all,visibility_status.eq.visible_hospitals,visibility_status.eq.visible_investors`);
+          } else if (primaryRole === 'hospital') {
+            // Hospitals see visible_all and visible_hospitals
+            query = query.in('visibility_status', ['visible_all', 'visible_hospitals']);
+          } else if (primaryRole === 'investor') {
+            // Investors see visible_all and visible_investors
+            query = query.in('visibility_status', ['visible_all', 'visible_investors']);
+          } else {
+            // Public users only see visible_all
+            query = query.eq('visibility_status', 'visible_all');
+          }
+        }
         
         // Apply category filter
         if (options?.category && options.category !== 'all') {
@@ -133,7 +158,7 @@ export const useProducts = (options?: ProductFilterOptions) => {
     };
 
     fetchProducts();
-  }, [options?.category, options?.featured, options?.searchTerm, options?.productType, options?.sortBy]);
+  }, [options?.category, options?.featured, options?.searchTerm, options?.productType, options?.sortBy, user?.id, userRoles]);
 
   return { 
     products, 

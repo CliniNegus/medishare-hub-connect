@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2, Package } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from '@/contexts/AuthContext';
+import VisibilityControl, { VisibilityStatus } from './VisibilityControl';
 
 interface Product {
   id: string;
@@ -25,6 +27,7 @@ interface Product {
   is_featured?: boolean;
   has_variants?: boolean;
   created_at: string;
+  visibility_status?: string | null;
 }
 
 interface ProductsTableProps {
@@ -32,9 +35,11 @@ interface ProductsTableProps {
   loading: boolean;
   onEdit: (product: Product) => void;
   onDelete: (productId: string) => void;
+  onRefresh?: () => void;
 }
 
-const ProductsTable = ({ products, loading, onEdit, onDelete }: ProductsTableProps) => {
+const ProductsTable = ({ products, loading, onEdit, onDelete, onRefresh }: ProductsTableProps) => {
+  const { userRoles } = useAuth();
   if (loading) {
     return (
       <div className="space-y-4">
@@ -74,6 +79,7 @@ const ProductsTable = ({ products, loading, onEdit, onDelete }: ProductsTablePro
             <TableHead>Stock</TableHead>
             <TableHead>Manufacturer</TableHead>
             <TableHead>Status</TableHead>
+            {userRoles.isAdmin && <TableHead>Visibility</TableHead>}
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -144,6 +150,20 @@ const ProductsTable = ({ products, loading, onEdit, onDelete }: ProductsTablePro
                   </Badge>
                 </div>
               </TableCell>
+              {userRoles.isAdmin && (
+                <TableCell>
+                  <VisibilityControl
+                    itemId={product.id}
+                    itemType="product"
+                    currentVisibility={product.visibility_status || 'hidden'}
+                    itemName={product.name}
+                    onVisibilityChange={() => {
+                      onRefresh?.();
+                    }}
+                    compact
+                  />
+                </TableCell>
+              )}
               <TableCell className="text-right">
                 <div className="flex items-center justify-end space-x-2">
                   <Button

@@ -709,6 +709,9 @@ export type Database = {
           status: string | null
           updated_at: string
           usage_hours: number | null
+          visibility_status: string | null
+          visibility_updated_at: string | null
+          visibility_updated_by: string | null
         }
         Insert: {
           booking_count?: number | null
@@ -743,6 +746,9 @@ export type Database = {
           status?: string | null
           updated_at?: string
           usage_hours?: number | null
+          visibility_status?: string | null
+          visibility_updated_at?: string | null
+          visibility_updated_by?: string | null
         }
         Update: {
           booking_count?: number | null
@@ -777,6 +783,9 @@ export type Database = {
           status?: string | null
           updated_at?: string
           usage_hours?: number | null
+          visibility_status?: string | null
+          visibility_updated_at?: string | null
+          visibility_updated_by?: string | null
         }
         Relationships: [
           {
@@ -1780,6 +1789,9 @@ export type Database = {
           stock_quantity: number
           tags: string[] | null
           updated_at: string
+          visibility_status: string | null
+          visibility_updated_at: string | null
+          visibility_updated_by: string | null
           weight: number | null
         }
         Insert: {
@@ -1802,6 +1814,9 @@ export type Database = {
           stock_quantity?: number
           tags?: string[] | null
           updated_at?: string
+          visibility_status?: string | null
+          visibility_updated_at?: string | null
+          visibility_updated_by?: string | null
           weight?: number | null
         }
         Update: {
@@ -1824,6 +1839,9 @@ export type Database = {
           stock_quantity?: number
           tags?: string[] | null
           updated_at?: string
+          visibility_status?: string | null
+          visibility_updated_at?: string | null
+          visibility_updated_by?: string | null
           weight?: number | null
         }
         Relationships: []
@@ -2493,8 +2511,18 @@ export type Database = {
         }
         Returns: number
       }
+      can_view_equipment: {
+        Args: {
+          equipment_row: Database["public"]["Tables"]["equipment"]["Row"]
+        }
+        Returns: boolean
+      }
       can_view_equipment_details: {
         Args: { equipment_id: string }
+        Returns: boolean
+      }
+      can_view_product: {
+        Args: { product_row: Database["public"]["Tables"]["products"]["Row"] }
         Returns: boolean
       }
       check_auth_rate_limit: { Args: { user_email: string }; Returns: boolean }
@@ -2669,6 +2697,14 @@ export type Database = {
         Args: { equipment_id_param: string }
         Returns: undefined
       }
+      update_equipment_visibility: {
+        Args: { equipment_id: string; new_visibility: string }
+        Returns: boolean
+      }
+      update_product_visibility: {
+        Args: { new_visibility: string; product_id: string }
+        Returns: boolean
+      }
       update_user_last_active: {
         Args: { user_uuid: string }
         Returns: undefined
@@ -2682,6 +2718,11 @@ export type Database = {
     Enums: {
       app_role: "admin" | "manufacturer" | "hospital" | "investor"
       payment_status: "pending" | "success" | "failed"
+      visibility_status:
+        | "hidden"
+        | "visible_all"
+        | "visible_hospitals"
+        | "visible_investors"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2811,6 +2852,12 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "manufacturer", "hospital", "investor"],
       payment_status: ["pending", "success", "failed"],
+      visibility_status: [
+        "hidden",
+        "visible_all",
+        "visible_hospitals",
+        "visible_investors",
+      ],
     },
   },
 } as const
