@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
+export type VisibilityStatus = 'hidden' | 'visible_all' | 'visible_hospitals' | 'visible_investors';
+
 interface Product {
   id: string;
   name: string;
@@ -23,6 +25,9 @@ interface Product {
   base_price?: number;
   created_at: string;
   updated_at: string;
+  visibility_status?: string | null;
+  visibility_updated_by?: string | null;
+  visibility_updated_at?: string | null;
 }
 
 interface ProductVariant {

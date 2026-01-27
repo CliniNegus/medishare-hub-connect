@@ -2,17 +2,19 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Search, Filter } from "lucide-react";
+import { Plus, Search, Filter, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAdminProductManagement } from '@/hooks/useAdminProductManagement';
 import ProductsTable from './ProductsTable';
 import AddProductModal from '../AddProductModal';
 import EditProductModal from './EditProductModal';
+import { VisibilityStatus } from './VisibilityControl';
 
 const ProductManagementSection = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [visibilityFilter, setVisibilityFilter] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   
@@ -23,7 +25,8 @@ const ProductManagementSection = () => {
                          product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product.manufacturer?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
-    return matchesSearch && matchesCategory;
+    const matchesVisibility = visibilityFilter === 'all' || product.visibility_status === visibilityFilter;
+    return matchesSearch && matchesCategory && matchesVisibility;
   });
 
   const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
@@ -86,6 +89,20 @@ const ProductManagementSection = () => {
                 ))}
               </SelectContent>
             </Select>
+            
+            <Select value={visibilityFilter} onValueChange={setVisibilityFilter}>
+              <SelectTrigger className="w-full sm:w-48">
+                <Eye className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Filter by visibility" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Visibility</SelectItem>
+                <SelectItem value="hidden">Hidden</SelectItem>
+                <SelectItem value="visible_all">Visible to All</SelectItem>
+                <SelectItem value="visible_hospitals">Hospitals Only</SelectItem>
+                <SelectItem value="visible_investors">Investors Only</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Products Table */}
@@ -94,6 +111,7 @@ const ProductManagementSection = () => {
             loading={loading}
             onEdit={handleEditProduct}
             onDelete={handleDelete}
+            onRefresh={fetchProducts}
           />
         </CardContent>
       </Card>

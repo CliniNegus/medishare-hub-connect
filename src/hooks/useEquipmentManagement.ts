@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+export type VisibilityStatus = 'hidden' | 'visible_all' | 'visible_hospitals' | 'visible_investors';
+
 export interface Equipment {
   id: string;
   name: string;
@@ -30,6 +32,9 @@ export interface Equipment {
   owner_id: string | null;
   created_at: string;
   updated_at: string;
+  visibility_status?: string | null;
+  visibility_updated_by?: string | null;
+  visibility_updated_at?: string | null;
 }
 
 export const useEquipmentManagement = () => {

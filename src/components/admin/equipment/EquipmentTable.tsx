@@ -16,6 +16,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import EquipmentViewModal from './EquipmentViewModal';
 import EquipmentEditModal from './EquipmentEditModal';
 import EquipmentTableMobile from './EquipmentTableMobile';
+import VisibilityControl, { VisibilityBadge, VisibilityStatus } from './VisibilityControl';
 
 interface EquipmentTableProps {
   equipment: Equipment[];
@@ -103,6 +104,7 @@ const EquipmentTable = ({ equipment, loading, onUpdateEquipment }: EquipmentTabl
                 <TableHead>Manufacturer</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Location</TableHead>
+                {userRoles.isAdmin && <TableHead>Visibility</TableHead>}
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -122,6 +124,20 @@ const EquipmentTable = ({ equipment, loading, onUpdateEquipment }: EquipmentTabl
                     </Badge>
                   </TableCell>
                   <TableCell>{item.location || 'Not specified'}</TableCell>
+                  {userRoles.isAdmin && (
+                    <TableCell>
+                      <VisibilityControl
+                        itemId={item.id}
+                        itemType="equipment"
+                        currentVisibility={item.visibility_status}
+                        itemName={item.name}
+                        onVisibilityChange={() => {
+                          // Refresh handled internally
+                        }}
+                        compact
+                      />
+                    </TableCell>
+                  )}
                   <TableCell>
                     <div className="flex space-x-2">
                       {/* Only show edit button if user can edit this equipment */}
