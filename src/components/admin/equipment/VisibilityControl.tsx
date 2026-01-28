@@ -54,11 +54,17 @@ const VisibilityControl: React.FC<VisibilityControlProps> = ({
 }) => {
   const { toast } = useToast();
   const [loading, setLoading] = React.useState(false);
+  const [localVisibility, setLocalVisibility] = React.useState<VisibilityStatus>(
+    (currentVisibility || 'hidden') as VisibilityStatus
+  );
   
-  const normalizedVisibility = (currentVisibility || 'hidden') as VisibilityStatus;
+  // Sync local state when prop changes
+  React.useEffect(() => {
+    setLocalVisibility((currentVisibility || 'hidden') as VisibilityStatus);
+  }, [currentVisibility]);
 
   const handleVisibilityChange = async (newVisibility: VisibilityStatus) => {
-    if (newVisibility === normalizedVisibility) return;
+    if (newVisibility === localVisibility) return;
     
     setLoading(true);
     try {
@@ -79,6 +85,9 @@ const VisibilityControl: React.FC<VisibilityControlProps> = ({
       }
 
       if (error) throw error;
+
+      // Update local state immediately for responsive UI
+      setLocalVisibility(newVisibility);
 
       toast({
         title: "Visibility Updated",
@@ -101,7 +110,7 @@ const VisibilityControl: React.FC<VisibilityControlProps> = ({
   if (compact) {
     return (
       <Select
-        value={normalizedVisibility}
+        value={localVisibility}
         onValueChange={(value) => handleVisibilityChange(value as VisibilityStatus)}
         disabled={disabled || loading}
       >
@@ -129,7 +138,7 @@ const VisibilityControl: React.FC<VisibilityControlProps> = ({
         Visibility Settings
       </label>
       <Select
-        value={normalizedVisibility}
+        value={localVisibility}
         onValueChange={(value) => handleVisibilityChange(value as VisibilityStatus)}
         disabled={disabled || loading}
       >
@@ -148,10 +157,10 @@ const VisibilityControl: React.FC<VisibilityControlProps> = ({
         </SelectContent>
       </Select>
       <p className="text-xs text-gray-500">
-        {normalizedVisibility === 'hidden' && 'This item is hidden from all non-admin users'}
-        {normalizedVisibility === 'visible_all' && 'This item is visible to everyone'}
-        {normalizedVisibility === 'visible_hospitals' && 'Only hospitals can see this item'}
-        {normalizedVisibility === 'visible_investors' && 'Only investors can see this item'}
+        {localVisibility === 'hidden' && 'This item is hidden from all non-admin users'}
+        {localVisibility === 'visible_all' && 'This item is visible to everyone'}
+        {localVisibility === 'visible_hospitals' && 'Only hospitals can see this item'}
+        {localVisibility === 'visible_investors' && 'Only investors can see this item'}
       </p>
     </div>
   );
