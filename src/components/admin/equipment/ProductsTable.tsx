@@ -69,26 +69,26 @@ const ProductsTable = ({ products, loading, onEdit, onDelete, onRefresh }: Produ
   }
 
   return (
-    <div className="border rounded-lg overflow-hidden">
-      <Table>
+    <div className="border rounded-lg overflow-x-auto">
+      <Table className="min-w-[800px] w-full table-fixed">
         <TableHeader>
           <TableRow>
-            <TableHead>Product</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Price (Ksh)</TableHead>
-            <TableHead>Stock</TableHead>
-            <TableHead>Manufacturer</TableHead>
-            <TableHead>Status</TableHead>
-            {userRoles.isAdmin && <TableHead>Visibility</TableHead>}
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className="w-[20%] min-w-[180px]">Product</TableHead>
+            <TableHead className="w-[12%] min-w-[90px]">Category</TableHead>
+            <TableHead className="w-[10%] min-w-[80px]">Price</TableHead>
+            <TableHead className="w-[10%] min-w-[70px]">Stock</TableHead>
+            <TableHead className="w-[12%] min-w-[90px]">Manufacturer</TableHead>
+            <TableHead className="w-[12%] min-w-[100px]">Status</TableHead>
+            {userRoles.isAdmin && <TableHead className="w-[120px]">Visibility</TableHead>}
+            <TableHead className="w-[80px] text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {products.map((product) => (
             <TableRow key={product.id}>
-              <TableCell>
-                <div className="flex items-center space-x-3">
-                  <div className="h-10 w-10 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
+              <TableCell className="p-2">
+                <div className="flex items-center gap-2">
+                  <div className="h-9 w-9 shrink-0 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
                     {product.image_url ? (
                       <img 
                         src={product.image_url} 
@@ -96,62 +96,64 @@ const ProductsTable = ({ products, loading, onEdit, onDelete, onRefresh }: Produ
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <Package className="h-5 w-5 text-gray-400" />
+                      <Package className="h-4 w-4 text-gray-400" />
                     )}
                   </div>
-                  <div>
-                    <div className="font-medium text-[#333333]">{product.name}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-[#333333] truncate text-sm" title={product.name}>
+                      {product.name}
+                    </div>
                     {product.description && (
-                      <div className="text-sm text-gray-500 truncate max-w-[200px]">
+                      <div className="text-xs text-gray-500 truncate" title={product.description}>
                         {product.description}
                       </div>
                     )}
                   </div>
                 </div>
               </TableCell>
-              <TableCell>
-                <Badge variant="outline" className="border-[#E02020]/20 text-[#E02020]">
-                  {product.category || 'Uncategorized'}
+              <TableCell className="p-2">
+                <Badge variant="outline" className="border-[#E02020]/20 text-[#E02020] text-xs whitespace-nowrap">
+                  {product.category || 'N/A'}
                 </Badge>
               </TableCell>
-              <TableCell className="font-medium">
-                Ksh {product.price.toLocaleString()}
+              <TableCell className="font-medium p-2 text-sm">
+                <span className="whitespace-nowrap">Ksh {product.price.toLocaleString()}</span>
                 {product.has_variants && (
                   <span className="text-xs text-gray-500 block">+ variants</span>
                 )}
               </TableCell>
-              <TableCell>
+              <TableCell className="p-2">
                 <Badge 
                   variant={product.stock_quantity > 0 ? "default" : "destructive"}
-                  className={product.stock_quantity > 0 ? "bg-green-100 text-green-800" : ""}
+                  className={`text-xs ${product.stock_quantity > 0 ? "bg-green-100 text-green-800" : ""}`}
                 >
-                  {product.stock_quantity} units
+                  {product.stock_quantity}
                 </Badge>
               </TableCell>
-              <TableCell>
-                <span className="text-sm text-gray-600">
-                  {product.manufacturer || 'Not specified'}
+              <TableCell className="p-2">
+                <span className="text-xs text-gray-600 truncate block" title={product.manufacturer || 'Not specified'}>
+                  {product.manufacturer || 'N/A'}
                 </span>
               </TableCell>
-              <TableCell>
-                <div className="flex items-center space-x-2">
+              <TableCell className="p-2">
+                <div className="flex flex-col gap-1">
                   {product.is_featured && (
-                    <Badge className="bg-[#E02020] text-white text-xs">Featured</Badge>
+                    <Badge className="bg-[#E02020] text-white text-xs w-fit">Featured</Badge>
                   )}
                   <Badge 
                     variant="outline"
-                    className={`text-xs ${
+                    className={`text-xs whitespace-nowrap w-fit ${
                       product.stock_quantity > 0 
                         ? 'border-green-200 text-green-700' 
                         : 'border-red-200 text-red-700'
                     }`}
                   >
-                    {product.stock_quantity > 0 ? 'In Stock' : 'Out of Stock'}
+                    {product.stock_quantity > 0 ? 'In Stock' : 'Out'}
                   </Badge>
                 </div>
               </TableCell>
               {userRoles.isAdmin && (
-                <TableCell>
+                <TableCell className="p-2">
                   <VisibilityControl
                     itemId={product.id}
                     itemType="product"
@@ -164,13 +166,13 @@ const ProductsTable = ({ products, loading, onEdit, onDelete, onRefresh }: Produ
                   />
                 </TableCell>
               )}
-              <TableCell className="text-right">
-                <div className="flex items-center justify-end space-x-2">
+              <TableCell className="text-right p-2">
+                <div className="flex items-center justify-end gap-1">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => onEdit(product)}
-                    className="text-[#333333] hover:text-[#E02020] hover:bg-[#E02020]/5"
+                    className="text-[#333333] hover:text-[#E02020] hover:bg-[#E02020]/5 h-7 w-7 p-0"
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
@@ -178,7 +180,7 @@ const ProductsTable = ({ products, loading, onEdit, onDelete, onRefresh }: Produ
                     variant="ghost"
                     size="sm"
                     onClick={() => onDelete(product.id)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50 h-7 w-7 p-0"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

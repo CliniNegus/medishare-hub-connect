@@ -95,37 +95,43 @@ const EquipmentTable = ({ equipment, loading, onUpdateEquipment }: EquipmentTabl
         />
       ) : (
         /* Desktop view - Table layout */
-        <div className="table-responsive">
-          <Table>
+        <div className="w-full overflow-x-auto">
+          <Table className="min-w-[700px] w-full table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Equipment</TableHead>
-                <TableHead>Manufacturer</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Location</TableHead>
-                {userRoles.isAdmin && <TableHead>Visibility</TableHead>}
-                <TableHead>Actions</TableHead>
+                <TableHead className="w-[80px]">ID</TableHead>
+                <TableHead className="w-[18%] min-w-[120px]">Equipment</TableHead>
+                <TableHead className="w-[14%] min-w-[100px]">Manufacturer</TableHead>
+                <TableHead className="w-[12%] min-w-[90px]">Status</TableHead>
+                <TableHead className="w-[14%] min-w-[100px]">Location</TableHead>
+                {userRoles.isAdmin && <TableHead className="w-[130px]">Visibility</TableHead>}
+                <TableHead className="w-[120px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {equipment.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className="font-medium">
-                    <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                    <span className="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded whitespace-nowrap">
                       {truncateId(item.id)}
                     </span>
                   </TableCell>
-                  <TableCell className="font-medium">{item.name}</TableCell>
-                  <TableCell>{item.manufacturer || 'Unknown'}</TableCell>
+                  <TableCell className="font-medium truncate max-w-[150px]" title={item.name}>
+                    {item.name}
+                  </TableCell>
+                  <TableCell className="truncate max-w-[120px]" title={item.manufacturer || 'Unknown'}>
+                    {item.manufacturer || 'Unknown'}
+                  </TableCell>
                   <TableCell>
-                    <Badge className={getStatusBadgeColor(item.status)}>
+                    <Badge className={`${getStatusBadgeColor(item.status)} whitespace-nowrap text-xs`}>
                       {item.status || 'Unknown'}
                     </Badge>
                   </TableCell>
-                  <TableCell>{item.location || 'Not specified'}</TableCell>
+                  <TableCell className="truncate max-w-[120px]" title={item.location || 'Not specified'}>
+                    {item.location || 'Not specified'}
+                  </TableCell>
                   {userRoles.isAdmin && (
-                    <TableCell>
+                    <TableCell className="p-2">
                       <VisibilityControl
                         itemId={item.id}
                         itemType="equipment"
@@ -138,14 +144,14 @@ const EquipmentTable = ({ equipment, loading, onUpdateEquipment }: EquipmentTabl
                       />
                     </TableCell>
                   )}
-                  <TableCell>
-                    <div className="flex space-x-2">
+                  <TableCell className="p-2">
+                    <div className="flex gap-1">
                       {/* Only show edit button if user can edit this equipment */}
                       {canEditEquipment(item) && (
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="border-[#E02020] text-[#E02020] hover:bg-red-50"
+                          className="border-[#E02020] text-[#E02020] hover:bg-red-50 px-2 h-7 text-xs"
                           onClick={() => handleEditEquipment(item)}
                         >
                           Edit
@@ -154,7 +160,7 @@ const EquipmentTable = ({ equipment, loading, onUpdateEquipment }: EquipmentTabl
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="border-gray-300 hover:bg-gray-50"
+                        className="border-gray-300 hover:bg-gray-50 px-2 h-7 text-xs"
                         onClick={() => handleViewEquipment(item)}
                       >
                         View
