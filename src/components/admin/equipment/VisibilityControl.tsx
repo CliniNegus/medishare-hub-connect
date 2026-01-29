@@ -114,15 +114,15 @@ const VisibilityControl: React.FC<VisibilityControlProps> = ({
         onValueChange={(value) => handleVisibilityChange(value as VisibilityStatus)}
         disabled={disabled || loading}
       >
-        <SelectTrigger className="w-40 h-8 text-xs">
+        <SelectTrigger className="w-[120px] min-w-0 h-8 text-xs px-2">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="z-50">
           {visibilityOptions.map((option) => (
             <SelectItem key={option.value} value={option.value}>
-              <div className="flex items-center gap-2">
-                <option.icon className="h-3 w-3" />
-                <span>{option.label}</span>
+              <div className="flex items-center gap-1.5">
+                <option.icon className="h-3 w-3 shrink-0" />
+                <span className="truncate">{option.label}</span>
               </div>
             </SelectItem>
           ))}
